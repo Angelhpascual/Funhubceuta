@@ -27,6 +27,7 @@ function timeAgo(dateStr: string | null): string {
 const THUMB_COLORS = ['red', 'black', '', 'red', 'black', '']
 
 import { findLogo } from '@/lib/findLogo'
+import { proxyImage } from '@/lib/proxyImage'
 
 function TeamCrest({ name, logo }: { name: string; logo: string | null }) {
   if (logo) {
@@ -87,7 +88,7 @@ export function HomePage({ onReady, onOpenHimno }: { onReady?: () => void; onOpe
         <a href={featured.url} target="_blank" rel="noopener noreferrer" className="hero-card" style={{ display: 'block' }}>
           {featured.imageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={featured.imageUrl} alt={featured.title} style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }} />
+            <img src={proxyImage(featured.imageUrl)!} alt={featured.title} style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }} />
           ) : (
             <div className="hero-img-placeholder">FOTO PARTIDO</div>
           )}
@@ -187,7 +188,7 @@ export function HomePage({ onReady, onOpenHimno }: { onReady?: () => void; onOpe
         <a key={n.id} href={n.url} target="_blank" rel="noopener noreferrer" className="news-item" style={{ textDecoration: 'none' }}>
           {n.imageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <div className={`news-thumb`} style={{ backgroundImage: `url(${n.imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
+            <div className={`news-thumb`} style={{ backgroundImage: `url(${proxyImage(n.imageUrl)})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
           ) : (
             <div className={`news-thumb ${THUMB_COLORS[i % THUMB_COLORS.length]}`} />
           )}
