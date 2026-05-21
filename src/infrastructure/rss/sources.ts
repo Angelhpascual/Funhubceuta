@@ -31,6 +31,12 @@ export const CEUTA_KEYWORDS = [...BASE_KEYWORDS, ...SQUAD_KEYWORDS]
 
 export const RSS_SOURCES: RssSource[] = [
   {
+    id: 'oficial',
+    name: 'AD Ceuta FC',
+    url: 'https://adceutafc.com/noticias/feed/',
+    keywords: [], // feed oficial del club — sin filtro
+  },
+  {
     id: 'faro',
     name: 'El Faro de Ceuta',
     url: 'https://elfarodeceuta.es/category/ad-ceuta/feed/',

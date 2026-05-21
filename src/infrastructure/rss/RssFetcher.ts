@@ -76,7 +76,7 @@ export async function fetchSource(source: RssSource): Promise<ParsedArticle[]> {
     .filter((item) => isRelevant(item, source.keywords))
     .map((item) => ({
       externalId: extractGuid(item),
-      title: String(item.title ?? '').replace(/<[^>]+>/g, '').trim(),
+      title: String(item.title ?? '').replace(/<[^>]+>/g, '').replace(/&#8211;/g, '–').replace(/&#8212;/g, '—').replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#\d+;/g, '').trim(),
       description: item.description
         ? String(item.description).replace(/<[^>]+>/g, '').trim().slice(0, 300)
         : null,
