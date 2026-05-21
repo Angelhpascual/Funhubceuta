@@ -3,42 +3,83 @@
 import { useState, useEffect } from "react";
 import { StandingEntry } from "@/domain/standings/Standings";
 
-function getZone(entry: StandingEntry): string {
-  const desc = entry.description?.toLowerCase() ?? "";
-  if (desc.includes("promotion") && !desc.includes("playoff")) return "promo";
-  if (desc.includes("playoff")) return "playoff";
-  if (desc.includes("relegat")) return "relegation";
+function getZone(pos: number, total: number): string {
+  if (pos <= 2) return "promo";
+  if (pos <= 6) return "playoff";
+  if (pos >= total - 3) return "relegation";
   return "none";
+}
+
+function getZoneLabel(pos: number, total: number): string {
+  if (pos <= 2) return "Ascenso directo";
+  if (pos <= 6) return "Zona play-off";
+  if (pos >= total - 3) return "Zona descenso";
+  return "Zona media";
 }
 
 function isCeuta(entry: StandingEntry): boolean {
   return entry.teamName.toLowerCase().includes("ceuta");
 }
 
+function FormPill({ result }: { result: string }) {
+  return (
+    <div className={`form-pill ${result}`}>{result}</div>
+  );
+}
+
 export function ClasificacionPage() {
   const [entries, setEntries] = useState<StandingEntry[]>([]);
   const [filter, setFilter] = useState("general");
   const [loading, setLoading] = useState(true);
+  const [form, setForm] = useState<string[]>([]);
+  const [logos, setLogos] = useState<Record<string, string>>({});
 
   useEffect(() => {
     fetch("/api/standings")
-      .then((r) => {
-        if (!r.ok) return null;
-        return r.json();
-      })
-      .then((data) => {
-        if (data?.entries) setEntries(data.entries);
-      })
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => { if (data?.entries) setEntries(data.entries) })
       .catch(() => {})
       .finally(() => setLoading(false));
+
+    // Fetch Ceuta recent form from matches results
+    fetch("/api/matches/results")
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => { if (data?.form) setForm(data.form) })
+      .catch(() => {});
+
+    // Fetch team logos
+    fetch("/api/teams")
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => {
+        if (data?.teams) {
+          const map: Record<string, string> = {};
+          for (const t of data.teams) if (t.logoUrl) map[t.name] = t.logoUrl;
+          setLogos(map);
+        }
+      })
+      .catch(() => {});
   }, []);
 
   const me = entries.find(isCeuta);
+  const total = entries.length;
+
+  function findLogo(name: string): string | null {
+    // exact match first
+    if (logos[name]) return logos[name];
+    // fuzzy match
+    const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+    const t = norm(name);
+    for (const [k, v] of Object.entries(logos)) {
+      const n = norm(k);
+      if (n === t || t.includes(n) || n.includes(t)) return v;
+    }
+    return null;
+  }
 
   return (
     <div className="page">
       <div className="clas-hero">
-        <div className="clas-hero-eyebrow">Temporada 2025–26</div>
+        <div className="clas-hero-eyebrow">Temporada 2025–26 · Jornada {me?.played ?? "—"}</div>
         <div className="clas-hero-title">
           CLASIFI<em>CACIÓN</em>
           <br />
@@ -54,10 +95,8 @@ export function ClasificacionPage() {
               <span className="clas-pos-sup">º</span>
             </div>
             <div className="clas-mine-meta">
-              <div className="clas-mine-name">AD Ceuta</div>
-              <div className="clas-mine-sub">
-                {getZone(me) === "promo" ? "Ascenso directo" : getZone(me) === "playoff" ? "Zona play-off" : "Zona media"}
-              </div>
+              <div className="clas-mine-name">AD Ceuta FC</div>
+              <div className="clas-mine-sub">{getZoneLabel(me.position, total)}</div>
             </div>
             <div className="clas-mine-pts-block">
               <div className="clas-mine-pts-num">{me.points}</div>
@@ -69,14 +108,15 @@ export function ClasificacionPage() {
             <div className="clas-mini-stat"><div className="clas-mini-num">{me.won}</div><div className="clas-mini-lbl">PG</div></div>
             <div className="clas-mini-stat"><div className="clas-mini-num">{me.drawn}</div><div className="clas-mini-lbl">PE</div></div>
             <div className="clas-mini-stat"><div className="clas-mini-num">{me.lost}</div><div className="clas-mini-lbl">PP</div></div>
-            <div className="clas-mini-stat"><div className="clas-mini-num">{me.goalsFor}:{me.goalsAgainst}</div><div className="clas-mini-lbl">Goles</div></div>
+            <div className="clas-mini-stat">
+              <div className="clas-mini-num">{me.goalDifference > 0 ? `+${me.goalDifference}` : me.goalDifference}</div>
+              <div className="clas-mini-lbl">DG</div>
+            </div>
           </div>
-          {me.form && (
+          {form.length > 0 && (
             <div className="clas-mine-form">
               <span className="clas-mine-form-lbl">Últimos 5</span>
-              {me.form.split("").slice(-5).map((f, i) => (
-                <div key={i} className={`form-pill ${f}`}>{f}</div>
-              ))}
+              {form.slice(-5).map((f, i) => <FormPill key={i} result={f} />)}
             </div>
           )}
         </div>
@@ -90,7 +130,6 @@ export function ClasificacionPage() {
           { id: "general", l: "General" },
           { id: "casa", l: "En casa" },
           { id: "fuera", l: "Fuera" },
-          { id: "forma", l: "Forma reciente" },
         ].map((c) => (
           <button key={c.id} className={`chip ${filter === c.id ? "active" : ""}`} onClick={() => setFilter(c.id)}>
             {c.l}
@@ -114,13 +153,19 @@ export function ClasificacionPage() {
             <div className="clas-th pts">PTS</div>
           </div>
           {entries.map((t) => {
-            const zone = getZone(t);
+            const zone = getZone(t.position, total);
             const mine = isCeuta(t);
+            const logo = findLogo(t.teamName);
             return (
               <div key={t.id ?? t.externalId} className={`clas-row zone-${zone} ${mine ? "mine" : ""}`}>
                 <div className="clas-pos">{t.position}</div>
                 <div className="clas-name-block">
-                  <div className="clas-crest">{t.teamName.slice(0, 3).toUpperCase()}</div>
+                  {logo ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={logo} alt={t.teamName} style={{ width: 22, height: 22, objectFit: "contain", flexShrink: 0 }} />
+                  ) : (
+                    <div className="clas-crest">{t.teamName.slice(0, 3).toUpperCase()}</div>
+                  )}
                   <div className="clas-name">{t.teamName}</div>
                 </div>
                 <div className="clas-cell">{t.played}</div>
@@ -138,7 +183,7 @@ export function ClasificacionPage() {
         <div className="clas-legend-title">Zonas de la tabla</div>
         <div className="legend-item"><div className="legend-bar gold" /><div className="legend-text">Ascenso directo · 1.º–2.º</div></div>
         <div className="legend-item"><div className="legend-bar red" /><div className="legend-text">Play-off ascenso · 3.º–6.º</div></div>
-        <div className="legend-item"><div className="legend-bar black" /><div className="legend-text">Descenso</div></div>
+        <div className="legend-item"><div className="legend-bar black" /><div className="legend-text">Descenso · 19.º–22.º</div></div>
       </div>
     </div>
   );
