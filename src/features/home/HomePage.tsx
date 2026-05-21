@@ -6,6 +6,7 @@ import { SocialLinks } from '@/components/social/TwitterTimeline'
 import { ScrapedMatch } from '@/infrastructure/scrapers/adceutaScraper'
 
 const SOURCES: Record<string, { label: string; domain: string }> = {
+  oficial:  { label: 'AD Ceuta FC',        domain: 'adceutafc.com' },
   elpueblo: { label: 'El Pueblo de Ceuta', domain: 'elpueblodeceuta.es' },
   faro:     { label: 'El Faro de Ceuta',   domain: 'elfarodeceuta.es' },
   marca:    { label: 'Marca',              domain: 'marca.com' },
