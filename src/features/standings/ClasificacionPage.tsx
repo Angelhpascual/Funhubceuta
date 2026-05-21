@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { StandingEntry } from "@/domain/standings/Standings";
+import { findLogo as findLogoUtil } from "@/lib/findLogo";
 
 function getZone(pos: number, total: number): string {
   if (pos <= 2) return "promo";
@@ -63,16 +64,7 @@ const [loading, setLoading] = useState(true);
   const total = entries.length;
 
   function findLogo(name: string): string | null {
-    // exact match first
-    if (logos[name]) return logos[name];
-    // fuzzy match
-    const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
-    const t = norm(name);
-    for (const [k, v] of Object.entries(logos)) {
-      const n = norm(k);
-      if (n === t || t.includes(n) || n.includes(t)) return v;
-    }
-    return null;
+    return findLogoUtil(logos, name);
   }
 
   return (

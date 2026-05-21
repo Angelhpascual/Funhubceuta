@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { findLogo as findLogoUtil } from "@/lib/findLogo";
 
 interface MatchRow {
   home_team: string
@@ -50,13 +51,7 @@ export function PartidosPage() {
   const [logos, setLogos] = useState<Record<string, string>>({});
 
   function findLogo(name: string): string | null {
-    const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '')
-    const t = norm(name)
-    for (const [k, v] of Object.entries(logos)) {
-      const n = norm(k)
-      if (n === t || t.includes(n) || n.includes(t)) return v
-    }
-    return null
+    return findLogoUtil(logos, name)
   }
 
   useEffect(() => {

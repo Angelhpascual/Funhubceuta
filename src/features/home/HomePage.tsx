@@ -25,21 +25,7 @@ function timeAgo(dateStr: string | null): string {
 
 const THUMB_COLORS = ['red', 'black', '', 'red', 'black', '']
 
-function normalizeName(name: string): string {
-  return name.toLowerCase()
-    .normalize('NFD').replace(/[̀-ͯ]/g, '')
-    .replace(/\b(fc|cf|ad|sd|ud|cd|rc|real|atletico|deportivo|balompie)\b/g, '')
-    .replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim()
-}
-
-function findLogo(teams: Record<string, string>, name: string): string | null {
-  const target = normalizeName(name)
-  for (const [teamName, logo] of Object.entries(teams)) {
-    const n = normalizeName(teamName)
-    if (n === target || target.includes(n) || n.includes(target)) return logo
-  }
-  return null
-}
+import { findLogo } from '@/lib/findLogo'
 
 function TeamCrest({ name, logo }: { name: string; logo: string | null }) {
   if (logo) {
@@ -154,17 +140,16 @@ export function HomePage({ onReady }: { onReady?: () => void }) {
                 <div className="team-name">{nextMatch.awayTeam}</div>
               </div>
             </div>
+
             <div className="match-foot">
               <span>
                 {new Date(nextMatch.date + 'T12:00:00').toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
                 {' · '}
                 {(() => {
                   const homeTeam = nextMatch.homeTeam
-                  const venue = Object.entries(venues).find(([name]) => {
-                    const n = normalizeName(name)
-                    const t = normalizeName(homeTeam)
-                    return n === t || t.includes(n) || n.includes(t)
-                  })?.[1]
+                  const venue = Object.entries(venues).find(([name]) =>
+                    findLogo({ [name]: name }, homeTeam) !== null
+                  )?.[1]
                   return venue ?? (nextMatch.isHome ? 'A. Murube' : homeTeam)
                 })()}
               </span>
