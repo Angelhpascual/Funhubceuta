@@ -1,91 +1,120 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-const PLAYERS_TOP = [
-  { num: 9, name: "Moussa Diallo", pos: "Delantero", stat: 14, label: "Goles" },
-  { num: 7, name: "Jacobo González", pos: "Extremo", stat: 9, label: "Goles" },
-  { num: 10, name: "Álex Bernal", pos: "Mediapunta", stat: 11, label: "Asist." },
-  { num: 5, name: "Raúl Cámara", pos: "Defensa", stat: 3, label: "Goles" },
-  { num: 1, name: "Juan Portilla", pos: "Portero", stat: 10, label: "Paradas" },
-];
+interface Player {
+  id: string
+  dorsal: number | null
+  name: string
+  position: string
+  position_group: string
+  nationality: string
+}
 
-const SQUAD = [
-  { pos: "Porteros", players: [{ num: 1, name: "Juan Portilla", nat: "ESP" }, { num: 13, name: "Adrián Robles", nat: "ESP" }] },
-  { pos: "Defensas", players: [{ num: 2, name: "Álvaro Jiménez", nat: "ESP" }, { num: 3, name: "Ismael Sossa", nat: "GNB" }, { num: 4, name: "Raúl Cámara", nat: "ESP" }, { num: 16, name: "Carlos Bravo", nat: "ESP" }] },
-  { pos: "Centrocampistas", players: [{ num: 6, name: "Jorge Herrero", nat: "ESP" }, { num: 8, name: "Álex Bernal", nat: "ESP" }, { num: 14, name: "Mamadou Sylla", nat: "SEN" }] },
-  { pos: "Delanteros", players: [{ num: 7, name: "Jacobo González", nat: "ESP" }, { num: 9, name: "Moussa Diallo", nat: "MLI" }, { num: 11, name: "Darío Gil", nat: "ESP" }] },
-];
+interface Group {
+  group: string
+  players: Player[]
+}
+
+const NAT_FLAGS: Record<string, string> = {
+  España: '🇪🇸', Mali: '🇲🇱', Senegal: '🇸🇳', Guinea: '🇬🇳', Bisau: '🇬🇼',
+  Argentina: '🇦🇷', Uruguay: '🇺🇾', Colombia: '🇨🇴', Francia: '🇫🇷',
+  Marruecos: '🇲🇦', Argelia: '🇩🇿', Camerún: '🇨🇲', Brasil: '🇧🇷',
+}
+
+function flag(nationality: string): string {
+  for (const [key, emoji] of Object.entries(NAT_FLAGS)) {
+    if (nationality.toLowerCase().includes(key.toLowerCase())) return emoji
+  }
+  return '🏴'
+}
+
+function initials(name: string): string {
+  return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
+}
+
+function capitalize(s: string): string {
+  return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase()
+}
 
 export function ClubPage() {
   const [tab, setTab] = useState("plantilla");
+  const [grouped, setGrouped] = useState<Group[]>([]);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/squad')
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (d?.grouped) setGrouped(d.grouped)
+        if (d?.total) setTotal(d.total)
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [])
 
   return (
     <div className="page">
       <div className="sec-header" style={{ paddingTop: 20 }}>
         <div>
           <div className="sec-title-small">Temporada 2025–26</div>
-          <div className="sec-title">AD Ceuta</div>
+          <div className="sec-title">AD Ceuta FC</div>
         </div>
       </div>
 
+      {/* Stats */}
       <div className="stats-grid" style={{ marginBottom: 12 }}>
         <div className="stat-tile red">
-          <div className="stat-value">54</div>
-          <div className="stat-label">Puntos</div>
-        </div>
-        <div className="stat-tile dark">
-          <div className="stat-value">4º</div>
+          <div className="stat-value">13º</div>
           <div className="stat-label">Clasificación</div>
         </div>
-        <div className="stat-tile">
-          <div className="stat-value">48</div>
-          <div className="stat-label">Goles a favor</div>
+        <div className="stat-tile dark">
+          <div className="stat-value">55</div>
+          <div className="stat-label">Puntos</div>
         </div>
         <div className="stat-tile">
-          <div className="stat-value">16</div>
-          <div className="stat-label">Victorias</div>
+          <div className="stat-value">{total}</div>
+          <div className="stat-label">Jugadores</div>
+        </div>
+        <div className="stat-tile">
+          <div className="stat-value">40</div>
+          <div className="stat-label">Jornadas</div>
         </div>
       </div>
 
+      {/* Tabs */}
       <div className="chips" style={{ marginBottom: 4 }}>
-        {[{ id: "plantilla", l: "Plantilla" }, { id: "goleadores", l: "Máx. Goleadores" }].map((t) => (
-          <button key={t.id} className={`chip ${tab === t.id ? "active" : ""}`} onClick={() => setTab(t.id)}>
-            {t.l}
-          </button>
-        ))}
+        <button className={`chip ${tab === "plantilla" ? "active" : ""}`} onClick={() => setTab("plantilla")}>
+          Plantilla
+        </button>
       </div>
 
-      {tab === "plantilla"
-        ? SQUAD.map((g) => (
-            <div key={g.pos}>
-              <div className="position-label">{g.pos}</div>
-              {g.players.map((p, i) => (
-                <div key={i} className="player-row">
-                  <div className="player-num">{p.num}</div>
-                  <div className="player-avatar">{p.name.split(" ").map((w) => w[0]).join("").slice(0, 2)}</div>
-                  <div className="player-info">
-                    <div className="player-name">{p.name}</div>
-                    <div className="player-pos">{p.nat}</div>
-                  </div>
+      {/* Squad */}
+      {loading ? (
+        <div style={{ padding: '30px 16px', textAlign: 'center', fontFamily: 'var(--font-display)', fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--muted)' }}>
+          Cargando plantilla…
+        </div>
+      ) : (
+        grouped.map(g => (
+          <div key={g.group}>
+            <div className="position-label">{g.group}</div>
+            {g.players.map((p, i) => (
+              <div key={i} className="player-row">
+                <div className="player-num">{p.dorsal ?? '—'}</div>
+                <div className="player-avatar">{initials(p.name)}</div>
+                <div className="player-info">
+                  <div className="player-name">{p.name}</div>
+                  <div className="player-pos">{capitalize(p.position)}</div>
                 </div>
-              ))}
-            </div>
-          ))
-        : PLAYERS_TOP.map((p, i) => (
-            <div key={i} className="player-row">
-              <div className="player-num">{i + 1}</div>
-              <div className="player-avatar">{p.name.split(" ").map((w) => w[0]).join("").slice(0, 2)}</div>
-              <div className="player-info">
-                <div className="player-name">{p.name}</div>
-                <div className="player-pos">{p.pos}</div>
+                <div style={{ fontSize: 18 }} title={p.nationality}>
+                  {flag(p.nationality)}
+                </div>
               </div>
-              <div style={{ textAlign: "right" }}>
-                <div className="player-stat">{p.stat}</div>
-                <div className="player-stat-label">{p.label}</div>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
+        ))
+      )}
       <div style={{ height: 8 }} />
     </div>
   );
