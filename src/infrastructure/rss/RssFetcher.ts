@@ -16,6 +16,23 @@ const parser = new XMLParser({
   attributeNamePrefix: '@_',
 })
 
+function decodeEntities(str: string): string {
+  return str
+    .replace(/&#8211;/g, '–')
+    .replace(/&#8212;/g, '—')
+    .replace(/&#8216;/g, '‘')
+    .replace(/&#8217;/g, '’')
+    .replace(/&#8220;/g, '“')
+    .replace(/&#8221;/g, '”')
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&#\d+;/g, '')
+    .replace(/&[a-z]+;/gi, '')
+}
+
 function extractImage(item: Record<string, unknown>): string | null {
   // media:thumbnail or media:content
   const media = item['media:thumbnail'] ?? item['media:content']
@@ -28,6 +45,16 @@ function extractImage(item: Record<string, unknown>): string | null {
   if (enclosure && typeof enclosure === 'object') {
     const url = (enclosure as Record<string, unknown>)['@_url']
     if (typeof url === 'string') return url
+  }
+  // content:encoded — extract first large image from WordPress HTML
+  const encoded = item['content:encoded']
+  if (typeof encoded === 'string') {
+    const match = encoded.match(/https?:\/\/[^\s"<>]+\/wp-content\/uploads\/[^\s"<>]+\.(?:jpg|jpeg|png|webp)/i)
+    if (match) {
+      // Prefer the original (non-resized) version
+      const original = match[0].replace(/-\d+x\d+(\.\w+)$/, '$1')
+      return original
+    }
   }
   return null
 }
@@ -76,9 +103,9 @@ export async function fetchSource(source: RssSource): Promise<ParsedArticle[]> {
     .filter((item) => isRelevant(item, source.keywords))
     .map((item) => ({
       externalId: extractGuid(item),
-      title: String(item.title ?? '').replace(/<[^>]+>/g, '').replace(/&#8211;/g, '–').replace(/&#8212;/g, '—').replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#\d+;/g, '').trim(),
+      title: decodeEntities(String(item.title ?? '').replace(/<[^>]+>/g, '')).trim(),
       description: item.description
-        ? String(item.description).replace(/<[^>]+>/g, '').trim().slice(0, 300)
+        ? decodeEntities(String(item.description).replace(/<[^>]+>/g, '').trim()).slice(0, 300)
         : null,
       url: String(item.link ?? ''),
       imageUrl: extractImage(item),
