@@ -2,18 +2,26 @@ import { NextResponse } from 'next/server'
 import { Receiver } from '@upstash/qstash'
 import { RSS_SOURCES } from '@/infrastructure/rss/sources'
 import { fetchSource } from '@/infrastructure/rss/RssFetcher'
+import { fetchAdceutaOfficialNews } from '@/infrastructure/rss/adceutaFetcher'
 import { NewsSupabaseRepository } from '@/infrastructure/supabase/NewsSupabaseRepository'
 
 const repo = new NewsSupabaseRepository()
 
 async function syncNews() {
-  const results = await Promise.allSettled(
-    RSS_SOURCES.map(async (source) => {
+  const results = await Promise.allSettled([
+    // Official site via WordPress REST API (has featured images)
+    (async () => {
+      const articles = await fetchAdceutaOfficialNews(15)
+      await repo.upsertArticles(articles)
+      return { source: 'oficial', count: articles.length }
+    })(),
+    // Other RSS sources (El Pueblo, El Faro)
+    ...RSS_SOURCES.filter(s => s.id !== 'oficial').map(async (source) => {
       const articles = await fetchSource(source)
       await repo.upsertArticles(articles)
       return { source: source.id, count: articles.length }
-    })
-  )
+    }),
+  ])
 
   return results.map((r) =>
     r.status === 'fulfilled' ? r.value : { error: r.reason?.message }
