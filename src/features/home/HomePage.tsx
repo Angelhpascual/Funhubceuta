@@ -39,7 +39,7 @@ function TeamCrest({ name, logo }: { name: string; logo: string | null }) {
   return <div className="team-crest">{name.slice(0, 3).toUpperCase()}</div>
 }
 
-export function HomePage({ onReady }: { onReady?: () => void }) {
+export function HomePage({ onReady, onOpenHimno }: { onReady?: () => void; onOpenHimno?: () => void }) {
   const [news, setNews] = useState<NewsItem[]>([])
   const [loading, setLoading] = useState(true)
   const [nextMatch, setNextMatch] = useState<ScrapedMatch | null>(null)
@@ -210,11 +210,9 @@ export function HomePage({ onReady }: { onReady?: () => void }) {
 
       {/* ── HIMNO ── */}
       <div style={{ padding: '8px 12px 0' }}>
-        <a
-          href="https://www.laverdaddeceuta.com/images/2025/Deportes/Futbol/HYPERMOTION-25-26/Himno-AD-Ceuta.jpg"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ textDecoration: 'none', display: 'block' }}
+        <button
+          onClick={onOpenHimno}
+          style={{ textDecoration: 'none', display: 'block', width: '100%', background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left' }}
         >
           <div style={{
             display: 'flex', alignItems: 'center', gap: 14,
@@ -248,7 +246,7 @@ export function HomePage({ onReady }: { onReady?: () => void }) {
             </div>
             <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 18, color: 'var(--red)' }}>→</div>
           </div>
-        </a>
+        </button>
       </div>
 
       {/* ── TWITTER ── */}

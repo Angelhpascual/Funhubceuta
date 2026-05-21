@@ -5,9 +5,11 @@ import { HomePage } from "@/features/home/HomePage";
 import { ClasificacionPage } from "@/features/standings/ClasificacionPage";
 import { PartidosPage } from "@/features/matches/PartidosPage";
 import { ClubPage } from "@/features/club/ClubPage";
+import { HimnoPage } from "@/features/himno/HimnoPage";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
 
 type Tab = "inicio" | "clasificacion" | "partidos" | "club";
+type Modal = "himno" | null;
 
 const navItems: { id: Tab; label: string; icon: React.ReactNode }[] = [
   {
@@ -61,10 +63,11 @@ const navItems: { id: Tab; label: string; icon: React.ReactNode }[] = [
 
 export default function App() {
   const [tab, setTab] = useState<Tab>("inicio");
+  const [modal, setModal] = useState<Modal>(null);
   const [ready, setReady] = useState(false);
 
   const pages: Record<Tab, React.ReactNode> = {
-    inicio: <HomePage onReady={() => setReady(true)} />,
+    inicio: <HomePage onReady={() => setReady(true)} onOpenHimno={() => setModal("himno")} />,
     clasificacion: <ClasificacionPage />,
     partidos: <PartidosPage />,
     club: <ClubPage />,
@@ -73,22 +76,39 @@ export default function App() {
   return (
     <div id="app-root">
       {!ready && <LoadingScreen />}
-      <div className="topbar" style={{ justifyContent: "center" }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/escudo.png" alt="AD Ceuta" style={{ width: 40, height: 40, objectFit: "contain" }} />
-      </div>
 
-      <div className="scroll-area" key={tab}>
-        {pages[tab]}
-      </div>
+      {/* Modal views — slide over the main content */}
+      {modal === "himno" && (
+        <>
+          <div className="topbar" style={{ justifyContent: "center" }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/escudo.png" alt="AD Ceuta" style={{ width: 40, height: 40, objectFit: "contain" }} />
+          </div>
+          <div className="scroll-area">
+            <HimnoPage onBack={() => setModal(null)} />
+          </div>
+        </>
+      )}
 
-      <div className="bottom-nav">
-        {navItems.map((n) => (
-          <button key={n.id} className={`nav-item ${tab === n.id ? "active" : ""}`} onClick={() => setTab(n.id)}>
-            {n.icon}
-            <span className="nav-label">{n.label}</span>
-          </button>
-        ))}
+      {/* Main app */}
+      <div style={{ display: modal ? "none" : "contents" }}>
+        <div className="topbar" style={{ justifyContent: "center" }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/escudo.png" alt="AD Ceuta" style={{ width: 40, height: 40, objectFit: "contain" }} />
+        </div>
+
+        <div className="scroll-area" key={tab}>
+          {pages[tab]}
+        </div>
+
+        <div className="bottom-nav">
+          {navItems.map((n) => (
+            <button key={n.id} className={`nav-item ${tab === n.id ? "active" : ""}`} onClick={() => setTab(n.id)}>
+              {n.icon}
+              <span className="nav-label">{n.label}</span>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
