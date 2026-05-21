@@ -16,6 +16,7 @@ async function syncSquad() {
       position: p.position,
       position_group: p.positionGroup,
       nationality: p.nationality,
+      photo_url: p.photoUrl,
       season: '2025-2026',
     }))
   )

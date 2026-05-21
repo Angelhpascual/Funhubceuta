@@ -3,12 +3,12 @@
 import { useState, useEffect } from "react";
 
 interface Player {
-  id: string
   dorsal: number | null
   name: string
   position: string
   position_group: string
   nationality: string
+  photo_url: string | null
 }
 
 interface Group {
@@ -102,7 +102,12 @@ export function ClubPage() {
             {g.players.map((p, i) => (
               <div key={i} className="player-row">
                 <div className="player-num">{p.dorsal ?? '—'}</div>
-                <div className="player-avatar">{initials(p.name)}</div>
+                {p.photo_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={p.photo_url} alt={p.name} style={{ width: 42, height: 42, borderRadius: '50%', objectFit: 'cover', objectPosition: 'top', flexShrink: 0, background: 'var(--bg-soft)' }} />
+                ) : (
+                  <div className="player-avatar">{initials(p.name)}</div>
+                )}
                 <div className="player-info">
                   <div className="player-name">{p.name}</div>
                   <div className="player-pos">{capitalize(p.position)}</div>
