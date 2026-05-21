@@ -47,6 +47,17 @@ export function PartidosPage() {
   const [upcoming, setUpcoming] = useState<MatchRow[]>([]);
   const [results, setResults] = useState<MatchRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [logos, setLogos] = useState<Record<string, string>>({});
+
+  function findLogo(name: string): string | null {
+    const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '')
+    const t = norm(name)
+    for (const [k, v] of Object.entries(logos)) {
+      const n = norm(k)
+      if (n === t || t.includes(n) || n.includes(t)) return v
+    }
+    return null
+  }
 
   useEffect(() => {
     fetch('/api/matches/all')
@@ -57,6 +68,17 @@ export function PartidosPage() {
       })
       .catch(() => {})
       .finally(() => setLoading(false))
+
+    fetch('/api/teams')
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (d?.teams) {
+          const map: Record<string, string> = {}
+          for (const t of d.teams) if (t.logoUrl) map[t.name] = t.logoUrl
+          setLogos(map)
+        }
+      })
+      .catch(() => {})
   }, [])
 
   return (
@@ -95,10 +117,24 @@ export function PartidosPage() {
                 <div className="fixt-comp">Liga Hypermotion</div>
                 <div className="fixt-date">{m.weekday} · {m.time}</div>
               </div>
-              <div className="fixt-teams">
-                <div className={`fixt-tname ${m.is_home ? 'mine' : ''}`}>{shortName(m.home_team)}</div>
+              <div className="fixt-teams" style={{ alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  {findLogo(m.home_team)
+                    // eslint-disable-next-line @next/next/no-img-element
+                    ? <img src={findLogo(m.home_team)!} alt="" style={{ width: 28, height: 28, objectFit: 'contain' }} />
+                    : <div style={{ width: 28, height: 28, background: 'var(--bg-mid)', borderRadius: '50%' }} />
+                  }
+                  <div className={`fixt-tname ${m.is_home ? 'mine' : ''}`}>{shortName(m.home_team)}</div>
+                </div>
                 <div className="fixt-vs">VS</div>
-                <div className={`fixt-tname away ${!m.is_home ? 'mine' : ''}`}>{shortName(m.away_team)}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'flex-end' }}>
+                  <div className={`fixt-tname away ${!m.is_home ? 'mine' : ''}`}>{shortName(m.away_team)}</div>
+                  {findLogo(m.away_team)
+                    // eslint-disable-next-line @next/next/no-img-element
+                    ? <img src={findLogo(m.away_team)!} alt="" style={{ width: 28, height: 28, objectFit: 'contain' }} />
+                    : <div style={{ width: 28, height: 28, background: 'var(--bg-mid)', borderRadius: '50%' }} />
+                  }
+                </div>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 6 }}>
                 <span style={{ fontFamily: 'var(--font-display)', fontSize: 11, color: 'var(--muted)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
