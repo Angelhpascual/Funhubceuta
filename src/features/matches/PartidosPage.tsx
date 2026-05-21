@@ -1,87 +1,150 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-const RESULTS = [
-  { day: "26", mon: "Abr", home: "AD Ceuta", away: "Algeciras", hs: 2, as: 1, res: "W" },
-  { day: "19", mon: "Abr", home: "Linares", away: "AD Ceuta", hs: 1, as: 1, res: "D" },
-  { day: "12", mon: "Abr", home: "AD Ceuta", away: "Sevilla At.", hs: 3, as: 0, res: "W" },
-  { day: "05", mon: "Abr", home: "Córdoba", away: "AD Ceuta", hs: 2, as: 0, res: "L" },
-  { day: "29", mon: "Mar", home: "AD Ceuta", away: "San Fernando", hs: 1, as: 0, res: "W" },
-];
+interface MatchRow {
+  home_team: string
+  away_team: string
+  date: string
+  time: string
+  weekday: string
+  is_home: boolean
+  home_score: number | null
+  away_score: number | null
+  result: string | null
+  tickets_url: string | null
+}
 
-const FIXTURES = [
-  { jornada: "J33", date: "3 May · 18:00", home: "AD Ceuta", away: "Recreativo" },
-  { jornada: "J34", date: "10 May · 12:00", home: "Antequera", away: "AD Ceuta" },
-  { jornada: "J35", date: "17 May · 18:30", home: "AD Ceuta", away: "Almería B" },
-];
+function formatDate(dateStr: string): { day: string; mon: string } {
+  const d = new Date(dateStr)
+  return {
+    day: d.getUTCDate().toString().padStart(2, '0'),
+    mon: d.toLocaleString('es-ES', { month: 'short', timeZone: 'UTC' }).toUpperCase(),
+  }
+}
+
+function resultBadge(r: string | null) {
+  if (!r) return null
+  const map: Record<string, { cls: string; label: string }> = {
+    W: { cls: 'badge-w', label: 'V' },
+    D: { cls: 'badge-d', label: 'E' },
+    L: { cls: 'badge-l', label: 'D' },
+  }
+  const item = map[r]
+  if (!item) return null
+  return <span className={`result-badge ${item.cls}`}>{item.label}</span>
+}
+
+function shortName(name: string): string {
+  return name
+    .replace('AD CEUTA FC', 'AD Ceuta')
+    .replace('CEUTA FC', 'AD Ceuta')
+    .split(' ').map(w => w.charAt(0) + w.slice(1).toLowerCase()).join(' ')
+}
 
 export function PartidosPage() {
-  const [tab, setTab] = useState("resultados");
+  const [tab, setTab] = useState("proximos");
+  const [upcoming, setUpcoming] = useState<MatchRow[]>([]);
+  const [results, setResults] = useState<MatchRow[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/matches/all')
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (d?.upcoming) setUpcoming(d.upcoming)
+        if (d?.results) setResults(d.results)
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [])
 
   return (
     <div className="page">
       <div className="sec-header" style={{ paddingTop: 20 }}>
         <div>
-          <div className="sec-title-small">Calendario 2025–26</div>
+          <div className="sec-title-small">Temporada 2025–26</div>
           <div className="sec-title">Partidos</div>
         </div>
       </div>
+
       <div className="chips" style={{ marginBottom: 8 }}>
-        {[{ id: "resultados", l: "Resultados" }, { id: "proximos", l: "Próximos" }].map((t) => (
+        {[{ id: "proximos", l: "Próximos" }, { id: "resultados", l: "Resultados" }].map(t => (
           <button key={t.id} className={`chip ${tab === t.id ? "active" : ""}`} onClick={() => setTab(t.id)}>
             {t.l}
           </button>
         ))}
       </div>
 
-      {tab === "resultados" ? (
-        <>
-          <div className="month-label">Abril 2026</div>
-          {RESULTS.map((r, i) => {
-            const ceutaHome = r.home === "AD Ceuta";
-            const cls = r.res === "W" ? "win" : r.res === "L" ? "lose" : "draw";
-            const homeScoreCls = r.home === "AD Ceuta" ? (r.res === "W" ? "win" : r.res === "L" ? "lose" : "") : (r.res === "L" ? "win" : r.res === "W" ? "lose" : "");
-            const awayScoreCls = r.away === "AD Ceuta" ? (r.res === "W" && !ceutaHome ? "win" : r.res === "L" && !ceutaHome ? "lose" : "") : (r.res === "L" && ceutaHome ? "lose" : r.res === "W" && ceutaHome ? "win" : "");
-            return (
-              <div key={i} className={`result-card ${cls}`}>
-                <div className="result-date-col">
-                  <div className="result-day">{r.day}</div>
-                  <div className="result-mon">{r.mon}</div>
-                </div>
-                <div className="result-teams-col">
-                  <div className="result-team-row">
-                    <div className={`result-team-name ${r.home === "AD Ceuta" ? "bold" : ""}`}>{r.home}</div>
-                    <div className={`result-score ${homeScoreCls}`}>{r.hs}</div>
-                  </div>
-                  <div className="result-team-row">
-                    <div className={`result-team-name ${r.away === "AD Ceuta" ? "bold" : ""}`}>{r.away}</div>
-                    <div className={`result-score ${awayScoreCls}`}>{r.as}</div>
-                  </div>
-                </div>
-                <span className={`result-badge badge-${r.res.toLowerCase()}`}>
-                  {r.res === "W" ? "V" : r.res === "D" ? "E" : "D"}
-                </span>
-              </div>
-            );
-          })}
-        </>
-      ) : (
+      {loading && (
+        <div style={{ padding: '30px 16px', textAlign: 'center', fontFamily: 'var(--font-display)', fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--muted)' }}>
+          Cargando partidos…
+        </div>
+      )}
+
+      {!loading && tab === "proximos" && (
         <>
           <div className="month-label">Mayo 2026</div>
-          {FIXTURES.map((f, i) => (
+          {upcoming.length === 0 ? (
+            <div style={{ padding: '20px 16px', fontFamily: 'var(--font-display)', fontSize: 13, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              No hay próximos partidos
+            </div>
+          ) : upcoming.map((m, i) => (
             <div key={i} className="fixt-card">
               <div className="fixt-head">
-                <div className="fixt-comp">Liga Hypermotion · {f.jornada}</div>
-                <div className="fixt-date">{f.date}</div>
+                <div className="fixt-comp">Liga Hypermotion</div>
+                <div className="fixt-date">{m.weekday} · {m.time}</div>
               </div>
               <div className="fixt-teams">
-                <div className={`fixt-tname ${f.home === "AD Ceuta" ? "mine" : ""}`}>{f.home}</div>
+                <div className={`fixt-tname ${m.is_home ? 'mine' : ''}`}>{shortName(m.home_team)}</div>
                 <div className="fixt-vs">VS</div>
-                <div className={`fixt-tname away ${f.away === "AD Ceuta" ? "mine" : ""}`}>{f.away}</div>
+                <div className={`fixt-tname away ${!m.is_home ? 'mine' : ''}`}>{shortName(m.away_team)}</div>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 6 }}>
+                <span style={{ fontFamily: 'var(--font-display)', fontSize: 11, color: 'var(--muted)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                  {new Date(m.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', timeZone: 'UTC' })}
+                  {m.is_home ? ' · A. Murube' : ''}
+                </span>
+                {m.tickets_url && (
+                  <a href={m.tickets_url} target="_blank" rel="noopener noreferrer" className="match-cta" style={{ fontSize: 10, padding: '4px 10px' }}>
+                    Entradas
+                  </a>
+                )}
               </div>
             </div>
           ))}
+        </>
+      )}
+
+      {!loading && tab === "resultados" && (
+        <>
+          <div className="month-label">Últimos partidos</div>
+          {results.map((r, i) => {
+            const { day, mon } = formatDate(r.date)
+            const ceutaHome = r.home_team.toLowerCase().includes('ceuta')
+            const cls = r.result === 'W' ? 'win' : r.result === 'L' ? 'lose' : 'draw'
+            const homeScoreCls = ceutaHome ? (r.result === 'W' ? 'win' : r.result === 'L' ? 'lose' : '') : (r.result === 'L' ? 'win' : r.result === 'W' ? 'lose' : '')
+            const awayScoreCls = !ceutaHome ? (r.result === 'W' ? 'win' : r.result === 'L' ? 'lose' : '') : (r.result === 'L' ? 'win' : r.result === 'W' ? 'lose' : '')
+            return (
+              <div key={i} className={`result-card ${cls}`}>
+                <div className="result-date-col">
+                  <div className="result-day">{day}</div>
+                  <div className="result-mon">{mon}</div>
+                </div>
+                <div className="result-teams-col">
+                  <div className="result-team-row">
+                    <div className={`result-team-name ${ceutaHome ? 'bold' : ''}`}>{shortName(r.home_team)}</div>
+                    <div className={`result-score ${homeScoreCls}`}>{r.home_score}</div>
+                  </div>
+                  <div className="result-team-row">
+                    <div className={`result-team-name ${!ceutaHome ? 'bold' : ''}`}>{shortName(r.away_team)}</div>
+                    <div className={`result-score ${awayScoreCls}`}>{r.away_score}</div>
+                  </div>
+                </div>
+                {resultBadge(r.result)}
+              </div>
+            )
+          })}
         </>
       )}
     </div>

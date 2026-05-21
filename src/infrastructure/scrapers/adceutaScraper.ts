@@ -94,6 +94,71 @@ export async function scrapeNextMatch(): Promise<ScrapedMatch | null> {
   return all.find(m => m.date >= today) ?? null
 }
 
+export interface ScrapedResult {
+  homeTeam: string
+  awayTeam: string
+  homeScore: number
+  awayScore: number
+  date: string      // YYYY-MM-DD
+  weekday: string
+  result: 'W' | 'D' | 'L'
+  isHome: boolean
+}
+
+export async function scrapeRecentResults(limit = 5): Promise<ScrapedResult[]> {
+  const browser = await launchBrowser()
+  const page = await browser.newPage()
+  await page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36')
+
+  try {
+    await page.goto('https://adceutafc.com/partidos-adceutafc/', { waitUntil: 'networkidle2', timeout: 20000 })
+    await new Promise(r => setTimeout(r, 2000))
+
+    const { text } = await page.evaluate(() => ({ text: document.body.innerText }))
+
+    const start = text.indexOf('RESULTADOS PARTIDOS')
+    if (start === -1) return []
+
+    const section = text.slice(start + 'RESULTADOS PARTIDOS'.length, start + 5000)
+    const lines = section.split('\n').map((l: string) => l.trim()).filter(Boolean)
+
+    const results: ScrapedResult[] = []
+    let i = 0
+
+    while (i < lines.length && results.length < limit) {
+      if (WEEKDAYS.some(d => lines[i] === d)) {
+        const weekday = lines[i]
+        const dateLine = lines[i + 1] ?? ''
+        const timeLine = lines[i + 2] ?? ''
+        const home = lines[i + 3] ?? ''
+        const scoreRaw = lines[i + 4] ?? ''
+        const away = lines[i + 5] ?? ''
+
+        const date = parseDate(dateLine)
+        const scoreMatch = scoreRaw.match(/(\d+)-(\d+)/)
+
+        if (date && scoreMatch && home && away) {
+          const hs = parseInt(scoreMatch[1])
+          const as = parseInt(scoreMatch[2])
+          const isHome = home.toLowerCase().includes('ceuta')
+          const ceutaGoals = isHome ? hs : as
+          const oppGoals = isHome ? as : hs
+          const result: 'W' | 'D' | 'L' = ceutaGoals > oppGoals ? 'W' : ceutaGoals === oppGoals ? 'D' : 'L'
+
+          results.push({ homeTeam: home, awayTeam: away, homeScore: hs, awayScore: as, date, weekday, result, isHome })
+          i += 6
+          continue
+        }
+      }
+      i++
+    }
+
+    return results
+  } finally {
+    await browser.close()
+  }
+}
+
 export async function scrapeRecentForm(): Promise<string[]> {
   const browser = await launchBrowser()
   const page = await browser.newPage()

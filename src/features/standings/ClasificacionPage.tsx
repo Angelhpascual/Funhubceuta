@@ -29,8 +29,7 @@ function FormPill({ result }: { result: string }) {
 
 export function ClasificacionPage() {
   const [entries, setEntries] = useState<StandingEntry[]>([]);
-  const [filter, setFilter] = useState("general");
-  const [loading, setLoading] = useState(true);
+const [loading, setLoading] = useState(true);
   const [form, setForm] = useState<string[]>([]);
   const [logos, setLogos] = useState<Record<string, string>>({});
 
@@ -124,17 +123,6 @@ export function ClasificacionPage() {
 
       <div className="sec-header">
         <div className="sec-title">Tabla completa</div>
-      </div>
-      <div className="chips">
-        {[
-          { id: "general", l: "General" },
-          { id: "casa", l: "En casa" },
-          { id: "fuera", l: "Fuera" },
-        ].map((c) => (
-          <button key={c.id} className={`chip ${filter === c.id ? "active" : ""}`} onClick={() => setFilter(c.id)}>
-            {c.l}
-          </button>
-        ))}
       </div>
 
       {loading ? (
