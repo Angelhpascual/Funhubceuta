@@ -1,14 +1,28 @@
 import { NextResponse } from 'next/server'
 import { Receiver } from '@upstash/qstash'
-import { scrapeNextMatches } from '@/infrastructure/scrapers/adceutaScraper'
+import { scrapeNextMatches, scrapeRecentForm } from '@/infrastructure/scrapers/adceutaScraper'
 import { MatchesSupabaseRepository } from '@/infrastructure/supabase/MatchesSupabaseRepository'
+import { supabase } from '@/infrastructure/supabase/client'
 
 const repo = new MatchesSupabaseRepository()
 
 async function syncMatches() {
-  const matches = await scrapeNextMatches()
+  const [matches, form] = await Promise.all([
+    scrapeNextMatches(),
+    scrapeRecentForm(),
+  ])
+
   await repo.upsertMatches(matches)
-  return matches.length
+
+  // Cache form in app_config
+  if (form.length > 0) {
+    await supabase.from('app_config').upsert(
+      { key: 'ceuta_form', value: form.join(','), updated_at: new Date().toISOString() },
+      { onConflict: 'key' }
+    )
+  }
+
+  return { matches: matches.length, form }
 }
 
 // QStash (producción)
