@@ -208,6 +208,49 @@ export function HomePage({ onReady }: { onReady?: () => void }) {
         </div>
       )}
 
+      {/* ── HIMNO ── */}
+      <div style={{ padding: '8px 12px 0' }}>
+        <a
+          href="https://www.laverdaddeceuta.com/images/2025/Deportes/Futbol/HYPERMOTION-25-26/Himno-AD-Ceuta.jpg"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ textDecoration: 'none', display: 'block' }}
+        >
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 14,
+            padding: '16px 18px',
+            background: 'var(--black)',
+            borderRadius: 'var(--radius)',
+            position: 'relative',
+            overflow: 'hidden',
+          }}>
+            {/* diagonal stripes */}
+            <div style={{
+              position: 'absolute', inset: 0,
+              background: 'repeating-linear-gradient(-45deg, transparent 0 7px, rgba(255,255,255,0.03) 7px 14px)',
+              pointerEvents: 'none',
+            }} />
+            {/* red accent */}
+            <div style={{ width: 4, height: 42, background: 'var(--red)', borderRadius: 2, flexShrink: 0 }} />
+            {/* icon */}
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+              <path d="M9 18V5l12-2v13"/>
+              <circle cx="6" cy="18" r="3"/>
+              <circle cx="18" cy="16" r="3"/>
+            </svg>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 15, color: 'white', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+                Himno del AD Ceuta
+              </div>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: 11, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.08em', textTransform: 'uppercase', marginTop: 2 }}>
+                Ver letra completa
+              </div>
+            </div>
+            <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 18, color: 'var(--red)' }}>→</div>
+          </div>
+        </a>
+      </div>
+
       {/* ── TWITTER ── */}
       <div className="sec-header">
         <div>
