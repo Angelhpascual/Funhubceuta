@@ -14,8 +14,13 @@ export function NotificationBanner() {
   const handleActivate = async () => {
     setError(null)
     setLoading(true)
+    const sw = 'serviceWorker' in navigator
+    const pm = 'PushManager' in window
+    const notif = 'Notification' in window
+    const standalone = window.matchMedia('(display-mode: standalone)').matches
+    const debug = `SW:${sw} PM:${pm} N:${notif} SA:${standalone} P:${permission}`
     const result = await subscribe()
-    if (!result.ok) setError(result.error ?? 'Error desconocido')
+    if (!result.ok) setError(`${result.error} [${debug}]`)
     setLoading(false)
   }
 
