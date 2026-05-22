@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Barlow, Barlow_Condensed } from "next/font/google";
 import "./globals.css";
 
@@ -17,10 +17,16 @@ const barlowCondensed = Barlow_Condensed({
 export const metadata: Metadata = {
   title: "AD Ceuta FanHub",
   description: "La app de los aficionados del AD Ceuta FC",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Ceuta FC",
+  },
 };
 
-export const viewport = {
-  themeColor: "#ffffff",
+export const viewport: Viewport = {
+  themeColor: "#D62027",
 };
 
 export default function RootLayout({
@@ -30,6 +36,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" className={`${barlow.variable} ${barlowCondensed.variable} h-full`}>
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="Ceuta FC" />
+        <link rel="apple-touch-icon" href="/escudo.png" />
+      </head>
       <body className="min-h-full">{children}</body>
     </html>
   );
