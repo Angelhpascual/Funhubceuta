@@ -181,15 +181,6 @@ export function LiveMatchCard() {
       {/* Footer */}
       <div className="match-foot" style={{ marginTop: 14 }}>
         <span>{match.venue || 'Liga Hypermotion'}</span>
-        {permission !== 'unsupported' && permission !== 'denied' && (
-          <button
-            onClick={subscribed ? unsubscribe : subscribe}
-            className="match-cta"
-            style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 10 }}
-          >
-            {subscribed ? '🔔 Activado' : '🔔 Alertas'}
-          </button>
-        )}
       </div>
     </div>
   )
