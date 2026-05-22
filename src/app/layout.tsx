@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Ceuta FC",
+    title: "AD Ceuta FC",
   },
 };
 
@@ -40,7 +40,7 @@ export default function RootLayout({
         <link rel="manifest" href="/manifest.json" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="Ceuta FC" />
+        <meta name="apple-mobile-web-app-title" content="AD Ceuta FC" />
         <link rel="apple-touch-icon" href="/icon-512.png" />
       </head>
       <body className="min-h-full">{children}</body>
