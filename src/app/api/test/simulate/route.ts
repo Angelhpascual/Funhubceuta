@@ -163,8 +163,15 @@ export async function GET(request: NextRequest) {
 
   const notifications: string[] = []
 
+  const score = `${data.homeScore}-${data.awayScore}`
+  const rival = HOME // Ceuta is away
+
   if (!prev && data.state === 'in') {
-    const sent = await sendPushAll('⚽ ¡Partido en curso!', `${HOME} vs ${AWAY} — ¡Ha comenzado!`, 'kickoff')
+    const sent = await sendPushAll(
+      '⚽ ¡Ya estamos en marcha, caballas!',
+      `Hoy nos enfrentamos al ${rival}. 90 minutos de lucha. ¡Vamos Ceuta! 🖤⚪`,
+      'kickoff'
+    )
     notifications.push(`kickoff (${sent} enviados)`)
   }
 
@@ -175,8 +182,8 @@ export async function GET(request: NextRequest) {
     for (let i = 0; i < awayCeutaGoals; i++) {
       const scorer = data.events.filter(e => e.type === 'goal' && e.team === 'away').pop()
       const sent = await sendPushAll(
-        '🚨 ¡¡GOOOOL DEL CEUTA!!',
-        `${HOME} ${data.homeScore}-${data.awayScore} ${AWAY}${scorer ? ` · ${scorer.playerName} ${scorer.minute}` : ''} 🔥`,
+        `🚨 ¡¡GOOOOOL DE CEUTA!! 🔥`,
+        `¡${scorer?.playerName ?? 'GOOOL'}! ¡Qué locura! Marcador: ${score} (${scorer?.minute ?? ''}) ¡VAMOS CABALLAS! 🖤⚪`,
         `goal-${data.awayScore}`
       )
       notifications.push(`goal-ceuta (${sent} enviados)`)
@@ -185,8 +192,8 @@ export async function GET(request: NextRequest) {
     for (let i = 0; i < homeRivalGoals; i++) {
       const scorer = data.events.filter(e => e.type === 'goal' && e.team === 'home').pop()
       const sent = await sendPushAll(
-        '⚽ Gol en contra',
-        `${HOME} ${data.homeScore}-${data.awayScore} ${AWAY}${scorer ? ` · ${scorer.playerName} ${scorer.minute}` : ''}`,
+        `😤 Gol en contra... (${score})`,
+        `Nos han marcado${scorer ? ` ${scorer.playerName}` : ''}. Pero esto no ha terminado. ¡A por ellos! 💪`,
         `goal-rival-${data.homeScore}`
       )
       notifications.push(`goal-rival (${sent} enviados)`)
@@ -196,21 +203,36 @@ export async function GET(request: NextRequest) {
     const newRedCards = data.events.filter(e => e.type === 'redCard').slice(prevRedCards)
     for (const card of newRedCards) {
       const isCeuta = card.team === 'away'
-      const sent = await sendPushAll(
-        isCeuta ? '🟥 Tarjeta roja para el Ceuta' : '🟥 Tarjeta roja rival',
-        `${card.playerName} · ${card.minute} — ${HOME} ${data.homeScore}-${data.awayScore} ${AWAY}`,
-        `red-${card.minute}`
-      )
+      const sent = isCeuta
+        ? await sendPushAll(
+            `🟥 Nos quedamos con 10...`,
+            `Roja para ${card.playerName} en el ${card.minute}. Ahora más unidos que nunca. ¡El Ceuta no se rinde! 🖤⚪`,
+            `red-${card.minute}`
+          )
+        : await sendPushAll(
+            `🟥 ¡Roja para el rival!`,
+            `Expulsado ${card.playerName} (${card.minute}). ¡Con uno más, a aprovechar! Vamos Ceuta 💪🔥`,
+            `red-${card.minute}`
+          )
       notifications.push(`redcard (${sent} enviados)`)
     }
   }
 
   if (prev?.state === 'in' && data.state === 'post') {
-    const result = data.awayScore > data.homeScore ? '¡Victoria! 🏆' : data.awayScore < data.homeScore ? 'Derrota 😔' : 'Empate ➕'
-    const sent = await sendPushAll(
-      `⏱ Final: ${result}`,
-      `${HOME} ${data.homeScore}-${data.awayScore} ${AWAY}`,
-      'fulltime'
+    const ceutaWins = data.awayScore > data.homeScore
+    const draw = data.awayScore === data.homeScore
+    let title, body
+    if (ceutaWins) {
+      title = `🏆 ¡¡VICTORIA CABALLAS!! (${score})`
+      body = `¡Lo hemos conseguido! Tres puntos de oro. Gracias por estar siempre con nosotros. ¡Hasta la siguiente! 🖤⚪🔥`
+    } else if (draw) {
+      title = `🤝 Empate final (${score})`
+      body = `Un punto que suma. El equipo lo ha dado todo. ¡Gracias caballas por el apoyo! 🖤⚪`
+    } else {
+      title = `😔 Derrota... pero seguimos juntos (${score})`
+      body = `No era el día. Esto es el fútbol. Pero el Ceuta siempre se levanta. ¡Gracias por el apoyo! 🖤⚪`
+    }
+    const sent = await sendPushAll(title, body, 'fulltime'
     )
     notifications.push(`fulltime (${sent} enviados)`)
   }

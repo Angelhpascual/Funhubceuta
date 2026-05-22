@@ -146,11 +146,15 @@ async function checkAndNotify() {
     eventCount: match.events.length,
   }
 
+  const rival = match.homeTeam.toLowerCase().includes('ceuta') ? match.awayTeam : match.homeTeam
+  const ceutaIsHome = match.homeTeam.toLowerCase().includes('ceuta')
+  const score = `${match.homeScore}-${match.awayScore}`
+
   // ── Match just started ────────────────────────────────────────────────
   if ((!prev || prev.state === 'pre') && match.state === 'in') {
     await sendPush(
-      '⚽ Partido en curso',
-      `${match.homeTeam} vs ${match.awayTeam} — ¡Ha comenzado!`,
+      '⚽ ¡Ya estamos en marcha, caballas!',
+      `Hoy nos enfrentamos al ${rival}. 90 minutos de lucha. ¡Vamos Ceuta! 🖤⚪`,
       'kickoff'
     )
     notifications.push('kickoff')
@@ -162,64 +166,91 @@ async function checkAndNotify() {
     const awayGoals = match.awayScore - prev.awayScore
 
     for (let i = 0; i < homeGoals; i++) {
-      const ceutaScored = match.homeTeam.toLowerCase().includes('ceuta')
-      const scorer = match.events
-        .filter(e => e.type === 'goal' && e.team === 'home')
-        .pop()
+      const ceutaScored = ceutaIsHome
+      const scorer = match.events.filter(e => e.type === 'goal' && e.team === 'home').pop()
 
-      await sendPush(
-        ceutaScored ? '🚨 ¡¡GOOOOL DEL CEUTA!!' : '⚽ Gol en contra',
-        `${match.homeTeam} ${match.homeScore}-${match.awayScore} ${match.awayTeam}` +
-          (scorer ? ` · ${scorer.playerName} ${scorer.minute}` : '') +
-          (ceutaScored ? ' 🔥🔥🔥' : ''),
-        `goal-home-${match.homeScore}`
-      )
+      if (ceutaScored) {
+        await sendPush(
+          `🚨 ¡¡GOOOOOL DE CEUTA!! 🔥`,
+          `¡${scorer?.playerName ?? 'GOOOL'}! ¡Qué locura! Marcador: ${score} (${scorer?.minute ?? ''}) ¡VAMOS CABALLAS! 🖤⚪`,
+          `goal-home-${match.homeScore}`
+        )
+      } else {
+        await sendPush(
+          `😤 Gol en contra... (${score})`,
+          `Nos han marcado${scorer ? ` ${scorer.playerName}` : ''}. Pero esto no ha terminado. ¡A por ellos! 💪`,
+          `goal-home-${match.homeScore}`
+        )
+      }
       notifications.push(`goal-home-${match.homeScore}`)
     }
 
     for (let i = 0; i < awayGoals; i++) {
-      const ceutaScored = match.awayTeam.toLowerCase().includes('ceuta')
-      const scorer = match.events
-        .filter(e => e.type === 'goal' && e.team === 'away')
-        .pop()
+      const ceutaScored = !ceutaIsHome
+      const scorer = match.events.filter(e => e.type === 'goal' && e.team === 'away').pop()
 
-      await sendPush(
-        ceutaScored ? '🚨 ¡¡GOOOOL DEL CEUTA!!' : '⚽ Gol en contra',
-        `${match.homeTeam} ${match.homeScore}-${match.awayScore} ${match.awayTeam}` +
-          (scorer ? ` · ${scorer.playerName} ${scorer.minute}` : '') +
-          (ceutaScored ? ' 🔥🔥🔥' : ''),
-        `goal-away-${match.awayScore}`
-      )
+      if (ceutaScored) {
+        await sendPush(
+          `🚨 ¡¡GOOOOOL DE CEUTA!! 🔥`,
+          `¡${scorer?.playerName ?? 'GOOOL'}! ¡Qué locura! Marcador: ${score} (${scorer?.minute ?? ''}) ¡VAMOS CABALLAS! 🖤⚪`,
+          `goal-away-${match.awayScore}`
+        )
+      } else {
+        await sendPush(
+          `😤 Gol en contra... (${score})`,
+          `Nos han marcado${scorer ? ` ${scorer.playerName}` : ''}. Pero esto no ha terminado. ¡A por ellos! 💪`,
+          `goal-away-${match.awayScore}`
+        )
+      }
       notifications.push(`goal-away-${match.awayScore}`)
     }
 
     // ── Red card ────────────────────────────────────────────────────────
-    const prevRedCards = 0 // simplification — track by event count diff
     const newEvents = match.events.slice(prev.eventCount)
     const redCards = newEvents.filter(e => e.type === 'redCard')
     for (const card of redCards) {
-      const isCeuta = card.team === (match.homeTeam.toLowerCase().includes('ceuta') ? 'home' : 'away')
-      await sendPush(
-        isCeuta ? '🟥 Tarjeta roja para el Ceuta' : '🟥 Tarjeta roja rival',
-        `${card.playerName} · ${card.minute} — ${match.homeTeam} ${match.homeScore}-${match.awayScore} ${match.awayTeam}`,
-        `red-${card.minute}`
-      )
+      const isCeuta = card.team === (ceutaIsHome ? 'home' : 'away')
+      if (isCeuta) {
+        await sendPush(
+          `🟥 Nos quedamos con 10...`,
+          `Roja para ${card.playerName} en el ${card.minute}. Ahora más unidos que nunca. ¡El Ceuta no se rinde! 🖤⚪`,
+          `red-${card.minute}`
+        )
+      } else {
+        await sendPush(
+          `🟥 ¡Roja para el rival!`,
+          `Expulsado ${card.playerName} (${card.minute}). ¡Con uno más, a aprovechar! Vamos Ceuta 💪🔥`,
+          `red-${card.minute}`
+        )
+      }
       notifications.push(`red-${card.playerName}`)
     }
   }
 
   // ── Match finished ────────────────────────────────────────────────────
   if (prev?.state === 'in' && match.state === 'post') {
-    const ceutaHome = match.homeTeam.toLowerCase().includes('ceuta')
-    const ceutaScore = ceutaHome ? match.homeScore : match.awayScore
-    const rivalScore = ceutaHome ? match.awayScore : match.homeScore
-    const result = ceutaScore > rivalScore ? '¡Victoria! 🏆' : ceutaScore < rivalScore ? 'Derrota 😔' : 'Empate ➕'
+    const ceutaScore = ceutaIsHome ? match.homeScore : match.awayScore
+    const rivalScore = ceutaIsHome ? match.awayScore : match.homeScore
 
-    await sendPush(
-      `⏱️ Final: ${result}`,
-      `${match.homeTeam} ${match.homeScore}-${match.awayScore} ${match.awayTeam}`,
-      'fulltime'
-    )
+    if (ceutaScore > rivalScore) {
+      await sendPush(
+        `🏆 ¡¡VICTORIA CABALLAS!! (${score})`,
+        `¡Lo hemos conseguido! Tres puntos de oro. Gracias por estar siempre con nosotros. ¡Hasta la siguiente! 🖤⚪🔥`,
+        'fulltime'
+      )
+    } else if (ceutaScore < rivalScore) {
+      await sendPush(
+        `😔 Derrota... pero seguimos juntos (${score})`,
+        `No era el día. Esto es el fútbol. Pero el Ceuta siempre se levanta. ¡Gracias por el apoyo! 🖤⚪`,
+        'fulltime'
+      )
+    } else {
+      await sendPush(
+        `🤝 Empate final (${score})`,
+        `Un punto que suma. El equipo lo ha dado todo. ¡Gracias caballas por el apoyo! 🖤⚪`,
+        'fulltime'
+      )
+    }
     notifications.push('fulltime')
   }
 
