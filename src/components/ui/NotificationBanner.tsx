@@ -7,12 +7,23 @@ export function NotificationBanner() {
   const { permission, subscribed, subscribe } = usePushNotifications()
   const [dismissed, setDismissed] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   if (subscribed || dismissed || permission === 'denied') return null
 
   const handleActivate = async () => {
+    setError(null)
     setLoading(true)
-    await subscribe()
+    try {
+      const sw = 'serviceWorker' in navigator
+      const pm = 'PushManager' in window
+      if (!sw) { setError('SW no soportado'); setLoading(false); return }
+      if (!pm) { setError('Push no soportado (iOS<16.4?)'); setLoading(false); return }
+      const ok = await subscribe()
+      if (!ok) setError(`Permiso: ${permission}`)
+    } catch (e) {
+      setError(String(e))
+    }
     setLoading(false)
   }
 
@@ -44,8 +55,8 @@ export function NotificationBanner() {
         <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 14, color: 'var(--white)', letterSpacing: '0.02em', textTransform: 'uppercase' }}>
           Alertas de goles
         </div>
-        <div style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 2, lineHeight: 1.4 }}>
-          Goles, tarjetas rojas y resultado final
+        <div style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: error ? 'var(--red)' : 'rgba(255,255,255,0.5)', marginTop: 2, lineHeight: 1.4 }}>
+          {error ?? 'Goles, tarjetas rojas y resultado final'}
         </div>
       </div>
 
