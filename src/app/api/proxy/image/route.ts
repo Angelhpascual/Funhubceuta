@@ -25,6 +25,7 @@ export async function GET(request: NextRequest) {
   }
 
   const res = await fetch(url, {
+    cache: 'no-store',
     headers: {
       'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36',
       'Referer': `https://${hostname}/`,

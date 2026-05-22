@@ -27,7 +27,13 @@ function timeAgo(dateStr: string | null): string {
 const THUMB_COLORS = ['red', 'black', '', 'red', 'black', '']
 
 import { findLogo } from '@/lib/findLogo'
-import { proxyImage } from '@/lib/proxyImage'
+
+// adceutafc.com has hotlink protection — don't use their images directly
+function safeImageUrl(url: string | null, source: string): string | null {
+  if (!url) return null
+  if (source === 'oficial') return null  // use placeholder instead
+  return url
+}
 
 function TeamCrest({ name, logo }: { name: string; logo: string | null }) {
   if (logo) {
@@ -86,11 +92,21 @@ export function HomePage({ onReady, onOpenHimno }: { onReady?: () => void; onOpe
       {/* ── HERO ── */}
       {featured ? (
         <a href={featured.url} target="_blank" rel="noopener noreferrer" className="hero-card" style={{ display: 'block' }}>
-          {featured.imageUrl ? (
+          {safeImageUrl(featured.imageUrl, featured.source) ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={proxyImage(featured.imageUrl)!} alt={featured.title} style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }} />
+            <img src={featured.imageUrl!} alt={featured.title} style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }} />
           ) : (
-            <div className="hero-img-placeholder">FOTO PARTIDO</div>
+            <div className="hero-img-placeholder" style={{
+              background: featured.source === 'oficial'
+                ? 'linear-gradient(135deg, var(--black) 0%, #1a1a1a 100%)'
+                : undefined,
+              flexDirection: 'column', gap: 8,
+            }}>
+              {featured.source === 'oficial' && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src="/escudo.png" alt="AD Ceuta FC" style={{ width: 56, height: 56, objectFit: 'contain', opacity: 0.6 }} />
+              )}
+            </div>
           )}
           <div className="hero-overlay" />
           <div className="hero-content">
@@ -186,11 +202,16 @@ export function HomePage({ onReady, onOpenHimno }: { onReady?: () => void; onOpe
 
       {rest.map((n, i) => (
         <a key={n.id} href={n.url} target="_blank" rel="noopener noreferrer" className="news-item" style={{ textDecoration: 'none' }}>
-          {n.imageUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <div className={`news-thumb`} style={{ backgroundImage: `url(${proxyImage(n.imageUrl)})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
+          {safeImageUrl(n.imageUrl, n.source) ? (
+            <div className="news-thumb" style={{ backgroundImage: `url(${n.imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
           ) : (
-            <div className={`news-thumb ${THUMB_COLORS[i % THUMB_COLORS.length]}`} />
+            <div className={`news-thumb ${n.source === 'oficial' ? 'black' : THUMB_COLORS[i % THUMB_COLORS.length]}`}
+              style={n.source === 'oficial' ? { display: 'flex', alignItems: 'center', justifyContent: 'center' } : undefined}>
+              {n.source === 'oficial' && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src="/escudo.png" alt="" style={{ width: 28, height: 28, objectFit: 'contain', opacity: 0.7 }} />
+              )}
+            </div>
           )}
           <div className="news-body">
             <div className="news-tag" style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
