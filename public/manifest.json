@@ -1,0 +1,24 @@
+{
+  "name": "AD Ceuta FanHub",
+  "short_name": "Ceuta FC",
+  "description": "La app de los aficionados del AD Ceuta FC",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#D62027",
+  "theme_color": "#D62027",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
