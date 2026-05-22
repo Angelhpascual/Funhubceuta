@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { StandingsService } from '@/domain/standings/StandingsService'
 import { StandingsSupabaseRepository } from '@/infrastructure/supabase/StandingsSupabaseRepository'
 import { StandingsTable } from '@/features/standings/components/StandingsTable'
