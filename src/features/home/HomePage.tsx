@@ -27,6 +27,7 @@ function timeAgo(dateStr: string | null): string {
 const THUMB_COLORS = ['red', 'black', '', 'red', 'black', '']
 
 import { findLogo } from '@/lib/findLogo'
+import { LiveMatchCard } from './LiveMatchCard'
 
 function TeamCrest({ name, logo }: { name: string; logo: string | null }) {
   if (logo) {
@@ -87,7 +88,7 @@ export function HomePage({ onReady, onOpenHimno }: { onReady?: () => void; onOpe
         <a href={featured.url} target="_blank" rel="noopener noreferrer" className="hero-card" style={{ display: 'block' }}>
           {featured.imageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={featured.imageUrl} alt={featured.title} style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }} />
+            <img src={featured.imageUrl} alt={featured.title} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 20%', position: 'absolute', inset: 0 }} />
           ) : (
             <div className="hero-img-placeholder">FOTO PARTIDO</div>
           )}
@@ -114,59 +115,15 @@ export function HomePage({ onReady, onOpenHimno }: { onReady?: () => void; onOpe
         </div>
       )}
 
-      {/* ── PRÓXIMO PARTIDO ── */}
-      {nextMatch && (
-        <>
-          <div className="sec-header">
-            <div>
-              <div className="sec-title-small">Próximo encuentro</div>
-              <div className="sec-title">Próximo partido</div>
-            </div>
-          </div>
-          <div className="match-card">
-            <div className="match-competition">Liga Hypermotion</div>
-            <div className="match-teams">
-              <div className="team-block">
-                <TeamCrest name={nextMatch.homeTeam} logo={findLogo(teams, nextMatch.homeTeam)} />
-                <div className="team-name">{nextMatch.homeTeam}</div>
-              </div>
-              <div className="match-center">
-                <div className="match-vs">VS</div>
-                <div className="match-date-time">
-                  {nextMatch.weekday.slice(0, 3).toUpperCase()}<br />{nextMatch.time}
-                </div>
-              </div>
-              <div className="team-block">
-                <TeamCrest name={nextMatch.awayTeam} logo={findLogo(teams, nextMatch.awayTeam)} />
-                <div className="team-name">{nextMatch.awayTeam}</div>
-              </div>
-            </div>
+      {/* ── PARTIDO EN VIVO / PRÓXIMO ── */}
+      <div className="sec-header">
+        <div>
+          <div className="sec-title-small">Próximo encuentro</div>
+          <div className="sec-title">Próximo partido</div>
+        </div>
+      </div>
+      <LiveMatchCard />
 
-            <div className="match-foot">
-              <span>
-                {new Date(nextMatch.date + 'T12:00:00').toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
-                {' · '}
-                {(() => {
-                  const homeTeam = nextMatch.homeTeam
-                  const venue = Object.entries(venues).find(([name]) =>
-                    findLogo({ [name]: name }, homeTeam) !== null
-                  )?.[1]
-                  return venue ?? (nextMatch.isHome ? 'A. Murube' : homeTeam)
-                })()}
-              </span>
-              {nextMatch.ticketsUrl ? (
-                <a href={nextMatch.ticketsUrl} target="_blank" rel="noopener noreferrer" className="match-cta">
-                  Entradas
-                </a>
-              ) : (
-                <a href="https://adceutafc.com" target="_blank" rel="noopener noreferrer" className="match-cta">
-                  Info
-                </a>
-              )}
-            </div>
-          </div>
-        </>
-      )}
 
       {/* ── NOTICIAS ── */}
       <div className="sec-header">
