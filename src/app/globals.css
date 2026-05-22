@@ -85,7 +85,7 @@ img { display: block; max-width: 100%; }
 /* ════════ SCROLL ════════ */
 .scroll-area {
   flex: 1; overflow-y: auto;
-  padding-top: var(--top-h);
+  margin-top: var(--top-h);
   padding-bottom: calc(var(--nav-h) + 16px);
   background: var(--bg);
 }
