@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 
 // Cache 60s — multiple users share the same ESPN response
-export const revalidate = 60
+export const revalidate = 0
 
 export interface LiveEvent {
   type: 'goal' | 'yellowCard' | 'redCard' | 'substitution'
@@ -37,6 +37,15 @@ async function fetchEspn(url: string) {
 }
 
 export async function GET() {
+  // In dev: use mock if it exists
+  if (process.env.NODE_ENV !== 'production') {
+    const { supabase } = await import('@/infrastructure/supabase/client')
+    const { data } = await supabase.from('app_config').select('value').eq('key', 'live_match_mock').single()
+    if (data?.value) {
+      return NextResponse.json({ match: JSON.parse(data.value) })
+    }
+  }
+
   const scoreboard = await fetchEspn(ESPN_SCOREBOARD)
   if (!scoreboard) return NextResponse.json({ match: null })
 
