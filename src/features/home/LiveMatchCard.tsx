@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { LiveMatch } from '@/app/api/live/route'
+import { usePushNotifications } from '@/hooks/usePushNotifications'
 
 const POLL_INTERVAL_LIVE = 60_000   // 60s durante partido
 const POLL_INTERVAL_PRE  = 300_000  // 5min antes del partido
@@ -69,6 +70,7 @@ export function LiveMatchCard() {
   const [goalFlash, setGoalFlash] = useState(false)
   const [logos, setLogos] = useState<Record<string, string>>({})
   const prevScoreRef = useRef<string>('')
+  const { permission, subscribed, subscribe, unsubscribe } = usePushNotifications()
 
   const fetchLive = async () => {
     const res = await fetch('/api/live', { cache: 'no-store' })
@@ -179,6 +181,15 @@ export function LiveMatchCard() {
       {/* Footer */}
       <div className="match-foot" style={{ marginTop: 14 }}>
         <span>{match.venue || 'Liga Hypermotion'}</span>
+        {permission !== 'unsupported' && permission !== 'denied' && (
+          <button
+            onClick={subscribed ? unsubscribe : subscribe}
+            className="match-cta"
+            style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 10 }}
+          >
+            {subscribed ? '🔔 Activado' : '🔔 Alertas'}
+          </button>
+        )}
       </div>
     </div>
   )
