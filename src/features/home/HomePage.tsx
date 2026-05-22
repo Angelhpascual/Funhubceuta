@@ -28,6 +28,7 @@ const THUMB_COLORS = ['red', 'black', '', 'red', 'black', '']
 
 import { findLogo } from '@/lib/findLogo'
 import { LiveMatchCard } from './LiveMatchCard'
+import { NotificationBanner } from '@/components/ui/NotificationBanner'
 
 function TeamCrest({ name, logo }: { name: string; logo: string | null }) {
   if (logo) {
@@ -114,6 +115,8 @@ export function HomePage({ onReady, onOpenHimno }: { onReady?: () => void; onOpe
           </div>
         </div>
       )}
+
+      <NotificationBanner />
 
       {/* ── PARTIDO EN VIVO / PRÓXIMO ── */}
       <div className="sec-header">
