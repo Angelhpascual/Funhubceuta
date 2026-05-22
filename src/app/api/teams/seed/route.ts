@@ -4,7 +4,7 @@ import { supabase } from '@/infrastructure/supabase/client'
 // Estadios Liga Hypermotion 2025-2026
 const VENUES: Record<string, string> = {
   'AD Ceuta FC':                  'Estadio Alfonso Murube',
-  'FC Andorra':                   'Estadi Nacional',
+  'FC Andorra':                   'Estadio de la FAF (Encamp)',
   'Albacete BP':                  'Estadio Carlos Belmonte',
   'Albacete Balompié':            'Estadio Carlos Belmonte',
   'Burgos CF':                    'Estadio El Plantío',
