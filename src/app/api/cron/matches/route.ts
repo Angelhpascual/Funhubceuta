@@ -71,8 +71,10 @@ export async function POST(request: Request) {
 }
 
 // Manual en local/dev
-export async function GET() {
-  if (process.env.NODE_ENV === 'production') {
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url)
+  const secret = searchParams.get('secret')
+  if (process.env.NODE_ENV === 'production' && secret !== process.env.TEST_SECRET) {
     return NextResponse.json({ error: 'Use POST via QStash in production' }, { status: 405 })
   }
   const count = await syncMatches()

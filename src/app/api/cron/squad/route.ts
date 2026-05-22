@@ -27,8 +27,10 @@ async function syncSquad() {
   return players.length
 }
 
-export async function GET() {
-  if (process.env.NODE_ENV === 'production') {
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url)
+  const secret = searchParams.get('secret')
+  if (process.env.NODE_ENV === 'production' && secret !== process.env.TEST_SECRET) {
     return NextResponse.json({ error: 'Use POST in production' }, { status: 405 })
   }
   const count = await syncSquad()

@@ -50,9 +50,13 @@ export async function POST(request: Request) {
   return NextResponse.json({ ok: true, summary })
 }
 
-// Llamada manual desde local/dev (sin verificación)
-export async function GET() {
-  if (process.env.NODE_ENV === 'production') {
+// Llamada manual (dev o producción con TEST_SECRET)
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url)
+  const secret = searchParams.get('secret')
+  const testSecret = process.env.TEST_SECRET
+
+  if (process.env.NODE_ENV === 'production' && secret !== testSecret) {
     return NextResponse.json({ error: 'Use POST via QStash in production' }, { status: 405 })
   }
 
