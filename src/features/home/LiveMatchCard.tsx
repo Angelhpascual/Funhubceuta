@@ -49,9 +49,25 @@ function LiveBadge({ clock }: { clock: string }) {
   )
 }
 
+import { findLogo } from '@/lib/findLogo'
+
+function TeamCrest({ name, logos }: { name: string; logos: Record<string, string> }) {
+  const logo = findLogo(logos, name)
+  if (logo) {
+    return (
+      <div className="team-crest with-img">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={logo} alt={name} style={{ width: 36, height: 36, objectFit: 'contain' }} />
+      </div>
+    )
+  }
+  return <div className="team-crest">{name.slice(0, 3).toUpperCase()}</div>
+}
+
 export function LiveMatchCard() {
   const [match, setMatch] = useState<LiveMatch | null>(null)
   const [goalFlash, setGoalFlash] = useState(false)
+  const [logos, setLogos] = useState<Record<string, string>>({})
   const prevScoreRef = useRef<string>('')
 
   const fetchLive = async () => {
@@ -74,6 +90,16 @@ export function LiveMatchCard() {
 
   useEffect(() => {
     fetchLive()
+    fetch('/api/teams')
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (d?.teams) {
+          const map: Record<string, string> = {}
+          for (const t of d.teams) if (t.logoUrl) map[t.name] = t.logoUrl
+          setLogos(map)
+        }
+      })
+      .catch(() => {})
 
     const interval = setInterval(
       fetchLive,
@@ -107,7 +133,7 @@ export function LiveMatchCard() {
       {/* Teams + Score */}
       <div className="match-teams">
         <div className="team-block">
-          <div className="team-crest">{match.homeTeam.slice(0, 3).toUpperCase()}</div>
+          <TeamCrest name={match.homeTeam} logos={logos} />
           <div className="team-name">{match.homeTeam}</div>
         </div>
 
@@ -131,7 +157,7 @@ export function LiveMatchCard() {
         </div>
 
         <div className="team-block">
-          <div className="team-crest">{match.awayTeam.slice(0, 3).toUpperCase()}</div>
+          <TeamCrest name={match.awayTeam} logos={logos} />
           <div className="team-name">{match.awayTeam}</div>
         </div>
       </div>
