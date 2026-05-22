@@ -64,7 +64,9 @@ img { display: block; max-width: 100%; }
 
 /* ════════ TOPBAR ════════ */
 .topbar {
-  position: sticky; top: 0; z-index: 100;
+  position: fixed; top: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 430px;
+  z-index: 100;
   height: var(--top-h);
   background: var(--white);
   border-bottom: 1px solid var(--border);
@@ -83,6 +85,7 @@ img { display: block; max-width: 100%; }
 /* ════════ SCROLL ════════ */
 .scroll-area {
   flex: 1; overflow-y: auto;
+  padding-top: var(--top-h);
   padding-bottom: calc(var(--nav-h) + 16px);
   background: var(--bg);
 }
