@@ -14,16 +14,8 @@ export function NotificationBanner() {
   const handleActivate = async () => {
     setError(null)
     setLoading(true)
-    try {
-      const sw = 'serviceWorker' in navigator
-      const pm = 'PushManager' in window
-      if (!sw) { setError('SW no soportado'); setLoading(false); return }
-      if (!pm) { setError('Push no soportado (iOS<16.4?)'); setLoading(false); return }
-      const ok = await subscribe()
-      if (!ok) setError(`Permiso: ${permission}`)
-    } catch (e) {
-      setError(String(e))
-    }
+    const result = await subscribe()
+    if (!result.ok) setError(result.error ?? 'Error desconocido')
     setLoading(false)
   }
 
