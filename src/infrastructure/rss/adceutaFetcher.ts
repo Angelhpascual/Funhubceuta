@@ -1,4 +1,5 @@
 import { ParsedArticle } from './RssFetcher'
+import { downloadAndUploadImage } from '@/infrastructure/storage/imageUploader'
 
 function decodeEntities(str: string): string {
   return str
@@ -33,10 +34,17 @@ export async function fetchAdceutaOfficialNews(limit = 15): Promise<ParsedArticl
 
   const posts: WPPost[] = await res.json()
 
-  return posts.map(post => {
-    const imageUrl = post._embedded?.['wp:featuredmedia']?.[0]?.source_url ?? null
+  // Process posts: download + upload images to Supabase Storage
+  const articles = await Promise.all(posts.map(async post => {
+    const rawImageUrl = post._embedded?.['wp:featuredmedia']?.[0]?.source_url ?? null
     const title = decodeEntities(post.title.rendered.replace(/<[^>]+>/g, '').trim())
     const description = decodeEntities(post.excerpt.rendered.replace(/<[^>]+>/g, '').trim()).slice(0, 300)
+
+    // Download image and store in Supabase Storage to avoid hotlink issues
+    let imageUrl: string | null = null
+    if (rawImageUrl) {
+      imageUrl = await downloadAndUploadImage(rawImageUrl, `adceuta-${post.id}`)
+    }
 
     return {
       externalId: `adceuta-wp-${post.id}`,
@@ -47,5 +55,7 @@ export async function fetchAdceutaOfficialNews(limit = 15): Promise<ParsedArticl
       source: 'oficial',
       publishedAt: new Date(post.date).toISOString(),
     }
-  })
+  }))
+
+  return articles
 }
