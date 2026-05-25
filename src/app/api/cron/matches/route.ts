@@ -51,8 +51,17 @@ async function syncMatches() {
   return { matches: matches.length, form }
 }
 
-// QStash (producción)
 export async function POST(request: Request) {
+  const { searchParams } = new URL(request.url)
+  const secret = searchParams.get('secret')
+
+  // Permitir TEST_SECRET como alternativa a la firma QStash
+  if (secret === process.env.TEST_SECRET) {
+    const count = await syncMatches()
+    return NextResponse.json({ ok: true, count })
+  }
+
+  // Verificación firma QStash
   const receiver = new Receiver({
     currentSigningKey: process.env.QSTASH_CURRENT_SIGNING_KEY!,
     nextSigningKey: process.env.QSTASH_NEXT_SIGNING_KEY!,
