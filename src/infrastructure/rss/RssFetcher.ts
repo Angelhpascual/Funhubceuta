@@ -97,7 +97,8 @@ export async function fetchSource(source: RssSource): Promise<ParsedArticle[]> {
 
   const xml = await res.text()
   const parsed = parser.parse(xml)
-  const items: Record<string, unknown>[] = parsed?.rss?.channel?.item ?? []
+  const raw = parsed?.rss?.channel?.item ?? []
+  const items: Record<string, unknown>[] = Array.isArray(raw) ? raw : [raw]
 
   return items
     .filter((item) => isRelevant(item, source.keywords))
