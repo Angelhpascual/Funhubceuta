@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { LiveMatch } from '@/app/api/live/route'
 import { usePushNotifications } from '@/hooks/usePushNotifications'
 import { findLogo } from '@/lib/findLogo'
+import { ScrapedMatch } from '@/infrastructure/scrapers/adceutaScraper'
 
 const POLL_INTERVAL_LIVE = 60_000
 const POLL_INTERVAL_PRE  = 300_000
@@ -96,6 +97,7 @@ function MatchEvents({ events }: { events: LiveMatch['events'] }) {
 
 export function LiveMatchCard() {
   const [match, setMatch] = useState<LiveMatch | null>(null)
+  const [nextMatch, setNextMatch] = useState<ScrapedMatch | null>(null)
   const [goalFlash, setGoalFlash] = useState(false)
   const [logos, setLogos] = useState<Record<string, string>>({})
   const prevScoreRef = useRef<string>('')
@@ -119,6 +121,10 @@ export function LiveMatchCard() {
 
   useEffect(() => {
     fetchLive()
+    fetch('/api/matches/next')
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.match) setNextMatch(d.match) })
+      .catch(() => {})
     fetch('/api/teams')
       .then(r => r.ok ? r.json() : null)
       .then(d => {
@@ -134,7 +140,36 @@ export function LiveMatchCard() {
     return () => clearInterval(interval)
   }, [match?.state])
 
-  if (!match) return null
+  // No ESPN data — show next match from DB if available
+  if (!match) {
+    if (!nextMatch) return null
+    const dateStr = `${nextMatch.date}T${nextMatch.time}:00`
+    return (
+      <div className="match-card">
+        <div className="match-competition">Liga Hypermotion</div>
+        <div className="match-teams" style={{ marginTop: 10 }}>
+          <div className="team-block">
+            <TeamCrest name={nextMatch.homeTeam} logos={logos} />
+            <div className="team-name">{nextMatch.homeTeam}</div>
+          </div>
+          <div className="match-center">
+            <div className="match-vs">VS</div>
+            <div className="match-date-time">
+              {new Date(dateStr).toLocaleDateString('es-ES', { weekday: 'short', timeZone: 'UTC' }).toUpperCase().replace('.', '')}<br />
+              {nextMatch.time}
+            </div>
+          </div>
+          <div className="team-block">
+            <TeamCrest name={nextMatch.awayTeam} logos={logos} />
+            <div className="team-name">{nextMatch.awayTeam}</div>
+          </div>
+        </div>
+        <div className="match-foot" style={{ marginTop: 14 }}>
+          <span>Liga Hypermotion</span>
+        </div>
+      </div>
+    )
+  }
 
   const isLive = match.state === 'in'
   const isFinished = match.state === 'post'

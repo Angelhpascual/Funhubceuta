@@ -126,5 +126,12 @@ export async function GET() {
     startDate: ceutaEvent.date as string ?? '',
   }
 
+  // Don't show a finished match that ended more than 3 hours ago
+  if (state === 'post') {
+    const matchDate = new Date(ceutaEvent.date as string)
+    const hoursSinceMatch = (Date.now() - matchDate.getTime()) / 3_600_000
+    if (hoursSinceMatch > 3) return NextResponse.json({ match: null })
+  }
+
   return NextResponse.json({ match })
 }
