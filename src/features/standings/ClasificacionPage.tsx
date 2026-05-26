@@ -118,8 +118,33 @@ const [loading, setLoading] = useState(true);
       </div>
 
       {loading ? (
-        <div style={{ padding: "40px 16px", textAlign: "center", fontFamily: "var(--font-display)", color: "var(--muted)", letterSpacing: "0.1em", textTransform: "uppercase", fontSize: 12 }}>
-          Cargando clasificación…
+        <div className="clas-table">
+          <div className="clas-table-head">
+            <div className="clas-th">#</div>
+            <div className="clas-th name">Equipo</div>
+            <div className="clas-th">PJ</div>
+            <div className="clas-th">DG</div>
+            <div className="clas-th">GF</div>
+            <div className="clas-th">GC</div>
+            <div className="clas-th pts">PTS</div>
+          </div>
+          {Array.from({ length: 22 }).map((_, i) => (
+            <div key={i} className="clas-row" style={{ opacity: 1 - i * 0.03 }}>
+              <div className="clas-pos">
+                <div style={{ width: 16, height: 14, background: 'var(--bg-mid)', borderRadius: 3, animation: 'shimmer 1.4s ease-in-out infinite' }} />
+              </div>
+              <div className="clas-name-block">
+                <div style={{ width: 22, height: 22, background: 'var(--bg-mid)', borderRadius: '50%', flexShrink: 0, animation: 'shimmer 1.4s ease-in-out infinite' }} />
+                <div style={{ width: 90 + (i % 3) * 20, height: 13, background: 'var(--bg-mid)', borderRadius: 3, animation: 'shimmer 1.4s ease-in-out infinite' }} />
+              </div>
+              {[1,2,3,4,5].map(j => (
+                <div key={j} className="clas-cell">
+                  <div style={{ width: 20, height: 13, background: 'var(--bg-mid)', borderRadius: 3, margin: '0 auto', animation: 'shimmer 1.4s ease-in-out infinite' }} />
+                </div>
+              ))}
+            </div>
+          ))}
+          <style>{`@keyframes shimmer { 0%,100%{opacity:0.4} 50%{opacity:0.8} }`}</style>
         </div>
       ) : (
         <div className="clas-table">
