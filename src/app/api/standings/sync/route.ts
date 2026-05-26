@@ -59,9 +59,14 @@ async function syncFromEspn(season: string) {
 }
 
 export async function POST() {
-  const count = await syncFromEspn('2025-2026')
-  if (!count) return NextResponse.json({ error: 'Failed to sync standings' }, { status: 500 })
-  return NextResponse.json({ ok: true, teams: count })
+  try {
+    const count = await syncFromEspn('2025-2026')
+    if (!count) return NextResponse.json({ error: 'No data from ESPN' }, { status: 500 })
+    return NextResponse.json({ ok: true, teams: count })
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    return NextResponse.json({ error: msg }, { status: 500 })
+  }
 }
 
 export async function GET(request: Request) {
