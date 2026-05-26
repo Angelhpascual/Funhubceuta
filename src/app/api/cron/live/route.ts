@@ -138,6 +138,7 @@ async function checkAndNotify() {
     awayScore: match.awayScore,
     state: match.state,
     eventCount: match.events.length,
+    events: match.events,
   }
 
   const events = detectEvents(match, prev)

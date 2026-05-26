@@ -131,6 +131,20 @@ export async function GET() {
     const matchDate = new Date(ceutaEvent.date as string)
     const hoursSinceMatch = (Date.now() - matchDate.getTime()) / 3_600_000
     if (hoursSinceMatch > 3) return NextResponse.json({ match: null })
+
+    // If ESPN didn't return events, try to get them from stored state
+    if (liveEvents.length === 0) {
+      const { supabase } = await import('@/infrastructure/supabase/client')
+      const { data } = await supabase.from('app_config').select('value').eq('key', 'live_match_state').single()
+      if (data?.value) {
+        try {
+          const stored = JSON.parse(data.value)
+          if (stored.espnId === ceutaEvent.id && stored.events?.length) {
+            liveEvents = stored.events
+          }
+        } catch { /* ignore */ }
+      }
+    }
   }
 
   return NextResponse.json({ match })

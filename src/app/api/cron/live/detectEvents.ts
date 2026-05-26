@@ -6,6 +6,7 @@ export interface MatchState {
   awayScore: number
   state: string
   eventCount: number
+  events?: import('@/app/api/live/route').LiveEvent[]
 }
 
 export interface PushNotification {
