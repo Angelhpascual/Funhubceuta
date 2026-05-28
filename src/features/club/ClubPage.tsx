@@ -249,9 +249,9 @@ export function ClubPage() {
 
   return (
     <div className="page">
-      <div className="clas-hero-eyebrow" style={{ padding: '20px 16px 4px' }}>Temporada 2025–26</div>
-      <div style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 28, color: 'var(--black)', letterSpacing: '0.01em', textTransform: 'uppercase', padding: '0 16px 12px' }}>
-        AD Ceuta FC
+      <div className="clas-hero-eyebrow" style={{ padding: '20px 16px 6px' }}>Temporada 2025–26</div>
+      <div style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 26, color: 'var(--black)', letterSpacing: '0.01em', textTransform: 'uppercase', padding: '0 16px 14px' }}>
+        AD CEUTA FC
       </div>
 
       {/* Tabs */}
@@ -270,40 +270,63 @@ export function ClubPage() {
       {/* ── TEMPORADA ── */}
       {tab === 'stats' && (
         <>
-          {/* Card idéntica a clasificación, sin el margin negativo del hero */}
-          {ceuta && (
-            <div className="clas-mine-card" style={{ margin: '0 12px 16px' }}>
-              <div className="clas-mine-top">
-                <div className="clas-pos-big">
-                  {ceuta.position}<span className="clas-pos-sup">º</span>
+          {/* Hero: posición + puntos */}
+          <div style={{ margin: '0 12px 8px', background: 'var(--black)', borderRadius: 'var(--radius)', padding: '20px', position: 'relative', overflow: 'hidden', border: '2px solid var(--black)', boxShadow: '4px 4px 0 var(--red)' }}>
+            <div style={{ position: 'absolute', right: -8, top: -8, fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 130, color: 'rgba(255,255,255,0.04)', lineHeight: 1, pointerEvents: 'none', userSelect: 'none' }}>
+              {ceuta?.position}
+            </div>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 10, color: 'var(--red)', letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 700, marginBottom: 8 }}>Segunda División · 2025–26</div>
+            <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'flex-end', gap: 14 }}>
+                <div style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 72, color: 'var(--white)', lineHeight: 0.85, letterSpacing: '-0.02em' }}>
+                  {ceuta?.position ?? '—'}<span style={{ fontSize: 22, color: 'var(--red)', verticalAlign: 'super' }}>º</span>
                 </div>
-                <div className="clas-mine-meta">
-                  <div className="clas-mine-name">AD Ceuta FC</div>
-                  <div className="clas-mine-sub">{getZoneLabel(ceuta.position)}</div>
-                </div>
-                <div className="clas-mine-pts-block">
-                  <div className="clas-mine-pts-num">{ceuta.points}</div>
-                  <div className="clas-mine-pts-lbl">Puntos</div>
-                </div>
-              </div>
-              <div className="clas-mine-stats">
-                <div className="clas-mini-stat"><div className="clas-mini-num">{ceuta.played}</div><div className="clas-mini-lbl">PJ</div></div>
-                <div className="clas-mini-stat"><div className="clas-mini-num">{ceuta.won}</div><div className="clas-mini-lbl">PG</div></div>
-                <div className="clas-mini-stat"><div className="clas-mini-num">{ceuta.drawn}</div><div className="clas-mini-lbl">PE</div></div>
-                <div className="clas-mini-stat"><div className="clas-mini-num">{ceuta.lost}</div><div className="clas-mini-lbl">PP</div></div>
-                <div className="clas-mini-stat">
-                  <div className="clas-mini-num">{ceuta.goalDifference > 0 ? `+${ceuta.goalDifference}` : ceuta.goalDifference}</div>
-                  <div className="clas-mini-lbl">DG</div>
+                <div style={{ paddingBottom: 4 }}>
+                  <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 16, color: 'var(--white)', letterSpacing: '0.02em', textTransform: 'uppercase' }}>AD Ceuta FC</div>
+                  <div style={{ fontFamily: 'var(--font-display)', fontSize: 10, color: 'var(--muted)', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: 2 }}>{ceuta ? getZoneLabel(ceuta.position) : ''}</div>
                 </div>
               </div>
-              {form.length > 0 && (
-                <div className="clas-mine-form">
-                  <span className="clas-mine-form-lbl">Últimos 5</span>
+              <div style={{ textAlign: 'right', paddingBottom: 4 }}>
+                <div style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 40, color: 'var(--red)', lineHeight: 0.9 }}>{ceuta?.points ?? '—'}</div>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: 10, color: 'var(--muted)', letterSpacing: '0.14em', textTransform: 'uppercase', marginTop: 4 }}>Puntos</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Stats con nombres completos */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6, padding: '0 12px', marginBottom: 8 }}>
+            {[
+              { v: ceuta?.played, l: 'Partidos jugados' },
+              { v: ceuta?.won, l: 'Victorias' },
+              { v: ceuta?.drawn, l: 'Empates' },
+              { v: ceuta?.lost, l: 'Derrotas' },
+              { v: ceuta?.goalsFor, l: 'Goles a favor' },
+              { v: ceuta?.goalsAgainst, l: 'Goles en contra' },
+            ].map(({ v, l }) => (
+              <div key={l} style={{ background: 'var(--black)', borderRadius: 10, padding: '12px 10px', textAlign: 'center' }}>
+                <div style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 22, color: 'var(--white)', lineHeight: 1 }}>{v ?? '—'}</div>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: 8, color: 'var(--muted)', letterSpacing: '0.08em', textTransform: 'uppercase', marginTop: 4, lineHeight: 1.3 }}>{l}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Diferencia de goles + últimos 5 */}
+          <div style={{ display: 'flex', gap: 6, padding: '0 12px', marginBottom: 16 }}>
+            <div style={{ flex: 1, background: 'var(--black)', borderRadius: 10, padding: '12px', textAlign: 'center' }}>
+              <div style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 22, color: ceuta && ceuta.goalDifference >= 0 ? 'var(--white)' : 'var(--red)', lineHeight: 1 }}>
+                {ceuta ? (ceuta.goalDifference > 0 ? `+${ceuta.goalDifference}` : ceuta.goalDifference) : '—'}
+              </div>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: 8, color: 'var(--muted)', letterSpacing: '0.08em', textTransform: 'uppercase', marginTop: 4 }}>Diferencia de goles</div>
+            </div>
+            {form.length > 0 && (
+              <div style={{ flex: 2, background: 'var(--black)', borderRadius: 10, padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: 8, color: 'var(--muted)', letterSpacing: '0.08em', textTransform: 'uppercase', flexShrink: 0 }}>Últimos 5</div>
+                <div style={{ display: 'flex', gap: 4 }}>
                   {form.slice(-5).map((f, i) => <div key={i} className={`form-pill ${f}`}>{f}</div>)}
                 </div>
-              )}
-            </div>
-          )}
+              </div>
+            )}
+          </div>
 
           {/* Líderes dinámicos desde Supabase */}
           {leaders ? (
