@@ -70,6 +70,64 @@ function SectionHeader({ title, sub }: { title: string; sub?: string }) {
   )
 }
 
+const CDN = 'https://assets.laliga.com/squad/2025/t14705'
+
+const LEADERS_GOALS = [
+  { name: 'Marcos', value: 13, photo: `${CDN}/p604116/256x256/p604116_t14705_2025_1_003_000.png` },
+  { name: 'Zalazar', value: 6, photo: `${CDN}/p179371/256x256/p179371_t14705_2025_1_003_000.png` },
+  { name: 'Rubén Díez', value: 5, photo: `${CDN}/p464496/256x256/p464496_t14705_2025_1_003_000.png` },
+  { name: 'Matos', value: 4, photo: `${CDN}/p603604/256x256/p603604_t14705_2025_1_003_000.png` },
+  { name: 'Konrad', value: 3, photo: `${CDN}/p432753/256x256/p432753_t14705_2025_1_003_000.png` },
+]
+
+const LEADERS_ASSISTS = [
+  { name: 'Zalazar', value: 4, photo: `${CDN}/p179371/256x256/p179371_t14705_2025_1_003_000.png` },
+  { name: 'Koné', value: 4, photo: `${CDN}/p213838/256x256/p213838_t14705_2025_1_003_000.png` },
+  { name: 'Marino', value: 3, photo: `${CDN}/p484783/256x256/p484783_t14705_2025_1_003_000.png` },
+  { name: 'Matos', value: 2, photo: `${CDN}/p603604/256x256/p603604_t14705_2025_1_003_000.png` },
+  { name: 'Youness', value: 2, photo: `${CDN}/p207724/256x256/p207724_t14705_2025_1_003_000.png` },
+]
+
+const LEADERS_SHOTS = [
+  { name: 'Marcos', value: 31, photo: `${CDN}/p604116/256x256/p604116_t14705_2025_1_003_000.png` },
+  { name: 'Zalazar', value: 16, photo: `${CDN}/p179371/256x256/p179371_t14705_2025_1_003_000.png` },
+  { name: 'Matos', value: 13, photo: `${CDN}/p603604/256x256/p603604_t14705_2025_1_003_000.png` },
+  { name: 'Konrad', value: 13, photo: `${CDN}/p432753/256x256/p432753_t14705_2025_1_003_000.png` },
+  { name: 'Carlos Hdez.', value: 10, photo: `${CDN}/p95677/256x256/p95677_t14705_2025_1_003_000.png` },
+]
+
+function StatLeaderSection({ title, icon, leaders, max }: {
+  title: string
+  icon: string
+  leaders: { name: string; value: number; photo: string }[]
+  max: number
+}) {
+  return (
+    <div style={{ margin: '0 12px 12px', background: 'var(--black)', borderRadius: 'var(--radius)', overflow: 'hidden' }}>
+      <div style={{ padding: '12px 16px 8px', display: 'flex', alignItems: 'center', gap: 8, borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+        <span style={{ fontSize: 14 }}>{icon}</span>
+        <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 11, color: 'var(--white)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>{title}</span>
+      </div>
+      <div style={{ padding: '4px 0' }}>
+        {leaders.map((l, i) => (
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 16px', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
+            <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 11, color: i === 0 ? 'var(--red)' : 'var(--muted)', width: 16, textAlign: 'right', flexShrink: 0 }}>{i + 1}</span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={l.photo} alt={l.name} style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover', objectPosition: 'top', flexShrink: 0, border: i === 0 ? '2px solid var(--red)' : '2px solid transparent' }} />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 12, color: 'var(--white)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{l.name}</div>
+              <div style={{ marginTop: 4, height: 4, background: 'rgba(255,255,255,0.08)', borderRadius: 2, overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: `${Math.round((l.value / max) * 100)}%`, background: i === 0 ? 'var(--red)' : 'rgba(255,255,255,0.3)', borderRadius: 2 }} />
+              </div>
+            </div>
+            <span style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 16, color: i === 0 ? 'var(--white)' : 'var(--muted)', flexShrink: 0 }}>{l.value}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 function CollapsibleStaff() {
   const [open, setOpen] = useState(false)
 
@@ -258,7 +316,7 @@ export function ClubPage() {
           </div>
 
           {/* Goles en una sola fila */}
-          <div style={{ margin: '0 12px 10px', background: 'var(--black)', borderRadius: 'var(--radius)', padding: '14px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ margin: '0 12px 16px', background: 'var(--black)', borderRadius: 'var(--radius)', padding: '14px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 24, color: 'var(--white)' }}>{ceuta?.goalsFor ?? '—'}</div>
               <div style={{ fontFamily: 'var(--font-display)', fontSize: 9, color: 'var(--muted)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>GF</div>
@@ -281,6 +339,15 @@ export function ClubPage() {
               <div style={{ fontFamily: 'var(--font-display)', fontSize: 9, color: 'var(--muted)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Victorias</div>
             </div>
           </div>
+
+          {/* Líderes: Goleadores */}
+          <StatLeaderSection title="Goleadores" icon="⚽" leaders={LEADERS_GOALS} max={13} />
+
+          {/* Líderes: Asistencias */}
+          <StatLeaderSection title="Asistencias" icon="🎯" leaders={LEADERS_ASSISTS} max={4} />
+
+          {/* Líderes: Disparos */}
+          <StatLeaderSection title="Disparos" icon="🥊" leaders={LEADERS_SHOTS} max={31} />
         </>
       )}
 
