@@ -206,6 +206,7 @@ export function ClubPage() {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [ceuta, setCeuta] = useState<StandingEntry | null>(null);
+  const [form, setForm] = useState<string[]>([]);
   const [leaders, setLeaders] = useState<LeadersMap | null>(null);
 
   useEffect(() => {
@@ -228,13 +229,23 @@ export function ClubPage() {
       })
       .catch(() => {})
 
+    fetch('/api/matches/results')
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.form) setForm(d.form) })
+      .catch(() => {})
+
     fetch('/api/stats/leaders')
       .then(r => r.ok ? r.json() : null)
       .then(d => { if (d?.leaders) setLeaders(d.leaders) })
       .catch(() => {})
   }, [])
 
-  const winPct = ceuta ? Math.round((ceuta.won / ceuta.played) * 100) : 0
+  function getZoneLabel(pos: number): string {
+    if (pos <= 2) return 'Ascenso directo'
+    if (pos <= 6) return 'Zona play-off'
+    if (pos >= 19) return 'Zona descenso'
+    return 'Zona media'
+  }
 
   return (
     <div className="page">
@@ -261,68 +272,40 @@ export function ClubPage() {
       {/* ── TEMPORADA ── */}
       {tab === 'stats' && (
         <>
-          {/* Hero card: posición + puntos */}
-          <div style={{ margin: '0 12px 10px', background: 'var(--black)', borderRadius: 'var(--radius)', padding: '20px 20px 18px', position: 'relative', overflow: 'hidden' }}>
-            <div style={{ position: 'absolute', right: -10, top: -10, fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 120, color: 'rgba(255,255,255,0.03)', lineHeight: 1, pointerEvents: 'none', userSelect: 'none' }}>
-              {ceuta?.position ?? '—'}
-            </div>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: 10, color: 'var(--muted)', letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 6 }}>Segunda División · 2025–26</div>
-            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 16 }}>
-              <div>
-                <div style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 64, color: 'var(--red)', lineHeight: 1 }}>
-                  {ceuta ? `${ceuta.position}º` : '—'}
+          {/* Card idéntica a clasificación */}
+          {ceuta && (
+            <div className="clas-mine-card">
+              <div className="clas-mine-top">
+                <div className="clas-pos-big">
+                  {ceuta.position}<span className="clas-pos-sup">º</span>
                 </div>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: 10, color: 'var(--muted)', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: 4 }}>Clasificación</div>
-              </div>
-              <div style={{ width: 1, height: 50, background: 'rgba(255,255,255,0.08)' }} />
-              <div>
-                <div style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 64, color: 'var(--white)', lineHeight: 1 }}>
-                  {ceuta?.points ?? '—'}
+                <div className="clas-mine-meta">
+                  <div className="clas-mine-name">AD Ceuta FC</div>
+                  <div className="clas-mine-sub">{getZoneLabel(ceuta.position)}</div>
                 </div>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: 10, color: 'var(--muted)', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: 4 }}>Puntos</div>
+                <div className="clas-mine-pts-block">
+                  <div className="clas-mine-pts-num">{ceuta.points}</div>
+                  <div className="clas-mine-pts-lbl">Puntos</div>
+                </div>
               </div>
-            </div>
-          </div>
-
-          {/* Fila compacta J/V/E/D */}
-          <div style={{ display: 'flex', gap: 6, padding: '0 12px', marginBottom: 10 }}>
-            {[
-              { v: ceuta?.played, l: 'J' },
-              { v: ceuta?.won, l: 'V' },
-              { v: ceuta?.drawn, l: 'E' },
-              { v: ceuta?.lost, l: 'D' },
-            ].map(({ v, l }) => (
-              <div key={l} style={{ flex: 1, background: 'var(--black)', borderRadius: 10, padding: '10px 0', textAlign: 'center' }}>
-                <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 20, color: 'var(--white)', lineHeight: 1 }}>{v ?? '—'}</div>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: 9, color: 'var(--muted)', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: 3 }}>{l}</div>
+              <div className="clas-mine-stats">
+                <div className="clas-mini-stat"><div className="clas-mini-num">{ceuta.played}</div><div className="clas-mini-lbl">PJ</div></div>
+                <div className="clas-mini-stat"><div className="clas-mini-num">{ceuta.won}</div><div className="clas-mini-lbl">PG</div></div>
+                <div className="clas-mini-stat"><div className="clas-mini-num">{ceuta.drawn}</div><div className="clas-mini-lbl">PE</div></div>
+                <div className="clas-mini-stat"><div className="clas-mini-num">{ceuta.lost}</div><div className="clas-mini-lbl">PP</div></div>
+                <div className="clas-mini-stat">
+                  <div className="clas-mini-num">{ceuta.goalDifference > 0 ? `+${ceuta.goalDifference}` : ceuta.goalDifference}</div>
+                  <div className="clas-mini-lbl">DG</div>
+                </div>
               </div>
-            ))}
-          </div>
-
-          {/* Goles en una sola fila */}
-          <div style={{ margin: '0 12px 16px', background: 'var(--black)', borderRadius: 'var(--radius)', padding: '14px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 24, color: 'var(--white)' }}>{ceuta?.goalsFor ?? '—'}</div>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: 9, color: 'var(--muted)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>GF</div>
+              {form.length > 0 && (
+                <div className="clas-mine-form">
+                  <span className="clas-mine-form-lbl">Últimos 5</span>
+                  {form.slice(-5).map((f, i) => <div key={i} className={`form-pill ${f}`}>{f}</div>)}
+                </div>
+              )}
             </div>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: 9, color: 'var(--muted)', letterSpacing: '0.1em' }}>·</div>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 24, color: 'var(--red)' }}>{ceuta?.goalsAgainst ?? '—'}</div>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: 9, color: 'var(--muted)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>GC</div>
-            </div>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: 9, color: 'var(--muted)', letterSpacing: '0.1em' }}>·</div>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 24, color: ceuta && ceuta.goalDifference >= 0 ? 'var(--white)' : 'var(--red)' }}>
-                {ceuta ? (ceuta.goalDifference > 0 ? `+${ceuta.goalDifference}` : ceuta.goalDifference) : '—'}
-              </div>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: 9, color: 'var(--muted)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>DG</div>
-            </div>
-            <div style={{ width: 1, height: 36, background: 'rgba(255,255,255,0.08)' }} />
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 24, color: 'var(--white)' }}>{winPct}%</div>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: 9, color: 'var(--muted)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Victorias</div>
-            </div>
-          </div>
+          )}
 
           {/* Líderes dinámicos desde Supabase */}
           {leaders ? (
