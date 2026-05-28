@@ -249,11 +249,9 @@ export function ClubPage() {
 
   return (
     <div className="page">
-      <div className="sec-header" style={{ paddingTop: 20 }}>
-        <div>
-          <div className="sec-title-small">Temporada 2025–26</div>
-          <div className="sec-title">AD Ceuta FC</div>
-        </div>
+      <div className="clas-hero-eyebrow" style={{ padding: '20px 16px 4px' }}>Temporada 2025–26</div>
+      <div style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 28, color: 'var(--black)', letterSpacing: '0.01em', textTransform: 'uppercase', padding: '0 16px 12px' }}>
+        AD Ceuta FC
       </div>
 
       {/* Tabs */}
@@ -272,9 +270,9 @@ export function ClubPage() {
       {/* ── TEMPORADA ── */}
       {tab === 'stats' && (
         <>
-          {/* Card idéntica a clasificación */}
+          {/* Card idéntica a clasificación, sin el margin negativo del hero */}
           {ceuta && (
-            <div className="clas-mine-card">
+            <div className="clas-mine-card" style={{ margin: '0 12px 16px' }}>
               <div className="clas-mine-top">
                 <div className="clas-pos-big">
                   {ceuta.position}<span className="clas-pos-sup">º</span>
