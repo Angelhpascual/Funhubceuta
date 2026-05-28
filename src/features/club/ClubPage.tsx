@@ -76,6 +76,51 @@ function SectionHeader({ title, sub }: { title: string; sub?: string }) {
   )
 }
 
+function CollapsibleStaff() {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <div style={{ marginBottom: 4 }}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        style={{
+          width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          background: 'var(--black)', border: 'none', padding: '12px 16px',
+          borderRadius: open ? '10px 10px 0 0' : 'var(--radius)',
+          cursor: 'pointer',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 3, height: 16, background: 'var(--red)', borderRadius: 2 }} />
+          <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 12, color: 'var(--white)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+            Cuerpo técnico
+          </span>
+          <span style={{ fontFamily: 'var(--font-display)', fontSize: 10, color: 'var(--muted)', letterSpacing: '0.06em' }}>
+            {STAFF.length} miembros
+          </span>
+        </div>
+        <span style={{ color: 'var(--muted)', fontSize: 14, transition: 'transform 0.2s', display: 'inline-block', transform: open ? 'rotate(180deg)' : 'none' }}>▼</span>
+      </button>
+
+      {open && (
+        <div style={{ background: 'var(--bg-soft)', borderRadius: '0 0 10px 10px', overflow: 'hidden' }}>
+          {STAFF.map((s, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 16px', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
+              <div style={{ width: 38, height: 38, borderRadius: '50%', background: i === 0 ? 'var(--red)' : 'var(--black)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>
+                {s.emoji}
+              </div>
+              <div>
+                <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 13, color: 'var(--white)' }}>{s.name}</div>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: 10, color: 'var(--muted)', letterSpacing: '0.08em', textTransform: 'uppercase', marginTop: 2 }}>{s.role}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 function CollapsibleGroup({ group, players, defaultOpen }: { group: string; players: Player[]; defaultOpen?: boolean }) {
   const [open, setOpen] = useState(defaultOpen ?? false)
 
@@ -249,20 +294,9 @@ export function ClubPage() {
       {/* ── PLANTILLA ── */}
       {tab === 'plantilla' && (
         <>
-          {/* Cuerpo técnico */}
-          <div style={{ padding: '0 12px 6px', fontFamily: 'var(--font-display)', fontSize: 10, color: 'var(--muted)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Cuerpo técnico</div>
-          <div style={{ padding: '0 12px', display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 16 }}>
-            {STAFF.map((s, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14, background: 'var(--black)', borderRadius: 10, padding: '12px 16px' }}>
-                <div style={{ width: 40, height: 40, borderRadius: '50%', background: i === 0 ? 'var(--red)' : 'var(--bg-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>
-                  {s.emoji}
-                </div>
-                <div>
-                  <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 13, color: 'var(--white)' }}>{s.name}</div>
-                  <div style={{ fontFamily: 'var(--font-display)', fontSize: 10, color: 'var(--muted)', letterSpacing: '0.08em', textTransform: 'uppercase', marginTop: 2 }}>{s.role}</div>
-                </div>
-              </div>
-            ))}
+          {/* Cuerpo técnico colapsable */}
+          <div style={{ padding: '0 12px', marginBottom: 4 }}>
+            <CollapsibleStaff />
           </div>
 
           {/* Jugadores */}
