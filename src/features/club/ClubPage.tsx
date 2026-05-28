@@ -24,10 +24,14 @@ const NAT_FLAGS: Record<string, string> = {
 }
 
 const STAFF = [
-  { name: 'David Álvarez "Polaco"', role: 'Entrenador', emoji: '🧠' },
-  { name: 'Alejandro Pascual', role: 'Segundo entrenador', emoji: '📋' },
-  { name: 'José María Calleja', role: 'Preparador físico', emoji: '💪' },
-  { name: 'Aitor Unzueta', role: 'Entrenador de porteros', emoji: '🧤' },
+  { name: 'José Juan Romero', role: 'Entrenador', emoji: '🧠' },
+  { name: 'Antonio José', role: 'Segundo entrenador', emoji: '📋' },
+  { name: 'Mane', role: 'Preparador físico', emoji: '💪' },
+  { name: 'Reda', role: 'Entrenador de porteros', emoji: '🧤' },
+  { name: 'Raúl Alcázar', role: 'Analista', emoji: '📊' },
+  { name: 'Diego Torrón', role: 'Fisioterapeuta', emoji: '🏥' },
+  { name: 'Raquel Fernández', role: 'Fisioterapeuta', emoji: '🏥' },
+  { name: 'Victoria Ríos', role: 'Nutricionista', emoji: '🥗' },
 ]
 
 const HISTORIA = [
