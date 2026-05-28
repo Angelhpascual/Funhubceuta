@@ -24,14 +24,8 @@ const NAT_FLAGS: Record<string, string> = {
 }
 
 const STAFF = [
-  { name: 'José Juan Romero', role: 'Entrenador', emoji: '🧠', photo: 'https://assets.laliga.com/squad/2025/t14705/man53081/512x512/man53081_t14705_2025_1_003_000.png' },
-  { name: 'Antonio José Sánchez', role: 'Segundo entrenador', emoji: '📋', photo: 'https://assets.laliga.com/squad/2025/t14705/man67065/512x512/man67065_t14705_2025_1_003_000.png' },
-  { name: 'Mane', role: 'Preparador físico', emoji: '💪', photo: null },
-  { name: 'Reda', role: 'Entrenador de porteros', emoji: '🧤', photo: null },
-  { name: 'Raúl Alcázar', role: 'Analista', emoji: '📊', photo: null },
-  { name: 'Diego Torrón', role: 'Fisioterapeuta', emoji: '🏥', photo: null },
-  { name: 'Raquel Fernández', role: 'Fisioterapeuta', emoji: '🏥', photo: null },
-  { name: 'Victoria Ríos', role: 'Nutricionista', emoji: '🥗', photo: null },
+  { name: 'José Juan Romero', role: 'Entrenador', photo: 'https://assets.laliga.com/squad/2025/t14705/man53081/512x512/man53081_t14705_2025_1_003_000.png' },
+  { name: 'Antonio José Sánchez', role: 'Segundo entrenador', photo: 'https://assets.laliga.com/squad/2025/t14705/man67065/512x512/man67065_t14705_2025_1_003_000.png' },
 ]
 
 const HISTORIA = [
@@ -106,14 +100,8 @@ function CollapsibleStaff() {
         <div style={{ background: 'var(--bg-soft)', borderRadius: '0 0 10px 10px', overflow: 'hidden' }}>
           {STAFF.map((s, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 16px', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
-              {s.photo ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={s.photo} alt={s.name} style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover', objectPosition: 'top', flexShrink: 0 }} />
-              ) : (
-                <div style={{ width: 44, height: 44, borderRadius: '50%', background: i === 0 ? 'var(--red)' : 'var(--black)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>
-                  {s.emoji}
-                </div>
-              )}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={s.photo} alt={s.name} style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover', objectPosition: 'top', flexShrink: 0 }} />
               <div>
                 <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 13, color: 'var(--white)' }}>{s.name}</div>
                 <div style={{ fontFamily: 'var(--font-display)', fontSize: 10, color: 'var(--muted)', letterSpacing: '0.08em', textTransform: 'uppercase', marginTop: 2 }}>{s.role}</div>
