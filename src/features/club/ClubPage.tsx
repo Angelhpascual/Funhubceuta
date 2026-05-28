@@ -60,20 +60,6 @@ function capitalize(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase()
 }
 
-function StatTile({ value, label, accent }: { value: string | number; label: string; accent?: boolean }) {
-  return (
-    <div style={{
-      background: accent ? 'var(--red)' : 'var(--black)',
-      borderRadius: 'var(--radius)',
-      padding: '14px 12px',
-      textAlign: 'center',
-      flex: 1,
-    }}>
-      <div style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 26, color: 'var(--white)', lineHeight: 1 }}>{value}</div>
-      <div style={{ fontFamily: 'var(--font-display)', fontSize: 9, color: accent ? 'rgba(255,255,255,0.7)' : 'var(--muted)', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: 4 }}>{label}</div>
-    </div>
-  )
-}
 
 function SectionHeader({ title, sub }: { title: string; sub?: string }) {
   return (
@@ -191,55 +177,76 @@ export function ClubPage() {
       {/* ── TEMPORADA ── */}
       {tab === 'stats' && (
         <>
-          {/* Big stats */}
-          <div style={{ display: 'flex', gap: 8, padding: '0 12px', marginBottom: 8 }}>
-            <StatTile value={ceuta ? `${ceuta.position}º` : '—'} label="Posición" accent />
-            <StatTile value={ceuta?.points ?? '—'} label="Puntos" />
-            <StatTile value={ceuta?.played ?? '—'} label="Jornadas" />
-          </div>
-
-          <div style={{ display: 'flex', gap: 8, padding: '0 12px', marginBottom: 16 }}>
-            <StatTile value={ceuta?.won ?? '—'} label="Victorias" />
-            <StatTile value={ceuta?.drawn ?? '—'} label="Empates" />
-            <StatTile value={ceuta?.lost ?? '—'} label="Derrotas" />
-          </div>
-
-          {/* Goles */}
-          <div style={{ margin: '0 12px 8px', background: 'var(--black)', borderRadius: 'var(--radius)', padding: '16px' }}>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: 10, color: 'var(--muted)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 12 }}>Rendimiento ofensivo</div>
-            <div style={{ display: 'flex', justifyContent: 'space-around' }}>
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 32, color: 'var(--white)' }}>{ceuta?.goalsFor ?? '—'}</div>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: 9, color: 'var(--muted)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Goles a favor</div>
-              </div>
-              <div style={{ width: 1, background: 'rgba(255,255,255,0.08)' }} />
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 32, color: 'var(--red)' }}>{ceuta?.goalsAgainst ?? '—'}</div>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: 9, color: 'var(--muted)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Goles en contra</div>
-              </div>
-              <div style={{ width: 1, background: 'rgba(255,255,255,0.08)' }} />
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 32, color: ceuta && ceuta.goalDifference >= 0 ? 'var(--white)' : 'var(--red)' }}>
-                  {ceuta ? (ceuta.goalDifference > 0 ? `+${ceuta.goalDifference}` : ceuta.goalDifference) : '—'}
+          {/* Hero card: posición + puntos */}
+          <div style={{ margin: '0 12px 10px', background: 'var(--black)', borderRadius: 'var(--radius)', padding: '20px 20px 18px', position: 'relative', overflow: 'hidden' }}>
+            <div style={{ position: 'absolute', right: -10, top: -10, fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 120, color: 'rgba(255,255,255,0.03)', lineHeight: 1, pointerEvents: 'none', userSelect: 'none' }}>
+              {ceuta?.position ?? '—'}
+            </div>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 10, color: 'var(--muted)', letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 6 }}>Segunda División · 2025–26</div>
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 16 }}>
+              <div>
+                <div style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 64, color: 'var(--red)', lineHeight: 1 }}>
+                  {ceuta ? `${ceuta.position}º` : '—'}
                 </div>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: 9, color: 'var(--muted)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Diferencia</div>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: 10, color: 'var(--muted)', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: 4 }}>Clasificación</div>
+              </div>
+              <div style={{ width: 1, height: 50, background: 'rgba(255,255,255,0.08)' }} />
+              <div>
+                <div style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 64, color: 'var(--white)', lineHeight: 1 }}>
+                  {ceuta?.points ?? '—'}
+                </div>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: 10, color: 'var(--muted)', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: 4 }}>Puntos</div>
               </div>
             </div>
           </div>
 
-          {/* % victorias */}
-          <div style={{ margin: '0 12px 8px', background: 'var(--black)', borderRadius: 'var(--radius)', padding: '16px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: 10, color: 'var(--muted)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>% de victorias</div>
-              <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 18, color: 'var(--white)' }}>{winPct}%</div>
-            </div>
-            <div style={{ height: 6, background: 'rgba(255,255,255,0.08)', borderRadius: 3, overflow: 'hidden' }}>
-              <div style={{ height: '100%', width: `${winPct}%`, background: 'var(--red)', borderRadius: 3, transition: 'width 0.8s ease' }} />
-            </div>
+          {/* Fila compacta J/V/E/D */}
+          <div style={{ display: 'flex', gap: 6, padding: '0 12px', marginBottom: 10 }}>
+            {[
+              { v: ceuta?.played, l: 'J' },
+              { v: ceuta?.won, l: 'V' },
+              { v: ceuta?.drawn, l: 'E' },
+              { v: ceuta?.lost, l: 'D' },
+            ].map(({ v, l }) => (
+              <div key={l} style={{ flex: 1, background: 'var(--black)', borderRadius: 10, padding: '10px 0', textAlign: 'center' }}>
+                <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 20, color: 'var(--white)', lineHeight: 1 }}>{v ?? '—'}</div>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: 9, color: 'var(--muted)', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: 3 }}>{l}</div>
+              </div>
+            ))}
           </div>
 
+          {/* Goles en una sola fila */}
+          <div style={{ margin: '0 12px 10px', background: 'var(--black)', borderRadius: 'var(--radius)', padding: '14px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 24, color: 'var(--white)' }}>{ceuta?.goalsFor ?? '—'}</div>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: 9, color: 'var(--muted)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>GF</div>
+            </div>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 9, color: 'var(--muted)', letterSpacing: '0.1em' }}>·</div>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 24, color: 'var(--red)' }}>{ceuta?.goalsAgainst ?? '—'}</div>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: 9, color: 'var(--muted)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>GC</div>
+            </div>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 9, color: 'var(--muted)', letterSpacing: '0.1em' }}>·</div>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 24, color: ceuta && ceuta.goalDifference >= 0 ? 'var(--white)' : 'var(--red)' }}>
+                {ceuta ? (ceuta.goalDifference > 0 ? `+${ceuta.goalDifference}` : ceuta.goalDifference) : '—'}
+              </div>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: 9, color: 'var(--muted)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>DG</div>
+            </div>
+            <div style={{ width: 1, height: 36, background: 'rgba(255,255,255,0.08)' }} />
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 24, color: 'var(--white)' }}>{winPct}%</div>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: 9, color: 'var(--muted)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Victorias</div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* ── PLANTILLA ── */}
+      {tab === 'plantilla' && (
+        <>
           {/* Cuerpo técnico */}
-          <SectionHeader title="Cuerpo técnico" sub="Staff" />
+          <div style={{ padding: '0 12px 6px', fontFamily: 'var(--font-display)', fontSize: 10, color: 'var(--muted)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Cuerpo técnico</div>
           <div style={{ padding: '0 12px', display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 16 }}>
             {STAFF.map((s, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14, background: 'var(--black)', borderRadius: 10, padding: '12px 16px' }}>
@@ -253,14 +260,10 @@ export function ClubPage() {
               </div>
             ))}
           </div>
-        </>
-      )}
 
-      {/* ── PLANTILLA ── */}
-      {tab === 'plantilla' && (
-        <>
-          <div style={{ padding: '0 12px 12px', fontFamily: 'var(--font-display)', fontSize: 11, color: 'var(--muted)', letterSpacing: '0.06em' }}>
-            {total} jugadores · Toca cada línea para expandir
+          {/* Jugadores */}
+          <div style={{ padding: '0 12px 6px', fontFamily: 'var(--font-display)', fontSize: 10, color: 'var(--muted)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+            Jugadores · {total} · toca para expandir
           </div>
           {loading ? (
             <div style={{ padding: '30px 16px', textAlign: 'center', fontFamily: 'var(--font-display)', fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--muted)' }}>
