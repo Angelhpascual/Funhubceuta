@@ -303,8 +303,8 @@ export function ClubPage() {
               { v: ceuta?.goalsFor, l: 'Goles a favor' },
               { v: ceuta?.goalsAgainst, l: 'Goles en contra' },
             ].map(({ v, l }) => (
-              <div key={l} style={{ background: 'var(--black)', borderRadius: 10, padding: '12px 10px', textAlign: 'center' }}>
-                <div style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 22, color: 'var(--white)', lineHeight: 1 }}>{v ?? '—'}</div>
+              <div key={l} style={{ background: 'var(--white)', borderRadius: 10, padding: '12px 10px', textAlign: 'center', border: '2px solid var(--black)', boxShadow: '3px 3px 0 var(--red)' }}>
+                <div style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 22, color: 'var(--black)', lineHeight: 1 }}>{v ?? '—'}</div>
                 <div style={{ fontFamily: 'var(--font-display)', fontSize: 8, color: 'var(--muted)', letterSpacing: '0.08em', textTransform: 'uppercase', marginTop: 4, lineHeight: 1.3 }}>{l}</div>
               </div>
             ))}
@@ -312,14 +312,14 @@ export function ClubPage() {
 
           {/* Diferencia de goles + últimos 5 */}
           <div style={{ display: 'flex', gap: 6, padding: '0 12px', marginBottom: 16 }}>
-            <div style={{ flex: 1, background: 'var(--black)', borderRadius: 10, padding: '12px', textAlign: 'center' }}>
-              <div style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 22, color: ceuta && ceuta.goalDifference >= 0 ? 'var(--white)' : 'var(--red)', lineHeight: 1 }}>
+            <div style={{ flex: 1, background: 'var(--white)', borderRadius: 10, padding: '12px', textAlign: 'center', border: '2px solid var(--black)', boxShadow: '3px 3px 0 var(--red)' }}>
+              <div style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 22, color: ceuta && ceuta.goalDifference >= 0 ? 'var(--black)' : 'var(--red)', lineHeight: 1 }}>
                 {ceuta ? (ceuta.goalDifference > 0 ? `+${ceuta.goalDifference}` : ceuta.goalDifference) : '—'}
               </div>
               <div style={{ fontFamily: 'var(--font-display)', fontSize: 8, color: 'var(--muted)', letterSpacing: '0.08em', textTransform: 'uppercase', marginTop: 4 }}>Diferencia de goles</div>
             </div>
             {form.length > 0 && (
-              <div style={{ flex: 2, background: 'var(--black)', borderRadius: 10, padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ flex: 2, background: 'var(--white)', borderRadius: 10, padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 8, border: '2px solid var(--black)', boxShadow: '3px 3px 0 var(--red)' }}>
                 <div style={{ fontFamily: 'var(--font-display)', fontSize: 8, color: 'var(--muted)', letterSpacing: '0.08em', textTransform: 'uppercase', flexShrink: 0 }}>Últimos 5</div>
                 <div style={{ display: 'flex', gap: 4 }}>
                   {form.slice(-5).map((f, i) => <div key={i} className={`form-pill ${f}`}>{f}</div>)}
