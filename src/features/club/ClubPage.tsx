@@ -99,12 +99,12 @@ function CollapsibleStaff() {
       {open && (
         <div style={{ background: 'var(--bg-soft)', borderRadius: '0 0 10px 10px', overflow: 'hidden' }}>
           {STAFF.map((s, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 16px', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
+            <div key={i} className="player-row" style={{ borderRadius: 0, borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={s.photo} alt={s.name} style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover', objectPosition: 'top', flexShrink: 0 }} />
-              <div>
-                <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 13, color: 'var(--white)' }}>{s.name}</div>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: 10, color: 'var(--muted)', letterSpacing: '0.08em', textTransform: 'uppercase', marginTop: 2 }}>{s.role}</div>
+              <img src={s.photo} alt={s.name} style={{ width: 38, height: 38, borderRadius: '50%', objectFit: 'cover', objectPosition: 'top', flexShrink: 0 }} />
+              <div className="player-info">
+                <div className="player-name" style={{ fontSize: 13 }}>{s.name}</div>
+                <div className="player-pos">{s.role}</div>
               </div>
             </div>
           ))}
