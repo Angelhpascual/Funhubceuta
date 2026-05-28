@@ -271,18 +271,18 @@ export function ClubPage() {
       {tab === 'stats' && (
         <>
           {/* Hero: posición + puntos */}
-          <div style={{ margin: '0 12px 8px', background: 'var(--black)', borderRadius: 'var(--radius)', padding: '20px', position: 'relative', overflow: 'hidden', border: '2px solid var(--black)', boxShadow: '4px 4px 0 var(--red)' }}>
-            <div style={{ position: 'absolute', right: -8, top: -8, fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 130, color: 'rgba(255,255,255,0.04)', lineHeight: 1, pointerEvents: 'none', userSelect: 'none' }}>
+          <div style={{ margin: '0 12px 8px', background: 'var(--white)', borderRadius: 'var(--radius)', padding: '20px', position: 'relative', overflow: 'hidden', border: '2px solid var(--black)', boxShadow: '6px 6px 0 var(--red)' }}>
+            <div style={{ position: 'absolute', right: -8, top: -8, fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 130, color: 'rgba(0,0,0,0.04)', lineHeight: 1, pointerEvents: 'none', userSelect: 'none' }}>
               {ceuta?.position}
             </div>
             <div style={{ fontFamily: 'var(--font-display)', fontSize: 10, color: 'var(--red)', letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 700, marginBottom: 8 }}>Segunda División · 2025–26</div>
             <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', alignItems: 'flex-end', gap: 14 }}>
-                <div style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 72, color: 'var(--white)', lineHeight: 0.85, letterSpacing: '-0.02em' }}>
+                <div style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 72, color: 'var(--black)', lineHeight: 0.85, letterSpacing: '-0.02em' }}>
                   {ceuta?.position ?? '—'}<span style={{ fontSize: 22, color: 'var(--red)', verticalAlign: 'super' }}>º</span>
                 </div>
                 <div style={{ paddingBottom: 4 }}>
-                  <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 16, color: 'var(--white)', letterSpacing: '0.02em', textTransform: 'uppercase' }}>AD Ceuta FC</div>
+                  <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 16, color: 'var(--black)', letterSpacing: '0.02em', textTransform: 'uppercase' }}>AD Ceuta FC</div>
                   <div style={{ fontFamily: 'var(--font-display)', fontSize: 10, color: 'var(--muted)', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: 2 }}>{ceuta ? getZoneLabel(ceuta.position) : ''}</div>
                 </div>
               </div>
