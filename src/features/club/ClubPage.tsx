@@ -70,31 +70,9 @@ function SectionHeader({ title, sub }: { title: string; sub?: string }) {
   )
 }
 
-const CDN = 'https://assets.laliga.com/squad/2025/t14705'
-
-const LEADERS_GOALS = [
-  { name: 'Marcos', value: 13, photo: `${CDN}/p604116/256x256/p604116_t14705_2025_1_003_000.png` },
-  { name: 'Zalazar', value: 6, photo: `${CDN}/p179371/256x256/p179371_t14705_2025_1_003_000.png` },
-  { name: 'Rubén Díez', value: 5, photo: `${CDN}/p464496/256x256/p464496_t14705_2025_1_003_000.png` },
-  { name: 'Matos', value: 4, photo: `${CDN}/p603604/256x256/p603604_t14705_2025_1_003_000.png` },
-  { name: 'Konrad', value: 3, photo: `${CDN}/p432753/256x256/p432753_t14705_2025_1_003_000.png` },
-]
-
-const LEADERS_ASSISTS = [
-  { name: 'Zalazar', value: 4, photo: `${CDN}/p179371/256x256/p179371_t14705_2025_1_003_000.png` },
-  { name: 'Koné', value: 4, photo: `${CDN}/p213838/256x256/p213838_t14705_2025_1_003_000.png` },
-  { name: 'Marino', value: 3, photo: `${CDN}/p484783/256x256/p484783_t14705_2025_1_003_000.png` },
-  { name: 'Matos', value: 2, photo: `${CDN}/p603604/256x256/p603604_t14705_2025_1_003_000.png` },
-  { name: 'Youness', value: 2, photo: `${CDN}/p207724/256x256/p207724_t14705_2025_1_003_000.png` },
-]
-
-const LEADERS_SHOTS = [
-  { name: 'Marcos', value: 31, photo: `${CDN}/p604116/256x256/p604116_t14705_2025_1_003_000.png` },
-  { name: 'Zalazar', value: 16, photo: `${CDN}/p179371/256x256/p179371_t14705_2025_1_003_000.png` },
-  { name: 'Matos', value: 13, photo: `${CDN}/p603604/256x256/p603604_t14705_2025_1_003_000.png` },
-  { name: 'Konrad', value: 13, photo: `${CDN}/p432753/256x256/p432753_t14705_2025_1_003_000.png` },
-  { name: 'Carlos Hdez.', value: 10, photo: `${CDN}/p95677/256x256/p95677_t14705_2025_1_003_000.png` },
-]
+interface Leader { name: string; value: number; photo: string }
+interface LeaderCategory { label: string; icon: string; leaders: Leader[] }
+type LeadersMap = Record<string, LeaderCategory>
 
 function StatLeaderSection({ title, icon, leaders, max }: {
   title: string
@@ -228,6 +206,7 @@ export function ClubPage() {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [ceuta, setCeuta] = useState<StandingEntry | null>(null);
+  const [leaders, setLeaders] = useState<LeadersMap | null>(null);
 
   useEffect(() => {
     fetch('/api/squad')
@@ -247,6 +226,11 @@ export function ClubPage() {
           if (c) setCeuta(c)
         }
       })
+      .catch(() => {})
+
+    fetch('/api/stats/leaders')
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.leaders) setLeaders(d.leaders) })
       .catch(() => {})
   }, [])
 
@@ -340,14 +324,22 @@ export function ClubPage() {
             </div>
           </div>
 
-          {/* Líderes: Goleadores */}
-          <StatLeaderSection title="Goleadores" icon="⚽" leaders={LEADERS_GOALS} max={13} />
-
-          {/* Líderes: Asistencias */}
-          <StatLeaderSection title="Asistencias" icon="🎯" leaders={LEADERS_ASSISTS} max={4} />
-
-          {/* Líderes: Disparos */}
-          <StatLeaderSection title="Disparos" icon="🥊" leaders={LEADERS_SHOTS} max={31} />
+          {/* Líderes dinámicos desde Supabase */}
+          {leaders ? (
+            Object.values(leaders).map((cat) => (
+              <StatLeaderSection
+                key={cat.label}
+                title={cat.label}
+                icon={cat.icon}
+                leaders={cat.leaders}
+                max={cat.leaders[0]?.value ?? 1}
+              />
+            ))
+          ) : (
+            <div style={{ margin: '0 12px', padding: '24px 0', textAlign: 'center', fontFamily: 'var(--font-display)', fontSize: 10, color: 'var(--muted)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+              Cargando estadísticas…
+            </div>
+          )}
         </>
       )}
 

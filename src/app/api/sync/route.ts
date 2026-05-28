@@ -36,6 +36,14 @@ export async function GET(request: Request) {
     results.matches = { error: String(err) }
   }
 
+  // 4. Player stats (LaLiga HTML scrape — no Puppeteer)
+  try {
+    const res = await fetch(`${getBase(request)}/api/cron/stats?secret=${secret ?? ''}`)
+    results.stats = await res.json()
+  } catch (err) {
+    results.stats = { error: String(err) }
+  }
+
   return NextResponse.json({ ok: true, results })
 }
 
