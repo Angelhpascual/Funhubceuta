@@ -3,7 +3,9 @@
 import { useEffect, useState } from 'react'
 import { NewsItem } from '@/domain/news/News'
 import { SocialLinks } from '@/components/social/TwitterTimeline'
-import { ScrapedMatch } from '@/infrastructure/scrapers/adceutaScraper'
+import { LiveMatchCard } from './LiveMatchCard'
+import { NotificationBanner } from '@/components/ui/NotificationBanner'
+import Link from 'next/link'
 
 const SOURCES: Record<string, { label: string; domain: string }> = {
   oficial:  { label: 'AD Ceuta FC',        domain: 'adceutafc.com' },
@@ -24,31 +26,30 @@ function timeAgo(dateStr: string | null): string {
   return `Hace ${days} días`
 }
 
-const THUMB_COLORS = ['red', 'black', '', 'red', 'black', '']
+const THUMB_COLORS = [
+  'bg-ceuta-red',
+  'bg-ceuta-black',
+  'bg-ceuta-bg-mid',
+  'bg-ceuta-red',
+  'bg-ceuta-black',
+  'bg-ceuta-bg-mid',
+]
 
-import { findLogo } from '@/lib/findLogo'
-import { LiveMatchCard } from './LiveMatchCard'
-import { NotificationBanner } from '@/components/ui/NotificationBanner'
-import Link from 'next/link'
-
-function TeamCrest({ name, logo }: { name: string; logo: string | null }) {
-  if (logo) {
-    return (
-      <div className="team-crest with-img">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={logo} alt={name} style={{ width: 36, height: 36, objectFit: 'contain' }} />
-      </div>
-    )
-  }
-  return <div className="team-crest">{name.slice(0, 3).toUpperCase()}</div>
+function SourceTag({ source }: { source: string }) {
+  const s = SOURCES[source]
+  if (!s) return <span className="font-display text-[10px] font-bold uppercase tracking-[0.14em] text-ceuta-red">{source}</span>
+  return (
+    <span className="flex items-center gap-1 font-display text-[10px] font-bold uppercase tracking-[0.14em] text-ceuta-red">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={`https://www.google.com/s2/favicons?domain=${s.domain}&sz=16`} alt="" width={12} height={12} className="rounded-[2px]" />
+      {s.label}
+    </span>
+  )
 }
 
 export function HomePage({ onReady, onOpenHimno }: { onReady?: () => void; onOpenHimno?: () => void }) {
   const [news, setNews] = useState<NewsItem[]>([])
   const [loading, setLoading] = useState(true)
-  const [nextMatch, setNextMatch] = useState<ScrapedMatch | null>(null)
-  const [teams, setTeams] = useState<Record<string, string>>({})
-  const [venues, setVenues] = useState<Record<string, string>>({})
 
   useEffect(() => {
     fetch('/api/news?limit=10')
@@ -56,27 +57,6 @@ export function HomePage({ onReady, onOpenHimno }: { onReady?: () => void; onOpe
       .then((data) => { if (data?.news) setNews(data.news) })
       .catch(() => {})
       .finally(() => { setLoading(false); onReady?.() })
-
-    fetch('/api/matches/next')
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => { if (data?.match) setNextMatch(data.match) })
-      .catch(() => {})
-
-    fetch('/api/teams')
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        if (data?.teams) {
-          const logos: Record<string, string> = {}
-          const venueMap: Record<string, string> = {}
-          for (const t of data.teams) {
-            if (t.logoUrl) logos[t.name] = t.logoUrl
-            if (t.venue) venueMap[t.name] = t.venue
-          }
-          setTeams(logos)
-          setVenues(venueMap)
-        }
-      })
-      .catch(() => {})
   }, [])
 
   const featured = news[0]
@@ -88,79 +68,112 @@ export function HomePage({ onReady, onOpenHimno }: { onReady?: () => void; onOpe
 
       {/* ── HERO ── */}
       {featured ? (
-        <a href={featured.url} target="_blank" rel="noopener noreferrer" className="hero-card" style={{ display: 'block' }}>
-          {featured.imageUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={featured.imageUrl} alt={featured.title} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 20%', position: 'absolute', inset: 0 }} />
-          ) : (
-            <div className="hero-img-placeholder">FOTO PARTIDO</div>
-          )}
-          <div className="hero-overlay" />
-          <div className="hero-content">
-            <div className="hero-tag" style={{ display: 'flex', alignItems: 'center', gap: 6, width: 'fit-content' }}>
+        <a
+          href={featured.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="relative mx-3 mt-3 block aspect-[16/10] cursor-pointer overflow-hidden rounded-[14px] bg-ceuta-black"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={featured.imageUrl!}
+            alt={featured.title}
+            className="absolute inset-0 size-full object-cover"
+            style={{ objectPosition: 'center 20%' }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 p-4">
+            <div className="mb-2.5 flex w-fit items-center gap-1.5 bg-ceuta-red px-[9px] py-[3px]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={`https://www.google.com/s2/favicons?domain=${SOURCES[featured.source]?.domain}&sz=16`} alt="" width={14} height={14} style={{ borderRadius: 2 }} />
-              {SOURCES[featured.source]?.label ?? featured.source}
+              <img src={`https://www.google.com/s2/favicons?domain=${SOURCES[featured.source]?.domain}&sz=16`} alt="" width={14} height={14} className="rounded-[2px]" />
+              <span className="font-display text-[10.5px] font-bold uppercase tracking-[0.12em] text-white">
+                {SOURCES[featured.source]?.label ?? featured.source}
+              </span>
             </div>
-            <div className="hero-headline">{featured.title}</div>
-            <div className="hero-meta">{timeAgo(featured.publishedAt)}</div>
+            <div className="font-display text-[24px] font-black uppercase leading-[1.05] tracking-[0.01em] text-white">
+              {featured.title}
+            </div>
+            <div className="mt-2 text-[12px] text-white/70">{timeAgo(featured.publishedAt)}</div>
           </div>
         </a>
       ) : (
-        <div className="hero-card">
-          <div className="hero-img-placeholder">{loading ? 'CARGANDO…' : 'AD CEUTA'}</div>
-          <div className="hero-overlay" />
-          <div className="hero-content">
-            <div className="hero-tag">Destacado</div>
-            <div className="hero-headline">Bienvenido al FanHub del AD Ceuta</div>
-            <div className="hero-meta">Noticias próximamente</div>
+        <div className="relative mx-3 mt-3 aspect-[16/10] overflow-hidden rounded-[14px] bg-ceuta-black">
+          <div className="flex size-full items-center justify-center font-display text-[13px] font-bold uppercase tracking-[0.1em] text-white/40">
+            {loading ? 'CARGANDO…' : 'AD CEUTA'}
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 p-4">
+            <div className="mb-2.5 w-fit bg-ceuta-red px-[9px] py-[3px] font-display text-[10.5px] font-bold uppercase tracking-[0.12em] text-white">Destacado</div>
+            <div className="font-display text-[24px] font-black uppercase leading-[1.05] text-white">Bienvenido al FanHub del AD Ceuta</div>
+            <div className="mt-2 text-[12px] text-white/70">Noticias próximamente</div>
           </div>
         </div>
       )}
 
       <NotificationBanner />
 
-      {/* ── PARTIDO EN VIVO / PRÓXIMO ── */}
-      <div className="sec-header">
+      {/* ── PRÓXIMO PARTIDO ── */}
+      <div className="flex items-end justify-between px-4 pb-3 pt-6">
         <div>
-          <div className="sec-title-small">Próximo encuentro</div>
-          <div className="sec-title">Próximo partido</div>
+          <div className="mb-1.5 font-display text-[11px] font-bold uppercase tracking-[0.14em] text-ceuta-red">
+            Próximo encuentro
+          </div>
+          <div className="font-display text-[22px] font-black uppercase tracking-[0.02em] leading-none text-ceuta-black">
+            Próximo partido
+          </div>
         </div>
       </div>
       <LiveMatchCard />
 
-
       {/* ── NOTICIAS ── */}
-      <div className="sec-header">
+      <div className="flex items-end justify-between px-4 pb-3 pt-6">
         <div>
-          <div className="sec-title-small">Actualidad</div>
-          <div className="sec-title">Últimas noticias</div>
+          <div className="mb-1.5 font-display text-[11px] font-bold uppercase tracking-[0.14em] text-ceuta-red">
+            Actualidad
+          </div>
+          <div className="font-display text-[22px] font-black uppercase tracking-[0.02em] leading-none text-ceuta-black">
+            Últimas noticias
+          </div>
         </div>
-        {news.length > 0 && <Link href="/noticias" className="sec-link" style={{ textDecoration: 'none' }}>Ver todo</Link>}
+        {news.length > 0 && (
+          <Link
+            href="/noticias"
+            className="flex items-center gap-1 font-display text-[12px] font-bold uppercase tracking-[0.1em] text-ceuta-black"
+          >
+            Ver todo <span className="text-[14px]">→</span>
+          </Link>
+        )}
       </div>
 
       {loading && (
-        <div style={{ padding: '20px 16px', fontFamily: 'var(--font-display)', color: 'var(--muted)', letterSpacing: '0.1em', textTransform: 'uppercase', fontSize: 11 }}>
+        <div className="px-4 py-5 font-display text-[11px] uppercase tracking-[0.1em] text-ceuta-muted">
           Cargando noticias…
         </div>
       )}
 
       {/* Lista vertical — noticias recientes */}
       {recent.map((n, i) => (
-        <a key={n.id} href={n.url} target="_blank" rel="noopener noreferrer" className="news-item" style={{ textDecoration: 'none' }}>
+        <a
+          key={n.id}
+          href={n.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex cursor-pointer items-start gap-3 border-b border-ceuta-border px-4 py-[14px] transition-colors active:bg-ceuta-bg-soft"
+        >
           {n.imageUrl ? (
-            <div className="news-thumb" style={{ backgroundImage: `url(${n.imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
+            <div
+              className="relative size-[88px] shrink-0 overflow-hidden rounded-[8px]"
+              style={{ backgroundImage: `url(${n.imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+            />
           ) : (
-            <div className={`news-thumb ${THUMB_COLORS[i % THUMB_COLORS.length]}`} />
+            <div className={`relative size-[88px] shrink-0 overflow-hidden rounded-[8px] ${THUMB_COLORS[i % THUMB_COLORS.length]}`} />
           )}
-          <div className="news-body">
-            <div className="news-tag" style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={`https://www.google.com/s2/favicons?domain=${SOURCES[n.source]?.domain}&sz=16`} alt="" width={12} height={12} style={{ borderRadius: 2 }} />
-              {SOURCES[n.source]?.label ?? n.source}
+          <div className="min-w-0 flex-1">
+            <SourceTag source={n.source} />
+            <div className="mt-1 font-display text-[16px] font-bold uppercase leading-[1.2] tracking-[0.01em] text-ceuta-black">
+              {n.title}
             </div>
-            <div className="news-title">{n.title}</div>
-            <div className="news-meta">{timeAgo(n.publishedAt)}</div>
+            <div className="mt-[5px] text-[11.5px] text-ceuta-muted">{timeAgo(n.publishedAt)}</div>
           </div>
         </a>
       ))}
@@ -168,53 +181,36 @@ export function HomePage({ onReady, onOpenHimno }: { onReady?: () => void; onOpe
       {/* Carrusel horizontal — noticias anteriores */}
       {older.length > 0 && (
         <>
-          <div className="sec-header" style={{ marginTop: 4 }}>
+          <div className="flex items-end justify-between px-4 pb-3 pt-5">
             <div>
-              <div className="sec-title-small">Anteriores</div>
-              <div className="sec-title">También te puede interesar</div>
+              <div className="mb-1.5 font-display text-[11px] font-bold uppercase tracking-[0.14em] text-ceuta-red">
+                Anteriores
+              </div>
+              <div className="font-display text-[22px] font-black uppercase tracking-[0.02em] leading-none text-ceuta-black">
+                También te puede interesar
+              </div>
             </div>
           </div>
-          <div className="news-carousel" style={{
-            display: 'flex',
-            gap: 8,
-            overflowX: 'auto',
-            scrollSnapType: 'x mandatory',
-            WebkitOverflowScrolling: 'touch',
-            padding: '0 12px 12px',
-            scrollbarWidth: 'none',
-          }}>
+          <div className="flex gap-2 overflow-x-auto px-3 pb-3 [scrollbar-width:none] [scroll-snap-type:x_mandatory] [-webkit-overflow-scrolling:touch]">
             {older.map((n, i) => (
               <a
                 key={n.id}
                 href={n.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{
-                  flexShrink: 0,
-                  width: 220,
-                  scrollSnapAlign: 'start',
-                  textDecoration: 'none',
-                  background: 'var(--white)',
-                  borderRadius: 'var(--radius)',
-                  overflow: 'hidden',
-                  border: '1px solid var(--border)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                }}
+                className="w-[220px] shrink-0 overflow-hidden rounded-[14px] border border-ceuta-border bg-white [scroll-snap-align:start]"
               >
                 {n.imageUrl ? (
-                  <div style={{ height: 110, backgroundImage: `url(${n.imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center', flexShrink: 0 }} />
+                  <div className="h-[110px] w-full shrink-0" style={{ backgroundImage: `url(${n.imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
                 ) : (
-                  <div className={`news-thumb ${THUMB_COLORS[i % THUMB_COLORS.length]}`} style={{ height: 110, width: '100%', flexShrink: 0 }} />
+                  <div className={`h-[110px] w-full shrink-0 ${THUMB_COLORS[i % THUMB_COLORS.length]}`} />
                 )}
-                <div style={{ padding: '8px 10px 10px', flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
-                  <div className="news-tag" style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={`https://www.google.com/s2/favicons?domain=${SOURCES[n.source]?.domain}&sz=16`} alt="" width={12} height={12} style={{ borderRadius: 2 }} />
-                    {SOURCES[n.source]?.label ?? n.source}
+                <div className="flex flex-1 flex-col gap-1 p-[8px_10px_10px]">
+                  <SourceTag source={n.source} />
+                  <div className="line-clamp-3 font-display text-[12px] font-bold uppercase leading-[1.35] text-ceuta-black">
+                    {n.title}
                   </div>
-                  <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 12, color: 'var(--black)', lineHeight: 1.35, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{n.title}</div>
-                  <div className="news-meta" style={{ marginTop: 'auto' }}>{timeAgo(n.publishedAt)}</div>
+                  <div className="mt-auto text-[11px] text-ceuta-muted">{timeAgo(n.publishedAt)}</div>
                 </div>
               </a>
             ))}
@@ -223,62 +219,55 @@ export function HomePage({ onReady, onOpenHimno }: { onReady?: () => void; onOpe
       )}
 
       {!loading && news.length === 0 && (
-        <div style={{ padding: '16px', fontFamily: 'var(--font-display)', color: 'var(--muted)', fontSize: 13, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+        <div className="px-4 py-4 font-display text-[13px] uppercase tracking-[0.05em] text-ceuta-muted">
           No hay noticias aún — ejecuta el sync para cargarlas
         </div>
       )}
 
       {/* ── HIMNO ── */}
-      <div style={{ padding: '8px 12px 0' }}>
+      <div className="px-3 pt-2">
         <button
           onClick={onOpenHimno}
-          style={{ textDecoration: 'none', display: 'block', width: '100%', background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left' }}
+          className="w-full cursor-pointer bg-transparent p-0 text-left"
         >
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 14,
-            padding: '16px 18px',
-            background: 'var(--black)',
-            borderRadius: 'var(--radius)',
-            position: 'relative',
-            overflow: 'hidden',
-          }}>
-            {/* diagonal stripes */}
-            <div style={{
-              position: 'absolute', inset: 0,
-              background: 'repeating-linear-gradient(-45deg, transparent 0 7px, rgba(255,255,255,0.03) 7px 14px)',
-              pointerEvents: 'none',
-            }} />
-            {/* red accent */}
-            <div style={{ width: 4, height: 42, background: 'var(--red)', borderRadius: 2, flexShrink: 0 }} />
-            {/* icon */}
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+          <div className="relative flex items-center gap-[14px] overflow-hidden rounded-[14px] bg-ceuta-black px-[18px] py-4">
+            <div
+              className="pointer-events-none absolute inset-0"
+              style={{ background: 'repeating-linear-gradient(-45deg, transparent 0 7px, rgba(255,255,255,0.03) 7px 14px)' }}
+            />
+            <div className="h-[42px] w-1 shrink-0 rounded-[2px] bg-ceuta-red" />
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
               <path d="M9 18V5l12-2v13"/>
               <circle cx="6" cy="18" r="3"/>
               <circle cx="18" cy="16" r="3"/>
             </svg>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 15, color: 'white', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+            <div className="flex-1">
+              <div className="font-display text-[15px] font-black uppercase tracking-[0.04em] text-white">
                 Himno del AD Ceuta
               </div>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: 11, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.08em', textTransform: 'uppercase', marginTop: 2 }}>
+              <div className="mt-0.5 font-display text-[11px] uppercase tracking-[0.08em] text-white/50">
                 Ver letra completa
               </div>
             </div>
-            <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 18, color: 'var(--red)' }}>→</div>
+            <div className="font-display text-[18px] font-bold text-ceuta-red">→</div>
           </div>
         </button>
       </div>
 
-      {/* ── TWITTER ── */}
-      <div className="sec-header">
+      {/* ── EN REDES ── */}
+      <div className="flex items-end justify-between px-4 pb-3 pt-6">
         <div>
-          <div className="sec-title-small">#adceuta</div>
-          <div className="sec-title">En redes</div>
+          <div className="mb-1.5 font-display text-[11px] font-bold uppercase tracking-[0.14em] text-ceuta-red">
+            #adceuta
+          </div>
+          <div className="font-display text-[22px] font-black uppercase tracking-[0.02em] leading-none text-ceuta-black">
+            En redes
+          </div>
         </div>
       </div>
       <SocialLinks />
 
-      <div style={{ height: 8 }} />
+      <div className="h-2" />
     </div>
   )
 }
