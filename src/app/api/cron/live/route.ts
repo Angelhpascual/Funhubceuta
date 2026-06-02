@@ -130,8 +130,13 @@ async function checkAndNotify() {
   const match = await fetchLiveMatch()
 
   if (!match) {
-    // No match today — clear stored state
-    await supabase.from('app_config').delete().eq('key', 'live_match_state')
+    // ESPN returned no Ceuta match — could be an API hiccup during a live game.
+    // Don't delete stored state here; only clear it after the match reaches 'post'.
+    // If we cleared on every miss we'd reset the goal baseline mid-game.
+    const prev = await getStoredState()
+    if (prev?.state === 'post') {
+      await supabase.from('app_config').delete().eq('key', 'live_match_state')
+    }
     return { match: null, notifications: [] }
   }
 
@@ -151,6 +156,8 @@ async function checkAndNotify() {
   const score = `${match.homeScore}-${match.awayScore}`
 
   // ── Match just started ────────────────────────────────────────────────
+  // Only fire kickoff on the pre→in transition; skip if we already stored 'in'
+  // (avoids duplicate notifications after ESPN temporarily drops the match)
   if ((!prev || prev.state === 'pre') && match.state === 'in') {
     await sendPush(
       '⚽ ¡Ya estamos en marcha, caballas!',

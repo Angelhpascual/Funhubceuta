@@ -1,5 +1,5 @@
 import { XMLParser } from 'fast-xml-parser'
-import { RssSource } from './sources'
+import { RssSource, BASE_KEYWORDS } from './sources'
 
 export interface ParsedArticle {
   externalId: string
@@ -72,6 +72,11 @@ function isRelevant(item: Record<string, unknown>, keywords: string[]): boolean 
     .filter(Boolean)
     .join(' ')
     .toLowerCase()
+
+  // A BASE_KEYWORD (unambiguously identifies the club) must always be present.
+  // Squad-name-only matches are discarded to avoid generic-name false positives.
+  const hasBase = BASE_KEYWORDS.some((kw) => text.includes(kw.toLowerCase()))
+  if (!hasBase) return false
 
   return keywords.some((kw) => text.includes(kw.toLowerCase()))
 }
