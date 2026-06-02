@@ -29,6 +29,7 @@ const THUMB_COLORS = ['red', 'black', '', 'red', 'black', '']
 import { findLogo } from '@/lib/findLogo'
 import { LiveMatchCard } from './LiveMatchCard'
 import { NotificationBanner } from '@/components/ui/NotificationBanner'
+import Link from 'next/link'
 
 function TeamCrest({ name, logo }: { name: string; logo: string | null }) {
   if (logo) {
@@ -50,7 +51,7 @@ export function HomePage({ onReady, onOpenHimno }: { onReady?: () => void; onOpe
   const [venues, setVenues] = useState<Record<string, string>>({})
 
   useEffect(() => {
-    fetch('/api/news?limit=6')
+    fetch('/api/news?limit=10')
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => { if (data?.news) setNews(data.news) })
       .catch(() => {})
@@ -79,7 +80,8 @@ export function HomePage({ onReady, onOpenHimno }: { onReady?: () => void; onOpe
   }, [])
 
   const featured = news[0]
-  const rest = news.slice(1)
+  const recent = news.slice(1, 5)
+  const older = news.slice(5)
 
   return (
     <div className="page">
@@ -134,7 +136,7 @@ export function HomePage({ onReady, onOpenHimno }: { onReady?: () => void; onOpe
           <div className="sec-title-small">Actualidad</div>
           <div className="sec-title">Últimas noticias</div>
         </div>
-        {rest.length > 0 && <div className="sec-link">Ver todo</div>}
+        {news.length > 0 && <Link href="/noticias" className="sec-link" style={{ textDecoration: 'none' }}>Ver todo</Link>}
       </div>
 
       {loading && (
@@ -143,7 +145,8 @@ export function HomePage({ onReady, onOpenHimno }: { onReady?: () => void; onOpe
         </div>
       )}
 
-      {rest.map((n, i) => (
+      {/* Lista vertical — noticias recientes */}
+      {recent.map((n, i) => (
         <a key={n.id} href={n.url} target="_blank" rel="noopener noreferrer" className="news-item" style={{ textDecoration: 'none' }}>
           {n.imageUrl ? (
             <div className="news-thumb" style={{ backgroundImage: `url(${n.imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
@@ -161,6 +164,63 @@ export function HomePage({ onReady, onOpenHimno }: { onReady?: () => void; onOpe
           </div>
         </a>
       ))}
+
+      {/* Carrusel horizontal — noticias anteriores */}
+      {older.length > 0 && (
+        <>
+          <div className="sec-header" style={{ marginTop: 4 }}>
+            <div>
+              <div className="sec-title-small">Anteriores</div>
+              <div className="sec-title">También te puede interesar</div>
+            </div>
+          </div>
+          <div className="news-carousel" style={{
+            display: 'flex',
+            gap: 8,
+            overflowX: 'auto',
+            scrollSnapType: 'x mandatory',
+            WebkitOverflowScrolling: 'touch',
+            padding: '0 12px 12px',
+            scrollbarWidth: 'none',
+          }}>
+            {older.map((n, i) => (
+              <a
+                key={n.id}
+                href={n.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  flexShrink: 0,
+                  width: 220,
+                  scrollSnapAlign: 'start',
+                  textDecoration: 'none',
+                  background: 'var(--white)',
+                  borderRadius: 'var(--radius)',
+                  overflow: 'hidden',
+                  border: '1px solid var(--border)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                }}
+              >
+                {n.imageUrl ? (
+                  <div style={{ height: 110, backgroundImage: `url(${n.imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center', flexShrink: 0 }} />
+                ) : (
+                  <div className={`news-thumb ${THUMB_COLORS[i % THUMB_COLORS.length]}`} style={{ height: 110, width: '100%', flexShrink: 0 }} />
+                )}
+                <div style={{ padding: '8px 10px 10px', flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  <div className="news-tag" style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={`https://www.google.com/s2/favicons?domain=${SOURCES[n.source]?.domain}&sz=16`} alt="" width={12} height={12} style={{ borderRadius: 2 }} />
+                    {SOURCES[n.source]?.label ?? n.source}
+                  </div>
+                  <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 12, color: 'var(--black)', lineHeight: 1.35, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{n.title}</div>
+                  <div className="news-meta" style={{ marginTop: 'auto' }}>{timeAgo(n.publishedAt)}</div>
+                </div>
+              </a>
+            ))}
+          </div>
+        </>
+      )}
 
       {!loading && news.length === 0 && (
         <div style={{ padding: '16px', fontFamily: 'var(--font-display)', color: 'var(--muted)', fontSize: 13, letterSpacing: '0.05em', textTransform: 'uppercase' }}>

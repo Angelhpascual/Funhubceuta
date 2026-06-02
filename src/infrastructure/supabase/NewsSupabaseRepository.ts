@@ -22,12 +22,12 @@ export class NewsSupabaseRepository {
     if (error) throw new Error(`Failed to upsert news: ${error.message}`)
   }
 
-  async getLatest(limit = 10): Promise<NewsItem[]> {
+  async getLatest(limit = 10, offset = 0): Promise<NewsItem[]> {
     const { data, error } = await supabase
       .from('news')
       .select('*')
       .order('published_at', { ascending: false })
-      .limit(limit)
+      .range(offset, offset + limit - 1)
 
     if (error || !data) return []
 
