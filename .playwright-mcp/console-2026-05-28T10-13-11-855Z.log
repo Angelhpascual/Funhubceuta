@@ -1,0 +1,5 @@
+[    1195ms] [WARNING] The following functions are deprecated: googletag.pubads().setTagForChildDirectedTreatment(), googletag.pubads().clearTagForChildDirectedTreatment(), googletag.pubads().setRequestNonPersonalizedAds(), and googletag.pubads().setTagForUnderAgeOfConsent(). Please use googletag.pubads().setPrivacySettings() instead. @ https://securepubads.g.doubleclick.net/pagead/managed/js/gpt/m202605200101/pubads_impl.js:18
+[    1196ms] [WARNING] googletag.pubads().setCookieOptions() has been removed, and no longer has any effect. Consider migrating to Limited Ads. @ https://securepubads.g.doubleclick.net/pagead/managed/js/gpt/m202605200101/pubads_impl.js:18
+[    1289ms] [LOG] runPoptinNow @ https://cdn.popt.in/pixel.js?id=5797d760df2be:14
+[    1290ms] [LOG] poptinInit loading @ https://cdn.popt.in/pixel.js?id=5797d760df2be:3
+[    1300ms] [LOG] initiatePullPoptinsRequest() @ https://cdn.popt.in/pixel.js?id=5797d760df2be:3

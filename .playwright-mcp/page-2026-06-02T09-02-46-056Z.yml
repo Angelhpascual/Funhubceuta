@@ -1,0 +1,155 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e10]:
+    - img "AD Ceuta" [ref=e12]
+    - generic [ref=e14]:
+      - link "Youness Lachhab no seguirá en la AD Ceuta FC AD Ceuta FC Youness Lachhab no seguirá en la AD Ceuta FC Hace 15h" [ref=e100] [cursor=pointer]:
+        - /url: https://adceutafc.com/youness-lachhab-no-seguira-en-la-ad-ceuta-fc/
+        - img "Youness Lachhab no seguirá en la AD Ceuta FC" [ref=e101]
+        - generic [ref=e103]:
+          - generic [ref=e104]: AD Ceuta FC
+          - generic [ref=e105]: Youness Lachhab no seguirá en la AD Ceuta FC
+          - generic [ref=e106]: Hace 15h
+      - generic [ref=e22]:
+        - generic [ref=e23]: 🔔
+        - generic [ref=e24]:
+          - generic [ref=e25]: Alertas de goles
+          - generic [ref=e26]: Goles, tarjetas rojas y resultado final
+        - generic [ref=e27]:
+          - button "Activar" [ref=e28] [cursor=pointer]
+          - button "Ahora no" [ref=e29] [cursor=pointer]
+      - generic [ref=e31]:
+        - generic [ref=e32]: Próximo encuentro
+        - generic [ref=e33]: Próximo partido
+      - generic [ref=e107]:
+        - generic [ref=e108]:
+          - generic [ref=e109]: Liga Hypermotion
+          - generic [ref=e110]: FINALIZADO
+        - generic [ref=e111]:
+          - generic [ref=e112]:
+            - img "FC Andorra" [ref=e114]
+            - generic [ref=e115]: FC Andorra
+          - generic [ref=e117]: 1 – 2
+          - generic [ref=e118]:
+            - img "Ceuta" [ref=e120]
+            - generic [ref=e121]: Ceuta
+        - generic [ref=e122]:
+          - generic [ref=e125]:
+            - generic [ref=e126]: 23'
+            - generic [ref=e127]: Bassinga
+            - generic [ref=e128]: ⚽
+          - generic [ref=e130]:
+            - generic [ref=e131]: ⚽
+            - generic [ref=e132]: Riera
+            - generic [ref=e133]: 38'
+          - generic [ref=e136]:
+            - generic [ref=e137]: 🟥
+            - generic [ref=e138]: Lainez
+            - generic [ref=e139]: 42'
+          - generic [ref=e143]:
+            - generic [ref=e144]: 67'
+            - generic [ref=e145]: Zalazar
+            - generic [ref=e146]: ⚽
+        - generic [ref=e148]: Estadio de la FAF (Encamp)
+      - generic [ref=e34]:
+        - generic [ref=e35]:
+          - generic [ref=e36]: Actualidad
+          - generic [ref=e37]: Últimas noticias
+        - link "Ver todo →" [ref=e149] [cursor=pointer]:
+          - /url: /noticias
+      - link "El Faro de Ceuta La Fundación AD Ceuta lanza su I Campus de Verano Hace 15h" [ref=e150] [cursor=pointer]:
+        - /url: https://elfarodeceuta.es/fundacion-ad-ceuta-lanza-campus-verano/
+        - generic [ref=e152]:
+          - generic [ref=e153]: El Faro de Ceuta
+          - generic [ref=e154]: La Fundación AD Ceuta lanza su I Campus de Verano
+          - generic [ref=e155]: Hace 15h
+      - link "El Pueblo de Ceuta Youness se despide de la AD Ceuta en sus redes sociales Hace 15h" [ref=e156] [cursor=pointer]:
+        - /url: https://www.elpueblodeceuta.es/sec/deportes/youness-despide-ad-ceuta-redes_1_1175130.html
+        - generic [ref=e158]:
+          - generic [ref=e159]: El Pueblo de Ceuta
+          - generic [ref=e160]: Youness se despide de la AD Ceuta en sus redes sociales
+          - generic [ref=e161]: Hace 15h
+      - 'link "El Faro de Ceuta Youness se despide de la AD Ceuta: \"A mi hija le contaré lo felices que fuimos en esta ciudad\" Hace 16h" [ref=e162] [cursor=pointer]':
+        - /url: https://elfarodeceuta.es/youness-se-despide-ceuta-hija-contare-felices-fuimos-ciudad/
+        - generic [ref=e164]:
+          - generic [ref=e165]: El Faro de Ceuta
+          - generic [ref=e166]: "Youness se despide de la AD Ceuta: \"A mi hija le contaré lo felices que fuimos en esta ciudad\""
+          - generic [ref=e167]: Hace 16h
+      - link "El Faro de Ceuta La Straitchallenge alcanza su XIII edición batiendo récord con el Estrecho como gran desafío Hace 16h" [ref=e168] [cursor=pointer]:
+        - /url: https://elfarodeceuta.es/straitchallenge-alcanza-edicion-2026-batiendo-record-estrecho-gran-desafio/
+        - generic [ref=e170]:
+          - generic [ref=e171]: El Faro de Ceuta
+          - generic [ref=e172]: La Straitchallenge alcanza su XIII edición batiendo récord con el Estrecho como gran desafío
+          - generic [ref=e173]: Hace 16h
+      - generic [ref=e175]:
+        - generic [ref=e176]: Anteriores
+        - generic [ref=e177]: También te puede interesar
+      - generic [ref=e178]:
+        - 'link "El Pueblo de Ceuta La Fundación AD Ceuta FC lanza el I Campus de Verano: para los más jóvenes Hace 17h" [ref=e179] [cursor=pointer]':
+          - /url: https://www.elpueblodeceuta.es/sec/deportes/fundacion-ad-ceuta-fc-lanza_1_1175123.html
+          - generic [ref=e181]:
+            - generic [ref=e182]: El Pueblo de Ceuta
+            - generic [ref=e183]: "La Fundación AD Ceuta FC lanza el I Campus de Verano: para los más jóvenes"
+            - generic [ref=e184]: Hace 17h
+        - link "AD Ceuta FC (1-0) El Ceuta cierra la temporada con una victoria ante el Albacete Hace 17h" [ref=e185] [cursor=pointer]:
+          - /url: https://adceutafc.com/1-0-el-ceuta-cierra-la-temporada-con-una-victoria-ante-el-albacete/
+          - generic [ref=e187]:
+            - generic [ref=e188]: AD Ceuta FC
+            - generic [ref=e189]: (1-0) El Ceuta cierra la temporada con una victoria ante el Albacete
+            - generic [ref=e190]: Hace 17h
+        - link "AD Ceuta FC (2-4) El Ceuta Femenino cae en el ‘Molina’ ante el Atlético Torcal Hace 17h" [ref=e191] [cursor=pointer]:
+          - /url: https://adceutafc.com/2-4-el-ceuta-femenino-cae-en-el-molina-ante-el-atletico-torcal/
+          - generic [ref=e193]:
+            - generic [ref=e194]: AD Ceuta FC
+            - generic [ref=e195]: (2-4) El Ceuta Femenino cae en el ‘Molina’ ante el Atlético Torcal
+            - generic [ref=e196]: Hace 17h
+        - link "El Pueblo de Ceuta José Juan Romero, tercer mejor entrenador de la Liga Hypermotion Hace 21h" [ref=e197] [cursor=pointer]:
+          - /url: https://www.elpueblodeceuta.es/sec/deportes/jose-juan-romero-tercer-mejor_1_1175108.html
+          - generic [ref=e199]:
+            - generic [ref=e200]: El Pueblo de Ceuta
+            - generic [ref=e201]: José Juan Romero, tercer mejor entrenador de la Liga Hypermotion
+            - generic [ref=e202]: Hace 21h
+        - link "El Faro de Ceuta Guerra en las playas del norte de Marruecos a las sombrillas ‘ilegales’ Hace 22h" [ref=e203] [cursor=pointer]:
+          - /url: https://elfarodeceuta.es/guerra-playas-norte-marruecos-sombrillas-ilegales/
+          - generic [ref=e205]:
+            - generic [ref=e206]: El Faro de Ceuta
+            - generic [ref=e207]: Guerra en las playas del norte de Marruecos a las sombrillas ‘ilegales’
+            - generic [ref=e208]: Hace 22h
+      - button "Himno del AD Ceuta Ver letra completa →" [ref=e40] [cursor=pointer]:
+        - generic [ref=e41]:
+          - img [ref=e43]
+          - generic [ref=e47]:
+            - generic [ref=e48]: Himno del AD Ceuta
+            - generic [ref=e49]: Ver letra completa
+          - generic [ref=e50]: →
+      - generic [ref=e52]:
+        - generic [ref=e53]: "#adceuta"
+        - generic [ref=e54]: En redes
+      - generic [ref=e55]:
+        - link "@ADCeuta_FC 28,4K seguidores" [ref=e56] [cursor=pointer]:
+          - /url: https://twitter.com/ADCeuta_FC
+          - img [ref=e57]
+          - generic [ref=e59]:
+            - generic [ref=e60]: "@ADCeuta_FC"
+            - generic [ref=e61]: 28,4K seguidores
+        - link "@adceutafc 42,1K seguidores" [ref=e62] [cursor=pointer]:
+          - /url: https://www.instagram.com/adceutafc
+          - img [ref=e63]
+          - generic [ref=e65]:
+            - generic [ref=e66]: "@adceutafc"
+            - generic [ref=e67]: 42,1K seguidores
+    - generic [ref=e69]:
+      - button "Inicio" [ref=e70] [cursor=pointer]:
+        - img [ref=e71]
+        - generic [ref=e74]: Inicio
+      - button "Clasificación" [ref=e75] [cursor=pointer]:
+        - img [ref=e76]
+        - generic [ref=e77]: Clasificación
+      - button "Partidos" [ref=e78] [cursor=pointer]:
+        - img [ref=e79]
+        - generic [ref=e82]: Partidos
+      - button "Club" [ref=e83] [cursor=pointer]:
+        - img [ref=e84]
+        - generic [ref=e89]: Club
+  - button "Open Next.js Dev Tools" [ref=e95] [cursor=pointer]:
+    - img [ref=e96]
+  - alert [ref=e99]

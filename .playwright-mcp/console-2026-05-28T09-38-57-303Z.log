@@ -1,0 +1,15 @@
+[     953ms] [LOG] runPoptinNow @ https://cdn.popt.in/pixel.js?id=5797d760df2be:14
+[     954ms] [LOG] poptinInit loading @ https://cdn.popt.in/pixel.js?id=5797d760df2be:3
+[    1021ms] Uncaught TypeError: Cannot read properties of null (reading 'hasAttribute')
+    at S.setOTDataLayer (https://cdn.cookielaw.org/scripttemplates/otSDKStub.js?did=6b0ec1eb-4258-4db1-a56b-9bb0fd02486a:0:12485)
+    at S.initConsentSDK (https://cdn.cookielaw.org/scripttemplates/otSDKStub.js?did=6b0ec1eb-4258-4db1-a56b-9bb0fd02486a:0:9433)
+    at S (https://cdn.cookielaw.org/scripttemplates/otSDKStub.js?did=6b0ec1eb-4258-4db1-a56b-9bb0fd02486a:0:26697)
+    at <anonymous> (https://cdn.cookielaw.org/scripttemplates/otSDKStub.js?did=6b0ec1eb-4258-4db1-a56b-9bb0fd02486a:0:26720)
+    at <anonymous> (https://cdn.cookielaw.org/scripttemplates/otSDKStub.js?did=6b0ec1eb-4258-4db1-a56b-9bb0fd02486a:0:26813)
+[    1030ms] [LOG] initiatePullPoptinsRequest() @ https://cdn.popt.in/pixel.js?id=5797d760df2be:3
+[    1035ms] [WARNING] The following functions are deprecated: googletag.pubads().setTagForChildDirectedTreatment(), googletag.pubads().clearTagForChildDirectedTreatment(), googletag.pubads().setRequestNonPersonalizedAds(), and googletag.pubads().setTagForUnderAgeOfConsent(). Please use googletag.pubads().setPrivacySettings() instead. @ https://securepubads.g.doubleclick.net/pagead/managed/js/gpt/m202605200101/pubads_impl.js:18
+[    1036ms] [WARNING] googletag.pubads().setCookieOptions() has been removed, and no longer has any effect. Consider migrating to Limited Ads. @ https://securepubads.g.doubleclick.net/pagead/managed/js/gpt/m202605200101/pubads_impl.js:18
+[    1318ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://www.laliga.com/user:0
+[    1318ms] [WARNING] [telemetry] /user fetch failed: Request failed with status code 400 @ https://www.laliga.com/_next/static/chunks/pages/_app-2ed01e989301327b.js:26
+[   61041ms] [WARNING] [GPT] This ad request is subject to Google's EU User Consent Policy. An IAB TCF signal was not received. This ad request will not be eligible for personalized ads.
+https://goo.gle/gpt-message#175 @ https://securepubads.g.doubleclick.net/pagead/managed/js/gpt/m202605200101/pubads_impl.js:18

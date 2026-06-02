@@ -1,0 +1,67 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e4]:
+      - img [ref=e5]
+      - img "AD Ceuta" [ref=e9]
+    - generic [ref=e10]:
+      - img "AD Ceuta" [ref=e12]
+      - generic [ref=e14]:
+        - generic [ref=e15] [cursor=pointer]:
+          - generic [ref=e16]: CARGANDO…
+          - generic [ref=e18]:
+            - generic [ref=e19]: Destacado
+            - generic [ref=e20]: Bienvenido al FanHub del AD Ceuta
+            - generic [ref=e21]: Noticias próximamente
+        - generic [ref=e22]:
+          - generic [ref=e23]: 🔔
+          - generic [ref=e24]:
+            - generic [ref=e25]: Alertas de goles
+            - generic [ref=e26]: Goles, tarjetas rojas y resultado final
+          - generic [ref=e27]:
+            - button "Activar" [ref=e28] [cursor=pointer]
+            - button "Ahora no" [ref=e29] [cursor=pointer]
+        - generic [ref=e31]:
+          - generic [ref=e32]: Próximo encuentro
+          - generic [ref=e33]: Próximo partido
+        - generic [ref=e35]:
+          - generic [ref=e36]: Actualidad
+          - generic [ref=e37]: Últimas noticias
+        - generic [ref=e38]: Cargando noticias…
+        - button "Himno del AD Ceuta Ver letra completa →" [ref=e40] [cursor=pointer]:
+          - generic [ref=e41]:
+            - img [ref=e43]
+            - generic [ref=e47]:
+              - generic [ref=e48]: Himno del AD Ceuta
+              - generic [ref=e49]: Ver letra completa
+            - generic [ref=e50]: →
+        - generic [ref=e52]:
+          - generic [ref=e53]: "#adceuta"
+          - generic [ref=e54]: En redes
+        - generic [ref=e55]:
+          - link "@ADCeuta_FC 28,4K seguidores" [ref=e56] [cursor=pointer]:
+            - /url: https://twitter.com/ADCeuta_FC
+            - img [ref=e57]
+            - generic [ref=e59]:
+              - generic [ref=e60]: "@ADCeuta_FC"
+              - generic [ref=e61]: 28,4K seguidores
+          - link "@adceutafc 42,1K seguidores" [ref=e62] [cursor=pointer]:
+            - /url: https://www.instagram.com/adceutafc
+            - img [ref=e63]
+            - generic [ref=e65]:
+              - generic [ref=e66]: "@adceutafc"
+              - generic [ref=e67]: 42,1K seguidores
+      - generic [ref=e69]:
+        - button "Inicio" [ref=e70] [cursor=pointer]:
+          - img [ref=e71]
+          - generic [ref=e74]: Inicio
+        - button "Clasificación" [ref=e75] [cursor=pointer]:
+          - img [ref=e76]
+          - generic [ref=e77]: Clasificación
+        - button "Partidos" [ref=e78] [cursor=pointer]:
+          - img [ref=e79]
+          - generic [ref=e82]: Partidos
+        - button "Club" [ref=e83] [cursor=pointer]:
+          - img [ref=e84]
+          - generic [ref=e89]: Club
+  - button "Open Next.js Dev Tools" [ref=e95] [cursor=pointer]:
+    - img [ref=e96]

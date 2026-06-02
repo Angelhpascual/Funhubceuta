@@ -1,0 +1,614 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e4]:
+      - paragraph [ref=e5]: Navigate to your country/region
+      - generic [ref=e6]:
+        - button "Spain " [ref=e9] [cursor=pointer]:
+          - generic [ref=e10]:
+            - paragraph [ref=e11]: Spain
+            - generic [ref=e13]: 
+        - button "Go" [ref=e14] [cursor=pointer]:
+          - link "Go" [ref=e15]:
+            - /url: https://www.laliga.com/en-ES
+            - paragraph [ref=e16]: Go
+    - banner [ref=e17]:
+      - link "Skip to main content" [ref=e18] [cursor=pointer]:
+        - /url: "#main-content"
+      - navigation "Football clubs’ websites" [ref=e19]:
+        - paragraph [ref=e20]: Web Clubs
+        - link "Go to https://www.athletic-club.eus/en" [ref=e21] [cursor=pointer]:
+          - /url: https://www.athletic-club.eus/en
+        - link "Go to https://en.atleticodemadrid.com" [ref=e24] [cursor=pointer]:
+          - /url: https://en.atleticodemadrid.com
+        - link "Go to https://www.osasuna.es/" [ref=e27] [cursor=pointer]:
+          - /url: https://www.osasuna.es/
+        - link "Go to https://www.deportivoalaves.com/" [ref=e30] [cursor=pointer]:
+          - /url: https://www.deportivoalaves.com/
+        - link "Go to https://www.elchecf.es/" [ref=e33] [cursor=pointer]:
+          - /url: https://www.elchecf.es/
+        - link "Go to https://www.fcbarcelona.com/en" [ref=e36] [cursor=pointer]:
+          - /url: https://www.fcbarcelona.com/en
+        - link "Go to https://www.getafecf.com/" [ref=e39] [cursor=pointer]:
+          - /url: https://www.getafecf.com/
+        - link "Go to https://www.gironafc.cat/en" [ref=e42] [cursor=pointer]:
+          - /url: https://www.gironafc.cat/en
+        - link "Go to http://www.levanteud.com/en" [ref=e45] [cursor=pointer]:
+          - /url: http://www.levanteud.com/en
+        - link "Go to http://www.rayovallecano.es/" [ref=e48] [cursor=pointer]:
+          - /url: http://www.rayovallecano.es/
+        - link "Go to http://www.rccelta.es/index.php/en" [ref=e51] [cursor=pointer]:
+          - /url: http://www.rccelta.es/index.php/en
+        - link "Go to https://www.rcdespanyol.com/es/" [ref=e54] [cursor=pointer]:
+          - /url: https://www.rcdespanyol.com/es/
+        - link "Go to http://www.rcdmallorca.es/en" [ref=e57] [cursor=pointer]:
+          - /url: http://www.rcdmallorca.es/en
+        - link "Go to https://en.realbetisbalompie.es/" [ref=e60] [cursor=pointer]:
+          - /url: https://en.realbetisbalompie.es/
+        - link "Go to https://www.realmadrid.com/en" [ref=e63] [cursor=pointer]:
+          - /url: https://www.realmadrid.com/en
+        - link "Go to https://www.realoviedo.es/en" [ref=e66] [cursor=pointer]:
+          - /url: https://www.realoviedo.es/en
+        - link "Go to https://www.realsociedad.eus/en" [ref=e69] [cursor=pointer]:
+          - /url: https://www.realsociedad.eus/en
+        - link "Go to https://www.sevillafc.es/en" [ref=e72] [cursor=pointer]:
+          - /url: https://www.sevillafc.es/en
+        - link "Go to http://www.valenciacf.com/en" [ref=e75] [cursor=pointer]:
+          - /url: http://www.valenciacf.com/en
+        - link "Go to https://www.villarrealcf.es/en" [ref=e78] [cursor=pointer]:
+          - /url: https://www.villarrealcf.es/en
+      - generic [ref=e81]:
+        - navigation "Superior submenu left" [ref=e83]:
+          - button "Open LALIGA Institutional" [ref=e84] [cursor=pointer]:
+            - generic [ref=e85]: LALIGA
+            - text: Institutional
+          - button "Open LALIGA with sport" [ref=e86] [cursor=pointer]:
+            - generic [ref=e87]: LALIGA
+            - text: with sport
+          - link "Go to Where to watch LALIGA" [ref=e88] [cursor=pointer]:
+            - /url: /en-GB/where-to-watch-laliga-easports
+            - text: Where to watch
+            - generic [ref=e89]: LALIGA
+        - generic [ref=e90]:
+          - navigation "Superior submenu righ" [ref=e91]:
+            - button "Open LALIGA Group" [ref=e92] [cursor=pointer]:
+              - generic [ref=e93]: LALIGA
+              - text: Group
+            - link "Go to LALIGA STORE" [ref=e94] [cursor=pointer]:
+              - /url: https://www.laligastore.com/es/?_s=bm-FI-PSC-LaLiga-WebHeaderES
+          - generic [ref=e96]:
+            - button "Select language" [ref=e99] [cursor=pointer]:
+              - img "gb" [ref=e102]
+              - generic [ref=e103]:
+                - paragraph [ref=e104]: English
+                - generic [ref=e106]: 
+            - link "Go to https://miliga.laliga.com/en-ES" [ref=e108] [cursor=pointer]:
+              - /url: https://miliga.laliga.com/en-ES
+              - generic [ref=e109]: 
+              - img "Go to https://miliga.laliga.com/en-ES" [ref=e111]
+        - generic:
+          - generic [ref=e112]:
+            - navigation [ref=e113]:
+              - list [ref=e114]:
+                - listitem [ref=e115]:
+                  - link [ref=e116] [cursor=pointer]:
+                    - /url: /en-GB/transparency
+                    - text: Transparency
+                - listitem [ref=e117]:
+                  - link [ref=e118] [cursor=pointer]:
+                    - /url: /en-GB/pressroom/what-is-laliga
+                    - text: Pressroom
+                - listitem [ref=e119]:
+                  - link [ref=e120] [cursor=pointer]:
+                    - /url: /en-GB/foundation/about-us
+                    - text: FUNDACIÓN LALIGA
+                - listitem [ref=e121]:
+                  - link [ref=e122] [cursor=pointer]:
+                    - /url: /en-GB/sponsors
+                    - text: Sponsors
+                - listitem [ref=e123]:
+                  - link [ref=e124] [cursor=pointer]:
+                    - /url: /en-GB/audiovisual-rights/documents
+                    - text: Audiovisual rights
+                - listitem [ref=e125]:
+                  - link [ref=e126] [cursor=pointer]:
+                    - /url: https://business-school.laliga.com/
+                    - text: LALIGA Business school
+              - button "Close menu" [ref=e127] [cursor=pointer]:
+                - generic [ref=e128]: 
+            - navigation [ref=e129]:
+              - list [ref=e130]:
+                - listitem [ref=e131]:
+                  - link [ref=e132] [cursor=pointer]:
+                    - /url: /en-GB/transparency/normative
+                    - text: Regulatory
+                - listitem [ref=e133]:
+                  - link [ref=e134] [cursor=pointer]:
+                    - /url: /en-GB/transparency/institutional-information
+                    - text: Institutional information
+                - listitem [ref=e135]:
+                  - link [ref=e136] [cursor=pointer]:
+                    - /url: /en-GB/transparency/organigrama
+                    - text: Organisation chart
+                - listitem [ref=e137]:
+                  - link [ref=e138] [cursor=pointer]:
+                    - /url: /en-GB/transparency/economic-management/annual-accounts
+                    - text: Economic management
+                - listitem [ref=e139]:
+                  - link [ref=e140] [cursor=pointer]:
+                    - /url: /en-GB/transparency/conventions-and-contracts/conventions
+                    - text: Agreements and contracts
+                - listitem [ref=e141]:
+                  - link [ref=e142] [cursor=pointer]:
+                    - /url: /en-GB/transparency/subsidies/subsidies-received
+                    - text: Subsidies
+                - listitem [ref=e143]:
+                  - link [ref=e144] [cursor=pointer]:
+                    - /url: /en-GB/transparency/compliance/policy
+                    - text: Compliance
+                - listitem [ref=e145]:
+                  - link [ref=e146] [cursor=pointer]:
+                    - /url: /en-GB/transparency/guides-manuals
+                    - text: Guides and Manuals
+                - listitem [ref=e147]:
+                  - link [ref=e148] [cursor=pointer]:
+                    - /url: /en-GB/transparency/information-internal-system
+                    - text: Internal Information System
+              - list [ref=e149]:
+                - listitem [ref=e150]:
+                  - link [ref=e151] [cursor=pointer]:
+                    - /url: /en-GB/pressroom/what-is-laliga
+                    - text: What is LALIGA?
+                - listitem [ref=e152]:
+                  - link [ref=e153] [cursor=pointer]:
+                    - /url: /en-GB/pressroom/press-releases
+                    - text: Press Releases
+                - listitem [ref=e154]:
+                  - link [ref=e155] [cursor=pointer]:
+                    - /url: /en-GB/pressroom/image-gallery
+                    - text: Image Gallery
+                - listitem [ref=e156]:
+                  - link [ref=e157] [cursor=pointer]:
+                    - /url: /en-GB/pressroom/logos-and-corporate-dossier/logos
+                    - text: Logos
+                - listitem [ref=e158]:
+                  - link [ref=e159] [cursor=pointer]:
+                    - /url: /en-GB/pressroom/institutional-calendar
+                    - text: Institutional Calendar
+                - listitem [ref=e160]:
+                  - link [ref=e161] [cursor=pointer]:
+                    - /url: /en-GB/pressroom/documents
+                    - text: Documents
+                - listitem [ref=e162]:
+                  - link [ref=e163] [cursor=pointer]:
+                    - /url: /en-GB/pressroom/newsletter
+                    - text: Newsletter
+                - listitem [ref=e164]:
+                  - link [ref=e165] [cursor=pointer]:
+                    - /url: /en-GB/pressroom/contact
+                    - text: Contact
+              - list [ref=e166]:
+                - listitem [ref=e167]:
+                  - link [ref=e168] [cursor=pointer]:
+                    - /url: /en-GB/foundation/about-us
+                    - text: About us
+                - listitem [ref=e169]:
+                  - link [ref=e170] [cursor=pointer]:
+                    - /url: /en-GB/foundation/activities/institutional-activities
+                    - text: activities
+                - listitem [ref=e171]:
+                  - link [ref=e172] [cursor=pointer]:
+                    - /url: https://www.futuraaficion.com
+                    - text: Futura Afición
+                - listitem [ref=e173]:
+                  - link [ref=e174] [cursor=pointer]:
+                    - /url: /en-GB/foundation/laliga-fair-play-social
+                    - text: Fair Play Social
+                - listitem [ref=e175]:
+                  - link [ref=e176] [cursor=pointer]:
+                    - /url: /en-GB/foundation/laliga-environmental-fair-play
+                    - text: Environmental Fair Play
+                - listitem [ref=e177]:
+                  - link [ref=e178] [cursor=pointer]:
+                    - /url: /en-GB/foundation/transparenc
+                    - text: Transparency
+              - list [ref=e179]
+              - list [ref=e180]:
+                - listitem [ref=e181]:
+                  - link [ref=e182] [cursor=pointer]:
+                    - /url: /en-GB/audiovisual-rights/documents
+                    - text: Documents
+                - listitem [ref=e183]:
+                  - link [ref=e184] [cursor=pointer]:
+                    - /url: /en-GB/audiovisual-rights/tv-broadcast-regulation
+                    - text: TV Broadcast Regulation
+                - listitem [ref=e185]:
+                  - link [ref=e186] [cursor=pointer]:
+                    - /url: /en-GB/audiovisual-rights/international-rights
+                    - text: International Audiovisual rights
+                - listitem [ref=e187]:
+                  - link [ref=e188] [cursor=pointer]:
+                    - /url: /en-GB/audiovisual-rights/laligaexperience
+                    - text: LALIGA Experience & Loyalty programs
+              - list [ref=e189]:
+                - listitem [ref=e190]:
+                  - link [ref=e191] [cursor=pointer]:
+                    - /url: https://business-school.laliga.com/the-mba-of-laliga
+                    - text: MBA of LALIGA
+                - listitem [ref=e192]:
+                  - link [ref=e193] [cursor=pointer]:
+                    - /url: https://business-school.laliga.com/masters/master-en-direccion-metodologia-y-analisis-en-el-futbol
+                    - text: Master in mgmt, methology and Football Analytics
+                - listitem [ref=e194]:
+                  - link [ref=e195] [cursor=pointer]:
+                    - /url: https://business-school.laliga.com/masters/master-en-derecho-aplicado-al-futbol-profesional
+                    - text: Master in Law applied to PF
+                - listitem [ref=e196]:
+                  - link [ref=e197] [cursor=pointer]:
+                    - /url: https://business-school.laliga.com/masters/master-en-global-sports-marketing
+                    - text: Master in global sport MK
+                - listitem [ref=e198]:
+                  - link [ref=e199] [cursor=pointer]:
+                    - /url: https://business-school.laliga.com/masters/master-in-global-sports-marketing
+                    - text: Master's Degree in Sports Marketing
+          - generic [ref=e200]:
+            - navigation [ref=e201]:
+              - list [ref=e202]:
+                - listitem [ref=e203]:
+                  - link [ref=e204] [cursor=pointer]:
+                    - /url: https://aficionesunidas.laliga.es
+                    - text: Aficiones Unidas
+                - listitem [ref=e205]:
+                  - link [ref=e206] [cursor=pointer]:
+                    - /url: /en-GB/laliga-fc-futures
+                    - text: LALIGA FC FUTURES
+                - listitem [ref=e207]:
+                  - link [ref=e208] [cursor=pointer]:
+                    - /url: /en-GB/other-competitions
+                    - text: Other Competitions
+              - button "Close menu" [ref=e209] [cursor=pointer]:
+                - generic [ref=e210]: 
+            - navigation [ref=e211]:
+              - list [ref=e212]:
+                - listitem [ref=e213]:
+                  - link [ref=e214] [cursor=pointer]:
+                    - /url: https://aficionesunidas.laliga.es/quienes-somos
+                    - text: About us
+                - listitem [ref=e215]:
+                  - link [ref=e216] [cursor=pointer]:
+                    - /url: https://aficionesunidas.laliga.es/guia-aficionado
+                    - text: Amateur guide
+                - listitem [ref=e217]:
+                  - link [ref=e218] [cursor=pointer]:
+                    - /url: https://aficionesunidas.laliga.es/noticias
+                    - text: News
+              - list [ref=e219]
+              - list [ref=e220]:
+                - listitem [ref=e221]:
+                  - link [ref=e222] [cursor=pointer]:
+                    - /url: /en-GB/other-competitions/copa-del-rey
+                    - text: Copa del Rey
+                - listitem [ref=e223]:
+                  - link [ref=e224] [cursor=pointer]:
+                    - /url: /en-GB/other-competitions/copa-de-la-reina
+                    - text: Copa de la Reina
+                - listitem [ref=e225]:
+                  - link [ref=e226] [cursor=pointer]:
+                    - /url: /en-GB/other-competitions/champions-league
+                    - text: Champions League
+                - listitem [ref=e227]:
+                  - link [ref=e228] [cursor=pointer]:
+                    - /url: /en-GB/other-competitions/europa-league
+                    - text: Europa League
+                - listitem [ref=e229]:
+                  - link [ref=e230] [cursor=pointer]:
+                    - /url: /en-GB/other-competitions/europa-conference-league
+                    - text: Conference League
+                - listitem [ref=e231]:
+                  - link [ref=e232] [cursor=pointer]:
+                    - /url: /en-GB/other-competitions/supercopa-de-espana
+                    - text: Spanish Super Cup
+                - listitem [ref=e233]:
+                  - link [ref=e234] [cursor=pointer]:
+                    - /url: /en-GB/other-competitions/supercopa-de-europa
+                    - text: European Super Cup
+                - listitem [ref=e235]:
+                  - link [ref=e236] [cursor=pointer]:
+                    - /url: /en-GB/other-competitions/uefa-eurocopa
+                    - text: UEFA EURO 2024
+                - listitem [ref=e237]:
+                  - link [ref=e238] [cursor=pointer]:
+                    - /url: /en-GB/other-competitions/primera-federacion
+                    - text: Primera Federación
+          - generic [ref=e239]:
+            - navigation [ref=e240]:
+              - list [ref=e241]:
+                - listitem [ref=e242]:
+                  - link [ref=e243] [cursor=pointer]:
+                    - /url: /en-GB/laliga-group/transparency
+                    - text: Transparency
+                - listitem [ref=e244]:
+                  - link [ref=e245] [cursor=pointer]:
+                    - /url: /en-GB/laliga-group/sefpsau
+                    - text: SEFPSAU
+              - button "Close menu" [ref=e246] [cursor=pointer]:
+                - generic [ref=e247]: 
+            - navigation [ref=e248]:
+              - list [ref=e249]:
+                - listitem [ref=e250]:
+                  - link [ref=e251] [cursor=pointer]:
+                    - /url: /en-GB/laliga-group/transparency/normative
+                    - text: Regulatory
+                - listitem [ref=e252]:
+                  - link [ref=e253] [cursor=pointer]:
+                    - /url: /en-GB/laliga-group/transparency/institutional-information
+                    - text: Institutional information
+                - listitem [ref=e254]:
+                  - link [ref=e255] [cursor=pointer]:
+                    - /url: /en-GB/laliga-group/transparency/organigrama
+                    - text: Organisation chart
+                - listitem [ref=e256]:
+                  - link [ref=e257] [cursor=pointer]:
+                    - /url: /en-GB/laliga-group/transparency/economic-managements
+                    - text: Economic management
+                - listitem [ref=e258]:
+                  - link [ref=e259] [cursor=pointer]:
+                    - /url: /en-GB/laliga-group/transparencia/conventions
+                    - text: Agreements and contracts
+                - listitem [ref=e260]:
+                  - link [ref=e261] [cursor=pointer]:
+                    - /url: /en-GB/laliga-group/transparency-laliga-impulso
+                    - text: LALIGA Impulso
+              - list [ref=e262]:
+                - listitem [ref=e263]:
+                  - link [ref=e264] [cursor=pointer]:
+                    - /url: /en-GB/laliga-group/sefpsau/normative
+                    - text: Regulatory
+                - listitem [ref=e265]:
+                  - link [ref=e266] [cursor=pointer]:
+                    - /url: /en-GB/laliga-group/sefpsau/economic-management
+                    - text: Economic management
+                - listitem [ref=e267]:
+                  - link [ref=e268] [cursor=pointer]:
+                    - /url: /en-GB/laliga-group/sefpsau/transparency
+                    - text: Transparency
+        - link "Go to homepage" [ref=e271] [cursor=pointer]:
+          - /url: https://www.laliga.com/en-GB
+          - img [ref=e272]
+        - navigation "Main competitions menu" [ref=e277]:
+          - button "LALIGA EA SPORTS" [ref=e278]:
+            - link "LALIGA EA SPORTS" [ref=e279] [cursor=pointer]:
+              - /url: /en-GB/laliga-easports
+              - figure [ref=e282]:
+                - img "primera-division" [ref=e283]
+            - text:      
+          - button "LALIGA HYPERMOTION" [ref=e284]:
+            - link "LALIGA HYPERMOTION" [ref=e285] [cursor=pointer]:
+              - /url: /en-GB/laliga-hypermotion
+              - figure [ref=e288]:
+                - img "segunda-division" [ref=e289]
+            - text:     
+          - button "Liga F Moeve" [ref=e290]:
+            - link "Liga F Moeve" [ref=e291] [cursor=pointer]:
+              - /url: /en-GB/futbol-femenino
+              - figure [ref=e294]:
+                - img "primera-division-femenina" [ref=e295]
+            - text:    
+          - button "LALIGA GENUINE MOEVE" [ref=e296]:
+            - link "LALIGA GENUINE MOEVE" [ref=e297] [cursor=pointer]:
+              - /url: /en-GB/laliga-genuine
+              - figure [ref=e300]:
+                - img "laliga-genuine" [ref=e301]
+            - text:   
+        - navigation "Multimedia menu" [ref=e303]:
+          - link "Videos" [ref=e305] [cursor=pointer]:
+            - /url: /en-GB/videos
+          - link "News" [ref=e307] [cursor=pointer]:
+            - /url: /en-GB/news
+          - link "Statistics" [ref=e309] [cursor=pointer]:
+            - /url: /en-GB/stats/laliga-easports/scorers
+          - link "Photo Galleries" [ref=e311] [cursor=pointer]:
+            - /url: /en-GB/multimedia
+    - text:                                            
+    - main [ref=e312]:
+      - generic [ref=e313]:
+        - generic [ref=e316]:
+          - generic [ref=e318]:
+            - link "Home >" [ref=e319] [cursor=pointer]:
+              - /url: /en-GB
+              - generic [ref=e320]: Home
+              - text: ">"
+            - link "LALIGA HYPERMOTION >" [ref=e321] [cursor=pointer]:
+              - /url: /en-GB/laliga-hypermotion
+              - generic [ref=e322]: LALIGA HYPERMOTION
+              - text: ">"
+            - link "Clubs >" [ref=e323] [cursor=pointer]:
+              - /url: /en-GB/laliga-hypermotion/clubs
+              - generic [ref=e324]: Clubs
+              - text: ">"
+            - generic [ref=e325]: AD Ceuta FC
+          - generic [ref=e326]:
+            - generic [ref=e327]:
+              - img "AD Ceuta FC's shield" [ref=e330]
+              - generic [ref=e331]:
+                - heading "AD Ceuta FC" [level=2] [ref=e332]
+                - table [ref=e333]:
+                  - rowgroup [ref=e334]:
+                    - row "Year of foundation Stadium" [ref=e335]:
+                      - cell "Year of foundation" [ref=e336]:
+                        - paragraph [ref=e337]: Year of foundation
+                      - cell "Stadium" [ref=e338]:
+                        - paragraph [ref=e339]: Stadium
+                    - row "1956 Alfonso Murube" [ref=e340]:
+                      - cell "1956" [ref=e341]:
+                        - paragraph [ref=e342]: "1956"
+                      - cell "Alfonso Murube" [ref=e343]:
+                        - paragraph [ref=e344]: Alfonso Murube
+                    - row "President Official Web" [ref=e345]:
+                      - cell "President" [ref=e346]:
+                        - paragraph [ref=e347]: President
+                      - cell "Official Web" [ref=e348]:
+                        - paragraph [ref=e349]: Official Web
+                    - row "https://adceutafc.com/ " [ref=e350]:
+                      - cell [ref=e351]:
+                        - paragraph
+                      - cell "https://adceutafc.com/ " [ref=e352]:
+                        - link "https://adceutafc.com/ " [ref=e353] [cursor=pointer]:
+                          - /url: https://adceutafc.com/
+                          - generic [ref=e354]:
+                            - paragraph [ref=e355]: https://adceutafc.com/
+                            - generic [ref=e357]: 
+                    - 'row "Go to LALIGA''s profile in: X Go to LALIGA''s profile in: Facebook Go to LALIGA''s profile in: Instagram" [ref=e358]':
+                      - cell [ref=e359]
+                      - 'cell "Go to LALIGA''s profile in: X Go to LALIGA''s profile in: Facebook Go to LALIGA''s profile in: Instagram" [ref=e360]':
+                        - generic [ref=e361]:
+                          - 'link "Go to LALIGA''s profile in: X" [ref=e362] [cursor=pointer]':
+                            - /url: https://twitter.com/@ADCeuta_FC
+                            - generic [ref=e363]: 
+                          - 'link "Go to LALIGA''s profile in: Facebook" [ref=e364] [cursor=pointer]':
+                            - /url: https://www.facebook.com/ADCeutaFC
+                            - 'generic "Go to LALIGA''s profile in: Facebook" [ref=e365]': 
+                          - 'link "Go to LALIGA''s profile in: Instagram" [ref=e366] [cursor=pointer]':
+                            - /url: https://www.instagram.com/adceutafc/
+                            - generic [ref=e367]: 
+            - img "AD Ceuta FC's stadium" [ref=e370]
+        - navigation [ref=e372]:
+          - list [ref=e373]:
+            - listitem [ref=e374] [cursor=pointer]:
+              - paragraph [ref=e375]:
+                - link "Club" [ref=e376]:
+                  - /url: /en-GB/clubs/ad-ceuta-fc
+            - listitem [ref=e377] [cursor=pointer]:
+              - paragraph [ref=e378]: Squad
+            - listitem [ref=e379] [cursor=pointer]:
+              - paragraph [ref=e380]:
+                - link "Next matches" [ref=e381]:
+                  - /url: /en-GB/clubs/ad-ceuta-fc/next-matches
+            - listitem [ref=e382] [cursor=pointer]:
+              - paragraph [ref=e383]:
+                - link "Results" [ref=e384]:
+                  - /url: /en-GB/clubs/ad-ceuta-fc/results
+            - listitem [ref=e385] [cursor=pointer]:
+              - paragraph [ref=e386]:
+                - link "Statistics" [ref=e387]:
+                  - /url: /en-GB/clubs/ad-ceuta-fc/stats
+            - listitem [ref=e388] [cursor=pointer]:
+              - paragraph [ref=e389]:
+                - link "Transfers" [ref=e390]:
+                  - /url: /en-GB/clubs/ad-ceuta-fc/transfers
+        - generic [ref=e392]:
+          - heading "Official staff of the AD Ceuta FC 2025/26" [level=1] [ref=e394]
+          - generic [ref=e397]:
+            - generic [ref=e398]:
+              - paragraph [ref=e400]: PLAYER COMPARISON
+              - generic [ref=e402]:
+                - generic [ref=e404]:
+                  - img "Pick a player" [ref=e409]
+                  - paragraph [ref=e412]: VS.
+                  - img "Pick a player" [ref=e417]
+                  - generic [ref=e418]:
+                    - paragraph
+                  - generic [ref=e419]:
+                    - paragraph
+                - generic [ref=e420]:
+                  - combobox [ref=e423]:
+                    - generic [ref=e425]: 
+                    - textbox "Search player" [ref=e426]
+                    - listbox
+                  - combobox [ref=e429]:
+                    - generic [ref=e431]: 
+                    - textbox "Search player" [ref=e432]
+                    - listbox
+                - button "COMPARE" [disabled] [ref=e433]:
+                  - paragraph [ref=e434]: COMPARE
+            - generic [ref=e435]:
+              - paragraph [ref=e437]: TEAM COMPARISON
+              - generic [ref=e439]:
+                - generic [ref=e441]:
+                  - img [ref=e445]
+                  - paragraph [ref=e448]: VS.
+                  - paragraph [ref=e453]: AD Ceuta FC
+                  - generic [ref=e454]:
+                    - paragraph
+                - generic [ref=e455]:
+                  - combobox [ref=e458]:
+                    - button "clear field" [ref=e459] [cursor=pointer]:
+                      - generic [ref=e460]: 
+                    - textbox "Search team" [ref=e461]: AD Ceuta FC
+                    - listbox
+                  - combobox [ref=e464]:
+                    - generic [ref=e466]: 
+                    - textbox "Search team" [ref=e467]
+                    - listbox
+                - button "COMPARE" [ref=e468] [cursor=pointer]:
+                  - paragraph [ref=e469]: COMPARE
+      - generic [ref=e473]:
+        - generic [ref=e475]:
+          - figure [ref=e477]:
+            - img [ref=e478]
+          - list [ref=e481]:
+            - listitem [ref=e482]:
+              - 'link "Go to LALIGA''s profile in: Facebook" [ref=e483] [cursor=pointer]':
+                - /url: https://www.facebook.com/LaLiga
+            - listitem [ref=e484]:
+              - 'link "Go to LALIGA''s profile in: Instagram" [ref=e485] [cursor=pointer]':
+                - /url: https://www.instagram.com/laliga/
+            - listitem [ref=e486]:
+              - 'link "Go to LALIGA''s profile in: X" [ref=e487] [cursor=pointer]':
+                - /url: https://twitter.com/laligaEN
+            - listitem [ref=e488]:
+              - 'link "Go to LALIGA''s profile in: Linkedin" [ref=e489] [cursor=pointer]':
+                - /url: https://www.linkedin.com/company/laliga/
+            - listitem [ref=e490]:
+              - 'link "Go to LALIGA''s profile in: Tiktok" [ref=e491] [cursor=pointer]':
+                - /url: https://www.tiktok.com/@laliga
+            - listitem [ref=e492]:
+              - 'link "Go to LALIGA''s profile in: VK" [ref=e493] [cursor=pointer]':
+                - /url: https://vk.com/laliga
+            - listitem [ref=e494]:
+              - 'link "Go to LALIGA''s profile in: Youtube" [ref=e495] [cursor=pointer]':
+                - /url: https://www.youtube.com/user/laliga
+          - link " GET INTO MILIGA" [ref=e497] [cursor=pointer]:
+            - /url: https://miliga.laliga.com/en-ES
+            - generic [ref=e498]: 
+            - paragraph [ref=e499]: GET INTO MILIGA
+        - generic [ref=e504]:
+          - generic:
+            - link "Go to FMRE web":
+              - /url: https://www.marcasrenombradas.com/quienes-somos/sello-leading-brands-of-spain/
+          - 'navigation "Footer: center links" [ref=e505]':
+            - list [ref=e506]:
+              - listitem [ref=e507]:
+                - link "Complaints" [ref=e508] [cursor=pointer]:
+                  - /url: https://laligabares.com/denuncias/
+              - listitem [ref=e509]:
+                - link "Site Map" [ref=e510] [cursor=pointer]:
+                  - /url: /en-GB/site-map
+              - listitem [ref=e511]:
+                - link "Accreditations" [ref=e512] [cursor=pointer]:
+                  - /url: /en-GB/accreditations
+              - listitem [ref=e513]:
+                - link "Work with us" [ref=e514] [cursor=pointer]:
+                  - /url: /en-GB/work-with-us
+              - listitem [ref=e515]:
+                - link "Work with clubs" [ref=e516] [cursor=pointer]:
+                  - /url: /en-GB/work-with-clubs
+          - generic [ref=e517]:
+            - 'navigation "Footer: right links" [ref=e518]':
+              - list [ref=e519]:
+                - listitem [ref=e520]:
+                  - link "Internal Information System" [ref=e521] [cursor=pointer]:
+                    - /url: /en-GB/transparency/information-internal-system
+                - listitem [ref=e522]:
+                  - link "Accessibility" [ref=e523] [cursor=pointer]:
+                    - /url: /en-GB/legal/accesibilidad
+                - listitem [ref=e524]:
+                  - link "Legal notice" [ref=e525] [cursor=pointer]:
+                    - /url: /en-GB/legal/legal-web
+                - listitem [ref=e526]:
+                  - link "Privacy Policy" [ref=e527] [cursor=pointer]:
+                    - /url: /en-GB/legal/politica-privacidad
+                - listitem [ref=e528]:
+                  - link "Cookies Policy" [ref=e529] [cursor=pointer]:
+                    - /url: /en-GB/legal/politica-cookies
+            - paragraph [ref=e530]: © 2026 - LALIGA
+  - alert [ref=e531]

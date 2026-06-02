@@ -1,0 +1,105 @@
+- generic [ref=e1]:
+  - generic [ref=e10]:
+    - img "AD Ceuta" [ref=e12]
+    - generic [ref=e101]:
+      - generic [ref=e102]: Temporada 2025–26
+      - heading "AD CEUTA FC" [level=1] [ref=e103]
+      - generic [ref=e104]:
+        - button "Estadísticas" [ref=e105] [cursor=pointer]
+        - button "Plantilla" [ref=e106] [cursor=pointer]
+        - button "Historia" [active] [ref=e107] [cursor=pointer]
+      - generic [ref=e415]:
+        - generic [ref=e416]:
+          - generic [ref=e417]: 📅
+          - generic [ref=e418]:
+            - generic [ref=e419]: "1923"
+            - generic [ref=e420]: Fundación
+        - generic [ref=e421]:
+          - generic [ref=e422]: 🏟️
+          - generic [ref=e423]:
+            - generic [ref=e424]: Alfonso Murube
+            - generic [ref=e425]: Estadio
+        - generic [ref=e426]:
+          - generic [ref=e427]: 👥
+          - generic [ref=e428]:
+            - generic [ref=e429]: "8.500"
+            - generic [ref=e430]: Capacidad
+        - generic [ref=e431]:
+          - generic [ref=e432]: 📍
+          - generic [ref=e433]:
+            - generic [ref=e434]: Ceuta
+            - generic [ref=e435]: Ciudad
+        - generic [ref=e436]:
+          - generic [ref=e437]: 🎨
+          - generic [ref=e438]:
+            - generic [ref=e439]: Negro y blanco
+            - generic [ref=e440]: Colores
+        - generic [ref=e441]:
+          - generic [ref=e442]: 🐟
+          - generic [ref=e443]:
+            - generic [ref=e444]: Caballas
+            - generic [ref=e445]: Apodo
+      - generic [ref=e446]:
+        - paragraph [ref=e447]: Nuestra historia
+        - paragraph [ref=e448]: "Fundado en 1956 como Club Atlético de Ceuta, el club adoptó en 2013 el nombre y colores de la histórica AD Ceuta. Con sede en la ciudad autónoma de Ceuta, en el estrecho de Gibraltar, representa a una ciudad única: española en África."
+        - paragraph [ref=e449]: Tras décadas en categorías inferiores, el 11 de mayo de 2025 lograron el ascenso a Segunda División — la Liga Hypermotion — 45 años después de la última vez que una entidad ceutí militó en el fútbol profesional español. Los Caballas son hoy una realidad en la élite.
+      - generic [ref=e450]:
+        - img "Caballati" [ref=e451]
+        - generic [ref=e452]:
+          - generic [ref=e453]: Caballati
+          - generic [ref=e454]: Mascota oficial
+          - paragraph [ref=e455]: Caballati es la mascota oficial del AD Ceuta FC, inspirada en la caballa, el pez emblema de Ceuta y origen del apodo «Las Caballas» que llevan con orgullo sus aficionados.
+      - generic [ref=e456]:
+        - paragraph [ref=e457]: Momentos míticos
+        - generic [ref=e458]:
+          - generic [ref=e459]:
+            - generic [ref=e460]:
+              - generic [ref=e461]: ⭐
+              - generic [ref=e462]: "1960"
+            - generic [ref=e463]:
+              - generic [ref=e464]: Segundos en Segunda División
+              - paragraph [ref=e465]: "El Club Atlético de Ceuta logra su mejor clasificación histórica: segundo en Segunda División, rozando el ascenso a Primera."
+          - generic [ref=e466]:
+            - generic [ref=e467]:
+              - generic [ref=e468]: 🏟️
+              - generic [ref=e469]: "2023"
+            - generic [ref=e470]:
+              - generic [ref=e471]: El Barça en el Murube
+              - paragraph [ref=e472]: El FC Barcelona de Lewandowski y Xavi visita el Alfonso Murube en octavos de Copa del Rey. Más de 7.000 caballas lo vivieron en directo.
+          - generic [ref=e473]:
+            - generic [ref=e474]:
+              - generic [ref=e475]: 🏆
+              - generic [ref=e476]: "2025"
+            - generic [ref=e477]:
+              - generic [ref=e478]: Campeones y de vuelta a Segunda
+              - paragraph [ref=e479]: Ceuta gana el grupo de Primera Federación y asciende de forma directa a Segunda División el 11 de mayo de 2025, 45 años después.
+          - generic [ref=e480]:
+            - generic [ref=e481]:
+              - generic [ref=e482]: ⚽
+              - generic [ref=e483]: "2025"
+            - generic [ref=e484]:
+              - generic [ref=e485]: Debut en la Liga Hypermotion
+              - paragraph [ref=e486]: "Temporada 2025-26: la AD Ceuta FC debuta en la Liga Hypermotion (Segunda División) ante los mejores equipos del fútbol español."
+          - generic [ref=e487]:
+            - generic [ref=e488]:
+              - generic [ref=e489]: 👩
+              - generic [ref=e490]: "2025"
+            - generic [ref=e491]:
+              - generic [ref=e492]: El femenino llega a la élite
+              - paragraph [ref=e493]: El AD Ceuta FC Femenino asciende a Primera División (Liga F), siendo el primer equipo femenino de la ciudad en alcanzar la élite nacional.
+    - generic [ref=e69]:
+      - button "Inicio" [ref=e70] [cursor=pointer]:
+        - img [ref=e71]
+        - generic [ref=e74]: Inicio
+      - button "Clasificación" [ref=e75] [cursor=pointer]:
+        - img [ref=e76]
+        - generic [ref=e77]: Clasificación
+      - button "Partidos" [ref=e78] [cursor=pointer]:
+        - img [ref=e79]
+        - generic [ref=e82]: Partidos
+      - button "Club" [ref=e83] [cursor=pointer]:
+        - img [ref=e84]
+        - generic [ref=e89]: Club
+  - button "Open Next.js Dev Tools" [ref=e95] [cursor=pointer]:
+    - img [ref=e96]
+  - alert [ref=e99]
