@@ -39,7 +39,7 @@ export const RSS_SOURCES: RssSource[] = [
   {
     id: 'faro',
     name: 'El Faro de Ceuta',
-    url: 'https://elfarodeceuta.es/tag/ad-ceuta/feed/',
+    url: 'https://elfarodeceuta.es/feed/',
     keywords: [], // tag feed already scoped to AD Ceuta
   },
   {
