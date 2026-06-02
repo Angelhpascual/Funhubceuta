@@ -21,6 +21,7 @@ export class MatchesSupabaseRepository {
         status: 'scheduled',
         season: '2025-2026',
         competition: 'Liga Hypermotion',
+        espn_event_id: m.espnEventId,
       }))
     )
 
@@ -49,6 +50,7 @@ export class MatchesSupabaseRepository {
       weekday: data.weekday,
       isHome: data.is_home,
       ticketsUrl: data.tickets_url,
+      espnEventId: data.espn_event_id ?? null,
     }
   }
 }
