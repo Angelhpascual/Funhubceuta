@@ -6,7 +6,7 @@ export async function GET() {
     .from('matches')
     .select('*')
     .order('date', { ascending: false })
-    .limit(20)
+    .limit(60)
 
   const rows = data ?? []
 

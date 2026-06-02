@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { findLogo as findLogoUtil } from "@/lib/findLogo";
+import Link from "next/link";
 
 interface MatchRow {
   home_team: string
@@ -14,6 +15,7 @@ interface MatchRow {
   away_score: number | null
   result: string | null
   tickets_url: string | null
+  espn_event_id: string | null
 }
 
 function formatDate(dateStr: string): { day: string; mon: string } {
@@ -172,7 +174,24 @@ export function PartidosPage() {
                     <div className={`result-score ${awayScoreCls}`}>{r.away_score}</div>
                   </div>
                 </div>
-                {resultBadge(r.result)}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                  {resultBadge(r.result)}
+                  {r.espn_event_id && (
+                    <Link
+                      href={`/alineacion?eventId=${r.espn_event_id}&match=${encodeURIComponent(`${shortName(r.home_team)} vs ${shortName(r.away_team)}`)}`}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 4,
+                        background: 'var(--black)', borderRadius: 999,
+                        padding: '3px 8px', textDecoration: 'none',
+                      }}
+                    >
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/>
+                      </svg>
+                      <span style={{ fontFamily: 'var(--font-display)', fontSize: 9, fontWeight: 900, color: 'white', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Info</span>
+                    </Link>
+                  )}
+                </div>
               </div>
             )
           })}

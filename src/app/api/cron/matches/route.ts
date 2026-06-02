@@ -35,8 +35,9 @@ async function syncMatches() {
         home_score: r.homeScore,
         away_score: r.awayScore,
         result: r.result,
+        espn_event_id: r.espnEventId,
       })),
-      { onConflict: 'external_id', ignoreDuplicates: true }
+      { onConflict: 'external_id', ignoreDuplicates: false }
     )
   }
 

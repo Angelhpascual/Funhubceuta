@@ -5,6 +5,7 @@ import { LiveMatch } from '@/app/api/live/route'
 import { usePushNotifications } from '@/hooks/usePushNotifications'
 import { findLogo } from '@/lib/findLogo'
 import { ScrapedMatch } from '@/infrastructure/scrapers/adceutaScraper'
+import Link from 'next/link'
 
 const POLL_INTERVAL_LIVE = 60_000
 const POLL_INTERVAL_PRE  = 300_000
@@ -80,6 +81,20 @@ function MatchEvents({ events }: { events: LiveMatch['events'] }) {
         </div>
       ))}
     </div>
+  )
+}
+
+function LineupButton({ eventId, match }: { eventId: string; match: string }) {
+  return (
+    <Link
+      href={`/alineacion?eventId=${eventId}&match=${encodeURIComponent(match)}`}
+      className="flex items-center gap-1.5 rounded-full bg-ceuta-red px-3 py-1.5"
+    >
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/>
+      </svg>
+      <span className="font-display text-[10px] font-black uppercase tracking-[0.1em] text-white">Alineación</span>
+    </Link>
   )
 }
 
@@ -176,6 +191,9 @@ export function LiveMatchCard() {
         </div>
         <div className="mt-[18px] flex items-center justify-between border-t border-white/10 pt-[14px]">
           <span className="font-display text-[11px] font-semibold uppercase tracking-[0.1em] text-white/50">Liga Hypermotion</span>
+          {nextMatch.espnEventId && (
+            <LineupButton eventId={nextMatch.espnEventId} match={`${nextMatch.homeTeam} vs ${nextMatch.awayTeam}`} />
+          )}
         </div>
       </MatchCardShell>
     )
@@ -228,6 +246,9 @@ export function LiveMatchCard() {
         <span className="font-display text-[11px] font-semibold uppercase tracking-[0.1em] text-white/50">
           {match.venue || 'Liga Hypermotion'}
         </span>
+        {match.espnId && (
+          <LineupButton eventId={match.espnId} match={`${match.homeTeam} vs ${match.awayTeam}`} />
+        )}
       </div>
     </MatchCardShell>
   )
