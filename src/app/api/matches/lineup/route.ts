@@ -53,8 +53,13 @@ function mapPlayer(p: Record<string, unknown>): LineupPlayer {
   const athlete = p.athlete as Record<string, unknown>
   const pos = p.position as Record<string, unknown> | undefined
   const posName = (pos?.displayName as string) ?? ''
-  const links = athlete.links as { href: string; rel: string[] }[] ?? []
+  // ESPN provides jersey image (kit with number) for soccer players in this endpoint
+  const jerseyImages = athlete.jerseyImages as { href: string; rel: string[] }[] | undefined ?? []
+  const jerseyImg = jerseyImages.find(j => (j.rel ?? []).includes('default')) ?? jerseyImages[0]
+  const headshot = athlete.headshot as Record<string, unknown> | undefined
+  const links = athlete.links as { href: string; rel: string[] }[] | undefined ?? []
   const photoLink = links.find(l => l.rel?.includes('headshot'))
+  const photoUrl = (headshot?.href as string) ?? photoLink?.href ?? jerseyImg?.href ?? null
   return {
     name: athlete.displayName as string,
     shortName: athlete.shortName as string,
@@ -62,7 +67,7 @@ function mapPlayer(p: Record<string, unknown>): LineupPlayer {
     position: posName,
     positionAbbr: POS_MAP[posName] ?? posName.slice(0, 3).toUpperCase(),
     starter: Boolean(p.starter),
-    photoUrl: photoLink?.href ?? null,
+    photoUrl,
   }
 }
 
@@ -125,19 +130,19 @@ export async function GET(request: Request) {
 
   const events: MatchEvent[] = allEvents
     .filter(ev => {
-      const typeStr = String((ev.type as Record<string, unknown>)?.type ?? (ev.type as Record<string, unknown>)?.name ?? '').toLowerCase()
+      const typeStr = String((ev.type as Record<string, unknown>)?.type ?? '').toLowerCase()
       return EVENT_TYPES[typeStr] !== undefined
     })
     .map(ev => {
-      const typeStr = String((ev.type as Record<string, unknown>)?.type ?? (ev.type as Record<string, unknown>)?.name ?? '').toLowerCase()
-      const athlete = ev.athletes as Record<string, unknown>[] | undefined
-      const playerName = athlete?.[0]
-        ? String((athlete[0].athlete as Record<string, unknown>)?.displayName ?? athlete[0].displayName ?? '')
-        : String((ev.text as string) ?? '')
+      const typeStr = String((ev.type as Record<string, unknown>)?.type ?? '').toLowerCase()
+      // participants[0].athlete.displayName is the most reliable source
+      const participants = ev.participants as Record<string, unknown>[] | undefined
+      const firstAthlete = participants?.[0]?.athlete as Record<string, unknown> | undefined
+      const playerName = String(firstAthlete?.displayName ?? (ev.shortText as string) ?? '')
       const teamId = String((ev.team as Record<string, unknown>)?.id ?? '')
       return {
         type: EVENT_TYPES[typeStr]!,
-        minute: String((ev.clock as Record<string, unknown>)?.displayValue ?? ev.period ?? ''),
+        minute: String((ev.clock as Record<string, unknown>)?.displayValue ?? ''),
         playerName,
         team: teamId === homeTeamId ? 'home' : 'away',
       }

@@ -29,37 +29,55 @@ function LineupContent() {
 
   return (
     <div className="page">
-      {/* Header */}
-      <div className="flex items-center gap-3 px-3 pt-4 pb-2">
-        <Link href="/" className="flex items-center text-ceuta-muted">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+
+      {/* ── HERO ── */}
+      <div className="relative mt-2 overflow-hidden bg-ceuta-black px-[18px] pb-[52px] pt-[22px] text-white">
+        <div
+          className="pointer-events-none absolute bottom-0 right-[-40px] top-0 w-[180px]"
+          style={{
+            background: 'repeating-linear-gradient(-45deg, white 0 14px, #0A0A0A 14px 28px)',
+            clipPath: 'polygon(60px 0, 100% 0, 100% 100%, 0 100%)',
+          }}
+        />
+        <Link href="/" className="mb-3 flex items-center gap-2 font-display text-[11px] font-bold uppercase tracking-[0.14em] text-ceuta-red">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M19 12H5M12 5l-7 7 7 7"/>
           </svg>
+          Volver
         </Link>
-        <div>
-          <div className="font-display text-[10px] font-bold uppercase tracking-[0.14em] text-ceuta-red">
-            Once inicial
-          </div>
-          <div className="font-display text-[20px] font-black uppercase leading-none text-ceuta-black">
-            {matchLabel}
-          </div>
+        <div className="flex items-center gap-2 font-display text-[11px] font-bold uppercase tracking-[0.16em] text-ceuta-red">
+          <div className="h-0.5 w-[18px] bg-ceuta-red" />
+          Once inicial
+        </div>
+        <div className="mt-2 font-display text-[32px] font-black uppercase leading-[0.95]">
+          {matchLabel.includes(' vs ') ? (
+            <>
+              {matchLabel.split(' vs ')[0]}
+              <em className="not-italic text-ceuta-gold"> vs </em>
+              {matchLabel.split(' vs ')[1]}
+            </>
+          ) : matchLabel}
         </div>
       </div>
 
-      <div className="px-3 pb-4">
+      {/* ── CONTENT ── */}
+      <div className="relative z-[2] -mt-7 mx-3">
+
         {loading && (
-          <div className="py-12 text-center font-display text-[11px] uppercase tracking-[0.1em] text-ceuta-muted">
-            Cargando alineación…
+          <div className="rounded-[14px] border-2 border-ceuta-black bg-white p-8 text-center">
+            <div className="font-display text-[11px] font-bold uppercase tracking-[0.14em] text-ceuta-muted">
+              Cargando alineación…
+            </div>
           </div>
         )}
 
         {!loading && error && (
-          <div className="rounded-[14px] bg-ceuta-bg-soft p-6 text-center">
-            <div className="text-3xl mb-3">📋</div>
-            <div className="font-display text-[14px] font-bold uppercase tracking-wide text-ceuta-black">
+          <div className="rounded-[14px] border-2 border-ceuta-black bg-white p-8 text-center">
+            <div className="text-4xl mb-3">📋</div>
+            <div className="font-display text-[16px] font-black uppercase tracking-[0.04em] text-ceuta-black">
               Alineación no disponible
             </div>
-            <div className="mt-1 font-display text-[11px] uppercase tracking-wide text-ceuta-muted">
+            <div className="mt-1.5 font-display text-[11px] font-semibold uppercase tracking-[0.1em] text-ceuta-muted">
               Se publicará ~30 min antes del partido
             </div>
           </div>
@@ -67,6 +85,8 @@ function LineupContent() {
 
         {!loading && lineup && <LineupField lineup={lineup} />}
       </div>
+
+      <div className="h-6" />
     </div>
   )
 }
