@@ -33,26 +33,41 @@ function assignRows(starters: LineupPlayer[], formation: string): LineupPlayer[]
 
 function PlayerDot({ player }: { player: LineupPlayer }) {
   const isGK = player.positionAbbr === 'GK'
+  // Show last surname (skip initials like "R." at the start)
+  const displayName = player.shortName
+    .split(' ')
+    .filter(w => w.length > 1 && !w.endsWith('.'))
+    .pop() ?? player.shortName.split(' ').pop() ?? player.shortName
+
   return (
     <div className="flex flex-col items-center gap-1.5">
-      <div className={`relative flex size-11 items-center justify-center rounded-full border-2 ${isGK ? 'border-ceuta-red bg-ceuta-red' : 'border-white/70 bg-white/15'} backdrop-blur-sm`}>
+      <div className={`relative flex size-11 items-center justify-center overflow-hidden rounded-full border-2 ${isGK ? 'border-ceuta-red bg-ceuta-red' : 'border-white/70 bg-white/15'} backdrop-blur-sm`}>
         {player.photoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={player.photoUrl}
             alt={player.shortName}
-            className="size-full rounded-full object-contain"
-            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+            className="size-full rounded-full object-cover object-top"
+            onError={(e) => {
+              const t = e.target as HTMLImageElement
+              t.style.display = 'none'
+              const fallback = t.nextElementSibling as HTMLElement | null
+              if (fallback) fallback.style.display = 'flex'
+            }}
           />
-        ) : (
-          <span className="font-display text-[13px] font-black text-white">{player.jersey}</span>
-        )}
+        ) : null}
+        <span
+          className="font-display text-[14px] font-black text-white"
+          style={{ display: player.photoUrl ? 'none' : 'flex' }}
+        >
+          {player.jersey}
+        </span>
         <span className="absolute -bottom-1 -right-1 flex size-[18px] items-center justify-center rounded-full bg-ceuta-black font-display text-[9px] font-black text-white">
           {player.jersey}
         </span>
       </div>
       <span className="max-w-[60px] truncate text-center font-display text-[9px] font-bold uppercase tracking-wide text-white drop-shadow">
-        {player.shortName.split(' ').pop()}
+        {displayName}
       </span>
     </div>
   )
