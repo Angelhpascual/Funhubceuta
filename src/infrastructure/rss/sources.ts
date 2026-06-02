@@ -6,25 +6,25 @@ export interface RssSource {
   keywords: string[]
 }
 
-// Plantilla AD Ceuta (fuente: laliga.com/clubes/ad-ceuta-fc/plantilla)
-const SQUAD_KEYWORDS = [
-  // Porteros
-  'pedro lópez', 'vallejo', 'pery garcia', 'jose juan romero',
-  // Defensas
-  'manu sánchez', 'matos', 'capa', 'carlos hernández', 'diego gonzález',
-  'redruello', 'almenara', 'yago', 'curro', 'antonio josé sánchez',
-  // Centrocampistas
-  'youness lachhab', 'aisar ahmed', 'schor', 'marino illescas',
-  'bodiger', 'campaña', 'anuar', 'salvi sánchez', 'josema', 'adri rueda',
-  // Delanteros
-  'zalazar', 'marcos', 'konrad', 'bassinga', 'domenech', 'yeyo',
-  'rubén díez', 'cristian rodríguez', 'koné', 'arick', 'paco f',
-  // Presidente y club
-  'luhay hamido',
+// Keywords that unambiguously identify the club — at least one must match
+export const BASE_KEYWORDS = [
+  'ad ceuta', 'ceuta fc', 'ceuta f.c', 'adceuta', 'murube', 'caballas',
 ]
 
-const BASE_KEYWORDS = [
-  'ad ceuta', 'ceuta fc', 'murube', 'hypermotion', 'segunda división', 'laliga',
+// Player full-name or unique identifiers — used as secondary match
+const SQUAD_KEYWORDS = [
+  // Porteros
+  'pedro lópez', 'pery garcia', 'jose juan romero',
+  // Defensas
+  'manu sánchez', 'carlos hernández', 'diego gonzález',
+  'redruello', 'almenara', 'antonio josé sánchez',
+  // Centrocampistas
+  'youness lachhab', 'aisar ahmed', 'marino illescas',
+  'bodiger', 'salvi sánchez', 'adri rueda', 'josema ceuta',
+  // Delanteros
+  'zalazar', 'bassinga', 'rubén díez', 'cristian rodríguez', 'koné ceuta',
+  // Presidente y club
+  'luhay hamido',
 ]
 
 export const CEUTA_KEYWORDS = [...BASE_KEYWORDS, ...SQUAD_KEYWORDS]

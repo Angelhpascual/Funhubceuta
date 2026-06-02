@@ -3,7 +3,6 @@ import { Receiver } from '@upstash/qstash'
 import { supabase } from '@/infrastructure/supabase/client'
 import webpush from 'web-push'
 import type { LiveMatch, LiveEvent } from '@/app/api/live/route'
-import { detectEvents, type MatchState } from './detectEvents'
 
 webpush.setVapidDetails(
   'mailto:angelhpascual@gmail.com',
@@ -101,6 +100,13 @@ async function sendPush(title: string, body: string, tag: string) {
 }
 
 // ── Cached state helpers ──────────────────────────────────────────────────
+interface MatchState {
+  espnId: string
+  homeScore: number
+  awayScore: number
+  state: string
+  eventCount: number
+}
 
 async function getStoredState(): Promise<MatchState | null> {
   const { data } = await supabase
@@ -124,8 +130,13 @@ async function checkAndNotify() {
   const match = await fetchLiveMatch()
 
   if (!match) {
-    // No match today — clear stored state
-    await supabase.from('app_config').delete().eq('key', 'live_match_state')
+    // ESPN returned no Ceuta match — could be an API hiccup during a live game.
+    // Don't delete stored state here; only clear it after the match reaches 'post'.
+    // If we cleared on every miss we'd reset the goal baseline mid-game.
+    const prev = await getStoredState()
+    if (prev?.state === 'post') {
+      await supabase.from('app_config').delete().eq('key', 'live_match_state')
+    }
     return { match: null, notifications: [] }
   }
 
@@ -138,13 +149,116 @@ async function checkAndNotify() {
     awayScore: match.awayScore,
     state: match.state,
     eventCount: match.events.length,
-    events: match.events,
   }
 
-  const events = detectEvents(match, prev)
-  for (const n of events) {
-    await sendPush(n.title, n.body, n.tag)
-    notifications.push(n.tag)
+  const rival = match.homeTeam.toLowerCase().includes('ceuta') ? match.awayTeam : match.homeTeam
+  const ceutaIsHome = match.homeTeam.toLowerCase().includes('ceuta')
+  const score = `${match.homeScore}-${match.awayScore}`
+
+  // ── Match just started ────────────────────────────────────────────────
+  // Only fire kickoff on the pre→in transition; skip if we already stored 'in'
+  // (avoids duplicate notifications after ESPN temporarily drops the match)
+  if ((!prev || prev.state === 'pre') && match.state === 'in') {
+    await sendPush(
+      '⚽ ¡Ya estamos en marcha, caballas!',
+      `Hoy nos enfrentamos al ${rival}. 90 minutos de lucha. ¡Vamos Ceuta! 🖤⚪`,
+      'kickoff'
+    )
+    notifications.push('kickoff')
+  }
+
+  // ── Goal detected ─────────────────────────────────────────────────────
+  if (prev && match.state === 'in') {
+    const homeGoals = match.homeScore - prev.homeScore
+    const awayGoals = match.awayScore - prev.awayScore
+
+    for (let i = 0; i < homeGoals; i++) {
+      const ceutaScored = ceutaIsHome
+      const scorer = match.events.filter(e => e.type === 'goal' && e.team === 'home').pop()
+
+      if (ceutaScored) {
+        await sendPush(
+          `🚨 ¡¡GOOOOOL DE CEUTA!! 🔥`,
+          `¡${scorer?.playerName ?? 'GOOOL'}! ¡Qué locura! Marcador: ${score} (${scorer?.minute ?? ''}) ¡VAMOS CABALLAS! 🖤⚪`,
+          `goal-home-${match.homeScore}`
+        )
+      } else {
+        await sendPush(
+          `😤 Gol en contra... (${score})`,
+          `Nos han marcado${scorer ? ` ${scorer.playerName}` : ''}. Pero esto no ha terminado. ¡A por ellos! 💪`,
+          `goal-home-${match.homeScore}`
+        )
+      }
+      notifications.push(`goal-home-${match.homeScore}`)
+    }
+
+    for (let i = 0; i < awayGoals; i++) {
+      const ceutaScored = !ceutaIsHome
+      const scorer = match.events.filter(e => e.type === 'goal' && e.team === 'away').pop()
+
+      if (ceutaScored) {
+        await sendPush(
+          `🚨 ¡¡GOOOOOL DE CEUTA!! 🔥`,
+          `¡${scorer?.playerName ?? 'GOOOL'}! ¡Qué locura! Marcador: ${score} (${scorer?.minute ?? ''}) ¡VAMOS CABALLAS! 🖤⚪`,
+          `goal-away-${match.awayScore}`
+        )
+      } else {
+        await sendPush(
+          `😤 Gol en contra... (${score})`,
+          `Nos han marcado${scorer ? ` ${scorer.playerName}` : ''}. Pero esto no ha terminado. ¡A por ellos! 💪`,
+          `goal-away-${match.awayScore}`
+        )
+      }
+      notifications.push(`goal-away-${match.awayScore}`)
+    }
+
+    // ── Red card ────────────────────────────────────────────────────────
+    const newEvents = match.events.slice(prev.eventCount)
+    const redCards = newEvents.filter(e => e.type === 'redCard')
+    for (const card of redCards) {
+      const isCeuta = card.team === (ceutaIsHome ? 'home' : 'away')
+      if (isCeuta) {
+        await sendPush(
+          `🟥 Nos quedamos con 10...`,
+          `Roja para ${card.playerName} en el ${card.minute}. Ahora más unidos que nunca. ¡El Ceuta no se rinde! 🖤⚪`,
+          `red-${card.minute}`
+        )
+      } else {
+        await sendPush(
+          `🟥 ¡Roja para el rival!`,
+          `Expulsado ${card.playerName} (${card.minute}). ¡Con uno más, a aprovechar! Vamos Ceuta 💪🔥`,
+          `red-${card.minute}`
+        )
+      }
+      notifications.push(`red-${card.playerName}`)
+    }
+  }
+
+  // ── Match finished ────────────────────────────────────────────────────
+  if (prev?.state === 'in' && match.state === 'post') {
+    const ceutaScore = ceutaIsHome ? match.homeScore : match.awayScore
+    const rivalScore = ceutaIsHome ? match.awayScore : match.homeScore
+
+    if (ceutaScore > rivalScore) {
+      await sendPush(
+        `🏆 ¡¡VICTORIA CABALLAS!! (${score})`,
+        `¡Lo hemos conseguido! Tres puntos de oro. Gracias por estar siempre con nosotros. ¡Hasta la siguiente! 🖤⚪🔥`,
+        'fulltime'
+      )
+    } else if (ceutaScore < rivalScore) {
+      await sendPush(
+        `😔 Derrota... pero seguimos juntos (${score})`,
+        `No era el día. Esto es el fútbol. Pero el Ceuta siempre se levanta. ¡Gracias por el apoyo! 🖤⚪`,
+        'fulltime'
+      )
+    } else {
+      await sendPush(
+        `🤝 Empate final (${score})`,
+        `Un punto que suma. El equipo lo ha dado todo. ¡Gracias caballas por el apoyo! 🖤⚪`,
+        'fulltime'
+      )
+    }
+    notifications.push('fulltime')
   }
 
   await saveState(newState)

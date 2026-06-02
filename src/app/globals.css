@@ -1,5 +1,27 @@
 @import "tailwindcss";
 
+/* ════════ TAILWIND 4 THEME TOKENS ════════ */
+@theme {
+  --color-ceuta-red:        #D62027;
+  --color-ceuta-red-dark:   #A8161C;
+  --color-ceuta-red-soft:   #FFE9EA;
+  --color-ceuta-gold:       #F2C300;
+  --color-ceuta-gold-soft:  #FFF6CC;
+  --color-ceuta-black:      #0A0A0A;
+  --color-ceuta-white:      #FFFFFF;
+  --color-ceuta-bg:         #FFFFFF;
+  --color-ceuta-bg-soft:    #F5F4F1;
+  --color-ceuta-bg-mid:     #ECEAE4;
+  --color-ceuta-muted:      #6E6E6E;
+  --color-ceuta-border:     #E4E1DA;
+
+  --font-display: var(--font-barlow-condensed), 'Barlow Condensed', sans-serif;
+  --font-body:    var(--font-barlow), 'Barlow', sans-serif;
+
+  --radius-card:  14px;
+  --radius-sm:    8px;
+}
+
 /* ════════ DESIGN SYSTEM — AD CEUTA FANHUB ════════ */
 :root {
   /* Paleta del escudo */
