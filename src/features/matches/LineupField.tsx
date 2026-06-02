@@ -133,60 +133,86 @@ export function LineupField({ lineup }: { lineup: MatchLineup }) {
       </div>
 
       {/* ── EVENTS ── */}
-      {events.length > 0 && (
-        <div className="overflow-hidden rounded-[14px] border-2 border-ceuta-black bg-white">
-          {/* header */}
-          <div className="relative overflow-hidden bg-ceuta-black px-[18px] py-[14px]">
-            <div
-              className="pointer-events-none absolute bottom-0 right-0 top-0 w-[80px]"
-              style={{ background: 'repeating-linear-gradient(-45deg, white 0 8px, #0A0A0A 8px 16px)', clipPath: 'polygon(30px 0, 100% 0, 100% 100%, 0 100%)' }}
-            />
-            <div className="flex items-center gap-2">
-              <div className="h-0.5 w-[14px] bg-ceuta-red" />
-              <span className="font-display text-[10px] font-bold uppercase tracking-[0.16em] text-ceuta-red">
-                Eventos del partido
-              </span>
-            </div>
-          </div>
+      {events.length > 0 && (() => {
+        const highlights = events.filter(e => e.type !== 'substitution')
+        const subs = events.filter(e => e.type === 'substitution')
+        return (
+          <div className="grid grid-cols-2 gap-3">
 
-          {/* event rows */}
-          <div className="divide-y divide-ceuta-border">
-            {events.map((ev, i) => (
-              <div key={i} className="flex items-center gap-3 px-[18px] py-[13px]">
-                <span className="w-7 shrink-0 font-display text-[13px] font-black text-ceuta-black">
-                  {ev.minute}
-                </span>
-                <span className="text-[16px]">{EVENT_ICON[ev.type]}</span>
-                <div className="flex-1 min-w-0">
-                  {ev.type === 'substitution' ? (
-                    <>
-                      <div className="flex items-center gap-1.5">
-                        <span className="font-display text-[10px] font-black text-ceuta-red">▲</span>
-                        <span className="truncate font-display text-[13px] font-bold uppercase tracking-[0.02em] text-ceuta-black">{ev.playerName}</span>
-                      </div>
-                      {ev.playerOut && (
-                        <div className="flex items-center gap-1.5">
-                          <span className="font-display text-[10px] font-black text-ceuta-muted">▼</span>
-                          <span className="truncate font-display text-[12px] font-semibold uppercase tracking-[0.02em] text-ceuta-muted">{ev.playerOut}</span>
+            {/* Goles y tarjetas */}
+            {highlights.length > 0 && (
+              <div className="overflow-hidden rounded-[14px] border-2 border-ceuta-black bg-white">
+                <div className="relative overflow-hidden bg-ceuta-black px-4 py-3">
+                  <div
+                    className="pointer-events-none absolute bottom-0 right-0 top-0 w-[60px]"
+                    style={{ background: 'repeating-linear-gradient(-45deg, white 0 7px, #0A0A0A 7px 14px)', clipPath: 'polygon(20px 0, 100% 0, 100% 100%, 0 100%)' }}
+                  />
+                  <div className="flex items-center gap-1.5">
+                    <div className="h-0.5 w-3 bg-ceuta-red" />
+                    <span className="font-display text-[9px] font-bold uppercase tracking-[0.14em] text-ceuta-red">
+                      Goles y tarjetas
+                    </span>
+                  </div>
+                </div>
+                <div className="divide-y divide-ceuta-border">
+                  {highlights.map((ev, i) => (
+                    <div key={i} className="flex items-start gap-2 px-3 py-2.5">
+                      <span className="mt-0.5 w-6 shrink-0 font-display text-[11px] font-black text-ceuta-black">{ev.minute}</span>
+                      <span className="mt-0.5 text-[13px] shrink-0">{EVENT_ICON[ev.type]}</span>
+                      <div className="min-w-0">
+                        <div className="truncate font-display text-[12px] font-bold uppercase tracking-[0.02em] text-ceuta-black">
+                          {ev.playerName}
                         </div>
-                      )}
-                    </>
-                  ) : (
-                    <>
-                      <div className="truncate font-display text-[14px] font-bold uppercase tracking-[0.02em] text-ceuta-black">
-                        {ev.playerName}
+                        <div className="font-display text-[9px] font-semibold uppercase tracking-[0.1em] text-ceuta-muted">
+                          {EVENT_LABEL[ev.type]}
+                        </div>
                       </div>
-                      <div className="font-display text-[10px] font-semibold uppercase tracking-[0.1em] text-ceuta-muted">
-                        {EVENT_LABEL[ev.type]}
-                      </div>
-                    </>
-                  )}
+                    </div>
+                  ))}
                 </div>
               </div>
-            ))}
+            )}
+
+            {/* Cambios */}
+            {subs.length > 0 && (
+              <div className="overflow-hidden rounded-[14px] border-2 border-ceuta-black bg-white">
+                <div className="relative overflow-hidden bg-ceuta-black px-4 py-3">
+                  <div
+                    className="pointer-events-none absolute bottom-0 right-0 top-0 w-[60px]"
+                    style={{ background: 'repeating-linear-gradient(-45deg, white 0 7px, #0A0A0A 7px 14px)', clipPath: 'polygon(20px 0, 100% 0, 100% 100%, 0 100%)' }}
+                  />
+                  <div className="flex items-center gap-1.5">
+                    <div className="h-0.5 w-3 bg-ceuta-red" />
+                    <span className="font-display text-[9px] font-bold uppercase tracking-[0.14em] text-ceuta-red">
+                      Cambios
+                    </span>
+                  </div>
+                </div>
+                <div className="divide-y divide-ceuta-border">
+                  {subs.map((ev, i) => (
+                    <div key={i} className="flex items-start gap-2 px-3 py-2.5">
+                      <span className="mt-0.5 w-6 shrink-0 font-display text-[11px] font-black text-ceuta-black">{ev.minute}</span>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1">
+                          <span className="text-[9px] font-black text-ceuta-red">▲</span>
+                          <span className="truncate font-display text-[12px] font-bold uppercase tracking-[0.02em] text-ceuta-black">{ev.playerName}</span>
+                        </div>
+                        {ev.playerOut && (
+                          <div className="flex items-center gap-1">
+                            <span className="text-[9px] font-black text-ceuta-muted">▼</span>
+                            <span className="truncate font-display text-[11px] font-semibold uppercase tracking-[0.02em] text-ceuta-muted">{ev.playerOut}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
           </div>
-        </div>
-      )}
+        )
+      })()}
 
     </div>
   )
