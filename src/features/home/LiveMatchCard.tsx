@@ -16,12 +16,7 @@ const EVENT_ICONS: Record<string, string> = {
 function GoalFlash({ show }: { show: boolean }) {
   if (!show) return null
   return (
-    <div style={{
-      position: 'absolute', inset: 0, borderRadius: 'var(--radius)',
-      background: 'rgba(214,32,39,0.25)',
-      animation: 'goalFlash 1.2s ease-out forwards',
-      pointerEvents: 'none', zIndex: 2,
-    }}>
+    <div className="pointer-events-none absolute inset-0 z-[2] rounded-[14px] bg-ceuta-red/25 animate-[goalFlash_1.2s_ease-out_forwards]">
       <style>{`@keyframes goalFlash { 0%{opacity:1} 100%{opacity:0} }`}</style>
     </div>
   )
@@ -29,12 +24,13 @@ function GoalFlash({ show }: { show: boolean }) {
 
 function LiveBadge({ clock }: { clock: string }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-      <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--red)', animation: 'pulse 1.2s ease-in-out infinite', display: 'inline-block' }} />
-      <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 11, color: 'var(--red)', letterSpacing: '0.14em', textTransform: 'uppercase' }}>
+    <div className="flex items-center gap-1.5">
+      <span className="inline-block size-2 animate-[pulse_1.2s_ease-in-out_infinite] rounded-full bg-ceuta-red">
+        <style>{`@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(1.3)} }`}</style>
+      </span>
+      <span className="font-display text-[11px] font-bold uppercase tracking-[0.14em] text-ceuta-red">
         EN VIVO {clock && `· ${clock}`}
       </span>
-      <style>{`@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(1.3)} }`}</style>
     </div>
   )
 }
@@ -43,54 +39,68 @@ function TeamCrest({ name, logos }: { name: string; logos: Record<string, string
   const logo = findLogo(logos, name)
   if (logo) {
     return (
-      <div className="team-crest with-img">
+      <div className="flex size-[52px] items-center justify-center rounded-full bg-white">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={logo} alt={name} style={{ width: 36, height: 36, objectFit: 'contain' }} />
+        <img src={logo} alt={name} className="size-9 object-contain" />
       </div>
     )
   }
-  return <div className="team-crest">{name.slice(0, 3).toUpperCase()}</div>
+  return (
+    <div className="flex size-[52px] items-center justify-center rounded-full bg-white font-display text-[13px] font-black text-ceuta-black">
+      {name.slice(0, 3).toUpperCase()}
+    </div>
+  )
 }
 
 function MatchEvents({ events }: { events: LiveMatch['events'] }) {
   if (events.length === 0) return null
-
   const sorted = [...events].sort((a, b) => (parseInt(a.minute) || 0) - (parseInt(b.minute) || 0))
-
   return (
-    <div style={{ marginTop: 12, borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 10, display: 'flex', flexDirection: 'column', gap: 5 }}>
+    <div className="mt-3 flex flex-col gap-[5px] border-t border-white/[0.08] pt-2.5">
       {sorted.map((ev, i) => (
-        <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
-          {/* Equipo local — izquierda */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'flex-start' }}>
+        <div key={i} className="grid grid-cols-2">
+          <div className="flex items-center gap-1">
             {ev.team === 'home' && (
               <>
-                <span style={{ fontSize: 13 }}>{EVENT_ICONS[ev.type]}</span>
-                <span style={{ fontFamily: 'var(--font-display)', fontSize: 12, color: 'rgba(255,255,255,0.9)', fontWeight: 600 }}>
-                  {ev.playerName.split(' ').pop()}
-                </span>
-                <span style={{ fontFamily: 'var(--font-display)', fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>
-                  {ev.minute}
-                </span>
+                <span className="text-[13px]">{EVENT_ICONS[ev.type]}</span>
+                <span className="font-display text-[12px] font-semibold text-white/90">{ev.playerName.split(' ').pop()}</span>
+                <span className="font-display text-[10px] text-white/40">{ev.minute}</span>
               </>
             )}
           </div>
-          {/* Equipo visitante — derecha */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'flex-end' }}>
+          <div className="flex items-center justify-end gap-1">
             {ev.team === 'away' && (
               <>
-                <span style={{ fontFamily: 'var(--font-display)', fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>
-                  {ev.minute}
-                </span>
-                <span style={{ fontFamily: 'var(--font-display)', fontSize: 12, color: 'rgba(255,255,255,0.9)', fontWeight: 600 }}>
-                  {ev.playerName.split(' ').pop()}
-                </span>
-                <span style={{ fontSize: 13 }}>{EVENT_ICONS[ev.type]}</span>
+                <span className="font-display text-[10px] text-white/40">{ev.minute}</span>
+                <span className="font-display text-[12px] font-semibold text-white/90">{ev.playerName.split(' ').pop()}</span>
+                <span className="text-[13px]">{EVENT_ICONS[ev.type]}</span>
               </>
             )}
           </div>
         </div>
       ))}
+    </div>
+  )
+}
+
+function MatchCardShell({ children, relative }: { children: React.ReactNode; relative?: boolean }) {
+  return (
+    <div className={`mx-3 overflow-hidden rounded-[14px] bg-ceuta-black px-[18px] pb-[18px] pt-5 text-white ${relative ? 'relative' : ''}`}>
+      {/* diagonal stripes */}
+      <div
+        className="pointer-events-none absolute bottom-0 right-0 top-0 w-[110px]"
+        style={{ background: 'repeating-linear-gradient(-45deg, transparent 0 7px, rgba(255,255,255,0.04) 7px 14px)' }}
+      />
+      {children}
+    </div>
+  )
+}
+
+function Competition() {
+  return (
+    <div className="flex items-center gap-2 font-display text-[10.5px] font-bold uppercase tracking-[0.14em] text-ceuta-red">
+      <span className="inline-block size-[6px] rounded-full bg-ceuta-red" />
+      Liga Hypermotion
     </div>
   )
 }
@@ -140,34 +150,34 @@ export function LiveMatchCard() {
     return () => clearInterval(interval)
   }, [match?.state])
 
-  // No ESPN data — show next match from DB if available
+  // No ESPN data — show next match from DB
   if (!match) {
     if (!nextMatch) return null
     const dateStr = `${nextMatch.date}T${nextMatch.time}:00`
     return (
-      <div className="match-card">
-        <div className="match-competition">Liga Hypermotion</div>
-        <div className="match-teams" style={{ marginTop: 10 }}>
-          <div className="team-block">
+      <MatchCardShell>
+        <Competition />
+        <div className="relative z-[1] mt-4 grid grid-cols-[1fr_auto_1fr] items-center gap-2.5">
+          <div className="flex flex-col items-center gap-2">
             <TeamCrest name={nextMatch.homeTeam} logos={logos} />
-            <div className="team-name">{nextMatch.homeTeam}</div>
+            <div className="text-center font-display text-[15px] font-bold uppercase tracking-[0.04em]">{nextMatch.homeTeam}</div>
           </div>
-          <div className="match-center">
-            <div className="match-vs">VS</div>
-            <div className="match-date-time">
+          <div className="text-center">
+            <div className="font-display text-[12px] font-black tracking-[0.16em] text-ceuta-muted">VS</div>
+            <div className="mt-1.5 font-display text-[22px] font-black leading-none tracking-[0.04em]">
               {new Date(dateStr).toLocaleDateString('es-ES', { weekday: 'short', timeZone: 'UTC' }).toUpperCase().replace('.', '')}<br />
               {nextMatch.time}
             </div>
           </div>
-          <div className="team-block">
+          <div className="flex flex-col items-center gap-2">
             <TeamCrest name={nextMatch.awayTeam} logos={logos} />
-            <div className="team-name">{nextMatch.awayTeam}</div>
+            <div className="text-center font-display text-[15px] font-bold uppercase tracking-[0.04em]">{nextMatch.awayTeam}</div>
           </div>
         </div>
-        <div className="match-foot" style={{ marginTop: 14 }}>
-          <span>Liga Hypermotion</span>
+        <div className="mt-[18px] flex items-center justify-between border-t border-white/10 pt-[14px]">
+          <span className="font-display text-[11px] font-semibold uppercase tracking-[0.1em] text-white/50">Liga Hypermotion</span>
         </div>
-      </div>
+      </MatchCardShell>
     )
   }
 
@@ -175,56 +185,50 @@ export function LiveMatchCard() {
   const isFinished = match.state === 'post'
 
   return (
-    <div className="match-card" style={{ position: 'relative', overflow: 'hidden' }}>
+    <MatchCardShell relative>
       <GoalFlash show={goalFlash} />
 
-      {/* Status */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-        <div className="match-competition">Liga Hypermotion</div>
+      <div className="flex items-center justify-between">
+        <Competition />
         {isLive && <LiveBadge clock={match.clock} />}
         {isFinished && (
-          <span style={{ fontFamily: 'var(--font-display)', fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-            FINALIZADO
-          </span>
+          <span className="font-display text-[11px] font-bold uppercase tracking-[0.1em] text-white/50">FINALIZADO</span>
         )}
       </div>
 
-      {/* Teams + Score */}
-      <div className="match-teams">
-        <div className="team-block">
+      <div className="relative z-[1] mt-4 grid grid-cols-[1fr_auto_1fr] items-center gap-2.5">
+        <div className="flex flex-col items-center gap-2">
           <TeamCrest name={match.homeTeam} logos={logos} />
-          <div className="team-name">{match.homeTeam}</div>
+          <div className="text-center font-display text-[15px] font-bold uppercase tracking-[0.04em]">{match.homeTeam}</div>
         </div>
-
-        <div className="match-center">
+        <div className="text-center">
           {(isLive || isFinished) ? (
-            <div style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 38, color: 'var(--white)', letterSpacing: '-0.02em', lineHeight: 1 }}>
+            <div className="font-display text-[38px] font-black leading-none tracking-[-0.02em] text-white">
               {match.homeScore} – {match.awayScore}
             </div>
           ) : (
             <>
-              <div className="match-vs">VS</div>
-              <div className="match-date-time">
+              <div className="mb-1.5 font-display text-[12px] font-black tracking-[0.16em] text-ceuta-muted">VS</div>
+              <div className="font-display text-[22px] font-black leading-none tracking-[0.04em]">
                 {new Date(match.startDate).toLocaleDateString('es-ES', { weekday: 'short', timeZone: 'UTC' }).toUpperCase().replace('.', '')}<br />
                 {new Date(match.startDate).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' })}
               </div>
             </>
           )}
         </div>
-
-        <div className="team-block">
+        <div className="flex flex-col items-center gap-2">
           <TeamCrest name={match.awayTeam} logos={logos} />
-          <div className="team-name">{match.awayTeam}</div>
+          <div className="text-center font-display text-[15px] font-bold uppercase tracking-[0.04em]">{match.awayTeam}</div>
         </div>
       </div>
 
-      {/* Events — home izquierda, away derecha */}
       <MatchEvents events={match.events} />
 
-      {/* Footer */}
-      <div className="match-foot" style={{ marginTop: 14 }}>
-        <span>{match.venue || 'Liga Hypermotion'}</span>
+      <div className="mt-[18px] flex items-center justify-between border-t border-white/10 pt-[14px]">
+        <span className="font-display text-[11px] font-semibold uppercase tracking-[0.1em] text-white/50">
+          {match.venue || 'Liga Hypermotion'}
+        </span>
       </div>
-    </div>
+    </MatchCardShell>
   )
 }
