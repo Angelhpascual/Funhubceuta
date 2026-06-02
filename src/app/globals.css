@@ -49,10 +49,6 @@
   --font-body:    var(--font-barlow), 'Barlow', sans-serif;
 }
 
-@layer base {
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-}
-
 html, body {
   height: 100%;
   background: #1a1a1a;
