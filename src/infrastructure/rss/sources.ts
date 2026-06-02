@@ -40,7 +40,7 @@ export const RSS_SOURCES: RssSource[] = [
     id: 'faro',
     name: 'El Faro de Ceuta',
     url: 'https://elfarodeceuta.es/tag/ad-ceuta/feed/',
-    keywords: [], // tag feed already scoped to AD Ceuta
+    keywords: CEUTA_KEYWORDS, // tag includes general Ceuta city news — filter to club
   },
   {
     id: 'elpueblo',
