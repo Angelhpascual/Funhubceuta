@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '@/infrastructure/supabase/client'
+import { deduplicateMatches } from '../deduplicateMatches'
 
 export async function GET() {
   const { data } = await supabase
@@ -10,14 +11,7 @@ export async function GET() {
 
   const rows = data ?? []
 
-  // Deduplicate by date+home+away, keeping row with result
-  const deduped = Object.values(
-    rows.reduce((acc, r) => {
-      const key = `${String(r.date).slice(0, 10)}_${r.home_team}_${r.away_team}`
-      if (!acc[key] || (!acc[key].result && r.result)) acc[key] = r
-      return acc
-    }, {} as Record<string, typeof rows[0]>)
-  )
+  const deduped = deduplicateMatches(rows)
 
   const today = new Date().toISOString().split('T')[0]
 
