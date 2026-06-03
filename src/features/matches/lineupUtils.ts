@@ -33,6 +33,15 @@ export function parseFormation(formation: string): number[] {
   return [...parts.reverse(), 1]
 }
 
+// Left-to-right order within a row
+const LATERAL_ORDER: Record<string, number> = {
+  LB: 0, LW: 0, LM: 0,
+  DM: 1, CM: 1, CB: 1,
+  CAM: 2,
+  RM: 3, RW: 3, RB: 3,
+  CF: 2,
+}
+
 export function assignRows(starters: LineupPlayer[], formation: string): LineupPlayer[][] {
   const rowCounts = parseFormation(formation)
   const sorted = [...starters].sort((a, b) =>
@@ -41,7 +50,10 @@ export function assignRows(starters: LineupPlayer[], formation: string): LineupP
   const rows: LineupPlayer[][] = []
   let idx = 0
   for (const count of rowCounts) {
-    rows.push(sorted.slice(idx, idx + count))
+    const row = sorted.slice(idx, idx + count)
+    // Sort left to right within each row
+    row.sort((a, b) => (LATERAL_ORDER[a.positionAbbr] ?? 2) - (LATERAL_ORDER[b.positionAbbr] ?? 2))
+    rows.push(row)
     idx += count
   }
   return rows
