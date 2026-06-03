@@ -8,10 +8,13 @@ import { NotificationBanner } from '@/components/ui/NotificationBanner'
 import Link from 'next/link'
 
 const SOURCES: Record<string, { label: string; domain: string }> = {
-  oficial:  { label: 'AD Ceuta FC',        domain: 'adceutafc.com' },
-  elpueblo: { label: 'El Pueblo de Ceuta', domain: 'elpueblodeceuta.es' },
-  faro:     { label: 'El Faro de Ceuta',   domain: 'elfarodeceuta.es' },
-  marca:    { label: 'Marca',              domain: 'marca.com' },
+  oficial:        { label: 'AD Ceuta FC',        domain: 'adceutafc.com' },
+  elpueblo:       { label: 'El Pueblo de Ceuta', domain: 'elpueblodeceuta.es' },
+  faro:           { label: 'El Faro de Ceuta',   domain: 'elfarodeceuta.es' },
+  marca:          { label: 'Marca',              domain: 'marca.com' },
+  mundodeportivo: { label: 'Mundo Deportivo',    domain: 'mundodeportivo.com' },
+  '20minutos':    { label: '20 Minutos',         domain: '20minutos.es' },
+  elmundo:        { label: 'El Mundo',           domain: 'elmundo.es' },
 }
 
 function timeAgo(dateStr: string | null): string {
