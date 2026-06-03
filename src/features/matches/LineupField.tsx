@@ -1,7 +1,7 @@
 'use client'
 
 import { LineupPlayer, MatchEvent, MatchLineup } from '@/app/api/matches/lineup/route'
-import { parseFormation, assignRows } from './lineupUtils'
+import { parseFormation, assignRows, applyPositionOverrides } from './lineupUtils'
 
 function PlayerDot({ player }: { player: LineupPlayer }) {
   const isGK = player.positionAbbr === 'GK'
@@ -78,7 +78,8 @@ function SectionHeader({ title }: { title: string }) {
 }
 
 export function LineupField({ lineup }: { lineup: MatchLineup }) {
-  const rows = assignRows(lineup.starters, lineup.formation)
+  const correctedStarters = applyPositionOverrides(lineup.starters)
+  const rows = assignRows(correctedStarters, lineup.formation)
   const events = [...(lineup.events ?? [])].sort((a, b) => (parseInt(a.minute) || 0) - (parseInt(b.minute) || 0))
   const highlights = events.filter(e => e.type !== 'substitution')
   const subs = events.filter(e => e.type === 'substitution')
