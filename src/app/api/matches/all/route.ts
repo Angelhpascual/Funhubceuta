@@ -9,15 +9,16 @@ export async function GET() {
     .limit(60)
 
   const rows = data ?? []
+  type Row = typeof rows[0]
 
   // Deduplicate by date+home+away, keeping row with result
   const deduped = Object.values(
-    rows.reduce((acc, r) => {
+    rows.reduce<Record<string, Row>>((acc, r) => {
       const key = `${String(r.date).slice(0, 10)}_${r.home_team}_${r.away_team}`
       if (!acc[key] || (!acc[key].result && r.result)) acc[key] = r
       return acc
-    }, {} as Record<string, typeof rows[0]>)
-  )
+    }, {})
+  ) as Row[]
 
   const today = new Date().toISOString().split('T')[0]
 

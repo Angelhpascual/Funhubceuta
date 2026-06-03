@@ -23,7 +23,7 @@ async function syncFromEspn(season: string) {
     const entry = e as Record<string, unknown>
     const team = entry.team as Record<string, unknown>
     const stats = (entry.stats as Record<string, unknown>[]).reduce((acc, s) => {
-      if (s.value !== undefined) acc[s.name as string] = s.value as number
+      if (s.value !== undefined) acc[s.name as string] = Number(s.value) || 0
       return acc
     }, {} as Record<string, number>)
 
@@ -36,14 +36,14 @@ async function syncFromEspn(season: string) {
       position: i + 1,
       teamName: team.displayName as string,
       teamLogo: logoUrl,
-      played: Math.round(stats.gamesPlayed ?? 0),
-      won: Math.round(stats.wins ?? 0),
-      drawn: Math.round(stats.ties ?? 0),
-      lost: Math.round(stats.losses ?? 0),
-      goalsFor: Math.round(stats.pointsFor ?? 0),
-      goalsAgainst: Math.round(stats.pointsAgainst ?? 0),
-      goalDifference: Math.round(stats.pointDifferential ?? 0),
-      points: Math.round(stats.points ?? 0),
+      played: Math.round(Number(stats.gamesPlayed) || 0),
+      won: Math.round(Number(stats.wins) || 0),
+      drawn: Math.round(Number(stats.ties) || 0),
+      lost: Math.round(Number(stats.losses) || 0),
+      goalsFor: Math.round(Number(stats.pointsFor) || 0),
+      goalsAgainst: Math.round(Number(stats.pointsAgainst) || 0),
+      goalDifference: Math.round(Number(stats.pointDifferential) || 0),
+      points: Math.round(Number(stats.points) || 0),
       form: null,
       description: getDescription(i + 1, entries.length),
     }
