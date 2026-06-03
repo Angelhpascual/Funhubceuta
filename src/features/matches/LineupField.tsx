@@ -124,7 +124,7 @@ export function LineupField({ lineup }: { lineup: MatchLineup }) {
         <div
           className="relative overflow-hidden rounded-[16px]"
           style={{
-            background: 'linear-gradient(180deg, #1a6e1a 0%, #1f7a1f 30%, #22882200 50%, #1f7a1f 70%, #1a6e1a 100%)',
+            background: '#1a7a1a',
             minHeight: 420,
           }}
         >
@@ -170,8 +170,6 @@ export function LineupField({ lineup }: { lineup: MatchLineup }) {
             <rect x="40" y="157" width="20" height="3" fill="none" stroke="white" strokeWidth="0.7" opacity="0.6"/>
           </svg>
 
-          {/* subtle attacking half tint */}
-          <div className="absolute inset-x-0 top-0 h-[50%]" style={{ background: 'linear-gradient(180deg, rgba(220,38,38,0.06) 0%, transparent 100%)' }} />
 
           {/* players */}
           <div className="relative z-10 flex h-full flex-col justify-around px-3 py-5" style={{ minHeight: 420 }}>
