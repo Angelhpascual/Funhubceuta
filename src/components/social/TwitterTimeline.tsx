@@ -23,7 +23,7 @@ const SOCIALS = [
     ),
   },
   {
-    href: 'https://www.youtube.com/@ADCeutaFC',
+    href: 'https://www.youtube.com/@AD_Ceuta_FC',
     label: 'AD Ceuta FC',
     sublabel: 'Canal de YouTube',
     bg: 'bg-[#FF0000]',
