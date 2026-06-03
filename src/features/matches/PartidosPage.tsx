@@ -166,10 +166,20 @@ export function PartidosPage() {
                 </div>
                 <div className="result-teams-col">
                   <div className="result-team-row">
+                    {findLogo(r.home_team)
+                      // eslint-disable-next-line @next/next/no-img-element
+                      ? <img src={findLogo(r.home_team)!} alt="" style={{ width: 18, height: 18, objectFit: 'contain', flexShrink: 0 }} />
+                      : <div style={{ width: 18, height: 18, flexShrink: 0 }} />
+                    }
                     <div className={`result-team-name ${ceutaHome ? 'bold' : ''}`}>{shortName(r.home_team)}</div>
                     <div className={`result-score ${homeScoreCls}`}>{r.home_score}</div>
                   </div>
                   <div className="result-team-row">
+                    {findLogo(r.away_team)
+                      // eslint-disable-next-line @next/next/no-img-element
+                      ? <img src={findLogo(r.away_team)!} alt="" style={{ width: 18, height: 18, objectFit: 'contain', flexShrink: 0 }} />
+                      : <div style={{ width: 18, height: 18, flexShrink: 0 }} />
+                    }
                     <div className={`result-team-name ${!ceutaHome ? 'bold' : ''}`}>{shortName(r.away_team)}</div>
                     <div className={`result-score ${awayScoreCls}`}>{r.away_score}</div>
                   </div>
