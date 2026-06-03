@@ -9,6 +9,7 @@ export interface RssSource {
 // Keywords that unambiguously identify the club — at least one must match
 export const BASE_KEYWORDS = [
   'ad ceuta', 'ceuta fc', 'ceuta f.c', 'adceuta', 'murube', 'caballas',
+  'el ceuta', // prensa nacional — "el Ceuta confirma", "adiós al Ceuta"
 ]
 
 // Player full-name or unique identifiers — used as secondary match
@@ -40,12 +41,18 @@ export const RSS_SOURCES: RssSource[] = [
     id: 'faro',
     name: 'El Faro de Ceuta',
     url: 'https://elfarodeceuta.es/tag/ad-ceuta/feed/',
-    keywords: CEUTA_KEYWORDS, // tag includes general Ceuta city news — filter to club
+    keywords: CEUTA_KEYWORDS,
   },
   {
     id: 'elpueblo',
     name: 'El Pueblo de Ceuta',
     url: 'https://www.elpueblodeceuta.es/rss/deportes/',
+    keywords: CEUTA_KEYWORDS,
+  },
+  {
+    id: 'marca',
+    name: 'Marca',
+    url: 'https://www.marca.com/rss/futbol/segunda-division.xml',
     keywords: CEUTA_KEYWORDS,
   },
 ]
