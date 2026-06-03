@@ -111,6 +111,9 @@ export function HimnoPage({ onBack }: Props) {
           <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>
             El himno oficial del AD Ceuta FC
           </div>
+          <div style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 4 }}>
+            Letra y música: Fran Amado &amp; Sarayma
+          </div>
         </div>
       </div>
 
