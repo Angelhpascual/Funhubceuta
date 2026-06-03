@@ -94,7 +94,12 @@ export default function App() {
       <div style={{ display: modal ? "none" : "contents" }}>
         <div className="topbar" style={{ justifyContent: "center" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/escudo.png" alt="AD Ceuta" style={{ width: 40, height: 40, objectFit: "contain" }} />
+          <img
+            src="/escudo.png"
+            alt="AD Ceuta"
+            style={{ width: 40, height: 40, objectFit: "contain", cursor: "pointer" }}
+            onClick={() => setTab("inicio")}
+          />
         </div>
 
         <div className="scroll-area" key={tab}>
