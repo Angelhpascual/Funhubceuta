@@ -39,7 +39,6 @@ function LineupContent() {
           style={{
             background: 'repeating-linear-gradient(-45deg, white 0 14px, #0A0A0A 14px 28px)',
             clipPath: 'polygon(60px 0, 100% 0, 100% 100%, 0 100%)',
-            opacity: 0.4,
           }}
         />
 
