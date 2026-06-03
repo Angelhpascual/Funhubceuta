@@ -4,11 +4,11 @@ import { useEffect, useState, useCallback } from 'react'
 import { NewsItem } from '@/domain/news/News'
 import Link from 'next/link'
 
-const SOURCES: Record<string, { label: string; domain: string }> = {
-  oficial:  { label: 'AD Ceuta FC',        domain: 'adceutafc.com' },
-  elpueblo: { label: 'El Pueblo de Ceuta', domain: 'elpueblodeceuta.es' },
-  faro:     { label: 'El Faro de Ceuta',   domain: 'elfarodeceuta.es' },
-  marca:    { label: 'Marca',              domain: 'marca.com' },
+const SOURCES: Record<string, { label: string; domain: string; color: string }> = {
+  oficial:  { label: 'AD Ceuta FC',        domain: 'adceutafc.com',      color: '#D62027' },
+  elpueblo: { label: 'El Pueblo de Ceuta', domain: 'elpueblodeceuta.es', color: '#0A0A0A' },
+  faro:     { label: 'El Faro de Ceuta',   domain: 'elfarodeceuta.es',   color: '#0A0A0A' },
+  marca:    { label: 'Marca',              domain: 'marca.com',          color: '#6B7280' },
 }
 
 const PAGE_SIZE = 20
@@ -56,93 +56,90 @@ export default function NoticiasPage() {
   }
 
   return (
+    <div id="app-root">
     <div className="page">
-
-      {/* ── TOPBAR con escudo ── */}
-      <div className="topbar" style={{ justifyContent: 'center' }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/escudo.png" alt="AD Ceuta" style={{ width: 40, height: 40, objectFit: 'contain' }} />
-      </div>
 
       {/* ── HERO ── */}
       <div className="relative mt-2 overflow-hidden bg-ceuta-black px-[18px] pb-[52px] pt-[22px] text-white">
         <div
-          className="pointer-events-none absolute bottom-0 right-0 top-0 w-[120px]"
+          className="pointer-events-none absolute bottom-0 right-[-40px] top-0 w-[180px]"
           style={{
             background: 'repeating-linear-gradient(-45deg, white 0 14px, #0A0A0A 14px 28px)',
             clipPath: 'polygon(60px 0, 100% 0, 100% 100%, 0 100%)',
-            opacity: 0.4,
           }}
         />
-        <div className="relative z-10">
-          <Link href="/" className="mb-3 flex items-center gap-2 font-display text-[11px] font-bold uppercase tracking-[0.14em] text-ceuta-red">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M19 12H5M12 5l-7 7 7 7"/>
-            </svg>
-            Volver
-          </Link>
-          <div className="flex items-center gap-2 font-display text-[11px] font-bold uppercase tracking-[0.16em] text-ceuta-red">
-            <div className="h-0.5 w-[18px] bg-ceuta-red" />
-            Actualidad
-          </div>
-          <div className="mt-2 font-display text-[38px] font-black uppercase leading-[0.95]">
-            TODAS LAS<br />
-            <em className="not-italic text-ceuta-gold">NOTICIAS</em>
-          </div>
+        {/* back arrow */}
+        <Link href="/" className="mb-3 flex items-center gap-1.5 text-ceuta-muted no-underline" style={{ width: 'fit-content' }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M19 12H5M12 5l-7 7 7 7"/>
+          </svg>
+          <span className="font-display text-[11px] font-bold uppercase tracking-[0.14em]">Volver</span>
+        </Link>
+        <div className="flex items-center gap-2 font-display text-[11px] font-bold uppercase tracking-[0.16em] text-ceuta-red">
+          <div className="h-0.5 w-[18px] bg-ceuta-red" />
+          AD Ceuta FC · Actualidad
+        </div>
+        <div className="mt-2 font-display text-[38px] font-black uppercase leading-[0.95]">
+          TODAS LAS<br />
+          <em className="not-italic text-ceuta-gold">NOTICIAS</em>
         </div>
       </div>
 
-      {/* ── CONTENIDO ── */}
-      <div className="relative z-[2] -mt-7 mx-3">
+      {/* ── NEWS LIST CARD ── */}
+      <div className="relative z-[2] -mt-7 mx-3 overflow-hidden rounded-[14px] border-2 border-ceuta-black bg-white shadow-[6px_6px_0_#D62027]">
         {loading ? (
-          <div className="rounded-[14px] border-2 border-ceuta-black bg-white p-8 text-center">
-            <div className="font-display text-[11px] font-bold uppercase tracking-[0.14em] text-ceuta-muted">
-              Cargando noticias…
-            </div>
+          <div className="px-[18px] py-6 font-display text-[11px] font-bold uppercase tracking-[0.1em] text-ceuta-muted">
+            Cargando noticias…
           </div>
         ) : (
-          <div className="overflow-hidden rounded-[14px] border-2 border-ceuta-black bg-white">
-            <div className="divide-y divide-ceuta-border">
-              {news.map((n) => (
+          <>
+            {news.map((n) => {
+              const src = SOURCES[n.source]
+              return (
                 <a
                   key={n.id}
                   href={n.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-3 px-4 py-3 active:bg-ceuta-bg-soft"
-                  style={{ textDecoration: 'none' }}
+                  className="flex items-center gap-3 border-b border-ceuta-border px-[14px] py-[12px] active:bg-ceuta-bg-soft"
+                  style={{ textDecoration: 'none', borderLeftWidth: 3, borderLeftStyle: 'solid', borderLeftColor: src?.color ?? '#6B7280' }}
                 >
                   {/* thumbnail */}
                   {n.imageUrl ? (
                     <div
-                      className="size-[52px] shrink-0 rounded-[8px] bg-ceuta-bg-soft"
+                      className="size-[48px] shrink-0 rounded-[8px]"
                       style={{ backgroundImage: `url(${n.imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
                     />
                   ) : (
-                    <div className="flex size-[52px] shrink-0 items-center justify-center rounded-[8px] bg-ceuta-black">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src="/escudo.png" alt="" className="size-8 object-contain opacity-60" />
+                    <div className="flex size-[48px] shrink-0 items-center justify-center rounded-[8px] bg-ceuta-bg-soft font-display text-[10px] font-black uppercase text-ceuta-muted">
+                      {src?.label.slice(0, 3) ?? '···'}
                     </div>
                   )}
 
                   {/* body */}
                   <div className="min-w-0 flex-1">
-                    <div className="mb-1 flex items-center gap-1.5">
+                    {/* source tag */}
+                    <div className="mb-0.5 flex items-center gap-1.5">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src={`https://www.google.com/s2/favicons?domain=${SOURCES[n.source]?.domain}&sz=16`}
+                        src={`https://www.google.com/s2/favicons?domain=${src?.domain}&sz=16`}
                         alt=""
-                        width={12}
-                        height={12}
+                        width={11}
+                        height={11}
                         className="rounded-[2px]"
                       />
-                      <span className="font-display text-[9.5px] font-bold uppercase tracking-[0.1em] text-ceuta-red">
-                        {SOURCES[n.source]?.label ?? n.source}
+                      <span
+                        className="font-display text-[9.5px] font-bold uppercase tracking-[0.1em]"
+                        style={{ color: src?.color ?? '#6B7280' }}
+                      >
+                        {src?.label ?? n.source}
                       </span>
                     </div>
-                    <div className="line-clamp-2 font-display text-[13px] font-bold leading-[1.3] tracking-[0.01em] text-ceuta-black">
+                    {/* title */}
+                    <div className="font-display text-[13.5px] font-bold uppercase leading-[1.25] tracking-[0.01em] text-ceuta-black line-clamp-2">
                       {n.title}
                     </div>
+                    {/* time */}
                     <div className="mt-1 font-display text-[10px] font-semibold uppercase tracking-[0.08em] text-ceuta-muted">
                       {timeAgo(n.publishedAt)}
                     </div>
@@ -153,29 +150,33 @@ export default function NoticiasPage() {
                     <path d="M5 12h14M12 5l7 7-7 7"/>
                   </svg>
                 </a>
-              ))}
-            </div>
+              )
+            })}
 
             {hasMore && (
-              <button
-                onClick={loadMore}
-                disabled={loadingMore}
-                className="w-full border-t border-ceuta-border py-4 font-display text-[11px] font-black uppercase tracking-[0.12em] text-ceuta-black disabled:text-ceuta-muted active:bg-ceuta-bg-soft"
-              >
-                {loadingMore ? 'Cargando…' : 'Cargar más noticias'}
-              </button>
+              <div className="px-[14px] py-3">
+                <button
+                  onClick={loadMore}
+                  disabled={loadingMore}
+                  className="w-full rounded-[10px] bg-ceuta-bg-soft py-[13px] font-display text-[12px] font-black uppercase tracking-[0.1em]"
+                  style={{ border: 'none', color: loadingMore ? '#6B7280' : '#0A0A0A', cursor: loadingMore ? 'default' : 'pointer' }}
+                >
+                  {loadingMore ? 'Cargando…' : 'Cargar más noticias'}
+                </button>
+              </div>
             )}
 
             {!hasMore && news.length > 0 && (
-              <div className="border-t border-ceuta-border py-4 text-center font-display text-[10px] font-bold uppercase tracking-[0.12em] text-ceuta-muted">
+              <div className="px-[14px] py-4 text-center font-display text-[11px] font-semibold uppercase tracking-[0.1em] text-ceuta-muted">
                 Ya has visto todas las noticias
               </div>
             )}
-          </div>
+          </>
         )}
       </div>
 
       <div className="h-6" />
+    </div>
     </div>
   )
 }

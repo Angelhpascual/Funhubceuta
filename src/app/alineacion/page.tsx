@@ -28,6 +28,7 @@ function LineupContent() {
   }, [eventId])
 
   return (
+    <div id="app-root">
     <div className="page">
 
       {/* ── HERO ── */}
@@ -93,6 +94,7 @@ function LineupContent() {
       </div>
 
       <div className="h-6" />
+    </div>
     </div>
   )
 }
