@@ -8,7 +8,10 @@ const SOURCES: Record<string, { label: string; domain: string; color: string }> 
   oficial:  { label: 'AD Ceuta FC',        domain: 'adceutafc.com',      color: '#D62027' },
   elpueblo: { label: 'El Pueblo de Ceuta', domain: 'elpueblodeceuta.es', color: '#0A0A0A' },
   faro:     { label: 'El Faro de Ceuta',   domain: 'elfarodeceuta.es',   color: '#0A0A0A' },
-  marca:    { label: 'Marca',              domain: 'marca.com',          color: '#6B7280' },
+  marca:          { label: 'Marca',           domain: 'marca.com',              color: '#6B7280' },
+  mundodeportivo: { label: 'Mundo Deportivo', domain: 'mundodeportivo.com',     color: '#0A0A0A' },
+  '20minutos':    { label: '20 Minutos',      domain: '20minutos.es',           color: '#0A0A0A' },
+  elmundo:        { label: 'El Mundo',        domain: 'elmundo.es',             color: '#0A0A0A' },
 }
 
 const PAGE_SIZE = 20
