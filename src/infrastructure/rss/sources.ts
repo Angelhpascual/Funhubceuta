@@ -9,7 +9,10 @@ export interface RssSource {
 // Keywords that unambiguously identify the club — at least one must match
 export const BASE_KEYWORDS = [
   'ad ceuta', 'ceuta fc', 'ceuta f.c', 'adceuta', 'murube', 'caballas',
-  'el ceuta', // prensa nacional — "el Ceuta confirma", "adiós al Ceuta"
+  'el ceuta',   // "el Ceuta confirma", "adiós al Ceuta"
+  'del ceuta',  // "jugador del Ceuta"
+  'al ceuta',   // "ficha al Ceuta"
+  ' ceuta ',    // " Ceuta de José Juan" — rodeado de espacios para evitar "Ceutamérica"
 ]
 
 // Player full-name or unique identifiers — used as secondary match
@@ -53,6 +56,24 @@ export const RSS_SOURCES: RssSource[] = [
     id: 'marca',
     name: 'Marca',
     url: 'https://www.marca.com/rss/futbol/segunda-division.xml',
+    keywords: CEUTA_KEYWORDS,
+  },
+  {
+    id: 'mundodeportivo',
+    name: 'Mundo Deportivo',
+    url: 'https://www.mundodeportivo.com/rss/futbol.xml',
+    keywords: CEUTA_KEYWORDS,
+  },
+  {
+    id: '20minutos',
+    name: '20 Minutos',
+    url: 'https://www.20minutos.es/rss/deportes/futbol/',
+    keywords: CEUTA_KEYWORDS,
+  },
+  {
+    id: 'elmundo',
+    name: 'El Mundo',
+    url: 'https://www.elmundo.es/rss/deportes.xml',
     keywords: CEUTA_KEYWORDS,
   },
 ]

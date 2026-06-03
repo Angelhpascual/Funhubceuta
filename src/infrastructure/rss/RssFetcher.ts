@@ -39,49 +39,88 @@ function extractMediaUrl(obj: unknown): string | null {
   return typeof url === 'string' && url.length > 0 ? url : null
 }
 
-const EMOJI_HOSTS = ['s.w.org', 'twemoji']
+const EMOJI_HOSTS = ['s.w.org', 'twemoji', 'gravatar.com']
+const IMG_EXT = /\.(?:jpg|jpeg|png|webp|gif|avif)(\?[^\s"<>]*)?$/i
+const IMG_URL_RE = /https?:\/\/[^\s"<>]+\.(?:jpg|jpeg|png|webp|gif|avif)(?:\?[^\s"<>]*)?/gi
 
 function isValidImage(url: string): boolean {
   return !EMOJI_HOSTS.some((h) => url.includes(h)) &&
     !url.includes('youtube.com') &&
-    !url.includes('youtu.be')
+    !url.includes('youtu.be') &&
+    IMG_EXT.test(url.split('?')[0])
+}
+
+function firstValidImage(html: string): string | null {
+  const matches = html.matchAll(IMG_URL_RE)
+  for (const m of matches) {
+    const url = m[0].replace(/-\d+x\d+(\.\w+)$/, '$1')
+    if (isValidImage(url)) return url
+  }
+  return null
 }
 
 function extractImage(item: Record<string, unknown>): string | null {
-  // Try media:thumbnail first, then media:content (Marca has empty thumbnail but valid content)
+  // media:thumbnail / media:content (standard RSS media tags)
   const url = extractMediaUrl(item['media:thumbnail']) ?? extractMediaUrl(item['media:content'])
   if (url && isValidImage(url)) return url
   // enclosure
   const enclosure = item['enclosure']
   if (enclosure && typeof enclosure === 'object') {
-    const url = (enclosure as Record<string, unknown>)['@_url']
-    if (typeof url === 'string' && isValidImage(url)) return url
+    const u = (enclosure as Record<string, unknown>)['@_url']
+    if (typeof u === 'string' && isValidImage(u)) return u
   }
-  // content:encoded — extract first real image URL from HTML content
+  // content:encoded — full HTML body
   const encoded = item['content:encoded']
   if (typeof encoded === 'string') {
-    const matches = encoded.matchAll(/https?:\/\/[^\s"<>]+\.(?:jpg|jpeg|png|webp)/gi)
-    for (const m of matches) {
-      if (isValidImage(m[0])) {
-        return m[0].replace(/-\d+x\d+(\.\w+)$/, '$1')
-      }
-    }
+    const found = firstValidImage(encoded)
+    if (found) return found
+  }
+  // description — some feeds (El Pueblo) embed images here too
+  const desc = item['description']
+  if (typeof desc === 'string') {
+    const found = firstValidImage(desc)
+    if (found) return found
   }
   return null
 }
 
-async function fetchOgImage(url: string): Promise<string | null> {
+// Meta tag patterns tried in order: og:image, twitter:image, schema.org image
+const OG_PATTERNS = [
+  /<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i,
+  /<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i,
+  /<meta[^>]+name=["']twitter:image["'][^>]+content=["']([^"']+)["']/i,
+  /<meta[^>]+content=["']([^"']+)["'][^>]+name=["']twitter:image["']/i,
+  /<meta[^>]+itemprop=["']image["'][^>]+content=["']([^"']+)["']/i,
+  /<meta[^>]+content=["']([^"']+)["'][^>]+itemprop=["']image["']/i,
+]
+
+async function fetchOgImage(articleUrl: string): Promise<string | null> {
   try {
-    const res = await fetch(url, {
+    const res = await fetch(articleUrl, {
       headers: { 'User-Agent': 'FunHubCeuta/1.0 RSS Reader' },
-      signal: AbortSignal.timeout(5000),
+      signal: AbortSignal.timeout(6000),
     })
     if (!res.ok) return null
-    const html = await res.text()
-    const match = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i)
-      ?? html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i)
-    const imgUrl = match?.[1] ?? null
-    return imgUrl && isValidImage(imgUrl) ? imgUrl : null
+    // Read only first 50KB — enough to find the <head> meta tags
+    const reader = res.body?.getReader()
+    if (!reader) return null
+    const chunks: Uint8Array[] = []
+    let total = 0
+    while (total < 50_000) {
+      const { done, value } = await reader.read()
+      if (done || !value) break
+      chunks.push(value)
+      total += value.length
+    }
+    reader.cancel()
+    const html = new TextDecoder().decode(
+      chunks.reduce((a, b) => { const c = new Uint8Array(a.length + b.length); c.set(a); c.set(b, a.length); return c }, new Uint8Array())
+    )
+    for (const re of OG_PATTERNS) {
+      const m = html.match(re)
+      if (m?.[1] && isValidImage(m[1])) return m[1]
+    }
+    return null
   } catch {
     return null
   }
@@ -94,10 +133,12 @@ function isRelevant(item: Record<string, unknown>, keywords: string[]): boolean 
   const text = [
     item.title,
     item.description,
+    item['content:encoded'],
     item['media:keywords'],
     item['category'],
   ]
     .filter(Boolean)
+    .map((v) => String(v).replace(/<[^>]+>/g, ' '))  // strip HTML tags
     .join(' ')
     .toLowerCase()
 
