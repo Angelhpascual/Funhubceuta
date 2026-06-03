@@ -10,13 +10,22 @@ export async function GET() {
 
   const rows = data ?? []
 
+  // Deduplicate by date+home+away, keeping row with result
+  const deduped = Object.values(
+    rows.reduce((acc, r) => {
+      const key = `${String(r.date).slice(0, 10)}_${r.home_team}_${r.away_team}`
+      if (!acc[key] || (!acc[key].result && r.result)) acc[key] = r
+      return acc
+    }, {} as Record<string, typeof rows[0]>)
+  )
+
   const today = new Date().toISOString().split('T')[0]
 
-  const upcoming = rows
+  const upcoming = deduped
     .filter(r => r.status === 'scheduled' && String(r.date).slice(0, 10) >= today)
     .sort((a, b) => a.date.localeCompare(b.date))
 
-  const results = rows
+  const results = deduped
     .filter(r => r.status === 'finished' || (r.status === 'scheduled' && String(r.date).slice(0, 10) < today))
     .sort((a, b) => b.date.localeCompare(a.date))
 
