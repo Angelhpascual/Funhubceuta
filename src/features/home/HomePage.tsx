@@ -104,7 +104,7 @@ export function HomePage({ onReady, onOpenHimno }: { onReady?: () => void; onOpe
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-4">
             <div className="mb-2.5 w-fit bg-ceuta-red px-[9px] py-[3px] font-display text-[10.5px] font-bold uppercase tracking-[0.12em] text-white">Destacado</div>
-            <div className="font-display text-[24px] font-black uppercase leading-[1.05] text-white">Bienvenido al FanHub del AD Ceuta</div>
+            <div className="font-display text-[24px] font-black uppercase leading-[1.05] text-white">Bienvenido a AD Ceuta Info</div>
             <div className="mt-2 text-[12px] text-white/70">Noticias próximamente</div>
           </div>
         </div>

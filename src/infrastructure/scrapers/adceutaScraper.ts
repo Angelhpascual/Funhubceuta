@@ -9,6 +9,7 @@ export interface ScrapedMatch {
   weekday: string
   isHome: boolean
   ticketsUrl: string | null
+  espnEventId: string | null
 }
 
 export interface ScrapedResult {
@@ -20,6 +21,7 @@ export interface ScrapedResult {
   weekday: string
   result: 'W' | 'D' | 'L'
   isHome: boolean
+  espnEventId: string | null
 }
 
 const WEEKDAYS_ES = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
@@ -67,6 +69,7 @@ export async function scrapeNextMatches(): Promise<ScrapedMatch[]> {
         weekday: WEEKDAYS_ES[dateObj.getDay()],
         isHome: ((home.team as Record<string, unknown>).id as string) === CEUTA_ID,
         ticketsUrl: null,
+        espnEventId: String(e.id ?? ''),
       }
     })
 }
@@ -109,6 +112,7 @@ export async function scrapeRecentResults(limit = 10): Promise<ScrapedResult[]> 
         weekday: WEEKDAYS_ES[dateObj.getDay()],
         result,
         isHome,
+        espnEventId: String(e.id ?? ''),
       }
     })
 }

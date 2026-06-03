@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { findLogo as findLogoUtil } from "@/lib/findLogo";
+import Link from "next/link";
 
 interface MatchRow {
   home_team: string
@@ -14,6 +15,7 @@ interface MatchRow {
   away_score: number | null
   result: string | null
   tickets_url: string | null
+  espn_event_id: string | null
 }
 
 function formatDate(dateStr: string): { day: string; mon: string } {
@@ -164,15 +166,42 @@ export function PartidosPage() {
                 </div>
                 <div className="result-teams-col">
                   <div className="result-team-row">
+                    {findLogo(r.home_team)
+                      // eslint-disable-next-line @next/next/no-img-element
+                      ? <img src={findLogo(r.home_team)!} alt="" style={{ width: 18, height: 18, objectFit: 'contain', flexShrink: 0 }} />
+                      : <div style={{ width: 18, height: 18, flexShrink: 0 }} />
+                    }
                     <div className={`result-team-name ${ceutaHome ? 'bold' : ''}`}>{shortName(r.home_team)}</div>
                     <div className={`result-score ${homeScoreCls}`}>{r.home_score}</div>
                   </div>
                   <div className="result-team-row">
+                    {findLogo(r.away_team)
+                      // eslint-disable-next-line @next/next/no-img-element
+                      ? <img src={findLogo(r.away_team)!} alt="" style={{ width: 18, height: 18, objectFit: 'contain', flexShrink: 0 }} />
+                      : <div style={{ width: 18, height: 18, flexShrink: 0 }} />
+                    }
                     <div className={`result-team-name ${!ceutaHome ? 'bold' : ''}`}>{shortName(r.away_team)}</div>
                     <div className={`result-score ${awayScoreCls}`}>{r.away_score}</div>
                   </div>
                 </div>
-                {resultBadge(r.result)}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                  {resultBadge(r.result)}
+                  {r.espn_event_id && (
+                    <Link
+                      href={`/alineacion?eventId=${r.espn_event_id}&match=${encodeURIComponent(`${shortName(r.home_team)} vs ${shortName(r.away_team)}`)}`}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 4,
+                        background: 'var(--black)', borderRadius: 999,
+                        padding: '3px 8px', textDecoration: 'none',
+                      }}
+                    >
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/>
+                      </svg>
+                      <span style={{ fontFamily: 'var(--font-display)', fontSize: 9, fontWeight: 900, color: 'white', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Info</span>
+                    </Link>
+                  )}
+                </div>
               </div>
             )
           })}

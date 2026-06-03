@@ -1,0 +1,188 @@
+import { NextResponse } from 'next/server'
+import { supabase } from '@/infrastructure/supabase/client'
+
+const ESPN = 'https://site.api.espn.com/apis/site/v2/sports/soccer/esp.2'
+const CEUTA_ID = '5404'
+
+export interface LineupPlayer {
+  name: string
+  shortName: string
+  jersey: string
+  position: string      // ESPN position displayName
+  positionAbbr: string  // e.g. GK, CB, LB, CM...
+  starter: boolean
+  photoUrl: string | null
+}
+
+export interface MatchEvent {
+  type: 'goal' | 'yellow-card' | 'red-card' | 'substitution'
+  minute: string
+  playerName: string
+  playerOut?: string   // for substitutions: who goes off
+  team: 'home' | 'away'
+}
+
+export interface MatchLineup {
+  formation: string
+  starters: LineupPlayer[]
+  bench: LineupPlayer[]
+  events: MatchEvent[]
+  available: boolean
+}
+
+// Map ESPN position display names → short abbreviations
+const POS_MAP: Record<string, string> = {
+  'Goalkeeper': 'GK',
+  'Center Left Defender': 'CB',
+  'Center Right Defender': 'CB',
+  'Left Back': 'LB',
+  'Right Back': 'RB',
+  'Left Midfielder': 'LM',
+  'Right Midfielder': 'RM',
+  'Center Midfielder': 'CM',
+  'Defensive Midfielder': 'DM',
+  'Attacking Midfielder': 'CAM',
+  'Attacking Midfielder Left': 'LW',
+  'Attacking Midfielder Right': 'RW',
+  'Forward': 'CF',
+  'Center Forward': 'CF',
+  'Left Forward': 'LW',
+  'Right Forward': 'RW',
+  'Substitute': 'SUB',
+}
+
+function mapPlayer(p: Record<string, unknown>): LineupPlayer {
+  const athlete = p.athlete as Record<string, unknown>
+  const pos = p.position as Record<string, unknown> | undefined
+  const posName = (pos?.displayName as string) ?? ''
+  // ESPN provides jersey image (kit with number) for soccer players in this endpoint
+  const jerseyImages = athlete.jerseyImages as { href: string; rel: string[] }[] | undefined ?? []
+  const jerseyImg = jerseyImages.find(j => (j.rel ?? []).includes('default')) ?? jerseyImages[0]
+  const headshot = athlete.headshot as Record<string, unknown> | undefined
+  const links = athlete.links as { href: string; rel: string[] }[] | undefined ?? []
+  const photoLink = links.find(l => l.rel?.includes('headshot'))
+  const photoUrl = (headshot?.href as string) ?? photoLink?.href ?? jerseyImg?.href ?? null
+  return {
+    name: athlete.displayName as string,
+    shortName: athlete.shortName as string,
+    jersey: String(p.jersey ?? ''),
+    position: posName,
+    positionAbbr: POS_MAP[posName] ?? posName.slice(0, 3).toUpperCase(),
+    starter: Boolean(p.starter),
+    photoUrl,
+  }
+}
+
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url)
+  const eventId = searchParams.get('eventId')
+
+  if (!eventId) {
+    return NextResponse.json({ error: 'eventId required' }, { status: 400 })
+  }
+
+  const res = await fetch(`${ESPN}/summary?event=${eventId}`, {
+    next: { revalidate: 120 }, // cache 2 min
+  })
+
+  if (!res.ok) {
+    return NextResponse.json({ error: 'ESPN unavailable' }, { status: 502 })
+  }
+
+  const data = await res.json()
+  const rosters: Record<string, unknown>[] = data.rosters ?? []
+
+  // Find Ceuta's roster
+  const ceutaRoster = rosters.find((r) => {
+    const team = r.team as Record<string, unknown>
+    return String(team.id) === CEUTA_ID
+  })
+
+  if (!ceutaRoster) {
+    return NextResponse.json({ available: false })
+  }
+
+  const players = (ceutaRoster.roster as Record<string, unknown>[]) ?? []
+  const starters = players.filter(p => p.starter).map(mapPlayer)
+
+  if (starters.length < 11) {
+    return NextResponse.json({ available: false })
+  }
+
+  const bench = players.filter(p => !p.starter).map(mapPlayer)
+
+  // Enrich photos from our squad table (keyed by jersey number)
+  const { data: squadRows } = await supabase
+    .from('squad')
+    .select('dorsal,photo_url')
+    .eq('season', '2025-2026')
+    .not('photo_url', 'ilike', '%/default/%')
+
+  const photoByDorsal: Record<string, string> = {}
+  for (const r of squadRows ?? []) {
+    if (r.dorsal != null && r.photo_url) photoByDorsal[String(r.dorsal)] = r.photo_url
+  }
+
+  const enrich = (p: LineupPlayer): LineupPlayer => ({
+    ...p,
+    photoUrl: photoByDorsal[p.jersey] ?? p.photoUrl,
+  })
+
+  const enrichedStarters = starters.map(enrich)
+  const enrichedBench = bench.map(enrich)
+
+  // Parse key events
+  const keyEvents: Record<string, unknown>[] = data.keyEvents ?? data.header?.competitions?.[0]?.keyEvents ?? []
+  // Also check competitions array
+  const competitionEvents: Record<string, unknown>[] = data.header?.competitions?.[0]?.details ?? []
+  const allEvents = keyEvents.length > 0 ? keyEvents : competitionEvents
+
+  // Get home/away team IDs for mapping
+  const competitors: Record<string, unknown>[] = data.header?.competitions?.[0]?.competitors ?? []
+  const homeTeam = competitors.find(c => (c as Record<string, unknown>).homeAway === 'home')
+  const homeTeamId = homeTeam ? String((homeTeam as Record<string, unknown>).id ?? '') : ''
+
+  const EVENT_TYPES: Record<string, MatchEvent['type'] | undefined> = {
+    'goal': 'goal',
+    'yellow-card': 'yellow-card',
+    'red-card': 'red-card',
+    'substitution': 'substitution',
+  }
+
+  const events: MatchEvent[] = allEvents
+    .filter(ev => {
+      const typeStr = String((ev.type as Record<string, unknown>)?.type ?? '').toLowerCase()
+      if (EVENT_TYPES[typeStr] === undefined) return false
+      // Only include Ceuta events
+      const teamId = String((ev.team as Record<string, unknown>)?.id ?? '')
+      return teamId === CEUTA_ID
+    })
+    .map(ev => {
+      const typeStr = String((ev.type as Record<string, unknown>)?.type ?? '').toLowerCase()
+      const participants = ev.participants as Record<string, unknown>[] | undefined
+      const p0 = participants?.[0]?.athlete as Record<string, unknown> | undefined
+      const p1 = participants?.[1]?.athlete as Record<string, unknown> | undefined
+      const teamId = String((ev.team as Record<string, unknown>)?.id ?? '')
+      const event: MatchEvent = {
+        type: EVENT_TYPES[typeStr]!,
+        minute: String((ev.clock as Record<string, unknown>)?.displayValue ?? ''),
+        playerName: String(p0?.displayName ?? ''),
+        team: teamId === homeTeamId ? 'home' : 'away',
+      }
+      // substitution: participants[0] = comes on, participants[1] = goes off
+      if (typeStr === 'substitution' && p1) {
+        event.playerOut = String(p1.displayName ?? '')
+      }
+      return event
+    })
+
+  const lineup: MatchLineup = {
+    formation: (ceutaRoster.formation as string) ?? '4-4-2',
+    starters: enrichedStarters,
+    bench: enrichedBench,
+    events,
+    available: true,
+  }
+
+  return NextResponse.json(lineup)
+}
