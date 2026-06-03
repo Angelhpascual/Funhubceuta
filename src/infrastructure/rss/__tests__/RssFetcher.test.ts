@@ -101,13 +101,13 @@ describe('fetchSource', () => {
   it('filters out items not matching keywords', async () => {
     const xml = makeRssFeed(
       makeItem({ title: 'Noticia de Málaga', description: 'El Málaga ganó' }) +
-      makeItem({ title: 'El Ceuta remonta', link: 'https://example.com/2', guid: 'https://example.com/2' })
+      makeItem({ title: 'El AD Ceuta remonta', link: 'https://example.com/2', guid: 'https://example.com/2' })
     )
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(xml) }))
 
     const result = await fetchSource(sourceWithKeywords)
     expect(result).toHaveLength(1)
-    expect(result[0].title).toBe('El Ceuta remonta')
+    expect(result[0].title).toBe('El AD Ceuta remonta')
   })
 
   it('accepts all items when keywords is empty', async () => {

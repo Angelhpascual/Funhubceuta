@@ -118,5 +118,5 @@ export async function fetchSource(source: RssSource): Promise<ParsedArticle[]> {
       source: source.id,
       publishedAt: item.pubDate ? new Date(String(item.pubDate)).toISOString() : null,
     }))
-    .filter((a) => a.externalId && a.url && a.imageUrl && !a.imageUrl.includes('youtube.com') && !a.imageUrl.includes('youtu.be'))
+    .filter((a) => a.externalId && a.url && (!a.imageUrl || (!a.imageUrl.includes('youtube.com') && !a.imageUrl.includes('youtu.be'))))
 }
