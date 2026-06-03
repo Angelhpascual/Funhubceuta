@@ -126,7 +126,7 @@ export function ClasificacionPage() {
 
       {/* ── CARD CEUTA ── */}
       {me && (
-        <div className="relative z-[2] -mt-7 mx-3 rounded-[14px] border-2 border-ceuta-black bg-white p-[18px]">
+        <div className="relative z-[2] -mt-7 mx-3 rounded-[14px] border-2 border-ceuta-black bg-white p-[18px] shadow-[0_8px_32px_rgba(214,32,39,0.28)]">
           <div className="flex items-center gap-3">
             {/* position */}
             <div className="font-display text-[56px] font-black leading-[0.85] tracking-[-0.02em] text-ceuta-black">
