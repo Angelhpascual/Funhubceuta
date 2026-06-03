@@ -178,7 +178,7 @@ export function LiveMatchCard() {
           </div>
           <div className="font-display text-[12px] font-semibold uppercase tracking-[0.1em] text-white/70">
             El AD Ceuta FC estará otra vez en la<br />
-            <span className="text-white">Liga Hypermotion 2025–26</span>
+            <span className="text-white">Liga Hypermotion 2026–27</span>
           </div>
         </div>
         <div className="mt-5 border-t border-white/10 pt-4 text-center font-display text-[11px] font-semibold uppercase tracking-[0.12em] text-white/40">
