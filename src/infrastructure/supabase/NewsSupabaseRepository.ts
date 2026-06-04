@@ -3,8 +3,18 @@ import { ParsedArticle } from '../rss/RssFetcher'
 import { NewsItem } from '@/domain/news/News'
 
 export class NewsSupabaseRepository {
-  async upsertArticles(articles: ParsedArticle[]): Promise<void> {
-    if (articles.length === 0) return
+  // Returns articles that were genuinely new (not previously in DB)
+  async upsertArticles(articles: ParsedArticle[]): Promise<ParsedArticle[]> {
+    if (articles.length === 0) return []
+
+    // Find which external_ids already exist
+    const ids = articles.map((a) => a.externalId)
+    const { data: existing } = await supabase
+      .from('news')
+      .select('external_id')
+      .in('external_id', ids)
+    const existingIds = new Set((existing ?? []).map((r) => r.external_id))
+    const newArticles = articles.filter((a) => !existingIds.has(a.externalId))
 
     const { error } = await supabase.from('news').upsert(
       articles.map((a) => ({
@@ -16,10 +26,11 @@ export class NewsSupabaseRepository {
         source: a.source,
         published_at: a.publishedAt,
       })),
-      { onConflict: 'external_id', ignoreDuplicates: true }
+      { onConflict: 'external_id', ignoreDuplicates: false }
     )
 
     if (error) throw new Error(`Failed to upsert news: ${error.message}`)
+    return newArticles
   }
 
   async getLatest(limit = 10, offset = 0): Promise<NewsItem[]> {

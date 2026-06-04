@@ -1,31 +1,66 @@
 import { NextResponse } from 'next/server'
 import { Receiver } from '@upstash/qstash'
 import { RSS_SOURCES } from '@/infrastructure/rss/sources'
-import { fetchSource } from '@/infrastructure/rss/RssFetcher'
+import { fetchSource, ParsedArticle } from '@/infrastructure/rss/RssFetcher'
 import { fetchAdceutaOfficialNews } from '@/infrastructure/rss/adceutaFetcher'
 import { NewsSupabaseRepository } from '@/infrastructure/supabase/NewsSupabaseRepository'
+import { sendNewsNotification } from '@/infrastructure/push/sendNewsNotification'
 
 const repo = new NewsSupabaseRepository()
+
+// Source priority for picking the most relevant new article to notify about
+const SOURCE_PRIORITY: Record<string, number> = {
+  oficial: 0,
+  faro: 1,
+  elpueblo: 2,
+  marca: 3,
+  mundodeportivo: 4,
+  '20minutos': 5,
+  elmundo: 6,
+}
+
+function pickMostRelevant(articles: ParsedArticle[]): ParsedArticle | null {
+  if (articles.length === 0) return null
+  return articles.slice().sort((a, b) => {
+    const pa = SOURCE_PRIORITY[a.source] ?? 99
+    const pb = SOURCE_PRIORITY[b.source] ?? 99
+    if (pa !== pb) return pa - pb
+    // Same source — prefer most recently published
+    return (b.publishedAt ?? '').localeCompare(a.publishedAt ?? '')
+  })[0]
+}
 
 async function syncNews() {
   const results = await Promise.allSettled([
     // Official site via WordPress REST API (has featured images)
     (async () => {
       const articles = await fetchAdceutaOfficialNews(15)
-      await repo.upsertArticles(articles)
-      return { source: 'oficial', count: articles.length }
+      const newArticles = await repo.upsertArticles(articles)
+      return { source: 'oficial', count: articles.length, newArticles }
     })(),
-    // Other RSS sources (El Pueblo, El Faro)
+    // RSS sources
     ...RSS_SOURCES.filter(s => s.id !== 'oficial').map(async (source) => {
       const articles = await fetchSource(source)
-      await repo.upsertArticles(articles)
-      return { source: source.id, count: articles.length }
+      const newArticles = await repo.upsertArticles(articles)
+      return { source: source.id, count: articles.length, newArticles }
     }),
   ])
 
-  return results.map((r) =>
-    r.status === 'fulfilled' ? r.value : { error: r.reason?.message }
-  )
+  const allNew: ParsedArticle[] = []
+  const summary = results.map((r) => {
+    if (r.status === 'fulfilled') {
+      allNew.push(...r.value.newArticles)
+      return { source: r.value.source, count: r.value.count, new: r.value.newArticles.length }
+    }
+    return { error: (r.reason as Error)?.message }
+  })
+
+  const toNotify = pickMostRelevant(allNew)
+  if (toNotify) {
+    await sendNewsNotification(toNotify).catch(() => null)
+  }
+
+  return { summary, notified: toNotify?.title ?? null }
 }
 
 export async function POST(request: Request) {
@@ -33,8 +68,8 @@ export async function POST(request: Request) {
   const secret = searchParams.get('secret')
 
   if (secret === process.env.TEST_SECRET) {
-    const summary = await syncNews()
-    return NextResponse.json({ ok: true, summary })
+    const result = await syncNews()
+    return NextResponse.json({ ok: true, ...result })
   }
 
   const receiver = new Receiver({
@@ -50,8 +85,8 @@ export async function POST(request: Request) {
 
   if (!valid) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const summary = await syncNews()
-  return NextResponse.json({ ok: true, summary })
+  const result = await syncNews()
+  return NextResponse.json({ ok: true, ...result })
 }
 
 // Llamada manual (dev o producción con TEST_SECRET)
@@ -64,6 +99,6 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Use POST via QStash in production' }, { status: 405 })
   }
 
-  const summary = await syncNews()
-  return NextResponse.json({ ok: true, summary })
+  const result = await syncNews()
+  return NextResponse.json({ ok: true, ...result })
 }
