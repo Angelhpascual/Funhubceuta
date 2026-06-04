@@ -14,13 +14,39 @@ const CATEGORIES = [
   { key: 'red_cards',        label: 'Tarjetas rojas',   icon: '🟥', min: 1 },
 ]
 
+function normalize(name: string) {
+  return name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim()
+}
+
 export async function GET() {
-  const { data, error } = await supabase
-    .from('player_stats')
-    .select('name, photo_url, appearances, goals, assists, shots, shots_on_target, saves, yellow_cards, red_cards')
-    .eq('season', CURRENT_SEASON)
+  const [{ data, error }, { data: squadData }] = await Promise.all([
+    supabase
+      .from('player_stats')
+      .select('name, photo_url, appearances, goals, assists, shots, shots_on_target, saves, yellow_cards, red_cards')
+      .eq('season', CURRENT_SEASON),
+    supabase.from('squad').select('name, photo_url'),
+  ])
 
   if (error || !data) return NextResponse.json({ leaders: null })
+
+  // Build photo lookup from squad table (LaLiga photos)
+  const photoByName = new Map<string, string>()
+  for (const p of squadData ?? []) {
+    if (p.photo_url) photoByName.set(normalize(p.name), p.photo_url)
+  }
+
+  function getPhoto(espnName: string, espnPhoto: string | null): string {
+    if (espnPhoto) return espnPhoto
+    // Try exact normalized match
+    const exact = photoByName.get(normalize(espnName))
+    if (exact) return exact
+    // Try partial match (ESPN may use full name, squad may use short name)
+    const norm = normalize(espnName)
+    for (const [key, url] of photoByName) {
+      if (norm.includes(key) || key.includes(norm)) return url
+    }
+    return ''
+  }
 
   const leaders: Record<string, { label: string; icon: string; leaders: { name: string; value: number; photo: string }[] }> = {}
 
@@ -38,7 +64,7 @@ export async function GET() {
       leaders: sorted.map(p => ({
         name: p.name,
         value: p[cat.key as keyof typeof p] as number,
-        photo: p.photo_url ?? '',
+        photo: getPhoto(p.name, p.photo_url),
       })),
     }
   }
