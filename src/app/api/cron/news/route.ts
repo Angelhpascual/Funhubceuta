@@ -5,6 +5,8 @@ import { fetchSource, ParsedArticle } from '@/infrastructure/rss/RssFetcher'
 import { fetchAdceutaOfficialNews } from '@/infrastructure/rss/adceutaFetcher'
 import { NewsSupabaseRepository } from '@/infrastructure/supabase/NewsSupabaseRepository'
 import { sendNewsNotification } from '@/infrastructure/push/sendNewsNotification'
+import { logCron, logNotification } from '@/infrastructure/supabase/logCron'
+import { supabase } from '@/infrastructure/supabase/client'
 
 const repo = new NewsSupabaseRepository()
 
@@ -31,14 +33,14 @@ function pickMostRelevant(articles: ParsedArticle[]): ParsedArticle | null {
 }
 
 async function syncNews() {
+  const t0 = Date.now()
+
   const results = await Promise.allSettled([
-    // Official site via WordPress REST API (has featured images)
     (async () => {
       const articles = await fetchAdceutaOfficialNews(15)
       const newArticles = await repo.upsertArticles(articles)
       return { source: 'oficial', count: articles.length, newArticles }
     })(),
-    // RSS sources
     ...RSS_SOURCES.filter(s => s.id !== 'oficial').map(async (source) => {
       const articles = await fetchSource(source)
       const newArticles = await repo.upsertArticles(articles)
@@ -56,9 +58,35 @@ async function syncNews() {
   })
 
   const toNotify = pickMostRelevant(allNew)
+  let notifStats = null
   if (toNotify) {
-    await sendNewsNotification(toNotify).catch(() => null)
+    notifStats = await sendNewsNotification(toNotify).catch(() => null)
+    if (notifStats) {
+      await logNotification({
+        articleTitle:  toNotify.title,
+        articleSource: toNotify.source,
+        articleUrl:    toNotify.url,
+        recipients:    notifStats.recipients,
+        sentOk:        notifStats.sentOk,
+        sentFail:      notifStats.sentFail,
+      })
+    }
   }
+
+  // Get current subscriber count for the log
+  const { count: subscribers } = await supabase
+    .from('push_subscriptions').select('*', { count: 'exact', head: true })
+
+  const articlesFound = results.reduce((acc, r) => acc + (r.status === 'fulfilled' ? r.value.count : 0), 0)
+  const newArticles   = allNew.length
+
+  await logCron('news', 'success', Date.now() - t0, {
+    articlesFound,
+    newArticles,
+    subscribers: subscribers ?? 0,
+    notified: toNotify?.title ?? null,
+    summary,
+  })
 
   return { summary, notified: toNotify?.title ?? null }
 }
