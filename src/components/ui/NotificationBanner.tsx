@@ -53,7 +53,7 @@ export function NotificationBanner() {
           Alertas de goles
         </div>
         <div style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: error ? 'var(--red)' : 'rgba(255,255,255,0.5)', marginTop: 2, lineHeight: 1.4 }}>
-          {error ?? 'Goles, tarjetas rojas y resultado final'}
+          {error ?? 'Goles, noticias, tarjetas rojas y resultado final'}
         </div>
       </div>
 
