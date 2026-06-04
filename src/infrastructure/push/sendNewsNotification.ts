@@ -25,9 +25,10 @@ export async function sendNewsNotification(article: ParsedArticle): Promise<void
 
   if (!subs || subs.length === 0) return
 
+  const sourceLabel = SOURCE_LABELS[article.source] ?? 'Noticias'
   const payload = JSON.stringify({
-    title: SOURCE_LABELS[article.source] ?? 'AD Ceuta Info',
-    body: article.title,
+    title: '🔴 Noticias',
+    body: `${sourceLabel} · ${article.title}`,
     tag: `news-${article.externalId}`,
     url: article.url,
     icon: '/icon-512.png',
