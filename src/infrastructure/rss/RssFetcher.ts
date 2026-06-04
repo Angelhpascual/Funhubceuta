@@ -126,9 +126,9 @@ async function fetchOgImage(articleUrl: string): Promise<string | null> {
   }
 }
 
-function isRelevant(item: Record<string, unknown>, keywords: string[]): boolean {
+function isRelevant(item: Record<string, unknown>, source: RssSource): boolean {
   // Feed already scoped to the club — accept everything
-  if (keywords.length === 0) return true
+  if (source.keywords.length === 0) return true
 
   const text = [
     item.title,
@@ -142,12 +142,13 @@ function isRelevant(item: Record<string, unknown>, keywords: string[]): boolean 
     .join(' ')
     .toLowerCase()
 
-  // A BASE_KEYWORD (unambiguously identifies the club) must always be present.
-  // Squad-name-only matches are discarded to avoid generic-name false positives.
-  const hasBase = BASE_KEYWORDS.some((kw) => text.includes(kw.toLowerCase()))
+  // At least one BASE_KEYWORD must be present to avoid matching unrelated city news.
+  // National press sources can provide broader baseKeywords via source.baseKeywords.
+  const base = source.baseKeywords ?? BASE_KEYWORDS
+  const hasBase = base.some((kw) => text.includes(kw.toLowerCase()))
   if (!hasBase) return false
 
-  return keywords.some((kw) => text.includes(kw.toLowerCase()))
+  return source.keywords.some((kw) => text.includes(kw.toLowerCase()))
 }
 
 function extractGuid(item: Record<string, unknown>): string {
@@ -175,7 +176,7 @@ export async function fetchSource(source: RssSource): Promise<ParsedArticle[]> {
   const items: Record<string, unknown>[] = Array.isArray(raw) ? raw : [raw]
 
   const mapped = items
-    .filter((item) => isRelevant(item, source.keywords))
+    .filter((item) => isRelevant(item, source))
     .map((item) => ({
       externalId: extractGuid(item),
       title: decodeEntities(String(item.title ?? '').replace(/<[^>]+>/g, '')).trim(),
