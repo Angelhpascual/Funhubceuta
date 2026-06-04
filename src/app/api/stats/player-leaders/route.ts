@@ -14,8 +14,13 @@ const CATEGORIES = [
   { key: 'red_cards',        label: 'Tarjetas rojas',   icon: '🟥', min: 1 },
 ]
 
-function normalize(name: string) {
+function norm(name: string) {
   return name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim()
+}
+
+// Extract significant words (>3 chars, not abbreviations like "hdez.")
+function sigWords(name: string): string[] {
+  return norm(name).split(/[\s.]+/).filter(w => w.length > 3 && /^[a-z]+$/.test(w))
 }
 
 export async function GET() {
@@ -29,21 +34,17 @@ export async function GET() {
 
   if (error || !data) return NextResponse.json({ leaders: null })
 
-  // Build photo lookup from squad table (LaLiga photos)
-  const photoByName = new Map<string, string>()
-  for (const p of squadData ?? []) {
-    if (p.photo_url) photoByName.set(normalize(p.name), p.photo_url)
-  }
+  // Build photo lookup: for each squad player, store their significant words → photo
+  const squadPhotos: { words: string[]; url: string }[] = (squadData ?? [])
+    .filter(p => p.photo_url)
+    .map(p => ({ words: sigWords(p.name), url: p.photo_url }))
 
   function getPhoto(espnName: string, espnPhoto: string | null): string {
     if (espnPhoto) return espnPhoto
-    // Try exact normalized match
-    const exact = photoByName.get(normalize(espnName))
-    if (exact) return exact
-    // Try partial match (ESPN may use full name, squad may use short name)
-    const norm = normalize(espnName)
-    for (const [key, url] of photoByName) {
-      if (norm.includes(key) || key.includes(norm)) return url
+    const espnWords = sigWords(espnName)
+    // Find squad player that shares at least one significant word
+    for (const sq of squadPhotos) {
+      if (espnWords.some(w => sq.words.includes(w))) return sq.url
     }
     return ''
   }
