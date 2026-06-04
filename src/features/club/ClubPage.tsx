@@ -225,7 +225,7 @@ export function ClubPage() {
       .then(d => { if (d?.form) setForm(d.form) })
       .catch(() => {})
 
-    fetch('/api/stats/leaders')
+    fetch('/api/stats/player-leaders')
       .then(r => r.ok ? r.json() : null)
       .then(d => { if (d?.leaders) setLeaders(d.leaders) })
       .catch(() => {})
@@ -307,8 +307,7 @@ export function ClubPage() {
 
           {/* Líderes */}
           {leaders ? (
-            ['total_goals_ranking', 'total_assists_ranking', 'total_ontarget_attempt_ranking',
-             'total_pass_ranking', 'total_yellow_card_ranking', 'total_red_card_ranking']
+            ['appearances', 'goals', 'assists', 'shots', 'shots_on_target', 'saves', 'yellow_cards', 'red_cards']
               .map(key => leaders[key])
               .filter(Boolean)
               .map(cat => (
