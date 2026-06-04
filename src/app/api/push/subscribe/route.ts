@@ -9,8 +9,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Invalid subscription' }, { status: 400 })
   }
 
+  const userAgent = request.headers.get('user-agent') ?? null
+
   const { error } = await supabase.from('push_subscriptions').upsert(
-    { endpoint, p256dh: keys.p256dh, auth: keys.auth },
+    { endpoint, p256dh: keys.p256dh, auth: keys.auth, user_agent: userAgent },
     { onConflict: 'endpoint' }
   )
 
