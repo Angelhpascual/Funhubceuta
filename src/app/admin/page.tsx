@@ -1,16 +1,35 @@
 import { redirect } from 'next/navigation'
 import { supabase } from '@/infrastructure/supabase/client'
 
+function parseDevice(ua: string | null): { os: string; browser: string; icon: string } {
+  if (!ua) return { os: 'Desconocido', browser: '—', icon: '❓' }
+  const u = ua.toLowerCase()
+  const isIOS     = /iphone|ipad/.test(u)
+  const isAndroid = /android/.test(u)
+  const isMac     = /macintosh/.test(u) && !isIOS
+  const isWindows = /windows/.test(u)
+  const isSafari  = /safari/.test(u) && !/chrome/.test(u)
+  const isChrome  = /chrome/.test(u) && !/edg/.test(u)
+  const isFirefox = /firefox/.test(u)
+  const isEdge    = /edg/.test(u)
+
+  const os     = isIOS ? 'iOS' : isAndroid ? 'Android' : isMac ? 'Mac' : isWindows ? 'Windows' : 'Otro'
+  const browser = isSafari ? 'Safari' : isChrome ? 'Chrome' : isFirefox ? 'Firefox' : isEdge ? 'Edge' : '—'
+  const icon    = isIOS ? '🍎' : isAndroid ? '🤖' : isMac ? '💻' : isWindows ? '🖥️' : '❓'
+
+  return { os, browser, icon }
+}
+
 async function getStats() {
   const [
     { count: subscribers },
     { count: totalNews },
     { count: players },
     { data: newsBySource },
-    { data: newsByDay },
     { data: cronLogs },
     { data: notifLogs },
     { data: subsGrowth },
+    { data: subsList },
   ] = await Promise.all([
     supabase.from('push_subscriptions').select('*', { count: 'exact', head: true }),
     supabase.from('news').select('*', { count: 'exact', head: true }),
@@ -22,12 +41,10 @@ async function getStats() {
           ).sort((a, b) => b[1] - a[1])
         : [],
     })),
-    // News per day last 30 days (placeholder, populated from cron_logs)
-    Promise.resolve({ data: null }),
     supabase.from('cron_logs').select('*').order('created_at', { ascending: false }).limit(50),
     supabase.from('notification_logs').select('*').order('created_at', { ascending: false }).limit(30),
-    // Subscriber count evolution from cron_logs
     supabase.from('cron_logs').select('created_at, details').eq('cron_type', 'news').eq('status', 'success').order('created_at', { ascending: true }).limit(60),
+    supabase.from('push_subscriptions').select('endpoint, user_agent, created_at').order('created_at', { ascending: false }),
   ])
 
   return {
@@ -37,6 +54,11 @@ async function getStats() {
     newsBySource: (newsBySource as [string, number][]) ?? [],
     cronLogs: cronLogs ?? [],
     notifLogs: notifLogs ?? [],
+    subsList: (subsList ?? []).map((s: { endpoint: string; user_agent: string | null; created_at: string | null }) => ({
+      endpoint: s.endpoint,
+      device: parseDevice(s.user_agent),
+      createdAt: s.created_at,
+    })),
     subsGrowth: (subsGrowth ?? []).map((r: { created_at: string; details: { subscribers?: number } }) => ({
       date: r.created_at,
       subs: r.details?.subscribers ?? 0,
@@ -154,6 +176,16 @@ export default async function AdminPage({
   // Subscribers evolution from cron logs
   const subsData = stats.subsGrowth.map((r: { subs: number }) => r.subs).filter((v: number) => v > 0)
 
+  // Device breakdown
+  const deviceCount: Record<string, number> = {}
+  for (const s of stats.subsList) {
+    const key = `${s.device.icon} ${s.device.os}`
+    deviceCount[key] = (deviceCount[key] ?? 0) + 1
+  }
+
+  // Cron errors
+  const cronErrors = stats.cronLogs.filter((l: { status: string }) => l.status === 'error')
+
   // Cron success rate
   const cronSuccess = stats.cronLogs.filter((l: { status: string }) => l.status === 'success').length
   const cronRate = stats.cronLogs.length > 0 ? Math.round((cronSuccess / stats.cronLogs.length) * 100) : 100
@@ -204,6 +236,59 @@ export default async function AdminPage({
         <div style={s.sectionTitle}>Evolución de suscriptores</div>
         <LineChart data={subsData} color="#D62027" />
         {subsData.length === 0 && <p style={{ fontSize: 11, color: '#6E6E6E', margin: 0 }}>Los datos se acumularán con cada ejecución del scraper de noticias.</p>}
+      </div>
+
+      {/* Errores de crons */}
+      {cronErrors.length > 0 && (
+        <div style={{ ...s.card, background: '#fee2e2', marginBottom: 12 }}>
+          <div style={{ ...s.sectionTitle, color: '#991b1b' }}>⚠️ Errores recientes en crons</div>
+          <table style={s.table}>
+            <tbody>
+              {cronErrors.slice(0, 5).map((l: { id: number; cron_type: string; details: { error?: string }; created_at: string }) => (
+                <tr key={l.id}>
+                  <td style={s.td}><strong>{CRON_LABELS[l.cron_type] ?? l.cron_type}</strong></td>
+                  <td style={{ ...s.td, color: '#991b1b', fontSize: 11 }}>{l.details?.error ?? 'Error desconocido'}</td>
+                  <td style={{ ...s.td, whiteSpace: 'nowrap', color: '#6E6E6E', fontSize: 11 }}>{fmt(l.created_at)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Suscriptores */}
+      <div style={s.card}>
+        <div style={s.sectionTitle}>Suscriptores ({stats.subscribers})</div>
+        {/* Device breakdown */}
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
+          {Object.entries(deviceCount).map(([key, count]) => (
+            <div key={key} style={{ background: '#E4E1DA', borderRadius: 99, padding: '4px 10px', fontSize: 11, fontWeight: 700 }}>
+              {key} · {count}
+            </div>
+          ))}
+        </div>
+        {stats.subsList.length === 0 ? (
+          <p style={{ fontSize: 11, color: '#6E6E6E', margin: 0 }}>Los nuevos suscriptores mostrarán dispositivo y fecha.</p>
+        ) : (
+          <table style={s.table}>
+            <thead>
+              <tr>
+                <th style={s.th}>Dispositivo</th>
+                <th style={s.th}>Navegador</th>
+                <th style={{ ...s.th, textAlign: 'right' }}>Suscrito el</th>
+              </tr>
+            </thead>
+            <tbody>
+              {stats.subsList.map((sub: { endpoint: string; device: { icon: string; os: string; browser: string }; createdAt: string | null }, i: number) => (
+                <tr key={i}>
+                  <td style={s.td}>{sub.device.icon} {sub.device.os}</td>
+                  <td style={s.td}>{sub.device.browser}</td>
+                  <td style={{ ...s.td, textAlign: 'right', color: '#6E6E6E', fontSize: 11, whiteSpace: 'nowrap' }}>{fmt(sub.createdAt)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
 
       {/* Gráfico noticias por fuente */}
