@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { Receiver } from '@upstash/qstash'
 import { supabase } from '@/infrastructure/supabase/client'
+import { logCron } from '@/infrastructure/supabase/logCron'
 
 const ESPN_ROSTER = 'https://site.api.espn.com/apis/site/v2/sports/soccer/esp.2/teams/5404/roster'
 const CURRENT_SEASON = '2025-2026'
@@ -33,46 +34,54 @@ function getStat(categories: EspnCategory[], name: string): number {
 }
 
 async function scrapePlayerStats() {
-  const res = await fetch(ESPN_ROSTER, { next: { revalidate: 0 } })
-  if (!res.ok) throw new Error(`ESPN responded ${res.status}`)
+  const t0 = Date.now()
+  try {
+    const res = await fetch(ESPN_ROSTER, { next: { revalidate: 0 } })
+    if (!res.ok) throw new Error(`ESPN responded ${res.status}`)
 
-  const data = await res.json()
-  const athletes: EspnAthlete[] = data.athletes ?? []
+    const data = await res.json()
+    const athletes: EspnAthlete[] = data.athletes ?? []
 
-  const rows = athletes
-    .filter((a) => a.statistics?.splits?.categories)
-    .map((a) => {
-      const cats = a.statistics!.splits!.categories!
-      const posAbbr = a.position?.abbreviation ?? 'M'
-      return {
-        espn_id: a.id,
-        season: CURRENT_SEASON,
-        name: a.displayName,
-        short_name: a.shortName,
-        position: a.position?.displayName ?? '',
-        position_group: POSITION_GROUP[posAbbr] ?? 'Centrocampistas',
-        photo_url: a.headshot?.href ?? null,
-        appearances:     Math.round(getStat(cats, 'appearances')),
-        goals:           Math.round(getStat(cats, 'totalGoals')),
-        assists:         Math.round(getStat(cats, 'goalAssists')),
-        shots:           Math.round(getStat(cats, 'totalShots')),
-        shots_on_target: Math.round(getStat(cats, 'shotsOnTarget')),
-        yellow_cards:    Math.round(getStat(cats, 'yellowCards')),
-        red_cards:       Math.round(getStat(cats, 'redCards')),
-        saves:           Math.round(getStat(cats, 'saves')),
-        goals_conceded:  Math.round(getStat(cats, 'goalsConceded')),
-        updated_at: new Date().toISOString(),
-      }
-    })
+    const rows = athletes
+      .filter((a) => a.statistics?.splits?.categories)
+      .map((a) => {
+        const cats = a.statistics!.splits!.categories!
+        const posAbbr = a.position?.abbreviation ?? 'M'
+        return {
+          espn_id: a.id,
+          season: CURRENT_SEASON,
+          name: a.displayName,
+          short_name: a.shortName,
+          position: a.position?.displayName ?? '',
+          position_group: POSITION_GROUP[posAbbr] ?? 'Centrocampistas',
+          photo_url: a.headshot?.href ?? null,
+          appearances:     Math.round(getStat(cats, 'appearances')),
+          goals:           Math.round(getStat(cats, 'totalGoals')),
+          assists:         Math.round(getStat(cats, 'goalAssists')),
+          shots:           Math.round(getStat(cats, 'totalShots')),
+          shots_on_target: Math.round(getStat(cats, 'shotsOnTarget')),
+          yellow_cards:    Math.round(getStat(cats, 'yellowCards')),
+          red_cards:       Math.round(getStat(cats, 'redCards')),
+          saves:           Math.round(getStat(cats, 'saves')),
+          goals_conceded:  Math.round(getStat(cats, 'goalsConceded')),
+          updated_at: new Date().toISOString(),
+        }
+      })
 
-  if (rows.length === 0) throw new Error('No athletes with stats found')
+    if (rows.length === 0) throw new Error('No athletes with stats found')
 
-  const { error } = await supabase
-    .from('player_stats')
-    .upsert(rows, { onConflict: 'espn_id,season' })
+    const { error } = await supabase
+      .from('player_stats')
+      .upsert(rows, { onConflict: 'espn_id,season' })
 
-  if (error) throw new Error(`Supabase upsert failed: ${error.message}`)
-  return rows.length
+    if (error) throw new Error(`Supabase upsert failed: ${error.message}`)
+
+    await logCron('player-stats', 'success', Date.now() - t0, { updated: rows.length, season: CURRENT_SEASON })
+    return rows.length
+  } catch (err) {
+    await logCron('player-stats', 'error', Date.now() - t0, { error: (err as Error).message })
+    throw err
+  }
 }
 
 export async function GET(request: Request) {
