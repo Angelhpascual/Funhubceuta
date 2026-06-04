@@ -15,13 +15,13 @@ const barlowCondensed = Barlow_Condensed({
 });
 
 export const metadata: Metadata = {
-  title: "AD Ceuta Info",
+  title: "AD Ceuta FC Info",
   description: "La app de los aficionados del AD Ceuta FC",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "AD Ceuta Info",
+    title: "AD Ceuta FC Info",
   },
 };
 
@@ -40,7 +40,7 @@ export default function RootLayout({
         <link rel="manifest" href="/manifest.json" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="AD Ceuta Info" />
+        <meta name="apple-mobile-web-app-title" content="AD Ceuta FC Info" />
         <link rel="apple-touch-icon" href="/icon-512.png" />
       </head>
       <body className="min-h-full">{children}</body>

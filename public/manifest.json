@@ -1,6 +1,6 @@
 {
-  "name": "AD Ceuta Info",
-  "short_name": "Ceuta Info",
+  "name": "AD Ceuta FC Info",
+  "short_name": "AD Ceuta FC",
   "description": "La app de los aficionados del AD Ceuta FC",
   "start_url": "/",
   "display": "standalone",
