@@ -70,7 +70,12 @@ function AppInner() {
     return 'inicio'
   });
   const [modal, setModal] = useState<Modal>(null);
-  const [ready, setReady] = useState(false);
+  const [ready, setReady] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return sessionStorage.getItem('activeTab') !== 'inicio' && sessionStorage.getItem('activeTab') !== null
+    }
+    return false
+  });
 
   function changeTab(t: Tab) {
     sessionStorage.setItem('activeTab', t)
