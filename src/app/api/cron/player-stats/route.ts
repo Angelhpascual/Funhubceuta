@@ -2,9 +2,7 @@ import { NextResponse } from 'next/server'
 import { Receiver } from '@upstash/qstash'
 import { supabase } from '@/infrastructure/supabase/client'
 import { logCron } from '@/infrastructure/supabase/logCron'
-
-const ESPN_ROSTER = 'https://site.api.espn.com/apis/site/v2/sports/soccer/esp.2/teams/5404/roster'
-const CURRENT_SEASON = '2025-2026'
+import { ESPN_ROSTER, CURRENT_SEASON } from '@/lib/constants'
 
 const POSITION_GROUP: Record<string, string> = {
   G: 'Porteros',

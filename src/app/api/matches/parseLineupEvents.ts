@@ -1,6 +1,5 @@
 import { MatchEvent } from './lineup/route'
-
-const CEUTA_ID = '5404'
+import { ESPN_CEUTA_ID as CEUTA_ID } from '@/lib/constants'
 
 const EVENT_TYPES: Record<string, MatchEvent['type'] | undefined> = {
   'goal': 'goal',

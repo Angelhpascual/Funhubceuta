@@ -1,6 +1,6 @@
 import webpush from 'web-push'
-import { supabase } from '@/infrastructure/supabase/client'
 import { ParsedArticle } from '@/infrastructure/rss/RssFetcher'
+import { getAllSubscriptions, deleteSubscription } from '@/infrastructure/supabase/PushSubscriptionsRepository'
 
 webpush.setVapidDetails(
   'mailto:angelhpascual@gmail.com',
@@ -19,11 +19,8 @@ const SOURCE_LABELS: Record<string, string> = {
 }
 
 export async function sendNewsNotification(article: ParsedArticle): Promise<{ recipients: number; sentOk: number; sentFail: number }> {
-  const { data: subs } = await supabase
-    .from('push_subscriptions')
-    .select('endpoint, p256dh, auth')
-
-  if (!subs || subs.length === 0) return { recipients: 0, sentOk: 0, sentFail: 0 }
+  const subs = await getAllSubscriptions()
+  if (subs.length === 0) return { recipients: 0, sentOk: 0, sentFail: 0 }
 
   const sourceLabel = SOURCE_LABELS[article.source] ?? 'Noticias'
   const payload = JSON.stringify({
@@ -45,7 +42,7 @@ export async function sendNewsNotification(article: ParsedArticle): Promise<{ re
       ).then(() => { sentOk++ }).catch(async (err: { statusCode?: number }) => {
         sentFail++
         if (err.statusCode === 410 || err.statusCode === 404) {
-          await supabase.from('push_subscriptions').delete().eq('endpoint', sub.endpoint)
+          await deleteSubscription(sub.endpoint)
         }
       })
     )

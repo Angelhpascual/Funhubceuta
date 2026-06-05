@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server'
+import { ESPN_SCOREBOARD, ESPN_SUMMARY } from '@/lib/constants'
+import { getConfig } from '@/infrastructure/supabase/AppConfigRepository'
 
 // Cache 60s — multiple users share the same ESPN response
 export const revalidate = 0
@@ -24,8 +26,6 @@ export interface LiveMatch {
   startDate: string
 }
 
-const ESPN_SCOREBOARD = 'https://site.api.espn.com/apis/site/v2/sports/soccer/esp.2/scoreboard'
-const ESPN_SUMMARY = 'https://site.api.espn.com/apis/site/v2/sports/soccer/esp.2/summary'
 
 async function fetchEspn(url: string) {
   const res = await fetch(url, {
@@ -39,11 +39,8 @@ async function fetchEspn(url: string) {
 export async function GET() {
   // In dev: use mock if it exists
   if (process.env.NODE_ENV !== 'production') {
-    const { supabase } = await import('@/infrastructure/supabase/client')
-    const { data } = await supabase.from('app_config').select('value').eq('key', 'live_match_mock').single()
-    if (data?.value) {
-      return NextResponse.json({ match: JSON.parse(data.value) })
-    }
+    const mock = await getConfig('live_match_mock')
+    if (mock) return NextResponse.json({ match: JSON.parse(mock) })
   }
 
   const scoreboard = await fetchEspn(ESPN_SCOREBOARD)
@@ -134,13 +131,12 @@ export async function GET() {
 
     // If ESPN didn't return events, try to get them from stored state
     if (liveEvents.length === 0) {
-      const { supabase } = await import('@/infrastructure/supabase/client')
-      const { data } = await supabase.from('app_config').select('value').eq('key', 'live_match_state').single()
-      if (data?.value) {
+      const storedRaw = await getConfig('live_match_state')
+      if (storedRaw) {
         try {
-          const stored = JSON.parse(data.value)
-          if (stored.espnId === ceutaEvent.id && stored.events?.length) {
-            liveEvents = stored.events
+          const storedState = JSON.parse(storedRaw)
+          if (storedState.espnId === ceutaEvent.id && storedState.events?.length) {
+            liveEvents = storedState.events
           }
         } catch { /* ignore */ }
       }

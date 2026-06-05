@@ -1,4 +1,5 @@
 import { supabase } from './client'
+import { CURRENT_SEASON } from '@/lib/constants'
 
 export interface TeamRecord {
   name: string
@@ -35,7 +36,7 @@ export class TeamsSupabaseRepository {
     if (error) throw new Error(`Failed to upsert teams: ${error.message}`)
   }
 
-  async getLogoByName(name: string, season = '2025-2026'): Promise<string | null> {
+  async getLogoByName(name: string, season = CURRENT_SEASON): Promise<string | null> {
     const { data } = await supabase
       .from('teams')
       .select('name, logo_url')
@@ -58,7 +59,7 @@ export class TeamsSupabaseRepository {
     return partial?.logo_url ?? null
   }
 
-  async getAllTeams(season = '2025-2026'): Promise<TeamRecord[]> {
+  async getAllTeams(season = CURRENT_SEASON): Promise<TeamRecord[]> {
     const { data } = await supabase
       .from('teams')
       .select('*')

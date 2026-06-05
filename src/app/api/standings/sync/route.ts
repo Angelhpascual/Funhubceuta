@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server'
 import { StandingsSupabaseRepository } from '@/infrastructure/supabase/StandingsSupabaseRepository'
 import { TeamsSupabaseRepository } from '@/infrastructure/supabase/TeamsSupabaseRepository'
-
-const ESPN = 'https://site.api.espn.com/apis/v2/sports/soccer/esp.2/standings'
+import { ESPN_STANDINGS as ESPN, CURRENT_SEASON } from '@/lib/constants'
 
 function getDescription(position: number, total: number): string {
   if (position <= 2) return 'Promotion'
@@ -55,8 +54,8 @@ async function syncFromEspn(season: string) {
   await repo.upsertEntries(rows)
   await teamsRepo.upsertTeams(rows.map(r => ({ name: r.teamName, logoUrl: r.teamLogo, season })))
 
-  // Sync Ceuta form from finished matches in DB
   const { supabase } = await import('@/infrastructure/supabase/client')
+  const { setConfig } = await import('@/infrastructure/supabase/AppConfigRepository')
   const { data: finishedMatches } = await supabase
     .from('matches')
     .select('result, date')
@@ -67,10 +66,7 @@ async function syncFromEspn(season: string) {
 
   if (finishedMatches && finishedMatches.length > 0) {
     const form = finishedMatches.map(m => m.result).reverse().join(',')
-    await supabase.from('app_config').upsert(
-      { key: 'ceuta_form', value: form, updated_at: new Date().toISOString() },
-      { onConflict: 'key' }
-    )
+    await setConfig('ceuta_form', form)
   }
 
   return rows.length
@@ -83,7 +79,7 @@ export async function POST(request: Request) {
     if (process.env.NODE_ENV === 'production' && secret !== process.env.TEST_SECRET) {
       // Allow QStash calls (no secret needed for scheduled calls)
     }
-    const count = await syncFromEspn('2025-2026')
+    const count = await syncFromEspn(CURRENT_SEASON)
     return NextResponse.json({ ok: true, teams: count })
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
@@ -99,7 +95,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Use POST in production' }, { status: 405 })
   }
   try {
-    const count = await syncFromEspn('2025-2026')
+    const count = await syncFromEspn(CURRENT_SEASON)
     return NextResponse.json({ ok: true, teams: count })
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
