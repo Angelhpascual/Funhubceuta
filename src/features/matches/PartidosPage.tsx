@@ -188,7 +188,7 @@ export function PartidosPage() {
                   {resultBadge(r.result)}
                   {r.espn_event_id && (
                     <Link
-                      href={`/alineacion?eventId=${r.espn_event_id}&match=${encodeURIComponent(`${shortName(r.home_team)} vs ${shortName(r.away_team)}`)}`}
+                      href={`/alineacion?eventId=${r.espn_event_id}&match=${encodeURIComponent(`${shortName(r.home_team)} vs ${shortName(r.away_team)}`)}&from=partidos`}
                       style={{
                         display: 'flex', alignItems: 'center', gap: 4,
                         background: 'var(--black)', borderRadius: 999,
