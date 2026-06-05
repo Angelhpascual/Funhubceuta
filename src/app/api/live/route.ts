@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { ESPN_SCOREBOARD, ESPN_SUMMARY } from '@/lib/constants'
 
 // Cache 60s — multiple users share the same ESPN response
 export const revalidate = 0
@@ -24,8 +25,6 @@ export interface LiveMatch {
   startDate: string
 }
 
-const ESPN_SCOREBOARD = 'https://site.api.espn.com/apis/site/v2/sports/soccer/esp.2/scoreboard'
-const ESPN_SUMMARY = 'https://site.api.espn.com/apis/site/v2/sports/soccer/esp.2/summary'
 
 async function fetchEspn(url: string) {
   const res = await fetch(url, {

@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { supabase } from '@/infrastructure/supabase/client'
+import { CURRENT_SEASON } from '@/lib/constants'
 
 function parseDevice(ua: string | null): { os: string; browser: string; icon: string } {
   if (!ua) return { os: 'Desconocido', browser: '—', icon: '❓' }
@@ -33,7 +34,7 @@ async function getStats() {
   ] = await Promise.all([
     supabase.from('push_subscriptions').select('*', { count: 'exact', head: true }),
     supabase.from('news').select('*', { count: 'exact', head: true }),
-    supabase.from('player_stats').select('*', { count: 'exact', head: true }).eq('season', '2025-2026'),
+    supabase.from('player_stats').select('*', { count: 'exact', head: true }).eq('season', CURRENT_SEASON),
     supabase.from('news').select('source').then(({ data }) => ({
       data: data
         ? Object.entries(

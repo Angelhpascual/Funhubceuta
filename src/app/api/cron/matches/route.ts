@@ -5,6 +5,7 @@ import { Receiver } from '@upstash/qstash'
 import { scrapeNextMatches, scrapeRecentForm, scrapeRecentResults } from '@/infrastructure/scrapers/adceutaScraper'
 import { MatchesSupabaseRepository } from '@/infrastructure/supabase/MatchesSupabaseRepository'
 import { supabase } from '@/infrastructure/supabase/client'
+import { CURRENT_SEASON, COMPETITION } from '@/lib/constants'
 
 const repo = new MatchesSupabaseRepository()
 
@@ -30,8 +31,8 @@ async function syncMatches() {
         is_home: r.isHome,
         tickets_url: null,
         status: 'finished',
-        season: '2025-2026',
-        competition: 'Liga Hypermotion',
+        season: CURRENT_SEASON,
+        competition: COMPETITION,
         home_score: r.homeScore,
         away_score: r.awayScore,
         result: r.result,

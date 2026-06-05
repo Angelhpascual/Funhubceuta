@@ -3,6 +3,7 @@ import { Receiver } from '@upstash/qstash'
 import { supabase } from '@/infrastructure/supabase/client'
 import webpush from 'web-push'
 import type { LiveMatch, LiveEvent } from '@/app/api/live/route'
+import { ESPN_BASE as ESPN } from '@/lib/constants'
 
 webpush.setVapidDetails(
   'mailto:angelhpascual@gmail.com',
@@ -11,7 +12,6 @@ webpush.setVapidDetails(
 )
 
 // ── Fetch live match from ESPN (same logic as /api/live) ──────────────────
-const ESPN = 'https://site.api.espn.com/apis/site/v2/sports/soccer/esp.2'
 
 async function fetchLiveMatch(): Promise<LiveMatch | null> {
   const res = await fetch(`${ESPN}/scoreboard`, { cache: 'no-store' })
