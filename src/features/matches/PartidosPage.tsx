@@ -46,7 +46,14 @@ function shortName(name: string): string {
 }
 
 export function PartidosPage() {
-  const [tab, setTab] = useState("proximos");
+  const [tab, setTab] = useState(() =>
+    (typeof window !== 'undefined' && sessionStorage.getItem('partidosTab')) ?? 'proximos'
+  );
+
+  function changePartidosTab(t: string) {
+    sessionStorage.setItem('partidosTab', t)
+    setTab(t)
+  }
   const [upcoming, setUpcoming] = useState<MatchRow[]>([]);
   const [results, setResults] = useState<MatchRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -89,7 +96,7 @@ export function PartidosPage() {
 
       <div className="chips" style={{ marginBottom: 8 }}>
         {[{ id: "proximos", l: "Próximos" }, { id: "resultados", l: "Resultados" }].map(t => (
-          <button key={t.id} className={`chip ${tab === t.id ? "active" : ""}`} onClick={() => setTab(t.id)}>
+          <button key={t.id} className={`chip ${tab === t.id ? "active" : ""}`} onClick={() => changePartidosTab(t.id)}>
             {t.l}
           </button>
         ))}

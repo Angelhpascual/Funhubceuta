@@ -63,9 +63,19 @@ const navItems: { id: Tab; label: string; icon: React.ReactNode }[] = [
 ];
 
 function AppInner() {
-  const [tab, setTab] = useState<Tab>("inicio");
+  const [tab, setTab] = useState<Tab>(() => {
+    if (typeof window !== 'undefined') {
+      return (sessionStorage.getItem('activeTab') as Tab) ?? 'inicio'
+    }
+    return 'inicio'
+  });
   const [modal, setModal] = useState<Modal>(null);
   const [ready, setReady] = useState(false);
+
+  function changeTab(t: Tab) {
+    sessionStorage.setItem('activeTab', t)
+    setTab(t)
+  }
 
   const pages: Record<Tab, React.ReactNode> = {
     inicio: <HomePage onReady={() => setReady(true)} onOpenHimno={() => setModal("himno")} />,
@@ -99,7 +109,7 @@ function AppInner() {
             src="/escudo.png"
             alt="AD Ceuta"
             style={{ width: 40, height: 40, objectFit: "contain", cursor: "pointer" }}
-            onClick={() => setTab("inicio")}
+            onClick={() => changeTab("inicio")}
           />
         </div>
 
@@ -109,7 +119,7 @@ function AppInner() {
 
         <div className="bottom-nav">
           {navItems.map((n) => (
-            <button key={n.id} className={`nav-item ${tab === n.id ? "active" : ""}`} onClick={() => setTab(n.id)}>
+            <button key={n.id} className={`nav-item ${tab === n.id ? "active" : ""}`} onClick={() => changeTab(n.id)}>
               {n.icon}
               <span className="nav-label">{n.label}</span>
             </button>
