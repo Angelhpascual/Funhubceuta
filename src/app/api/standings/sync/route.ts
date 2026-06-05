@@ -54,8 +54,8 @@ async function syncFromEspn(season: string) {
   await repo.upsertEntries(rows)
   await teamsRepo.upsertTeams(rows.map(r => ({ name: r.teamName, logoUrl: r.teamLogo, season })))
 
-  // Sync Ceuta form from finished matches in DB
   const { supabase } = await import('@/infrastructure/supabase/client')
+  const { setConfig } = await import('@/infrastructure/supabase/AppConfigRepository')
   const { data: finishedMatches } = await supabase
     .from('matches')
     .select('result, date')
@@ -66,10 +66,7 @@ async function syncFromEspn(season: string) {
 
   if (finishedMatches && finishedMatches.length > 0) {
     const form = finishedMatches.map(m => m.result).reverse().join(',')
-    await supabase.from('app_config').upsert(
-      { key: 'ceuta_form', value: form, updated_at: new Date().toISOString() },
-      { onConflict: 'key' }
-    )
+    await setConfig('ceuta_form', form)
   }
 
   return rows.length

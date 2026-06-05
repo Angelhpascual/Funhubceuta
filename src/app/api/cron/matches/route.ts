@@ -5,6 +5,7 @@ import { Receiver } from '@upstash/qstash'
 import { scrapeNextMatches, scrapeRecentForm, scrapeRecentResults } from '@/infrastructure/scrapers/adceutaScraper'
 import { MatchesSupabaseRepository } from '@/infrastructure/supabase/MatchesSupabaseRepository'
 import { supabase } from '@/infrastructure/supabase/client'
+import { setConfig } from '@/infrastructure/supabase/AppConfigRepository'
 import { CURRENT_SEASON, COMPETITION } from '@/lib/constants'
 
 const repo = new MatchesSupabaseRepository()
@@ -42,12 +43,8 @@ async function syncMatches() {
     )
   }
 
-  // Cache form in app_config
   if (form.length > 0) {
-    await supabase.from('app_config').upsert(
-      { key: 'ceuta_form', value: form.join(','), updated_at: new Date().toISOString() },
-      { onConflict: 'key' }
-    )
+    await setConfig('ceuta_form', form.join(','))
   }
 
   return { matches: matches.length, form }

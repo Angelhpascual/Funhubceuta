@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '@/infrastructure/supabase/client'
+import { setConfig } from '@/infrastructure/supabase/AppConfigRepository'
 
 const LALIGA_URL = 'https://www.laliga.com/en-GB/clubs/ad-ceuta-fc/stats'
 const CDN_BASE = 'https://assets.laliga.com/squad/2025/t14705'
@@ -76,10 +76,7 @@ export async function GET(request: Request) {
 
   try {
     const leaders = await scrapeLeaders()
-    await supabase.from('app_config').upsert(
-      { key: 'ceuta_leaders', value: JSON.stringify(leaders), updated_at: new Date().toISOString() },
-      { onConflict: 'key' }
-    )
+    await setConfig('ceuta_leaders', JSON.stringify(leaders))
     return NextResponse.json({ ok: true, categories: Object.keys(leaders).length })
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
