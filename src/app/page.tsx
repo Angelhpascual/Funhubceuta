@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useState } from "react";
 import { Suspense } from "react";
 import { HomePage } from "@/features/home/HomePage";
 import { ClasificacionPage } from "@/features/standings/ClasificacionPage";
@@ -64,15 +63,9 @@ const navItems: { id: Tab; label: string; icon: React.ReactNode }[] = [
 ];
 
 function AppInner() {
-  const searchParams = useSearchParams()
-  const [tab, setTab] = useState<Tab>((searchParams.get('tab') as Tab) ?? "inicio");
+  const [tab, setTab] = useState<Tab>("inicio");
   const [modal, setModal] = useState<Modal>(null);
   const [ready, setReady] = useState(false);
-
-  useEffect(() => {
-    const t = searchParams.get('tab') as Tab
-    if (t && ['inicio','clasificacion','partidos','club'].includes(t)) setTab(t)
-  }, [searchParams])
 
   const pages: Record<Tab, React.ReactNode> = {
     inicio: <HomePage onReady={() => setReady(true)} onOpenHimno={() => setModal("himno")} />,

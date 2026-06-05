@@ -1,17 +1,15 @@
 'use client'
 
 import { useEffect, useState, Suspense } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { MatchLineup } from '@/app/api/matches/lineup/route'
 import { LineupField } from '@/features/matches/LineupField'
-import Link from 'next/link'
 
 function LineupContent() {
   const params = useSearchParams()
+  const router = useRouter()
   const eventId = params.get('eventId')
   const matchLabel = params.get('match') ?? 'Alineación'
-  const from = params.get('from')
-  const backHref = from === 'partidos' ? '/?tab=partidos' : '/'
 
   const [lineup, setLineup] = useState<MatchLineup | null>(null)
   const [loading, setLoading] = useState(true)
@@ -46,12 +44,12 @@ function LineupContent() {
 
         {/* todo el contenido con z-10 para quedar por encima de las rayas */}
         <div className="relative z-10">
-          <Link href={backHref} className="mb-3 flex items-center gap-2 font-display text-[11px] font-bold uppercase tracking-[0.14em] text-ceuta-red">
+          <button onClick={() => router.back()} className="mb-3 flex items-center gap-2 font-display text-[11px] font-bold uppercase tracking-[0.14em] text-ceuta-red">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M19 12H5M12 5l-7 7 7 7"/>
             </svg>
             Volver
-          </Link>
+          </button>
           <div className="flex items-center gap-2 font-display text-[11px] font-bold uppercase tracking-[0.16em] text-ceuta-red">
             <div className="h-0.5 w-[18px] bg-ceuta-red" />
             Once inicial
