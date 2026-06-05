@@ -14,6 +14,18 @@ const CATEGORIES = [
   { key: 'red_cards',        label: 'Tarjetas rojas',   icon: '🟥', min: 1 },
 ]
 
+// Manual overrides: ESPN name → squad name fragment to match
+const NAME_OVERRIDES: Record<string, string> = {
+  'guillermo': 'vallejo',
+  'peri':      'pery',
+  'curro':     'curro',
+  'aisar':     'aisar',
+  'matos':     'matos',
+  'anuar':     'anuar',
+  'salvi':     'salvi',
+  'yeyo':      'yeyo',
+}
+
 function norm(name: string) {
   return name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim()
 }
@@ -41,8 +53,16 @@ export async function GET() {
 
   function getPhoto(espnName: string, espnPhoto: string | null): string {
     if (espnPhoto) return espnPhoto
+    const normEspn = norm(espnName)
+    // Check manual overrides first
+    const override = NAME_OVERRIDES[normEspn]
+    if (override) {
+      const match = squadPhotos.find(sq => sq.words.includes(override) || norm(sq.url).includes(override))
+      // search by override word in squad names
+      const found = squadData?.find(p => norm(p.name).includes(override))
+      if (found?.photo_url) return found.photo_url
+    }
     const espnWords = sigWords(espnName)
-    // Find squad player that shares at least one significant word
     for (const sq of squadPhotos) {
       if (espnWords.some(w => sq.words.includes(w))) return sq.url
     }
