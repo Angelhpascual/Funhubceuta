@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '@/infrastructure/supabase/client'
 import { parseLineupEvents } from '../parseLineupEvents'
-
-const ESPN = 'https://site.api.espn.com/apis/site/v2/sports/soccer/esp.2'
-const CEUTA_ID = '5404'
+import { ESPN_BASE as ESPN, ESPN_CEUTA_ID as CEUTA_ID, CURRENT_SEASON } from '@/lib/constants'
 
 export interface LineupPlayer {
   name: string
@@ -116,7 +114,7 @@ export async function GET(request: Request) {
   const { data: squadRows } = await supabase
     .from('squad')
     .select('dorsal,photo_url')
-    .eq('season', '2025-2026')
+    .eq('season', CURRENT_SEASON)
     .not('photo_url', 'ilike', '%/default/%')
 
   const photoByDorsal: Record<string, string> = {}

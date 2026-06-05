@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server'
 import { Receiver } from '@upstash/qstash'
-import { supabase } from '@/infrastructure/supabase/client'
 import webpush from 'web-push'
 import type { LiveMatch, LiveEvent } from '@/app/api/live/route'
+import { setConfig, deleteConfig } from '@/infrastructure/supabase/AppConfigRepository'
+import { deleteSubscription } from '@/infrastructure/supabase/PushSubscriptionsRepository'
+import { ESPN_BASE as ESPN } from '@/lib/constants'
 
 webpush.setVapidDetails(
   'mailto:angelhpascual@gmail.com',
@@ -11,7 +13,6 @@ webpush.setVapidDetails(
 )
 
 // ── Fetch live match from ESPN (same logic as /api/live) ──────────────────
-const ESPN = 'https://site.api.espn.com/apis/site/v2/sports/soccer/esp.2'
 
 async function fetchLiveMatch(): Promise<LiveMatch | null> {
   const res = await fetch(`${ESPN}/scoreboard`, { cache: 'no-store' })
@@ -70,11 +71,10 @@ async function fetchLiveMatch(): Promise<LiveMatch | null> {
 
 // ── Send push to all subscribers ──────────────────────────────────────────
 async function sendPush(title: string, body: string, tag: string) {
-  const { data: subs } = await supabase
-    .from('push_subscriptions')
-    .select('endpoint, p256dh, auth')
+  const subs = await import('@/infrastructure/supabase/PushSubscriptionsRepository')
+    .then(m => m.getAllSubscriptions())
 
-  if (!subs?.length) return 0
+  if (!subs.length) return 0
 
   const payload = JSON.stringify({ title, body, tag, url: '/' })
   let sent = 0
@@ -90,7 +90,7 @@ async function sendPush(title: string, body: string, tag: string) {
       } catch (err: unknown) {
         const status = (err as Record<string,unknown>)?.statusCode
         if (status === 410 || status === 404) {
-          await supabase.from('push_subscriptions').delete().eq('endpoint', sub.endpoint)
+          await deleteSubscription(sub.endpoint)
         }
       }
     })
@@ -109,20 +109,14 @@ interface MatchState {
 }
 
 async function getStoredState(): Promise<MatchState | null> {
-  const { data } = await supabase
-    .from('app_config')
-    .select('value')
-    .eq('key', 'live_match_state')
-    .single()
-  if (!data?.value) return null
-  try { return JSON.parse(data.value) } catch { return null }
+  const { getConfig } = await import('@/infrastructure/supabase/AppConfigRepository')
+  const raw = await getConfig('live_match_state')
+  if (!raw) return null
+  try { return JSON.parse(raw) } catch { return null }
 }
 
 async function saveState(state: MatchState) {
-  await supabase.from('app_config').upsert(
-    { key: 'live_match_state', value: JSON.stringify(state), updated_at: new Date().toISOString() },
-    { onConflict: 'key' }
-  )
+  await setConfig('live_match_state', JSON.stringify(state))
 }
 
 // ── Main logic ────────────────────────────────────────────────────────────
@@ -135,7 +129,7 @@ async function checkAndNotify() {
     // If we cleared on every miss we'd reset the goal baseline mid-game.
     const prev = await getStoredState()
     if (prev?.state === 'post') {
-      await supabase.from('app_config').delete().eq('key', 'live_match_state')
+      await deleteConfig('live_match_state')
     }
     return { match: null, notifications: [] }
   }

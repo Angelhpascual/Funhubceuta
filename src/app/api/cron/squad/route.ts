@@ -3,13 +3,14 @@ export const maxDuration = 60
 import { NextResponse } from 'next/server'
 import { scrapeSquad } from '@/infrastructure/scrapers/squadScraper'
 import { supabase } from '@/infrastructure/supabase/client'
+import { CURRENT_SEASON } from '@/lib/constants'
 
 async function syncSquad() {
   const players = await scrapeSquad()
   if (players.length === 0) return 0
 
   // Clear current season squad and replace
-  await supabase.from('squad').delete().eq('season', '2025-2026')
+  await supabase.from('squad').delete().eq('season', CURRENT_SEASON)
 
   const { error } = await supabase.from('squad').insert(
     players.map(p => ({
@@ -19,7 +20,7 @@ async function syncSquad() {
       position_group: p.positionGroup,
       nationality: p.nationality,
       photo_url: p.photoUrl,
-      season: '2025-2026',
+      season: CURRENT_SEASON,
     }))
   )
 

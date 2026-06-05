@@ -3,11 +3,12 @@ export const dynamic = 'force-dynamic'
 import { StandingsService } from '@/domain/standings/StandingsService'
 import { StandingsSupabaseRepository } from '@/infrastructure/supabase/StandingsSupabaseRepository'
 import { StandingsTable } from '@/features/standings/components/StandingsTable'
+import { CURRENT_SEASON } from '@/lib/constants'
 
 const service = new StandingsService(new StandingsSupabaseRepository())
 
 export default async function StandingsPage() {
-  const standings = await service.getStandings('2025-2026')
+  const standings = await service.getStandings(CURRENT_SEASON)
 
   return (
     <main className="min-h-screen bg-gray-950 text-white">

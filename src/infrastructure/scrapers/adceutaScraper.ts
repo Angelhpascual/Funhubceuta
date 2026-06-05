@@ -1,5 +1,4 @@
-const ESPN = 'https://site.api.espn.com/apis/site/v2/sports/soccer/esp.2'
-const CEUTA_ID = '5404'
+import { ESPN_BASE as ESPN, ESPN_CEUTA_ID as CEUTA_ID } from '@/lib/constants'
 
 export interface ScrapedMatch {
   homeTeam: string

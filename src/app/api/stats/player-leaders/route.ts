@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '@/infrastructure/supabase/client'
-
-const CURRENT_SEASON = '2025-2026'
+import { CURRENT_SEASON } from '@/lib/constants'
 
 const CATEGORIES = [
   { key: 'appearances',      label: 'Partidos jugados', icon: '📋', min: 1 },

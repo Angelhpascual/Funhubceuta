@@ -1,5 +1,6 @@
 import { supabase } from './client'
 import { ScrapedMatch } from '@/infrastructure/scrapers/adceutaScraper'
+import { CURRENT_SEASON, COMPETITION } from '@/lib/constants'
 
 export class MatchesSupabaseRepository {
   async upsertMatches(matches: ScrapedMatch[]): Promise<void> {
@@ -19,8 +20,8 @@ export class MatchesSupabaseRepository {
         is_home: m.isHome,
         tickets_url: m.ticketsUrl,
         status: 'scheduled',
-        season: '2025-2026',
-        competition: 'Liga Hypermotion',
+        season: CURRENT_SEASON,
+        competition: COMPETITION,
         espn_event_id: m.espnEventId,
       }))
     )
