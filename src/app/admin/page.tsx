@@ -91,21 +91,32 @@ function fmtDuration(ms: number | null) {
 }
 
 
+const C = {
+  red:    'var(--red)',
+  black:  'var(--black)',
+  white:  'var(--white)',
+  bgSoft: 'var(--bg-soft)',
+  bgMid:  'var(--bg-mid)',
+  muted:  'var(--muted)',
+  border: 'var(--border)',
+  radius: 'var(--radius)',
+}
+
 const s = {
-  page:      { fontFamily: 'system-ui, sans-serif', maxWidth: 520, margin: '0 auto', padding: '24px 16px', background: '#fff', minHeight: '100vh' } as React.CSSProperties,
-  eyebrow:   { fontSize: 11, fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: '0.1em', color: '#D62027', marginBottom: 4 },
-  title:     { fontSize: 26, fontWeight: 900, letterSpacing: '-0.02em', textTransform: 'uppercase' as const, color: '#0A0A0A', marginBottom: 24 },
+  page:      { fontFamily: 'system-ui, sans-serif', maxWidth: 520, margin: '0 auto', padding: '24px 16px', background: C.white, minHeight: '100vh' } as React.CSSProperties,
+  eyebrow:   { fontSize: 11, fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: '0.1em', color: C.red, marginBottom: 4 },
+  title:     { fontSize: 26, fontWeight: 900, letterSpacing: '-0.02em', textTransform: 'uppercase' as const, color: C.black, marginBottom: 24 },
   grid2:     { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 16 } as React.CSSProperties,
-  tileRed:   { background: '#D62027', borderRadius: 14, padding: 16 },
-  tileBlack: { background: '#0A0A0A', borderRadius: 14, padding: 16 },
-  tileGray:  { background: '#F5F4F1', borderRadius: 14, padding: 16 },
-  bigNum:    (color = '#fff') => ({ fontSize: 48, fontWeight: 900, color, lineHeight: 1 }),
+  tileRed:   { background: C.red,    borderRadius: 14, padding: 16 },
+  tileBlack: { background: C.black,  borderRadius: 14, padding: 16 },
+  tileGray:  { background: C.bgSoft, borderRadius: 14, padding: 16 },
+  bigNum:    (color = C.white) => ({ fontSize: 48, fontWeight: 900, color, lineHeight: 1 }),
   label:     (color = 'rgba(255,255,255,0.75)') => ({ fontSize: 9, fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: '0.1em', color, marginTop: 8 }),
-  sectionTitle: { fontSize: 9, fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: '0.1em', color: '#6E6E6E', marginBottom: 12 },
-  card:      { background: '#F5F4F1', borderRadius: 14, padding: 16, marginBottom: 12 },
+  sectionTitle: { fontSize: 9, fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: '0.1em', color: C.muted, marginBottom: 12 },
+  card:      { background: C.bgSoft, borderRadius: 14, padding: 16, marginBottom: 12 },
   table:     { width: '100%', borderCollapse: 'collapse' as const, fontSize: 12 },
-  th:        { textAlign: 'left' as const, fontSize: 9, fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: '0.08em', color: '#6E6E6E', paddingBottom: 8 },
-  td:        { padding: '7px 0', borderTop: '1px solid #E4E1DA', color: '#0A0A0A', verticalAlign: 'top' as const },
+  th:        { textAlign: 'left' as const, fontSize: 9, fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: '0.08em', color: C.muted, paddingBottom: 8 },
+  td:        { padding: '7px 0', borderTop: `1px solid ${C.border}`, color: C.black, verticalAlign: 'top' as const },
   badge:     (ok: boolean) => ({ display: 'inline-block', padding: '2px 7px', borderRadius: 99, fontSize: 10, fontWeight: 700, background: ok ? '#dcfce7' : '#fee2e2', color: ok ? '#166534' : '#991b1b' }),
 }
 
@@ -169,33 +180,33 @@ export default async function AdminPage({
 
       <div style={s.grid2}>
         <div style={s.tileGray}>
-          <div style={s.bigNum('#0A0A0A')}>{stats.totalNews}</div>
-          <div style={s.label('#6E6E6E')}>Noticias en BD</div>
+          <div style={s.bigNum(C.black)}>{stats.totalNews}</div>
+          <div style={s.label(C.muted)}>Noticias en BD</div>
         </div>
         <div style={s.tileGray}>
-          <div style={s.bigNum('#0A0A0A')}>{deliveryRate}%</div>
-          <div style={s.label('#6E6E6E')}>Tasa de entrega</div>
+          <div style={s.bigNum(C.black)}>{deliveryRate}%</div>
+          <div style={s.label(C.muted)}>Tasa de entrega</div>
         </div>
       </div>
 
       <div style={s.grid2}>
         <div style={s.tileGray}>
-          <div style={s.bigNum('#0A0A0A')}>{cronRate}%</div>
-          <div style={s.label('#6E6E6E')}>Éxito de crons</div>
+          <div style={s.bigNum(C.black)}>{cronRate}%</div>
+          <div style={s.label(C.muted)}>Éxito de crons</div>
         </div>
         <div style={s.tileGray}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#0A0A0A', lineHeight: 1.3 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: C.black, lineHeight: 1.3 }}>
             {fmt(lastNewsRun?.created_at ?? null)}
           </div>
-          <div style={s.label('#6E6E6E')}>Último scrape noticias</div>
+          <div style={s.label(C.muted)}>Último scrape noticias</div>
         </div>
       </div>
 
       {/* Gráfico suscriptores */}
       <div style={s.card}>
         <div style={s.sectionTitle}>Evolución de suscriptores</div>
-        <LineChart data={subsData} color="#D62027" />
-        {subsData.length === 0 && <p style={{ fontSize: 11, color: '#6E6E6E', margin: 0 }}>Los datos se acumularán con cada ejecución del scraper de noticias.</p>}
+        <LineChart data={subsData} color={C.red} />
+        {subsData.length === 0 && <p style={{ fontSize: 11, color: C.muted, margin: 0 }}>Los datos se acumularán con cada ejecución del scraper de noticias.</p>}
       </div>
 
       {/* Errores de crons */}
@@ -208,7 +219,7 @@ export default async function AdminPage({
                 <tr key={l.id}>
                   <td style={s.td}><strong>{CRON_LABELS[l.cron_type] ?? l.cron_type}</strong></td>
                   <td style={{ ...s.td, color: '#991b1b', fontSize: 11 }}>{l.details?.error ?? 'Error desconocido'}</td>
-                  <td style={{ ...s.td, whiteSpace: 'nowrap', color: '#6E6E6E', fontSize: 11 }}>{fmt(l.created_at)}</td>
+                  <td style={{ ...s.td, whiteSpace: 'nowrap', color: C.muted, fontSize: 11 }}>{fmt(l.created_at)}</td>
                 </tr>
               ))}
             </tbody>
@@ -222,13 +233,13 @@ export default async function AdminPage({
         {/* Device breakdown */}
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
           {Object.entries(deviceCount).map(([key, count]) => (
-            <div key={key} style={{ background: '#E4E1DA', borderRadius: 99, padding: '4px 10px', fontSize: 11, fontWeight: 700 }}>
+            <div key={key} style={{ background: C.bgMid, borderRadius: 99, padding: '4px 10px', fontSize: 11, fontWeight: 700 }}>
               {key} · {count}
             </div>
           ))}
         </div>
         {stats.subsList.length === 0 ? (
-          <p style={{ fontSize: 11, color: '#6E6E6E', margin: 0 }}>Los nuevos suscriptores mostrarán dispositivo y fecha.</p>
+          <p style={{ fontSize: 11, color: C.muted, margin: 0 }}>Los nuevos suscriptores mostrarán dispositivo y fecha.</p>
         ) : (
           <table style={s.table}>
             <thead>
@@ -243,7 +254,7 @@ export default async function AdminPage({
                 <tr key={i}>
                   <td style={s.td}>{sub.device.icon} {sub.device.os}</td>
                   <td style={s.td}>{sub.device.browser}</td>
-                  <td style={{ ...s.td, textAlign: 'right', color: '#6E6E6E', fontSize: 11, whiteSpace: 'nowrap' }}>{fmt(sub.createdAt)}</td>
+                  <td style={{ ...s.td, textAlign: 'right', color: C.muted, fontSize: 11, whiteSpace: 'nowrap' }}>{fmt(sub.createdAt)}</td>
                 </tr>
               ))}
             </tbody>
@@ -254,14 +265,14 @@ export default async function AdminPage({
       {/* Gráfico noticias por fuente */}
       <div style={s.card}>
         <div style={s.sectionTitle}>Noticias por fuente</div>
-        <BarChart data={sourceChartData} color="#D62027" />
+        <BarChart data={sourceChartData} color={C.red} />
         <table style={{ ...s.table, marginTop: 12 }}>
           <tbody>
             {stats.newsBySource.map(([src, count]) => (
               <tr key={src}>
                 <td style={s.td}>{SOURCE_LABELS[src] ?? src}</td>
                 <td style={{ ...s.td, textAlign: 'right', fontWeight: 700 }}>{count}</td>
-                <td style={{ ...s.td, textAlign: 'right', color: '#6E6E6E', paddingLeft: 8 }}>
+                <td style={{ ...s.td, textAlign: 'right', color: C.muted, paddingLeft: 8 }}>
                   {Math.round((count / stats.totalNews) * 100)}%
                 </td>
               </tr>
@@ -274,7 +285,7 @@ export default async function AdminPage({
       <div style={s.card}>
         <div style={s.sectionTitle}>Historial de notificaciones</div>
         {stats.notifLogs.length === 0 ? (
-          <p style={{ fontSize: 11, color: '#6E6E6E', margin: 0 }}>Sin notificaciones registradas aún. Se registrarán en el próximo scrape.</p>
+          <p style={{ fontSize: 11, color: C.muted, margin: 0 }}>Sin notificaciones registradas aún. Se registrarán en el próximo scrape.</p>
         ) : (
           <table style={s.table}>
             <thead>
@@ -288,13 +299,13 @@ export default async function AdminPage({
               {stats.notifLogs.map((n: { id: number; article_source: string; article_title: string; sent_ok: number; recipients: number; created_at: string }) => (
                 <tr key={n.id}>
                   <td style={s.td}>
-                    <div style={{ fontSize: 10, color: '#D62027', fontWeight: 700, marginBottom: 2 }}>{SOURCE_LABELS[n.article_source] ?? n.article_source}</div>
+                    <div style={{ fontSize: 10, color: C.red, fontWeight: 700, marginBottom: 2 }}>{SOURCE_LABELS[n.article_source] ?? n.article_source}</div>
                     <div style={{ fontSize: 12, lineHeight: 1.3 }}>{n.article_title}</div>
                   </td>
                   <td style={{ ...s.td, textAlign: 'right', whiteSpace: 'nowrap', fontWeight: 700 }}>
-                    {n.sent_ok}<span style={{ color: '#6E6E6E', fontWeight: 400 }}>/{n.recipients}</span>
+                    {n.sent_ok}<span style={{ color: C.muted, fontWeight: 400 }}>/{n.recipients}</span>
                   </td>
-                  <td style={{ ...s.td, textAlign: 'right', whiteSpace: 'nowrap', color: '#6E6E6E', fontSize: 11 }}>
+                  <td style={{ ...s.td, textAlign: 'right', whiteSpace: 'nowrap', color: C.muted, fontSize: 11 }}>
                     {fmt(n.created_at)}
                   </td>
                 </tr>
@@ -308,7 +319,7 @@ export default async function AdminPage({
       <div style={s.card}>
         <div style={s.sectionTitle}>Historial de crons (últimas 50 ejecuciones)</div>
         {stats.cronLogs.length === 0 ? (
-          <p style={{ fontSize: 11, color: '#6E6E6E', margin: 0 }}>Sin ejecuciones registradas aún. Se registrarán en el próximo cron.</p>
+          <p style={{ fontSize: 11, color: C.muted, margin: 0 }}>Sin ejecuciones registradas aún. Se registrarán en el próximo cron.</p>
         ) : (
           <table style={s.table}>
             <thead>
@@ -325,18 +336,18 @@ export default async function AdminPage({
                   <td style={s.td}>
                     <div style={{ fontWeight: 600 }}>{CRON_LABELS[l.cron_type] ?? l.cron_type}</div>
                     {l.details?.newArticles != null && (
-                      <div style={{ fontSize: 10, color: '#6E6E6E' }}>{l.details.newArticles} nuevas</div>
+                      <div style={{ fontSize: 10, color: C.muted }}>{l.details.newArticles} nuevas</div>
                     )}
                     {l.details?.updated != null && (
-                      <div style={{ fontSize: 10, color: '#6E6E6E' }}>{l.details.updated} jugadores</div>
+                      <div style={{ fontSize: 10, color: C.muted }}>{l.details.updated} jugadores</div>
                     )}
                     {l.details?.error && (
                       <div style={{ fontSize: 10, color: '#991b1b' }}>{l.details.error}</div>
                     )}
                   </td>
                   <td style={s.td}><span style={s.badge(l.status === 'success')}>{l.status === 'success' ? '✓ OK' : '✗ Error'}</span></td>
-                  <td style={{ ...s.td, textAlign: 'right', color: '#6E6E6E' }}>{fmtDuration(l.duration_ms)}</td>
-                  <td style={{ ...s.td, textAlign: 'right', color: '#6E6E6E', fontSize: 11 }}>{fmt(l.created_at)}</td>
+                  <td style={{ ...s.td, textAlign: 'right', color: C.muted }}>{fmtDuration(l.duration_ms)}</td>
+                  <td style={{ ...s.td, textAlign: 'right', color: C.muted, fontSize: 11 }}>{fmt(l.created_at)}</td>
                 </tr>
               ))}
             </tbody>
