@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Suspense } from "react";
 import { HomePage } from "@/features/home/HomePage";
 import { ClasificacionPage } from "@/features/standings/ClasificacionPage";
 import { PartidosPage } from "@/features/matches/PartidosPage";
@@ -61,10 +62,25 @@ const navItems: { id: Tab; label: string; icon: React.ReactNode }[] = [
   },
 ];
 
-export default function App() {
-  const [tab, setTab] = useState<Tab>("inicio");
+function AppInner() {
+  const [tab, setTab] = useState<Tab>(() => {
+    if (typeof window !== 'undefined') {
+      return (sessionStorage.getItem('activeTab') as Tab) ?? 'inicio'
+    }
+    return 'inicio'
+  });
   const [modal, setModal] = useState<Modal>(null);
-  const [ready, setReady] = useState(false);
+  const [ready, setReady] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return sessionStorage.getItem('activeTab') !== 'inicio' && sessionStorage.getItem('activeTab') !== null
+    }
+    return false
+  });
+
+  function changeTab(t: Tab) {
+    sessionStorage.setItem('activeTab', t)
+    setTab(t)
+  }
 
   const pages: Record<Tab, React.ReactNode> = {
     inicio: <HomePage onReady={() => setReady(true)} onOpenHimno={() => setModal("himno")} />,
@@ -98,7 +114,7 @@ export default function App() {
             src="/escudo.png"
             alt="AD Ceuta"
             style={{ width: 40, height: 40, objectFit: "contain", cursor: "pointer" }}
-            onClick={() => setTab("inicio")}
+            onClick={() => changeTab("inicio")}
           />
         </div>
 
@@ -108,7 +124,7 @@ export default function App() {
 
         <div className="bottom-nav">
           {navItems.map((n) => (
-            <button key={n.id} className={`nav-item ${tab === n.id ? "active" : ""}`} onClick={() => setTab(n.id)}>
+            <button key={n.id} className={`nav-item ${tab === n.id ? "active" : ""}`} onClick={() => changeTab(n.id)}>
               {n.icon}
               <span className="nav-label">{n.label}</span>
             </button>
@@ -117,4 +133,12 @@ export default function App() {
       </div>
     </div>
   );
+}
+
+export default function App() {
+  return (
+    <Suspense>
+      <AppInner />
+    </Suspense>
+  )
 }
