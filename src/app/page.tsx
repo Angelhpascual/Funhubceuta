@@ -2,10 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { Suspense } from "react";
+import { useRouter } from "next/navigation";
 import { HomePage } from "@/features/home/HomePage";
-import { ClasificacionPage } from "@/features/standings/ClasificacionPage";
-import { PartidosPage } from "@/features/matches/PartidosPage";
-import { ClubPage } from "@/features/club/ClubPage";
 import { HimnoPage } from "@/features/himno/HimnoPage";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
 
@@ -62,30 +60,21 @@ const navItems: { id: Tab; label: string; icon: React.ReactNode }[] = [
   },
 ];
 
+const SSR_TABS: Tab[] = ["clasificacion", "partidos", "club"]
+
 function AppInner() {
-  const [tab, setTab] = useState<Tab>('inicio');
+  const router = useRouter()
   const [modal, setModal] = useState<Modal>(null);
   const [ready, setReady] = useState(false);
 
-  useEffect(() => {
-    const stored = sessionStorage.getItem('activeTab') as Tab | null
-    if (stored && stored !== 'inicio') {
-      setTab(stored)
-      setReady(true)
-    }
-  }, []);
-
   function changeTab(t: Tab) {
-    sessionStorage.setItem('activeTab', t)
-    setTab(t)
+    if (SSR_TABS.includes(t)) {
+      router.push(`/${t}`)
+      return
+    }
+    sessionStorage.setItem('activeTab', 'inicio')
+    setReady(true)
   }
-
-  const pages: Record<Tab, React.ReactNode> = {
-    inicio: <HomePage onReady={() => setReady(true)} onOpenHimno={() => setModal("himno")} />,
-    clasificacion: <ClasificacionPage />,
-    partidos: <PartidosPage />,
-    club: <ClubPage />,
-  };
 
   return (
     <div id="app-root">
@@ -116,13 +105,13 @@ function AppInner() {
           />
         </div>
 
-        <div className="scroll-area" key={tab}>
-          {pages[tab]}
+        <div className="scroll-area">
+          <HomePage onReady={() => setReady(true)} onOpenHimno={() => setModal("himno")} />
         </div>
 
         <div className="bottom-nav">
           {navItems.map((n) => (
-            <button key={n.id} className={`nav-item ${tab === n.id ? "active" : ""}`} onClick={() => changeTab(n.id)}>
+            <button key={n.id} className={`nav-item ${n.id === "inicio" ? "active" : ""}`} onClick={() => changeTab(n.id)}>
               {n.icon}
               <span className="nav-label">{n.label}</span>
             </button>
