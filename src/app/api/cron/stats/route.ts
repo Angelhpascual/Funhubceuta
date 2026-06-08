@@ -84,3 +84,5 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: msg }, { status: 500 })
   }
 }
+
+export { GET as POST }

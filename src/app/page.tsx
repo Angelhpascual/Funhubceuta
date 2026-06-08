@@ -2,17 +2,15 @@
 
 import { useState } from "react";
 import { Suspense } from "react";
+import { useRouter } from "next/navigation";
 import { HomePage } from "@/features/home/HomePage";
-import { ClasificacionPage } from "@/features/standings/ClasificacionPage";
-import { PartidosPage } from "@/features/matches/PartidosPage";
-import { ClubPage } from "@/features/club/ClubPage";
 import { HimnoPage } from "@/features/himno/HimnoPage";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
 
-type Tab = "inicio" | "clasificacion" | "partidos" | "club";
+type NavId = "inicio" | "clasificacion" | "partidos" | "club";
 type Modal = "himno" | null;
 
-const navItems: { id: Tab; label: string; icon: React.ReactNode }[] = [
+const navItems: { id: NavId; label: string; icon: React.ReactNode }[] = [
   {
     id: "inicio",
     label: "Inicio",
@@ -62,32 +60,16 @@ const navItems: { id: Tab; label: string; icon: React.ReactNode }[] = [
   },
 ];
 
+const SSR_NAV: NavId[] = ["clasificacion", "partidos", "club"]
+
 function AppInner() {
-  const [tab, setTab] = useState<Tab>(() => {
-    if (typeof window !== 'undefined') {
-      return (sessionStorage.getItem('activeTab') as Tab) ?? 'inicio'
-    }
-    return 'inicio'
-  });
+  const router = useRouter()
   const [modal, setModal] = useState<Modal>(null);
-  const [ready, setReady] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return sessionStorage.getItem('activeTab') !== 'inicio' && sessionStorage.getItem('activeTab') !== null
-    }
-    return false
-  });
+  const [ready, setReady] = useState(false);
 
-  function changeTab(t: Tab) {
-    sessionStorage.setItem('activeTab', t)
-    setTab(t)
+  function handleNav(id: NavId) {
+    if (SSR_NAV.includes(id)) router.push(`/${id}`)
   }
-
-  const pages: Record<Tab, React.ReactNode> = {
-    inicio: <HomePage onReady={() => setReady(true)} onOpenHimno={() => setModal("himno")} />,
-    clasificacion: <ClasificacionPage />,
-    partidos: <PartidosPage />,
-    club: <ClubPage />,
-  };
 
   return (
     <div id="app-root">
@@ -114,17 +96,17 @@ function AppInner() {
             src="/escudo.png"
             alt="AD Ceuta"
             style={{ width: 40, height: 40, objectFit: "contain", cursor: "pointer" }}
-            onClick={() => changeTab("inicio")}
+            onClick={() => router.push('/')}
           />
         </div>
 
-        <div className="scroll-area" key={tab}>
-          {pages[tab]}
+        <div className="scroll-area">
+          <HomePage onReady={() => setReady(true)} onOpenHimno={() => setModal("himno")} />
         </div>
 
         <div className="bottom-nav">
           {navItems.map((n) => (
-            <button key={n.id} className={`nav-item ${tab === n.id ? "active" : ""}`} onClick={() => changeTab(n.id)}>
+            <button key={n.id} className={`nav-item ${n.id === "inicio" ? "active" : ""}`} onClick={() => handleNav(n.id)}>
               {n.icon}
               <span className="nav-label">{n.label}</span>
             </button>
