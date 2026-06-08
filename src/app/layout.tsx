@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Barlow, Barlow_Condensed } from "next/font/google";
+import { AppShell } from "@/components/layout/AppShell";
 import "./globals.css";
 
 const barlow = Barlow({
@@ -43,7 +44,9 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="AD Ceuta FC Info" />
         <link rel="apple-touch-icon" href="/icon-512.png" />
       </head>
-      <body className="min-h-full">{children}</body>
+      <body className="min-h-full">
+        <AppShell>{children}</AppShell>
+      </body>
     </html>
   );
 }

@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { StandingEntry } from "@/domain/standings/Standings";
 import { findLogo as findLogoUtil } from "@/lib/findLogo";
 
@@ -63,35 +62,16 @@ function SkeletonRow({ i }: { i: number }) {
   )
 }
 
-export function ClasificacionPage() {
-  const [entries, setEntries] = useState<StandingEntry[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [form, setForm] = useState<string[]>([]);
-  const [logos, setLogos] = useState<Record<string, string>>({});
+interface Props {
+  initialEntries?: StandingEntry[]
+  initialForm?: string[]
+  initialLogos?: Record<string, string>
+}
 
-  useEffect(() => {
-    fetch("/api/standings")
-      .then((r) => r.ok ? r.json() : null)
-      .then((data) => { if (data?.entries) setEntries(data.entries) })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-
-    fetch("/api/matches/results")
-      .then((r) => r.ok ? r.json() : null)
-      .then((data) => { if (data?.form) setForm(data.form) })
-      .catch(() => {});
-
-    fetch("/api/teams")
-      .then((r) => r.ok ? r.json() : null)
-      .then((data) => {
-        if (data?.teams) {
-          const map: Record<string, string> = {};
-          for (const t of data.teams) if (t.logoUrl) map[t.name] = t.logoUrl;
-          setLogos(map);
-        }
-      })
-      .catch(() => {});
-  }, []);
+export function ClasificacionPage({ initialEntries = [], initialForm = [], initialLogos = {} }: Props) {
+  const entries = initialEntries
+  const form = initialForm
+  const logos = initialLogos
 
   const me = entries.find(isCeuta);
   const total = entries.length;
@@ -201,9 +181,7 @@ export function ClasificacionPage() {
           ))}
         </div>
 
-        {loading
-          ? Array.from({ length: 22 }).map((_, i) => <SkeletonRow key={i} i={i} />)
-          : entries.map((t) => {
+        {entries.map((t) => {
               const zone = getZone(t.position, total)
               const mine = isCeuta(t)
               const logo = findLogo(t.teamName)
