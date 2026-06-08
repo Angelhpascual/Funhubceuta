@@ -45,45 +45,32 @@ function shortName(name: string): string {
     .split(' ').map(w => w.charAt(0) + w.slice(1).toLowerCase()).join(' ')
 }
 
-export function PartidosPage() {
-  const [tab, setTab] = useState(() =>
-    (typeof window !== 'undefined' && sessionStorage.getItem('partidosTab')) ?? 'proximos'
-  );
+interface Props {
+  initialUpcoming?: MatchRow[]
+  initialResults?: MatchRow[]
+  initialLogos?: Record<string, string>
+}
+
+export function PartidosPage({ initialUpcoming = [], initialResults = [], initialLogos = {} }: Props) {
+  const [tab, setTab] = useState('proximos');
+
+  useEffect(() => {
+    const stored = sessionStorage.getItem('partidosTab')
+    if (stored) setTab(stored)
+  }, [])
 
   function changePartidosTab(t: string) {
     sessionStorage.setItem('partidosTab', t)
     setTab(t)
   }
-  const [upcoming, setUpcoming] = useState<MatchRow[]>([]);
-  const [results, setResults] = useState<MatchRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [logos, setLogos] = useState<Record<string, string>>({});
+  const [upcoming] = useState<MatchRow[]>(initialUpcoming);
+  const [results] = useState<MatchRow[]>(initialResults);
+  const [loading] = useState(false);
+  const [logos] = useState<Record<string, string>>(initialLogos);
 
   function findLogo(name: string): string | null {
     return findLogoUtil(logos, name)
   }
-
-  useEffect(() => {
-    fetch('/api/matches/all')
-      .then(r => r.ok ? r.json() : null)
-      .then(d => {
-        if (d?.upcoming) setUpcoming(d.upcoming)
-        if (d?.results) setResults(d.results)
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false))
-
-    fetch('/api/teams')
-      .then(r => r.ok ? r.json() : null)
-      .then(d => {
-        if (d?.teams) {
-          const map: Record<string, string> = {}
-          for (const t of d.teams) if (t.logoUrl) map[t.name] = t.logoUrl
-          setLogos(map)
-        }
-      })
-      .catch(() => {})
-  }, [])
 
   return (
     <div className="page">

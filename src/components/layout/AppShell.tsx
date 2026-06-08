@@ -55,7 +55,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   // Only render the new shell on migrated SSR routes
   // '/' still uses its own SPA shell until fully migrated
-  const SSR_ROUTES = ['/clasificacion', '/partidos', '/club']
+  const SSR_ROUTES = ['/clasificacion', '/partidos', '/club', '/noticias']
   const usesNewShell = SSR_ROUTES.some(r => pathname === r || pathname.startsWith(r + '/'))
   if (!usesNewShell) return <>{children}</>
 
