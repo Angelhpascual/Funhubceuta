@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { findLogo as findLogoUtil } from "@/lib/findLogo";
+import { formatMatchDate, shortTeamName, resultLabel } from "./matchUtils";
 import Link from "next/link";
 
 interface MatchRow {
@@ -18,31 +19,10 @@ interface MatchRow {
   espn_event_id: string | null
 }
 
-function formatDate(dateStr: string): { day: string; mon: string } {
-  const d = new Date(dateStr)
-  return {
-    day: d.getUTCDate().toString().padStart(2, '0'),
-    mon: d.toLocaleString('es-ES', { month: 'short', timeZone: 'UTC' }).toUpperCase(),
-  }
-}
-
 function resultBadge(r: string | null) {
-  if (!r) return null
-  const map: Record<string, { cls: string; label: string }> = {
-    W: { cls: 'badge-w', label: 'V' },
-    D: { cls: 'badge-d', label: 'E' },
-    L: { cls: 'badge-l', label: 'D' },
-  }
-  const item = map[r]
+  const item = resultLabel(r)
   if (!item) return null
   return <span className={`result-badge ${item.cls}`}>{item.label}</span>
-}
-
-function shortName(name: string): string {
-  return name
-    .replace('AD CEUTA FC', 'AD Ceuta')
-    .replace('CEUTA FC', 'AD Ceuta')
-    .split(' ').map(w => w.charAt(0) + w.slice(1).toLowerCase()).join(' ')
 }
 
 interface Props {
@@ -109,11 +89,11 @@ export function PartidosPage({ upcoming = [], results = [], logos = {} }: Props)
                     ? <img src={findLogo(m.home_team)!} alt="" style={{ width: 28, height: 28, objectFit: 'contain' }} />
                     : <div style={{ width: 28, height: 28, background: 'var(--bg-mid)', borderRadius: '50%' }} />
                   }
-                  <div className={`fixt-tname ${m.is_home ? 'mine' : ''}`}>{shortName(m.home_team)}</div>
+                  <div className={`fixt-tname ${m.is_home ? 'mine' : ''}`}>{shortTeamName(m.home_team)}</div>
                 </div>
                 <div className="fixt-vs">VS</div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'flex-end' }}>
-                  <div className={`fixt-tname away ${!m.is_home ? 'mine' : ''}`}>{shortName(m.away_team)}</div>
+                  <div className={`fixt-tname away ${!m.is_home ? 'mine' : ''}`}>{shortTeamName(m.away_team)}</div>
                   {findLogo(m.away_team)
                     // eslint-disable-next-line @next/next/no-img-element
                     ? <img src={findLogo(m.away_team)!} alt="" style={{ width: 28, height: 28, objectFit: 'contain' }} />
@@ -141,7 +121,7 @@ export function PartidosPage({ upcoming = [], results = [], logos = {} }: Props)
         <>
           <div className="month-label">Últimos partidos</div>
           {results.map((r, i) => {
-            const { day, mon } = formatDate(r.date)
+            const { day, mon } = formatMatchDate(r.date)
             const ceutaHome = r.home_team.toLowerCase().includes('ceuta')
             const cls = r.result === 'W' ? 'win' : r.result === 'L' ? 'lose' : 'draw'
             const homeScoreCls = ceutaHome ? (r.result === 'W' ? 'win' : r.result === 'L' ? 'lose' : '') : (r.result === 'L' ? 'win' : r.result === 'W' ? 'lose' : '')
@@ -159,7 +139,7 @@ export function PartidosPage({ upcoming = [], results = [], logos = {} }: Props)
                       ? <img src={findLogo(r.home_team)!} alt="" style={{ width: 18, height: 18, objectFit: 'contain', flexShrink: 0 }} />
                       : <div style={{ width: 18, height: 18, flexShrink: 0 }} />
                     }
-                    <div className={`result-team-name ${ceutaHome ? 'bold' : ''}`}>{shortName(r.home_team)}</div>
+                    <div className={`result-team-name ${ceutaHome ? 'bold' : ''}`}>{shortTeamName(r.home_team)}</div>
                     <div className={`result-score ${homeScoreCls}`}>{r.home_score}</div>
                   </div>
                   <div className="result-team-row">
@@ -168,7 +148,7 @@ export function PartidosPage({ upcoming = [], results = [], logos = {} }: Props)
                       ? <img src={findLogo(r.away_team)!} alt="" style={{ width: 18, height: 18, objectFit: 'contain', flexShrink: 0 }} />
                       : <div style={{ width: 18, height: 18, flexShrink: 0 }} />
                     }
-                    <div className={`result-team-name ${!ceutaHome ? 'bold' : ''}`}>{shortName(r.away_team)}</div>
+                    <div className={`result-team-name ${!ceutaHome ? 'bold' : ''}`}>{shortTeamName(r.away_team)}</div>
                     <div className={`result-score ${awayScoreCls}`}>{r.away_score}</div>
                   </div>
                 </div>
@@ -176,7 +156,7 @@ export function PartidosPage({ upcoming = [], results = [], logos = {} }: Props)
                   {resultBadge(r.result)}
                   {r.espn_event_id && (
                     <Link
-                      href={`/alineacion?eventId=${r.espn_event_id}&match=${encodeURIComponent(`${shortName(r.home_team)} vs ${shortName(r.away_team)}`)}`}
+                      href={`/alineacion?eventId=${r.espn_event_id}&match=${encodeURIComponent(`${shortTeamName(r.home_team)} vs ${shortTeamName(r.away_team)}`)}`}
                       style={{
                         display: 'flex', alignItems: 'center', gap: 4,
                         background: 'var(--black)', borderRadius: 999,
