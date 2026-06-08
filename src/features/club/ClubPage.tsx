@@ -23,12 +23,11 @@ interface Props {
 
 export function ClubPage({ initialGrouped = [], initialTotal = 0, initialCeuta = null, initialForm = [], initialLeaders = null }: Props) {
   const [tab, setTab] = useState("stats");
-  const [grouped] = useState<Group[]>(initialGrouped);
-  const [total] = useState(initialTotal);
-  const [loading] = useState(false);
-  const [ceuta] = useState<StandingEntry | null>(initialCeuta);
-  const [form] = useState<string[]>(initialForm);
-  const [leaders] = useState<LeadersMap | null>(initialLeaders);
+  const grouped = initialGrouped
+  const total = initialTotal
+  const ceuta = initialCeuta
+  const form = initialForm
+  const leaders = initialLeaders
 
   return (
     <div className="page">
@@ -46,7 +45,7 @@ export function ClubPage({ initialGrouped = [], initialTotal = 0, initialCeuta =
       </div>
 
       {tab === 'stats'     && <EstadisticasTab ceuta={ceuta} form={form} leaders={leaders} />}
-      {tab === 'plantilla' && <PlantillaTab grouped={grouped} total={total} loading={loading} />}
+      {tab === 'plantilla' && <PlantillaTab grouped={grouped} total={total} loading={false} />}
       {tab === 'historia'  && <HistoriaTab />}
 
       <div className="h-2" />

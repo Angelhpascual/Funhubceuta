@@ -63,10 +63,9 @@ export function PartidosPage({ initialUpcoming = [], initialResults = [], initia
     sessionStorage.setItem('partidosTab', t)
     setTab(t)
   }
-  const [upcoming] = useState<MatchRow[]>(initialUpcoming);
-  const [results] = useState<MatchRow[]>(initialResults);
-  const [loading] = useState(false);
-  const [logos] = useState<Record<string, string>>(initialLogos);
+  const upcoming = initialUpcoming
+  const results = initialResults
+  const logos = initialLogos
 
   function findLogo(name: string): string | null {
     return findLogoUtil(logos, name)
@@ -89,13 +88,7 @@ export function PartidosPage({ initialUpcoming = [], initialResults = [], initia
         ))}
       </div>
 
-      {loading && (
-        <div style={{ padding: '30px 16px', textAlign: 'center', fontFamily: 'var(--font-display)', fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--muted)' }}>
-          Cargando partidos…
-        </div>
-      )}
-
-      {!loading && tab === "proximos" && (
+      {tab === "proximos" && (
         <>
           <div className="month-label">Mayo 2026</div>
           {upcoming.length === 0 ? (
@@ -143,7 +136,7 @@ export function PartidosPage({ initialUpcoming = [], initialResults = [], initia
         </>
       )}
 
-      {!loading && tab === "resultados" && (
+      {tab === "resultados" && (
         <>
           <div className="month-label">Últimos partidos</div>
           {results.map((r, i) => {

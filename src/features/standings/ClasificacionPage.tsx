@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { StandingEntry } from "@/domain/standings/Standings";
 import { findLogo as findLogoUtil } from "@/lib/findLogo";
 
@@ -70,10 +69,9 @@ interface Props {
 }
 
 export function ClasificacionPage({ initialEntries = [], initialForm = [], initialLogos = {} }: Props) {
-  const [entries] = useState<StandingEntry[]>(initialEntries);
-  const [loading] = useState(false);
-  const [form] = useState<string[]>(initialForm);
-  const [logos] = useState<Record<string, string>>(initialLogos);
+  const entries = initialEntries
+  const form = initialForm
+  const logos = initialLogos
 
   const me = entries.find(isCeuta);
   const total = entries.length;
@@ -183,9 +181,7 @@ export function ClasificacionPage({ initialEntries = [], initialForm = [], initi
           ))}
         </div>
 
-        {loading
-          ? Array.from({ length: 22 }).map((_, i) => <SkeletonRow key={i} i={i} />)
-          : entries.map((t) => {
+        {entries.map((t) => {
               const zone = getZone(t.position, total)
               const mine = isCeuta(t)
               const logo = findLogo(t.teamName)
