@@ -1,16 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { HomePage } from "@/features/home/HomePage";
 import { HimnoPage } from "@/features/himno/HimnoPage";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
 
-type Tab = "inicio" | "clasificacion" | "partidos" | "club";
+type NavId = "inicio" | "clasificacion" | "partidos" | "club";
 type Modal = "himno" | null;
 
-const navItems: { id: Tab; label: string; icon: React.ReactNode }[] = [
+const navItems: { id: NavId; label: string; icon: React.ReactNode }[] = [
   {
     id: "inicio",
     label: "Inicio",
@@ -60,20 +60,15 @@ const navItems: { id: Tab; label: string; icon: React.ReactNode }[] = [
   },
 ];
 
-const SSR_TABS: Tab[] = ["clasificacion", "partidos", "club"]
+const SSR_NAV: NavId[] = ["clasificacion", "partidos", "club"]
 
 function AppInner() {
   const router = useRouter()
   const [modal, setModal] = useState<Modal>(null);
   const [ready, setReady] = useState(false);
 
-  function changeTab(t: Tab) {
-    if (SSR_TABS.includes(t)) {
-      router.push(`/${t}`)
-      return
-    }
-    sessionStorage.setItem('activeTab', 'inicio')
-    setReady(true)
+  function handleNav(id: NavId) {
+    if (SSR_NAV.includes(id)) router.push(`/${id}`)
   }
 
   return (
@@ -101,7 +96,7 @@ function AppInner() {
             src="/escudo.png"
             alt="AD Ceuta"
             style={{ width: 40, height: 40, objectFit: "contain", cursor: "pointer" }}
-            onClick={() => changeTab("inicio")}
+            onClick={() => router.push('/')}
           />
         </div>
 
@@ -111,7 +106,7 @@ function AppInner() {
 
         <div className="bottom-nav">
           {navItems.map((n) => (
-            <button key={n.id} className={`nav-item ${n.id === "inicio" ? "active" : ""}`} onClick={() => changeTab(n.id)}>
+            <button key={n.id} className={`nav-item ${n.id === "inicio" ? "active" : ""}`} onClick={() => handleNav(n.id)}>
               {n.icon}
               <span className="nav-label">{n.label}</span>
             </button>

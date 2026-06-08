@@ -90,7 +90,11 @@ export function PartidosPage({ initialUpcoming = [], initialResults = [], initia
 
       {tab === "proximos" && (
         <>
-          <div className="month-label">Mayo 2026</div>
+          <div className="month-label">
+            {upcoming[0]
+              ? new Date(upcoming[0].date).toLocaleString('es-ES', { month: 'long', year: 'numeric', timeZone: 'UTC' }).replace(/^\w/, c => c.toUpperCase())
+              : 'Próximos partidos'}
+          </div>
           {upcoming.length === 0 ? (
             <div style={{ padding: '20px 16px', fontFamily: 'var(--font-display)', fontSize: 13, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
               No hay próximos partidos
