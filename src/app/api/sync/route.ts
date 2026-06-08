@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server'
 
 // Master sync endpoint — runs all scrapers in sequence
-// Usage: GET /api/sync?secret=ceuta2026 (local or production with secret)
+// Usage: GET /api/sync?secret=ceuta2026 (local) or POST from QStash (production)
 
-export async function GET(request: Request) {
+async function runSync(request: Request) {
   const { searchParams } = new URL(request.url)
   const secret = searchParams.get('secret')
   if (process.env.NODE_ENV === 'production' && secret !== process.env.TEST_SECRET) {
@@ -46,6 +46,9 @@ export async function GET(request: Request) {
 
   return NextResponse.json({ ok: true, results })
 }
+
+export const GET = runSync
+export const POST = runSync
 
 function getBase(request: Request): string {
   const url = new URL(request.url)
