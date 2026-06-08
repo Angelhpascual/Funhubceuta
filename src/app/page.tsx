@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Suspense } from "react";
 import { HomePage } from "@/features/home/HomePage";
 import { ClasificacionPage } from "@/features/standings/ClasificacionPage";
@@ -63,19 +63,17 @@ const navItems: { id: Tab; label: string; icon: React.ReactNode }[] = [
 ];
 
 function AppInner() {
-  const [tab, setTab] = useState<Tab>(() => {
-    if (typeof window !== 'undefined') {
-      return (sessionStorage.getItem('activeTab') as Tab) ?? 'inicio'
-    }
-    return 'inicio'
-  });
+  const [tab, setTab] = useState<Tab>('inicio');
   const [modal, setModal] = useState<Modal>(null);
-  const [ready, setReady] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return sessionStorage.getItem('activeTab') !== 'inicio' && sessionStorage.getItem('activeTab') !== null
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    const stored = sessionStorage.getItem('activeTab') as Tab | null
+    if (stored && stored !== 'inicio') {
+      setTab(stored)
+      setReady(true)
     }
-    return false
-  });
+  }, []);
 
   function changeTab(t: Tab) {
     sessionStorage.setItem('activeTab', t)
