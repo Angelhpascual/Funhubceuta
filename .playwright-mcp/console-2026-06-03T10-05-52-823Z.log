@@ -1,0 +1,85 @@
+[      98ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/05w9_next_dist_04sc5oc._.js:2431
+[     111ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/05w9_next_dist_04sc5oc._.js:2431
+[    3276ms] [WARNING] The resource http://localhost:3000/_next/static/media/a083361d37caf3d1-s.p.08pvxdps0wo-e.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/noticias:0
+[    3276ms] [WARNING] The resource http://localhost:3000/_next/static/media/235a0ef330592118-s.p.0b723ysm_ve25.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/noticias:0
+[    3276ms] [WARNING] The resource http://localhost:3000/_next/static/media/6c98c9fb873995d2-s.p.0o4ax6vjjs2k3.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/noticias:0
+[    3276ms] [WARNING] The resource http://localhost:3000/_next/static/media/4f530f52d514af96-s.p.0aapj9pyt9oam.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/noticias:0
+[    3276ms] [WARNING] The resource http://localhost:3000/_next/static/media/89232e6535d3b87e-s.p.0uy8evdve.ea3.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/noticias:0
+[  195572ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/05w9_next_dist_04sc5oc._.js:2431
+[  195643ms] [ERROR] ./src/app/noticias/page.tsx:181:1
+Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+  179 |     </div>
+  180 |   )
+> 181 | }
+      | ^
+  182 |
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/app/noticias/page.tsx [Client Component Browser]
+    ./src/app/noticias/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/noticias/page.tsx [Client Component SSR]
+    ./src/app/noticias/page.tsx [Server Component] @ http://localhost:3000/_next/static/chunks/05w9_next_dist_04sc5oc._.js:3272
+[  195709ms] [ERROR] ./src/app/noticias/page.tsx:181:1
+Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+  179 |     </div>
+  180 |   )
+> 181 | }
+      | ^
+  182 |
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/app/noticias/page.tsx [Client Component Browser]
+    ./src/app/noticias/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/noticias/page.tsx [Client Component SSR]
+    ./src/app/noticias/page.tsx [Server Component] @ http://localhost:3000/_next/static/chunks/05w9_next_dist_04sc5oc._.js:3272
+[  195788ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/05w9_next_dist_04sc5oc._.js:2431
+[  198684ms] [WARNING] The resource http://localhost:3000/_next/static/media/a083361d37caf3d1-s.p.08pvxdps0wo-e.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/noticias:0
+[  198685ms] [WARNING] The resource http://localhost:3000/_next/static/media/235a0ef330592118-s.p.0b723ysm_ve25.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/noticias:0
+[  198685ms] [WARNING] The resource http://localhost:3000/_next/static/media/6c98c9fb873995d2-s.p.0o4ax6vjjs2k3.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/noticias:0
+[  198685ms] [WARNING] The resource http://localhost:3000/_next/static/media/4f530f52d514af96-s.p.0aapj9pyt9oam.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/noticias:0
+[  198685ms] [WARNING] The resource http://localhost:3000/_next/static/media/89232e6535d3b87e-s.p.0uy8evdve.ea3.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/noticias:0
+[  198967ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/05w9_next_dist_04sc5oc._.js:2431
+[  199035ms] [LOG] [Fast Refresh] done in 42ms @ http://localhost:3000/_next/static/chunks/05w9_next_dist_04sc5oc._.js:2431
+[  202417ms] [WARNING] The resource http://localhost:3000/_next/static/media/a083361d37caf3d1-s.p.08pvxdps0wo-e.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/noticias:0
+[  202417ms] [WARNING] The resource http://localhost:3000/_next/static/media/235a0ef330592118-s.p.0b723ysm_ve25.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/noticias:0
+[  202417ms] [WARNING] The resource http://localhost:3000/_next/static/media/6c98c9fb873995d2-s.p.0o4ax6vjjs2k3.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/noticias:0
+[  202417ms] [WARNING] The resource http://localhost:3000/_next/static/media/4f530f52d514af96-s.p.0aapj9pyt9oam.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/noticias:0
+[  202417ms] [WARNING] The resource http://localhost:3000/_next/static/media/89232e6535d3b87e-s.p.0uy8evdve.ea3.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/noticias:0
+[  207813ms] [ERROR] ./src/app/alineacion/page.tsx:99:1
+Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+   97 |     </div>
+   98 |   )
+>  99 | }
+      | ^
+  100 |
+  101 | export default function AlineacionPage() {
+  102 |   return (
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/app/alineacion/page.tsx [Client Component Browser]
+    ./src/app/alineacion/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/alineacion/page.tsx [Client Component SSR]
+    ./src/app/alineacion/page.tsx [Server Component] @ http://localhost:3000/_next/static/chunks/05w9_next_dist_04sc5oc._.js:3272
+[  207830ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/05w9_next_dist_04sc5oc._.js:2431
+[  210824ms] [WARNING] The resource http://localhost:3000/_next/static/media/a083361d37caf3d1-s.p.08pvxdps0wo-e.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/noticias:0
+[  210825ms] [WARNING] The resource http://localhost:3000/_next/static/media/235a0ef330592118-s.p.0b723ysm_ve25.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/noticias:0
+[  210825ms] [WARNING] The resource http://localhost:3000/_next/static/media/6c98c9fb873995d2-s.p.0o4ax6vjjs2k3.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/noticias:0
+[  210825ms] [WARNING] The resource http://localhost:3000/_next/static/media/4f530f52d514af96-s.p.0aapj9pyt9oam.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/noticias:0
+[  210825ms] [WARNING] The resource http://localhost:3000/_next/static/media/89232e6535d3b87e-s.p.0uy8evdve.ea3.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/noticias:0
+[  216150ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/05w9_next_dist_04sc5oc._.js:2431
+[  216206ms] [LOG] [Fast Refresh] done in 27ms @ http://localhost:3000/_next/static/chunks/05w9_next_dist_04sc5oc._.js:2431

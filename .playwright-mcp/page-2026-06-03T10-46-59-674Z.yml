@@ -1,0 +1,28 @@
+- generic [ref=e1]:
+  - generic [ref=e10]:
+    - img "AD Ceuta" [ref=e12]
+    - generic [ref=e537]:
+      - generic [ref=e539]:
+        - generic [ref=e540]: Temporada 2025–26
+        - generic [ref=e541]: Partidos
+      - generic [ref=e542]:
+        - button "Próximos" [ref=e543] [cursor=pointer]
+        - button "Resultados" [ref=e544] [cursor=pointer]
+      - generic [ref=e545]: Mayo 2026
+      - generic [ref=e546]: No hay próximos partidos
+    - generic [ref=e98]:
+      - button "Inicio" [ref=e99] [cursor=pointer]:
+        - img [ref=e100]
+        - generic [ref=e103]: Inicio
+      - button "Clasificación" [ref=e104] [cursor=pointer]:
+        - img [ref=e105]
+        - generic [ref=e106]: Clasificación
+      - button "Partidos" [active] [ref=e107] [cursor=pointer]:
+        - img [ref=e108]
+        - generic [ref=e111]: Partidos
+      - button "Club" [ref=e112] [cursor=pointer]:
+        - img [ref=e113]
+        - generic [ref=e118]: Club
+  - button "Open Next.js Dev Tools" [ref=e124] [cursor=pointer]:
+    - img [ref=e125]
+  - alert [ref=e242]

@@ -1,9 +1,9 @@
 import { PartidosPage } from '@/features/matches/PartidosPage'
-import { TeamsSupabaseRepository } from '@/infrastructure/supabase/TeamsSupabaseRepository'
 import { supabase } from '@/infrastructure/supabase/client'
 import { deduplicateMatches } from '@/app/api/matches/deduplicateMatches'
+import { fetchTeamLogos } from '@/lib/serverFetches'
 
-export const revalidate = 300 // 5 min
+export const revalidate = 300
 
 async function fetchMatches() {
   const { data } = await supabase
@@ -26,25 +26,17 @@ async function fetchMatches() {
   return { upcoming, results }
 }
 
-async function fetchLogos(): Promise<Record<string, string>> {
-  const repo = new TeamsSupabaseRepository()
-  const teams = await repo.getAllTeams()
-  const map: Record<string, string> = {}
-  for (const t of teams) if (t.logoUrl) map[t.name] = t.logoUrl
-  return map
-}
-
 export default async function PartidosServerPage() {
   const [{ upcoming, results }, logos] = await Promise.all([
     fetchMatches(),
-    fetchLogos(),
+    fetchTeamLogos(),
   ])
 
   return (
     <PartidosPage
-      initialUpcoming={upcoming}
-      initialResults={results}
-      initialLogos={logos}
+      upcoming={upcoming}
+      results={results}
+      logos={logos}
     />
   )
 }

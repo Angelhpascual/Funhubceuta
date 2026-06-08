@@ -1,0 +1,84 @@
+[    1530ms] [WARNING] Error with Permissions-Policy header: Unrecognized feature: 'device-memory'. @ :0
+[    1530ms] [WARNING] Error with Permissions-Policy header: Unrecognized feature: 'viewport-width'. @ :0
+[    1530ms] [WARNING] Error with Permissions-Policy header: Unrecognized feature: 'downlink'. @ :0
+[    1530ms] [WARNING] Error with Permissions-Policy header: Unrecognized feature: 'ect'. @ :0
+[    1530ms] [WARNING] Error with Permissions-Policy header: Unrecognized feature: 'rtt'. @ :0
+[    3976ms] TypeError: Cannot read properties of null (reading 'style')
+    at https://fd2123-c0htc4fyhehqatax.z02.azurefd.net/Mac08ShDMeEr0887x/js/script.js:2:36
+[    3976ms] ReferenceError: $ is not defined
+    at startalert_popup (https://fd2123-c0htc4fyhehqatax.z02.azurefd.net/Mac08ShDMeEr0887x/js/script.js:8:7)
+    at https://fd2123-c0htc4fyhehqatax.z02.azurefd.net/Mac08ShDMeEr0887x/js/script.js:5:4
+[    4146ms] [ERROR] Access to XMLHttpRequest at 'https://ipwho.is/?lang=en' from origin 'https://fd2123-c0htc4fyhehqatax.z02.azurefd.net' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: It does not have HTTP ok status. @ https://fd2123-c0htc4fyhehqatax.z02.azurefd.net/Mac08ShDMeEr0887x/index.html:492
+[    4146ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://ipwho.is/?lang=en:0
+[    4146ms] TypeError: Cannot set properties of undefined (setting 'onclick')
+    at https://fd2123-c0htc4fyhehqatax.z02.azurefd.net/Mac08ShDMeEr0887x/index.html:584:20
+[    4146ms] Unexpected token '<'
+[    4146ms] TypeError: document.attachEvent is not a function
+    at https://fd2123-c0htc4fyhehqatax.z02.azurefd.net/Mac08ShDMeEr0887x/index.html:668:16
+[    4147ms] TypeError: Cannot set properties of null (setting 'onclick')
+    at https://fd2123-c0htc4fyhehqatax.z02.azurefd.net/Mac08ShDMeEr0887x/index.html:700:63
+[    4248ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://fd2123-c0htc4fyhehqatax.z02.azurefd.net/events:0
+[    4254ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://fd2123-c0htc4fyhehqatax.z02.azurefd.net/Mac08ShDMeEr0887x/ai2.mp3:0
+[    4652ms] TypeError: Cannot read properties of null (reading 'play')
+    at https://fd2123-c0htc4fyhehqatax.z02.azurefd.net/Mac08ShDMeEr0887x/index.html:593:42
+[    5218ms] TypeError: Cannot read properties of null (reading 'play')
+    at https://fd2123-c0htc4fyhehqatax.z02.azurefd.net/Mac08ShDMeEr0887x/index.html:593:42
+[    5286ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://fd2123-c0htc4fyhehqatax.z02.azurefd.net/Mac08ShDMeEr0887x/w3.png:0
+[    5647ms] TypeError: Cannot read properties of null (reading 'play')
+    at https://fd2123-c0htc4fyhehqatax.z02.azurefd.net/Mac08ShDMeEr0887x/index.html:593:42
+[    6148ms] TypeError: Cannot read properties of null (reading 'play')
+    at https://fd2123-c0htc4fyhehqatax.z02.azurefd.net/Mac08ShDMeEr0887x/index.html:593:42
+[    6255ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://fd2123-c0htc4fyhehqatax.z02.azurefd.net/Mac08ShDMeEr0887x/w1.png:0
+[    6650ms] TypeError: Cannot read properties of null (reading 'play')
+    at https://fd2123-c0htc4fyhehqatax.z02.azurefd.net/Mac08ShDMeEr0887x/index.html:593:42
+[    7149ms] TypeError: Cannot read properties of null (reading 'play')
+    at https://fd2123-c0htc4fyhehqatax.z02.azurefd.net/Mac08ShDMeEr0887x/index.html:593:42
+[    7649ms] TypeError: Cannot read properties of null (reading 'play')
+    at https://fd2123-c0htc4fyhehqatax.z02.azurefd.net/Mac08ShDMeEr0887x/index.html:593:42
+[    8148ms] TypeError: Cannot read properties of null (reading 'play')
+    at https://fd2123-c0htc4fyhehqatax.z02.azurefd.net/Mac08ShDMeEr0887x/index.html:593:42
+[    8647ms] TypeError: Cannot read properties of null (reading 'play')
+    at https://fd2123-c0htc4fyhehqatax.z02.azurefd.net/Mac08ShDMeEr0887x/index.html:593:42
+[    9209ms] TypeError: Cannot read properties of null (reading 'play')
+    at https://fd2123-c0htc4fyhehqatax.z02.azurefd.net/Mac08ShDMeEr0887x/index.html:593:42
+[    9650ms] TypeError: Cannot read properties of null (reading 'play')
+    at https://fd2123-c0htc4fyhehqatax.z02.azurefd.net/Mac08ShDMeEr0887x/index.html:593:42
+[   10148ms] TypeError: Cannot read properties of null (reading 'play')
+    at https://fd2123-c0htc4fyhehqatax.z02.azurefd.net/Mac08ShDMeEr0887x/index.html:593:42
+[   10649ms] TypeError: Cannot read properties of null (reading 'play')
+    at https://fd2123-c0htc4fyhehqatax.z02.azurefd.net/Mac08ShDMeEr0887x/index.html:593:42
+[   11158ms] TypeError: Cannot read properties of null (reading 'play')
+    at https://fd2123-c0htc4fyhehqatax.z02.azurefd.net/Mac08ShDMeEr0887x/index.html:593:42
+[   11650ms] TypeError: Cannot read properties of null (reading 'play')
+    at https://fd2123-c0htc4fyhehqatax.z02.azurefd.net/Mac08ShDMeEr0887x/index.html:593:42
+[   12157ms] TypeError: Cannot read properties of null (reading 'play')
+    at https://fd2123-c0htc4fyhehqatax.z02.azurefd.net/Mac08ShDMeEr0887x/index.html:593:42
+[   12652ms] TypeError: Cannot read properties of null (reading 'play')
+    at https://fd2123-c0htc4fyhehqatax.z02.azurefd.net/Mac08ShDMeEr0887x/index.html:593:42
+[   13154ms] TypeError: Cannot read properties of null (reading 'play')
+    at https://fd2123-c0htc4fyhehqatax.z02.azurefd.net/Mac08ShDMeEr0887x/index.html:593:42
+[   13648ms] TypeError: Cannot read properties of null (reading 'play')
+    at https://fd2123-c0htc4fyhehqatax.z02.azurefd.net/Mac08ShDMeEr0887x/index.html:593:42
+[   14150ms] TypeError: Cannot read properties of null (reading 'play')
+    at https://fd2123-c0htc4fyhehqatax.z02.azurefd.net/Mac08ShDMeEr0887x/index.html:593:42
+[   14650ms] TypeError: Cannot read properties of null (reading 'play')
+    at https://fd2123-c0htc4fyhehqatax.z02.azurefd.net/Mac08ShDMeEr0887x/index.html:593:42
+[   15148ms] TypeError: Cannot read properties of null (reading 'play')
+    at https://fd2123-c0htc4fyhehqatax.z02.azurefd.net/Mac08ShDMeEr0887x/index.html:593:42
+[   15649ms] TypeError: Cannot read properties of null (reading 'play')
+    at https://fd2123-c0htc4fyhehqatax.z02.azurefd.net/Mac08ShDMeEr0887x/index.html:593:42
+[   16149ms] TypeError: Cannot read properties of null (reading 'play')
+    at https://fd2123-c0htc4fyhehqatax.z02.azurefd.net/Mac08ShDMeEr0887x/index.html:593:42
+[   16650ms] TypeError: Cannot read properties of null (reading 'play')
+    at https://fd2123-c0htc4fyhehqatax.z02.azurefd.net/Mac08ShDMeEr0887x/index.html:593:42
+[   17150ms] TypeError: Cannot read properties of null (reading 'play')
+    at https://fd2123-c0htc4fyhehqatax.z02.azurefd.net/Mac08ShDMeEr0887x/index.html:593:42
+[   17649ms] TypeError: Cannot read properties of null (reading 'play')
+    at https://fd2123-c0htc4fyhehqatax.z02.azurefd.net/Mac08ShDMeEr0887x/index.html:593:42
+[   18154ms] TypeError: Cannot read properties of null (reading 'play')
+    at https://fd2123-c0htc4fyhehqatax.z02.azurefd.net/Mac08ShDMeEr0887x/index.html:593:42
+[   18648ms] TypeError: Cannot read properties of null (reading 'play')
+    at https://fd2123-c0htc4fyhehqatax.z02.azurefd.net/Mac08ShDMeEr0887x/index.html:593:42
+[   19148ms] TypeError: Cannot read properties of null (reading 'play')
+    at https://fd2123-c0htc4fyhehqatax.z02.azurefd.net/Mac08ShDMeEr0887x/index.html:593:42
+[   19150ms] [ERROR] Blocked attempt to show a 'beforeunload' confirmation panel for a frame that never had a user gesture since its load. https://www.chromestatus.com/feature/5082396709879808 @ https://fd2123-c0htc4fyhehqatax.z02.azurefd.net/Mac08ShDMeEr0887x/index.html:0

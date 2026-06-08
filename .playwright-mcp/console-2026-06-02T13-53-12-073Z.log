@@ -1,0 +1,1 @@
+[     196ms] [ERROR] Invalid 'X-Frame-Options' header encountered when loading 'https://www.ceuta.es/': 'ALLOW-FROM https://web.ceuta.es:8443' is not a recognized directive. The header will be ignored. @ https://www.ceuta.es/webs/index.html:0

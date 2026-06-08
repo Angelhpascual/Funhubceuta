@@ -46,12 +46,12 @@ function shortName(name: string): string {
 }
 
 interface Props {
-  initialUpcoming?: MatchRow[]
-  initialResults?: MatchRow[]
-  initialLogos?: Record<string, string>
+  upcoming?: MatchRow[]
+  results?: MatchRow[]
+  logos?: Record<string, string>
 }
 
-export function PartidosPage({ initialUpcoming = [], initialResults = [], initialLogos = {} }: Props) {
+export function PartidosPage({ upcoming = [], results = [], logos = {} }: Props) {
   const [tab, setTab] = useState('proximos');
 
   useEffect(() => {
@@ -63,9 +63,6 @@ export function PartidosPage({ initialUpcoming = [], initialResults = [], initia
     sessionStorage.setItem('partidosTab', t)
     setTab(t)
   }
-  const upcoming = initialUpcoming
-  const results = initialResults
-  const logos = initialLogos
 
   function findLogo(name: string): string | null {
     return findLogoUtil(logos, name)

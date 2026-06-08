@@ -4,6 +4,7 @@ import { StandingsSupabaseRepository } from '@/infrastructure/supabase/Standings
 import { supabase } from '@/infrastructure/supabase/client'
 import { CURRENT_SEASON } from '@/lib/constants'
 import type { LeadersMap } from '@/features/club/clubTypes'
+import { fetchCeutaForm } from '@/lib/serverFetches'
 
 export const revalidate = 300
 
@@ -19,8 +20,8 @@ const CATEGORIES = [
 ]
 
 const NAME_OVERRIDES: Record<string, string> = {
-  'guillermo': 'vallejo', 'peri': 'pery', 'curro': 'curro',
-  'aisar': 'aisar', 'matos': 'matos', 'anuar': 'anuar', 'salvi': 'salvi', 'yeyo': 'yeyo',
+  'guillermo': 'vallejo',
+  'peri': 'pery',
 }
 
 function norm(name: string) {
@@ -56,15 +57,6 @@ async function fetchCeuta() {
   return standings?.entries?.find(e => e.teamName.toLowerCase().includes('ceuta')) ?? null
 }
 
-async function fetchForm(): Promise<string[]> {
-  const { data } = await supabase
-    .from('matches').select('result').eq('status', 'finished')
-    .not('result', 'is', null).order('date', { ascending: false }).limit(5)
-  if (data?.length) return data.map(m => m.result).reverse()
-  const { data: config } = await supabase
-    .from('app_config').select('value').eq('key', 'ceuta_form').single()
-  return config?.value?.split(',').filter(Boolean) ?? []
-}
 
 async function fetchLeaders(): Promise<LeadersMap | null> {
   const [{ data }, { data: squadData }] = await Promise.all([
@@ -115,17 +107,17 @@ export default async function ClubServerPage() {
   const [{ grouped, total }, ceuta, form, leaders] = await Promise.all([
     fetchSquad(),
     fetchCeuta(),
-    fetchForm(),
+    fetchCeutaForm(),
     fetchLeaders(),
   ])
 
   return (
     <ClubPage
-      initialGrouped={grouped}
-      initialTotal={total}
-      initialCeuta={ceuta}
-      initialForm={form}
-      initialLeaders={leaders}
+      grouped={grouped}
+      total={total}
+      ceuta={ceuta}
+      form={form}
+      leaders={leaders}
     />
   )
 }

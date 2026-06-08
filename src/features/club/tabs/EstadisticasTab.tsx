@@ -115,7 +115,7 @@ export function EstadisticasTab({ ceuta, form, leaders }: {
           ))
       ) : (
         <p className="mx-3 py-6 text-center font-display text-[10px] uppercase tracking-widest text-ceuta-muted">
-          Cargando estadísticas…
+          No hay estadísticas disponibles
         </p>
       )}
     </>

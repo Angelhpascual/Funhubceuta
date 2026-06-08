@@ -1,0 +1,15 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - link "Volver" [ref=e4] [cursor=pointer]:
+        - /url: /
+        - img [ref=e5]
+        - generic [ref=e7]: Volver
+      - generic [ref=e8]: AD Ceuta FC · Actualidad
+      - generic [ref=e10]:
+        - text: TODAS LAS
+        - emphasis [ref=e11]: NOTICIAS
+    - generic [ref=e13]: Cargando noticias…
+  - button "Open Next.js Dev Tools" [ref=e20] [cursor=pointer]:
+    - img [ref=e21]
+  - alert [ref=e24]

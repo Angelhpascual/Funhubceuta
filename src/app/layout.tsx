@@ -37,13 +37,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" className={`${barlow.variable} ${barlowCondensed.variable} h-full`}>
-      <head>
-        <link rel="manifest" href="/manifest.json" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="AD Ceuta FC Info" />
-        <link rel="apple-touch-icon" href="/icon-512.png" />
-      </head>
       <body className="min-h-full">
         <AppShell>{children}</AppShell>
       </body>

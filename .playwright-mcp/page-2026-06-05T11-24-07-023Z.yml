@@ -1,0 +1,90 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e4]:
+      - img [ref=e5]
+      - img "AD Ceuta" [ref=e9]
+    - generic [ref=e10]:
+      - img "AD Ceuta" [ref=e12] [cursor=pointer]
+      - generic [ref=e14]:
+        - generic [ref=e15]:
+          - generic [ref=e16]: CARGANDO…
+          - generic [ref=e18]:
+            - generic [ref=e19]: Destacado
+            - generic [ref=e20]: Bienvenido a AD Ceuta Info
+            - generic [ref=e21]: Noticias próximamente
+        - generic [ref=e22]:
+          - generic [ref=e23]: 🔔
+          - generic [ref=e24]:
+            - generic [ref=e25]: Alertas de goles
+            - generic [ref=e26]: Goles, noticias, tarjetas rojas y resultado final
+          - generic [ref=e27]:
+            - button "Activar" [ref=e28] [cursor=pointer]
+            - button "Ahora no" [ref=e29] [cursor=pointer]
+        - generic [ref=e31]:
+          - generic [ref=e32]: Próximo encuentro
+          - generic [ref=e33]: Próximo partido
+        - generic [ref=e34]:
+          - generic [ref=e35]: Liga Hypermotion
+          - generic [ref=e37]:
+            - generic [ref=e38]: 🏆
+            - generic [ref=e39]:
+              - text: ¡Permanencia
+              - emphasis [ref=e40]: conseguida!
+            - generic [ref=e41]:
+              - text: El AD Ceuta FC estará otra vez en la
+              - text: Liga Hypermotion 2026–27
+          - generic [ref=e42]: Nos vemos la próxima temporada 💪
+        - generic [ref=e44]:
+          - generic [ref=e45]: Actualidad
+          - generic [ref=e46]: Últimas noticias
+        - generic [ref=e47]: Cargando noticias…
+        - button "Himno del AD Ceuta Ver letra completa →" [ref=e49] [cursor=pointer]:
+          - generic [ref=e50]:
+            - img [ref=e52]
+            - generic [ref=e56]:
+              - generic [ref=e57]: Himno del AD Ceuta
+              - generic [ref=e58]: Ver letra completa
+            - generic [ref=e59]: →
+        - generic [ref=e61]:
+          - generic [ref=e62]: "#adceuta"
+          - generic [ref=e63]: En redes
+        - generic [ref=e64]:
+          - generic [ref=e68]: Síguenos
+          - generic [ref=e69]:
+            - link "@ADCeuta_FC Síguenos en X" [ref=e70] [cursor=pointer]:
+              - /url: https://twitter.com/ADCeuta_FC
+              - img [ref=e72]
+              - generic [ref=e74]:
+                - generic [ref=e75]: "@ADCeuta_FC"
+                - generic [ref=e76]: Síguenos en X
+              - img [ref=e77]
+            - link "@adceutafc Síguenos en Instagram" [ref=e79] [cursor=pointer]:
+              - /url: https://www.instagram.com/adceutafc
+              - img [ref=e81]
+              - generic [ref=e83]:
+                - generic [ref=e84]: "@adceutafc"
+                - generic [ref=e85]: Síguenos en Instagram
+              - img [ref=e86]
+            - link "AD Ceuta FC Canal de YouTube" [ref=e88] [cursor=pointer]:
+              - /url: https://www.youtube.com/@AD_Ceuta_FC
+              - img [ref=e90]
+              - generic [ref=e92]:
+                - generic [ref=e93]: AD Ceuta FC
+                - generic [ref=e94]: Canal de YouTube
+              - img [ref=e95]
+      - generic [ref=e98]:
+        - button "Inicio" [ref=e99] [cursor=pointer]:
+          - img [ref=e100]
+          - generic [ref=e103]: Inicio
+        - button "Clasificación" [ref=e104] [cursor=pointer]:
+          - img [ref=e105]
+          - generic [ref=e106]: Clasificación
+        - button "Partidos" [ref=e107] [cursor=pointer]:
+          - img [ref=e108]
+          - generic [ref=e111]: Partidos
+        - button "Club" [ref=e112] [cursor=pointer]:
+          - img [ref=e113]
+          - generic [ref=e118]: Club
+  - button "Open Next.js Dev Tools" [ref=e124] [cursor=pointer]:
+    - img [ref=e125]
+  - alert [ref=e128]

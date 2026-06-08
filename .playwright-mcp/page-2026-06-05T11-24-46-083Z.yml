@@ -1,0 +1,310 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e10]:
+    - img "AD Ceuta" [ref=e12] [cursor=pointer]
+    - generic [ref=e14]:
+      - 'link "Luhay Hamido: \"La gente ve a Ceuta de otra manera y lo notamos todos\" El Faro de Ceuta Luhay Hamido: \"La gente ve a Ceuta de otra manera y lo notamos todos\" Hace 5h" [ref=e129] [cursor=pointer]':
+        - /url: https://elfarodeceuta.es/luhay-hamido-gente-ve-ceuta-otra-manera-notamos-todos/
+        - 'img "Luhay Hamido: \"La gente ve a Ceuta de otra manera y lo notamos todos\"" [ref=e130]'
+        - generic [ref=e132]:
+          - generic [ref=e134]: El Faro de Ceuta
+          - generic [ref=e135]: "Luhay Hamido: \"La gente ve a Ceuta de otra manera y lo notamos todos\""
+          - generic [ref=e136]: Hace 5h
+      - generic [ref=e22]:
+        - generic [ref=e23]: 🔔
+        - generic [ref=e24]:
+          - generic [ref=e25]: Alertas de goles
+          - generic [ref=e26]: Goles, noticias, tarjetas rojas y resultado final
+        - generic [ref=e27]:
+          - button "Activar" [ref=e28] [cursor=pointer]
+          - button "Ahora no" [ref=e29] [cursor=pointer]
+      - generic [ref=e206]:
+        - generic [ref=e207]:
+          - generic [ref=e208]:
+            - generic [ref=e209]: 🏆 Entrada doble AD Ceuta FC
+            - generic [ref=e210]: ¿Cuál será el resultado?
+            - generic [ref=e211]: Ceuta vs Real Zaragoza · sáb, 6 jun, 12:53
+          - generic [ref=e212]: 🎯
+        - button "Predice ahora" [ref=e213] [cursor=pointer]
+      - generic [ref=e215]:
+        - generic [ref=e216]:
+          - generic [ref=e217]: Tu predicción
+          - button "×" [ref=e218] [cursor=pointer]
+        - generic [ref=e219]:
+          - generic [ref=e220]:
+            - generic [ref=e221]: 🏆 Entrada doble AD Ceuta FC
+            - generic [ref=e222]: AD Ceuta FC vs Real Zaragoza
+          - generic [ref=e263]:
+            - generic [ref=e264]: ¿Quién marcará para el Ceuta?
+            - generic [ref=e265]:
+              - generic [ref=e266]: +1 pt por cada acierto
+              - generic [ref=e267]: 0/1 elegidos
+            - generic [ref=e268]:
+              - button "Pedro López Pedro López 1" [ref=e269] [cursor=pointer]:
+                - img "Pedro López" [ref=e271]
+                - generic [ref=e273]: Pedro López
+                - generic [ref=e274]: "1"
+              - button "Manu Schez Manu Schez 2" [ref=e276] [cursor=pointer]:
+                - img "Manu Schez" [ref=e278]
+                - generic [ref=e280]: Manu Schez
+                - generic [ref=e281]: "2"
+              - button "Matos Matos 3" [ref=e283] [cursor=pointer]:
+                - img "Matos" [ref=e285]
+                - generic [ref=e287]: Matos
+                - generic [ref=e288]: "3"
+              - button "Capa Capa 4" [ref=e290] [cursor=pointer]:
+                - img "Capa" [ref=e292]
+                - generic [ref=e294]: Capa
+                - generic [ref=e295]: "4"
+              - button "Youness Youness 5" [ref=e297] [cursor=pointer]:
+                - img "Youness" [ref=e299]
+                - generic [ref=e301]: Youness
+                - generic [ref=e302]: "5"
+              - button "Carlos Hdez. Carlos Hdez. 6" [ref=e304] [cursor=pointer]:
+                - img "Carlos Hdez." [ref=e306]
+                - generic [ref=e308]: Carlos Hdez.
+                - generic [ref=e309]: "6"
+              - button "Aisar A. Aisar A. 7" [ref=e311] [cursor=pointer]:
+                - img "Aisar A." [ref=e313]
+                - generic [ref=e315]: Aisar A.
+                - generic [ref=e316]: "7"
+              - button "Zalazar Zalazar 8" [ref=e318] [cursor=pointer]:
+                - img "Zalazar" [ref=e320]
+                - generic [ref=e322]: Zalazar
+                - generic [ref=e323]: "8"
+              - button "Marcos Marcos 9" [ref=e325] [cursor=pointer]:
+                - img "Marcos" [ref=e327]
+                - generic [ref=e329]: Marcos
+                - generic [ref=e330]: "9"
+              - button "Cristian Cristian 10" [ref=e332] [cursor=pointer]:
+                - img "Cristian" [ref=e334]
+                - generic [ref=e336]: Cristian
+                - generic [ref=e337]: "10"
+              - button "Schor Schor 11" [ref=e339] [cursor=pointer]:
+                - img "Schor" [ref=e341]
+                - generic [ref=e343]: Schor
+                - generic [ref=e344]: "11"
+              - button "Marino Marino 12" [ref=e346] [cursor=pointer]:
+                - img "Marino" [ref=e348]
+                - generic [ref=e350]: Marino
+                - generic [ref=e351]: "12"
+              - button "G. Vallejo G. Vallejo 13" [ref=e353] [cursor=pointer]:
+                - img "G. Vallejo" [ref=e355]
+                - generic [ref=e357]: G. Vallejo
+                - generic [ref=e358]: "13"
+              - button "Bodiger Bodiger 14" [ref=e360] [cursor=pointer]:
+                - img "Bodiger" [ref=e362]
+                - generic [ref=e364]: Bodiger
+                - generic [ref=e365]: "14"
+              - button "Diego Glez. Diego Glez. 15" [ref=e367] [cursor=pointer]:
+                - img "Diego Glez." [ref=e369]
+                - generic [ref=e371]: Diego Glez.
+                - generic [ref=e372]: "15"
+              - button "C. Redru C. Redru 16" [ref=e374] [cursor=pointer]:
+                - img "C. Redru" [ref=e376]
+                - generic [ref=e378]: C. Redru
+                - generic [ref=e379]: "16"
+              - button "G.almenara G.almenara 17" [ref=e381] [cursor=pointer]:
+                - img "G.almenara" [ref=e383]
+                - generic [ref=e385]: G.almenara
+                - generic [ref=e386]: "17"
+              - button "Konrad Konrad 18" [ref=e388] [cursor=pointer]:
+                - img "Konrad" [ref=e390]
+                - generic [ref=e392]: Konrad
+                - generic [ref=e393]: "18"
+              - button "Rubén Díez Rubén Díez 19" [ref=e395] [cursor=pointer]:
+                - img "Rubén Díez" [ref=e397]
+                - generic [ref=e399]: Rubén Díez
+                - generic [ref=e400]: "19"
+              - button "J.g. Campaña J.g. Campaña 20" [ref=e402] [cursor=pointer]:
+                - img "J.g. Campaña" [ref=e404]
+                - generic [ref=e406]: J.g. Campaña
+                - generic [ref=e407]: "20"
+              - button "Kone K. A Kone K. A 22" [ref=e409] [cursor=pointer]:
+                - img "Kone K. A" [ref=e411]
+                - generic [ref=e413]: Kone K. A
+                - generic [ref=e414]: "22"
+              - button "Anuar Anuar 23" [ref=e416] [cursor=pointer]:
+                - img "Anuar" [ref=e418]
+                - generic [ref=e420]: Anuar
+                - generic [ref=e421]: "23"
+              - button "Yago Yago 24" [ref=e423] [cursor=pointer]:
+                - img "Yago" [ref=e425]
+                - generic [ref=e427]: Yago
+                - generic [ref=e428]: "24"
+              - button "Salvi Sánchez Salvi Sánchez 25" [ref=e430] [cursor=pointer]:
+                - img "Salvi Sánchez" [ref=e432]
+                - generic [ref=e434]: Salvi Sánchez
+                - generic [ref=e435]: "25"
+              - button "Bassinga Bassinga 26" [ref=e437] [cursor=pointer]:
+                - img "Bassinga" [ref=e439]
+                - generic [ref=e441]: Bassinga
+                - generic [ref=e442]: "26"
+              - button "Domenech Domenech 27" [ref=e444] [cursor=pointer]:
+                - img "Domenech" [ref=e446]
+                - generic [ref=e448]: Domenech
+                - generic [ref=e449]: "27"
+              - button "Pery Garcia Pery Garcia 28" [ref=e451] [cursor=pointer]:
+                - img "Pery Garcia" [ref=e453]
+                - generic [ref=e455]: Pery Garcia
+                - generic [ref=e456]: "28"
+              - button "Curro Curro 29" [ref=e458] [cursor=pointer]:
+                - img "Curro" [ref=e460]
+                - generic [ref=e462]: Curro
+                - generic [ref=e463]: "29"
+              - button "Josema Josema 30" [ref=e465] [cursor=pointer]:
+                - img "Josema" [ref=e467]
+                - generic [ref=e469]: Josema
+                - generic [ref=e470]: "30"
+              - button "Yeyo Yeyo 32" [ref=e472] [cursor=pointer]:
+                - img "Yeyo" [ref=e474]
+                - generic [ref=e476]: Yeyo
+                - generic [ref=e477]: "32"
+              - button "A.romero A.romero 33" [ref=e479] [cursor=pointer]:
+                - img "A.romero" [ref=e481]
+                - generic [ref=e483]: A.romero
+                - generic [ref=e484]: "33"
+              - button "Arick Arick 34" [ref=e486] [cursor=pointer]:
+                - img "Arick" [ref=e488]
+                - generic [ref=e490]: Arick
+                - generic [ref=e491]: "34"
+              - button "Paco F. Paco F. 35" [ref=e493] [cursor=pointer]:
+                - img "Paco F." [ref=e495]
+                - generic [ref=e497]: Paco F.
+                - generic [ref=e498]: "35"
+              - button "Adri Rueda Adri Rueda 37" [ref=e500] [cursor=pointer]:
+                - img "Adri Rueda" [ref=e502]
+                - generic [ref=e504]: Adri Rueda
+                - generic [ref=e505]: "37"
+            - generic [ref=e507]:
+              - button "← Volver" [ref=e508] [cursor=pointer]
+              - button "Siguiente →" [ref=e509] [cursor=pointer]
+      - generic [ref=e31]:
+        - generic [ref=e32]: Próximo encuentro
+        - generic [ref=e33]: Próximo partido
+      - generic [ref=e34]:
+        - generic [ref=e35]: Liga Hypermotion
+        - generic [ref=e37]:
+          - generic [ref=e38]: 🏆
+          - generic [ref=e39]:
+            - text: ¡Permanencia
+            - emphasis [ref=e40]: conseguida!
+          - generic [ref=e41]:
+            - text: El AD Ceuta FC estará otra vez en la
+            - text: Liga Hypermotion 2026–27
+        - generic [ref=e42]: Nos vemos la próxima temporada 💪
+      - generic [ref=e43]:
+        - generic [ref=e44]:
+          - generic [ref=e45]: Actualidad
+          - generic [ref=e46]: Últimas noticias
+        - link "Ver todo →" [ref=e145] [cursor=pointer]:
+          - /url: /noticias
+          - text: Ver todo
+          - generic [ref=e146]: →
+      - 'link "Mundo Deportivo José Juan Romero: \"Entrenar al Betis sería cerrar el círculo y retirarme\" Hace 18h" [ref=e147] [cursor=pointer]':
+        - /url: https://www.mundodeportivo.com/futbol/betis/20260604/1004191369/jose-juan-romero-entrenar-betis-seria-cerrar-circulo-retirarme.html
+        - generic [ref=e149]:
+          - generic [ref=e150]: Mundo Deportivo
+          - generic [ref=e151]: "José Juan Romero: \"Entrenar al Betis sería cerrar el círculo y retirarme\""
+          - generic [ref=e152]: Hace 18h
+      - 'link "AD Ceuta FC Luhay: “Ha habido un retorno muy importante para la ciudad a todos los niveles, tanto económico como social y de visibilidad” Hace 22h" [ref=e153] [cursor=pointer]':
+        - /url: https://adceutafc.com/luhay-ha-habido-un-retorno-muy-importante-para-la-ciudad-a-todos-los-niveles-tanto-economico-como-social-y-de-visibilidad/
+        - generic [ref=e155]:
+          - generic [ref=e156]: AD Ceuta FC
+          - generic [ref=e157]: "Luhay: “Ha habido un retorno muy importante para la ciudad a todos los niveles, tanto económico como social y de visibilidad”"
+          - generic [ref=e158]: Hace 22h
+      - 'link "El Faro de Ceuta La despedida de Romero a Rubén Díez: “Gracias por haberme hecho tan feliz” Ayer" [ref=e159] [cursor=pointer]':
+        - /url: https://elfarodeceuta.es/despedida-de-romero-a-ruben-diez/
+        - generic [ref=e161]:
+          - generic [ref=e162]: El Faro de Ceuta
+          - generic [ref=e163]: "La despedida de Romero a Rubén Díez: “Gracias por haberme hecho tan feliz”"
+          - generic [ref=e164]: Ayer
+      - 'link "El Faro de Ceuta Yago Cantero, cerca de salir: dos equipos llaman a su puerta Ayer" [ref=e165] [cursor=pointer]':
+        - /url: https://elfarodeceuta.es/yago-cantero-cerca-salir-equipos-llaman-puerta/
+        - generic [ref=e167]:
+          - generic [ref=e168]: El Faro de Ceuta
+          - generic [ref=e169]: "Yago Cantero, cerca de salir: dos equipos llaman a su puerta"
+          - generic [ref=e170]: Ayer
+      - generic [ref=e172]:
+        - generic [ref=e173]: Anteriores
+        - generic [ref=e174]: También te puede interesar
+      - generic [ref=e175]:
+        - link "El Faro de Ceuta Piden el título de ‘Real’ para la AD Ceuta Ayer" [ref=e176] [cursor=pointer]:
+          - /url: https://elfarodeceuta.es/piden-titulo-real-ad-ceuta-darmando/
+          - generic [ref=e178]:
+            - generic [ref=e179]: El Faro de Ceuta
+            - generic [ref=e180]: Piden el título de ‘Real’ para la AD Ceuta
+            - generic [ref=e181]: Ayer
+        - 'link "El Faro de Ceuta La AD Ceuta podría pescar en Primera RFEF: interesa un extremo Ayer" [ref=e182] [cursor=pointer]':
+          - /url: https://elfarodeceuta.es/ad-ceuta-podria-pescar-primera-rfef-interesa-extremo/
+          - generic [ref=e184]:
+            - generic [ref=e185]: El Faro de Ceuta
+            - generic [ref=e186]: "La AD Ceuta podría pescar en Primera RFEF: interesa un extremo"
+            - generic [ref=e187]: Ayer
+        - 'link "El Pueblo de Ceuta El Murube inicia su transformación: comienzan las obras para cumplir con LaLiga Hace 2 días" [ref=e188] [cursor=pointer]':
+          - /url: https://www.elpueblodeceuta.es/sec/deportes/murube-inicia-transformacion-comienzan-obras_1_1175387.html
+          - generic [ref=e190]:
+            - generic [ref=e191]: El Pueblo de Ceuta
+            - generic [ref=e192]: "El Murube inicia su transformación: comienzan las obras para cumplir con LaLiga"
+            - generic [ref=e193]: Hace 2 días
+        - 'link "Mundo Deportivo El Espanyol tiene una joya y Manu Lama lo sabe: \"Me ha sorprendido mucho\" Hace 2 días" [ref=e194] [cursor=pointer]':
+          - /url: https://www.mundodeportivo.com/futbol/rcd-espanyol/20260603/1004190780/espanyol-joya-manu-lama-jugador-me-sorprendido.html
+          - generic [ref=e196]:
+            - generic [ref=e197]: Mundo Deportivo
+            - generic [ref=e198]: "El Espanyol tiene una joya y Manu Lama lo sabe: \"Me ha sorprendido mucho\""
+            - generic [ref=e199]: Hace 2 días
+        - link "Marca Rubén Díez confirma con su despedida su adiós al Ceuta y el hola al Zaragoza Hace 2 días" [ref=e200] [cursor=pointer]:
+          - /url: https://www.marca.com/futbol/ceuta/2026/06/02/ruben-diez-confirma-despedida-adios-ceuta-hola-zaragoza.html
+          - generic [ref=e202]:
+            - generic [ref=e203]: Marca
+            - generic [ref=e204]: Rubén Díez confirma con su despedida su adiós al Ceuta y el hola al Zaragoza
+            - generic [ref=e205]: Hace 2 días
+      - button "Himno del AD Ceuta Ver letra completa →" [ref=e49] [cursor=pointer]:
+        - generic [ref=e50]:
+          - img [ref=e52]
+          - generic [ref=e56]:
+            - generic [ref=e57]: Himno del AD Ceuta
+            - generic [ref=e58]: Ver letra completa
+          - generic [ref=e59]: →
+      - generic [ref=e61]:
+        - generic [ref=e62]: "#adceuta"
+        - generic [ref=e63]: En redes
+      - generic [ref=e64]:
+        - generic [ref=e68]: Síguenos
+        - generic [ref=e69]:
+          - link "@ADCeuta_FC Síguenos en X" [ref=e70] [cursor=pointer]:
+            - /url: https://twitter.com/ADCeuta_FC
+            - img [ref=e72]
+            - generic [ref=e74]:
+              - generic [ref=e75]: "@ADCeuta_FC"
+              - generic [ref=e76]: Síguenos en X
+            - img [ref=e77]
+          - link "@adceutafc Síguenos en Instagram" [ref=e79] [cursor=pointer]:
+            - /url: https://www.instagram.com/adceutafc
+            - img [ref=e81]
+            - generic [ref=e83]:
+              - generic [ref=e84]: "@adceutafc"
+              - generic [ref=e85]: Síguenos en Instagram
+            - img [ref=e86]
+          - link "AD Ceuta FC Canal de YouTube" [ref=e88] [cursor=pointer]:
+            - /url: https://www.youtube.com/@AD_Ceuta_FC
+            - img [ref=e90]
+            - generic [ref=e92]:
+              - generic [ref=e93]: AD Ceuta FC
+              - generic [ref=e94]: Canal de YouTube
+            - img [ref=e95]
+    - generic [ref=e98]:
+      - button "Inicio" [ref=e99] [cursor=pointer]:
+        - img [ref=e100]
+        - generic [ref=e103]: Inicio
+      - button "Clasificación" [ref=e104] [cursor=pointer]:
+        - img [ref=e105]
+        - generic [ref=e106]: Clasificación
+      - button "Partidos" [ref=e107] [cursor=pointer]:
+        - img [ref=e108]
+        - generic [ref=e111]: Partidos
+      - button "Club" [ref=e112] [cursor=pointer]:
+        - img [ref=e113]
+        - generic [ref=e118]: Club
+  - button "Open Next.js Dev Tools" [ref=e124] [cursor=pointer]:
+    - img [ref=e125]
+  - alert [ref=e128]

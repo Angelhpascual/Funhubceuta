@@ -14,20 +14,15 @@ const TABS = [
 ]
 
 interface Props {
-  initialGrouped?: Group[]
-  initialTotal?: number
-  initialCeuta?: StandingEntry | null
-  initialForm?: string[]
-  initialLeaders?: LeadersMap | null
+  grouped?: Group[]
+  total?: number
+  ceuta?: StandingEntry | null
+  form?: string[]
+  leaders?: LeadersMap | null
 }
 
-export function ClubPage({ initialGrouped = [], initialTotal = 0, initialCeuta = null, initialForm = [], initialLeaders = null }: Props) {
+export function ClubPage({ grouped = [], total = 0, ceuta = null, form = [], leaders = null }: Props) {
   const [tab, setTab] = useState("stats");
-  const grouped = initialGrouped
-  const total = initialTotal
-  const ceuta = initialCeuta
-  const form = initialForm
-  const leaders = initialLeaders
 
   return (
     <div className="page">

@@ -63,16 +63,12 @@ function SkeletonRow({ i }: { i: number }) {
 }
 
 interface Props {
-  initialEntries?: StandingEntry[]
-  initialForm?: string[]
-  initialLogos?: Record<string, string>
+  entries?: StandingEntry[]
+  form?: string[]
+  logos?: Record<string, string>
 }
 
-export function ClasificacionPage({ initialEntries = [], initialForm = [], initialLogos = {} }: Props) {
-  const entries = initialEntries
-  const form = initialForm
-  const logos = initialLogos
-
+export function ClasificacionPage({ entries = [], form = [], logos = {} }: Props) {
   const me = entries.find(isCeuta);
   const total = entries.length;
 
