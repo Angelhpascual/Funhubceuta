@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { StandingEntry } from "@/domain/standings/Standings";
 import { EstadisticasTab } from "./tabs/EstadisticasTab";
 import { PlantillaTab } from "./tabs/PlantillaTab";
@@ -13,45 +13,22 @@ const TABS = [
   { id: 'historia',  label: 'Historia' },
 ]
 
-export function ClubPage() {
+interface Props {
+  initialGrouped?: Group[]
+  initialTotal?: number
+  initialCeuta?: StandingEntry | null
+  initialForm?: string[]
+  initialLeaders?: LeadersMap | null
+}
+
+export function ClubPage({ initialGrouped = [], initialTotal = 0, initialCeuta = null, initialForm = [], initialLeaders = null }: Props) {
   const [tab, setTab] = useState("stats");
-  const [grouped, setGrouped] = useState<Group[]>([]);
-  const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [ceuta, setCeuta] = useState<StandingEntry | null>(null);
-  const [form, setForm] = useState<string[]>([]);
-  const [leaders, setLeaders] = useState<LeadersMap | null>(null);
-
-  useEffect(() => {
-    fetch('/api/squad')
-      .then(r => r.ok ? r.json() : null)
-      .then(d => {
-        if (d?.grouped) setGrouped(d.grouped)
-        if (d?.total) setTotal(d.total)
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false))
-
-    fetch('/api/standings')
-      .then(r => r.ok ? r.json() : null)
-      .then(d => {
-        if (d?.entries) {
-          const c = d.entries.find((e: StandingEntry) => e.teamName.toLowerCase().includes('ceuta'))
-          if (c) setCeuta(c)
-        }
-      })
-      .catch(() => {})
-
-    fetch('/api/matches/results')
-      .then(r => r.ok ? r.json() : null)
-      .then(d => { if (d?.form) setForm(d.form) })
-      .catch(() => {})
-
-    fetch('/api/stats/player-leaders')
-      .then(r => r.ok ? r.json() : null)
-      .then(d => { if (d?.leaders) setLeaders(d.leaders) })
-      .catch(() => {})
-  }, [])
+  const [grouped] = useState<Group[]>(initialGrouped);
+  const [total] = useState(initialTotal);
+  const [loading] = useState(false);
+  const [ceuta] = useState<StandingEntry | null>(initialCeuta);
+  const [form] = useState<string[]>(initialForm);
+  const [leaders] = useState<LeadersMap | null>(initialLeaders);
 
   return (
     <div className="page">
