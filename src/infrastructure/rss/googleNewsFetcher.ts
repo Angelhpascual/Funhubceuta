@@ -90,5 +90,11 @@ export async function fetchGoogleNews(): Promise<ParsedArticle[]> {
     })
   )
 
-  return resolved.filter((a) => a.externalId && a.url)
+  const seen = new Set<string>()
+  return resolved.filter((a) => {
+    if (!a.externalId || !a.url) return false
+    if (seen.has(a.externalId)) return false
+    seen.add(a.externalId)
+    return true
+  })
 }
