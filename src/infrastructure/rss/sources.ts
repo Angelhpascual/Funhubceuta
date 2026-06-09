@@ -101,4 +101,16 @@ export const RSS_SOURCES: RssSource[] = [
     keywords: CEUTA_KEYWORDS_NATIONAL,
     baseKeywords: BASE_KEYWORDS_NATIONAL,
   },
+  {
+    id: 'ceutatv',
+    name: 'Ceuta Televisión',
+    url: 'https://www.ceutatv.com/rss/',
+    keywords: CEUTA_KEYWORDS,
+  },
+  {
+    id: 'ceutaactualidad',
+    name: 'Ceuta Actualidad',
+    url: 'https://www.ceutaactualidad.com/rss/',
+    keywords: CEUTA_KEYWORDS,
+  },
 ]

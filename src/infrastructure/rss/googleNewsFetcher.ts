@@ -4,7 +4,7 @@ import { ParsedArticle } from './RssFetcher'
 const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: '@_' })
 
 // Sources already covered by our own RSS scrapers — skip duplicates from Google News
-const COVERED_SOURCES = ['el faro de ceuta', 'marca', 'mundo deportivo', '20 minutos', 'sport', 'ad ceuta fc', 'diario as', ' as']
+const COVERED_SOURCES = ['el faro de ceuta', 'marca', 'mundo deportivo', '20 minutos', 'sport', 'ad ceuta fc', 'diario as', ' as', 'ceuta televisión', 'ceuta television', 'ceuta actualidad']
 
 // Map Google News source names to our internal source IDs
 const SOURCE_MAP: Record<string, string> = {
@@ -36,14 +36,51 @@ const SOURCE_MAP: Record<string, string> = {
   'transfermarkt': 'transfermarkt',
 }
 
+// Decode the real article URL from a Google News RSS link.
+// Google News encodes the URL as a base64url protobuf in the CBM... path segment.
+function decodeGoogleNewsUrl(googleUrl: string): string | null {
+  try {
+    const match = googleUrl.match(/articles\/(CB[A-Za-z0-9_-]+)/)
+    if (!match) return null
+    // base64url → base64 → Buffer
+    const b64 = match[1].replace(/-/g, '+').replace(/_/g, '/')
+    const buf = Buffer.from(b64, 'base64')
+    // Protobuf: field 1 (tag 0x0a), varint length, then URL bytes
+    if (buf[0] !== 0x0a) return null
+    let pos = 1
+    let len = 0
+    let shift = 0
+    while (pos < buf.length) {
+      const b = buf[pos++]
+      len |= (b & 0x7f) << shift
+      if (!(b & 0x80)) break
+      shift += 7
+    }
+    const url = buf.slice(pos, pos + len).toString('utf8')
+    if (url.startsWith('http') && !url.includes('news.google.com')) return url
+    return null
+  } catch {
+    return null
+  }
+}
+
 async function resolveGoogleUrl(googleUrl: string): Promise<string> {
+  // Try protobuf decode first (no network needed)
+  const decoded = decodeGoogleNewsUrl(googleUrl)
+  if (decoded) return decoded
+
+  // Fallback: HTTP GET with browser headers
   try {
     const res = await fetch(googleUrl, {
-      method: 'HEAD',
+      method: 'GET',
       redirect: 'follow',
-      signal: AbortSignal.timeout(5000),
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15',
+        'Accept': 'text/html,application/xhtml+xml',
+        'Accept-Language': 'es-ES,es;q=0.9',
+      },
+      signal: AbortSignal.timeout(6000),
     })
-    // After redirect, the final URL is the real article URL
     if (res.url && !res.url.includes('news.google.com')) return res.url
   } catch {
     // ignore
