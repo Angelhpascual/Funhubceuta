@@ -144,7 +144,7 @@ export default function NoticiasPage() {
                     <div className="mb-0.5 flex items-center gap-1.5">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src={`https://icons.duckduckgo.com/ip3/${src?.domain}.ico`}
+                        src={`/api/proxy/favicon?domain=${src?.domain}`}
                         alt=""
                         width={11}
                         height={11}
