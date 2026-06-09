@@ -4,6 +4,7 @@ import { RSS_SOURCES } from '@/infrastructure/rss/sources'
 import { fetchSource, ParsedArticle } from '@/infrastructure/rss/RssFetcher'
 import { fetchAdceutaOfficialNews } from '@/infrastructure/rss/adceutaFetcher'
 import { fetchGoogleNews } from '@/infrastructure/rss/googleNewsFetcher'
+import { fetchOgImage } from '@/infrastructure/rss/fetchOgImage'
 import { NewsSupabaseRepository } from '@/infrastructure/supabase/NewsSupabaseRepository'
 import { sendNewsNotification } from '@/infrastructure/push/sendNewsNotification'
 import { logCron, logNotification } from '@/infrastructure/supabase/logCron'
@@ -74,6 +75,19 @@ async function syncNews() {
     }
     return { error: (r.reason as Error)?.message }
   })
+
+  // Enrich new articles without images by fetching og:image
+  await Promise.all(
+    allNew
+      .filter((a) => !a.imageUrl && a.url)
+      .map(async (a) => {
+        const imageUrl = await fetchOgImage(a.url)
+        if (imageUrl) {
+          a.imageUrl = imageUrl
+          await repo.updateImageUrl(a.externalId, imageUrl)
+        }
+      })
+  )
 
   const toNotify = pickMostRelevant(allNew)
   let notifStats = null
