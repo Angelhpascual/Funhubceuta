@@ -127,13 +127,13 @@ export function PartidosPage({ upcoming = [], results = [], logos = {} }: Props)
             const homeScoreCls = ceutaHome ? (r.result === 'W' ? 'win' : r.result === 'L' ? 'lose' : '') : (r.result === 'L' ? 'win' : r.result === 'W' ? 'lose' : '')
             const awayScoreCls = !ceutaHome ? (r.result === 'W' ? 'win' : r.result === 'L' ? 'lose' : '') : (r.result === 'L' ? 'win' : r.result === 'W' ? 'lose' : '')
             return (
-              <div key={i} className={`result-card ${cls}`} style={{ flexDirection: 'column', gap: 8 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 0, width: '100%' }}>
+              <div key={i} className={`result-card ${cls}`}>
+                <div className="result-card-row">
                   <div className="result-date-col">
                     <div className="result-day">{day}</div>
                     <div className="result-mon">{mon}</div>
                   </div>
-                  <div className="result-teams-col" style={{ flex: 1 }}>
+                  <div className="result-teams-col">
                     <div className="result-team-row">
                       {findLogo(r.home_team)
                         // eslint-disable-next-line @next/next/no-img-element
@@ -160,14 +160,14 @@ export function PartidosPage({ upcoming = [], results = [], logos = {} }: Props)
                     href={`/alineacion?eventId=${r.espn_event_id}&match=${encodeURIComponent(`${shortTeamName(r.home_team)} vs ${shortTeamName(r.away_team)}`)}`}
                     style={{
                       display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                      background: 'var(--bg-soft)', borderRadius: 8,
-                      padding: '7px 12px', textDecoration: 'none', width: '100%',
+                      background: 'var(--bg-soft)', border: '1px solid var(--border)',
+                      borderRadius: 8, padding: '8px 12px', textDecoration: 'none',
                     }}
                   >
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--text)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/>
                     </svg>
-                    <span style={{ fontFamily: 'var(--font-display)', fontSize: 10, fontWeight: 900, color: 'var(--text)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Ver alineación</span>
+                    <span style={{ fontFamily: 'var(--font-display)', fontSize: 10, fontWeight: 900, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Ver alineación</span>
                   </Link>
                 )}
               </div>
