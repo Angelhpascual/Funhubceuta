@@ -21,10 +21,10 @@ async function syncFromEspn(season: string) {
   const rows = entries.map((e: unknown, i: number) => {
     const entry = e as Record<string, unknown>
     const team = entry.team as Record<string, unknown>
-    const stats = (entry.stats as Record<string, unknown>[]).reduce((acc, s) => {
+    const stats = (entry.stats as Record<string, unknown>[]).reduce<Record<string, number>>((acc, s) => {
       if (s.value !== undefined) acc[s.name as string] = s.value as number
       return acc
-    }, {} as Record<string, number>)
+    }, {})
 
     const logos = team.logos as Record<string, unknown>[] | undefined
     const logoUrl = logos?.[0]?.href as string ?? null
