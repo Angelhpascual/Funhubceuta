@@ -113,4 +113,10 @@ export const RSS_SOURCES: RssSource[] = [
     url: 'https://www.ceutaactualidad.com/rss/',
     keywords: CEUTA_KEYWORDS,
   },
+  {
+    id: 'rtvc',
+    name: 'RTV Ceuta',
+    url: 'https://www.rtvce.es/rss/',
+    keywords: CEUTA_KEYWORDS,
+  },
 ]

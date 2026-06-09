@@ -4,7 +4,7 @@ import { ParsedArticle } from './RssFetcher'
 const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: '@_' })
 
 // Sources already covered by our own RSS scrapers — skip duplicates from Google News
-const COVERED_SOURCES = ['el faro de ceuta', 'marca', 'mundo deportivo', '20 minutos', 'sport', 'ad ceuta fc', 'diario as', ' as', 'ceuta televisión', 'ceuta television', 'ceuta actualidad', 'el pueblo de ceuta']
+const COVERED_SOURCES = ['el faro de ceuta', 'marca', 'mundo deportivo', '20 minutos', 'sport', 'ad ceuta fc', 'diario as', ' as', 'ceuta televisión', 'ceuta television', 'ceuta actualidad', 'el pueblo de ceuta', 'radio televisión ceuta', 'radio television ceuta', 'rtvce']
 
 // Map Google News source names to our internal source IDs
 const SOURCE_MAP: Record<string, string> = {
@@ -20,6 +20,7 @@ const SOURCE_MAP: Record<string, string> = {
   'ceuta television': 'ceutatv',
   'radio televisión ceuta': 'rtvc',
   'radio television ceuta': 'rtvc',
+  'rtvce': 'rtvc',
   'la verdad de ceuta': 'laverdad',
   'ceuta actualidad': 'ceutaactualidad',
   'ceuta al día': 'ceutaaldia',
