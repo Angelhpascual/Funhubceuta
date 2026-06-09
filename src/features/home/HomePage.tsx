@@ -8,13 +8,32 @@ import { NotificationBanner } from '@/components/ui/NotificationBanner'
 import Link from 'next/link'
 
 const SOURCES: Record<string, { label: string; domain: string }> = {
-  oficial:        { label: 'AD Ceuta FC',        domain: 'adceutafc.com' },
-  elpueblo:       { label: 'El Pueblo de Ceuta', domain: 'elpueblodeceuta.es' },
-  faro:           { label: 'El Faro de Ceuta',   domain: 'elfarodeceuta.es' },
-  marca:          { label: 'Marca',              domain: 'marca.com' },
-  mundodeportivo: { label: 'Mundo Deportivo',    domain: 'mundodeportivo.com' },
-  '20minutos':    { label: '20 Minutos',         domain: '20minutos.es' },
-  elmundo:        { label: 'El Mundo',           domain: 'elmundo.es' },
+  oficial:         { label: 'AD Ceuta FC',        domain: 'adceutafc.com' },
+  elpueblo:        { label: 'El Pueblo de Ceuta', domain: 'elpueblodeceuta.es' },
+  faro:            { label: 'El Faro de Ceuta',   domain: 'elfarodeceuta.es' },
+  ceutatv:         { label: 'Ceuta Televisión',   domain: 'ceutatv.com' },
+  rtvc:            { label: 'RTV Ceuta',          domain: 'rtvce.es' },
+  laverdad:        { label: 'La Verdad de Ceuta', domain: 'laverdaddeceuta.com' },
+  ceutaactualidad: { label: 'Ceuta Actualidad',   domain: 'ceutaactualidad.com' },
+  ceutaaldia:      { label: 'Ceuta al Día',       domain: 'ceutaaldia.com' },
+  marca:           { label: 'Marca',              domain: 'marca.com' },
+  mundodeportivo:  { label: 'Mundo Deportivo',    domain: 'mundodeportivo.com' },
+  '20minutos':     { label: '20 Minutos',         domain: '20minutos.es' },
+  sport:           { label: 'Sport',              domain: 'sport.es' },
+  as:              { label: 'AS',                 domain: 'as.com' },
+  confidencial:    { label: 'El Confidencial',    domain: 'elconfidencial.com' },
+  abc:             { label: 'ABC',                domain: 'abc.es' },
+  lavanguardia:    { label: 'La Vanguardia',      domain: 'lavanguardia.com' },
+  cope:            { label: 'COPE',               domain: 'cope.es' },
+  ser:             { label: 'Cadena SER',         domain: 'cadenaser.com' },
+  onefootball:     { label: 'OneFootball',        domain: 'onefootball.com' },
+  elpais:          { label: 'El País',            domain: 'elpais.com' },
+  rtve:            { label: 'RTVE',               domain: 'rtve.es' },
+  goal:            { label: 'Goal.com',           domain: 'goal.com' },
+  elgoldigital:    { label: 'El Gol Digital',     domain: 'elgoldigital.com' },
+  fondosegunda:    { label: 'Fondo Segunda',      domain: 'fondosegunda.com' },
+  transfermarkt:   { label: 'Transfermarkt',      domain: 'transfermarkt.es' },
+  prensa:          { label: 'Prensa',             domain: 'google.com' },
 }
 
 function timeAgo(dateStr: string | null): string {
@@ -44,7 +63,7 @@ function SourceTag({ source }: { source: string }) {
   return (
     <span className="flex items-center gap-1 font-display text-[10px] font-bold uppercase tracking-[0.14em] text-ceuta-red">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={`https://www.google.com/s2/favicons?domain=${s.domain}&sz=16`} alt="" width={12} height={12} className="rounded-[2px]" />
+      <img src={`/api/proxy/favicon?domain=${s.domain}`} alt="" width={12} height={12} className="rounded-[2px]" />
       {s.label}
     </span>
   )
@@ -88,7 +107,7 @@ export function HomePage({ onReady, onOpenHimno }: { onReady?: () => void; onOpe
           <div className="absolute bottom-0 left-0 right-0 p-4">
             <div className="mb-2.5 flex w-fit items-center gap-1.5 bg-ceuta-red px-[9px] py-[3px]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={`https://www.google.com/s2/favicons?domain=${SOURCES[featured.source]?.domain}&sz=16`} alt="" width={14} height={14} className="rounded-[2px]" />
+              <img src={`/api/proxy/favicon?domain=${SOURCES[featured.source]?.domain}`} alt="" width={14} height={14} className="rounded-[2px]" />
               <span className="font-display text-[10.5px] font-bold uppercase tracking-[0.12em] text-white">
                 {SOURCES[featured.source]?.label ?? featured.source}
               </span>
