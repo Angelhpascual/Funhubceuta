@@ -98,6 +98,23 @@ describe('fetchSource', () => {
     expect(result[0].imageUrl).toBeNull()
   })
 
+  it('accepts .jfif image URLs (AS.com format)', async () => {
+    const xml = makeRssFeed(makeItem({ mediaUrl: 'https://img.asmedia.epimg.net/photo.jfif' }))
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(xml) }))
+
+    const result = await fetchSource(source)
+    expect(result[0].imageUrl).toBe('https://img.asmedia.epimg.net/photo.jfif')
+  })
+
+  it('extracts .jfif image URL from description HTML', async () => {
+    const desc = '<![CDATA[<p><img src="https://img.asmedia.epimg.net/photo.jfif" /></p>]]>'
+    const xml = makeRssFeed(makeItem({ description: desc }))
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(xml) }))
+
+    const result = await fetchSource(source)
+    expect(result[0].imageUrl).toBe('https://img.asmedia.epimg.net/photo.jfif')
+  })
+
   it('filters out items not matching keywords', async () => {
     const xml = makeRssFeed(
       makeItem({ title: 'Noticia de Málaga', description: 'El Málaga ganó' }) +
