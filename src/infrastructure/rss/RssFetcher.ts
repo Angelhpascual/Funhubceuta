@@ -61,7 +61,14 @@ function firstValidImage(html: string): string | null {
 
 function extractImage(item: Record<string, unknown>): string | null {
   // media:thumbnail / media:content (standard RSS media tags)
-  const url = extractMediaUrl(item['media:thumbnail']) ?? extractMediaUrl(item['media:content'])
+  // media:content may be an array — take the first with a valid url
+  const mediaContent = item['media:content']
+  const mediaItems = Array.isArray(mediaContent) ? mediaContent : mediaContent ? [mediaContent] : []
+  for (const m of mediaItems) {
+    const url = extractMediaUrl(m)
+    if (url && isValidImage(url)) return url
+  }
+  const url = extractMediaUrl(item['media:thumbnail'])
   if (url && isValidImage(url)) return url
   // enclosure
   const enclosure = item['enclosure']
