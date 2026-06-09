@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Barlow, Barlow_Condensed } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import { AppShell } from "@/components/layout/AppShell";
 import "./globals.css";
 
@@ -39,6 +40,7 @@ export default function RootLayout({
     <html lang="es" className={`${barlow.variable} ${barlowCondensed.variable} h-full`}>
       <body className="min-h-full">
         <AppShell>{children}</AppShell>
+        <Analytics />
       </body>
     </html>
   );
