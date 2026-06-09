@@ -39,7 +39,7 @@ const SQUAD_KEYWORDS = [
   'youness lachhab', 'aisar ahmed', 'marino illescas',
   'bodiger', 'salvi sánchez', 'adri rueda', 'josema ceuta',
   // Delanteros
-  'zalazar', 'bassinga', 'rubén díez', 'cristian rodríguez', 'koné ceuta',
+  'zalazar', 'bassinga', 'cristian rodríguez', 'koné ceuta',
   // Presidente y club
   'luhay hamido',
 ]

@@ -5,13 +5,25 @@ import { NewsItem } from '@/domain/news/News'
 import Link from 'next/link'
 
 const SOURCES: Record<string, { label: string; domain: string; color: string }> = {
-  oficial:  { label: 'AD Ceuta FC',        domain: 'adceutafc.com',      color: '#D62027' },
-  elpueblo: { label: 'El Pueblo de Ceuta', domain: 'elpueblodeceuta.es', color: '#0A0A0A' },
-  faro:     { label: 'El Faro de Ceuta',   domain: 'elfarodeceuta.es',   color: '#0A0A0A' },
-  marca:          { label: 'Marca',           domain: 'marca.com',              color: '#6B7280' },
-  mundodeportivo: { label: 'Mundo Deportivo', domain: 'mundodeportivo.com',     color: '#0A0A0A' },
-  '20minutos':    { label: '20 Minutos',      domain: '20minutos.es',           color: '#0A0A0A' },
-  elmundo:        { label: 'El Mundo',        domain: 'elmundo.es',             color: '#0A0A0A' },
+  oficial:         { label: 'AD Ceuta FC',        domain: 'adceutafc.com',          color: '#DA1A22' },
+  elpueblo:        { label: 'El Pueblo de Ceuta', domain: 'elpueblodeceuta.es',     color: '#0E0E0E' },
+  faro:            { label: 'El Faro de Ceuta',   domain: 'elfarodeceuta.es',       color: '#0E0E0E' },
+  ceutatv:         { label: 'Ceuta Televisión',   domain: 'ceutatv.es',             color: '#0E0E0E' },
+  rtvc:            { label: 'RTV Ceuta',          domain: 'rtvc.es',                color: '#0E0E0E' },
+  laverdad:        { label: 'La Verdad de Ceuta', domain: 'laverdaddeceuta.com',    color: '#0E0E0E' },
+  ceutaactualidad: { label: 'Ceuta Actualidad',   domain: 'ceutaactualidad.com',    color: '#0E0E0E' },
+  marca:           { label: 'Marca',              domain: 'marca.com',              color: '#6B7280' },
+  mundodeportivo:  { label: 'Mundo Deportivo',    domain: 'mundodeportivo.com',     color: '#6B7280' },
+  '20minutos':     { label: '20 Minutos',         domain: '20minutos.es',           color: '#6B7280' },
+  sport:           { label: 'Sport',              domain: 'sport.es',               color: '#6B7280' },
+  as:              { label: 'AS',                 domain: 'as.com',                 color: '#6B7280' },
+  confidencial:    { label: 'El Confidencial',    domain: 'elconfidencial.com',     color: '#6B7280' },
+  abc:             { label: 'ABC',                domain: 'abc.es',                 color: '#6B7280' },
+  lavanguardia:    { label: 'La Vanguardia',      domain: 'lavanguardia.com',       color: '#6B7280' },
+  cope:            { label: 'COPE',               domain: 'cope.es',                color: '#6B7280' },
+  ser:             { label: 'Cadena SER',         domain: 'cadenaser.com',          color: '#6B7280' },
+  onefootball:     { label: 'OneFootball',        domain: 'onefootball.com',        color: '#6B7280' },
+  prensa:          { label: 'Prensa',             domain: 'google.com',             color: '#6B7280' },
 }
 
 const PAGE_SIZE = 20
