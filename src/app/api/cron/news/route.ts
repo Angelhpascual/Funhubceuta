@@ -89,12 +89,13 @@ async function syncNews() {
       })
   )
 
-  // Only notify about articles published in the last 3 hours — prevents
+  // Only notify about articles published in the last 2 hours — prevents
   // notifying about old articles that were just inserted (new sources, feed outages, etc.)
-  const THREE_HOURS = 3 * 60 * 60 * 1000
+  // Cron runs hourly; 2h covers one missed execution without surfacing stale news.
+  const TWO_HOURS = 2 * 60 * 60 * 1000
   const recentNew = allNew.filter((a) => {
     if (!a.publishedAt) return false
-    return Date.now() - new Date(a.publishedAt).getTime() < THREE_HOURS
+    return Date.now() - new Date(a.publishedAt).getTime() < TWO_HOURS
   })
   const toNotify = pickMostRelevant(recentNew)
   let notifStats = null
