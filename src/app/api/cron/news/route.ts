@@ -3,6 +3,7 @@ import { Receiver } from '@upstash/qstash'
 import { RSS_SOURCES } from '@/infrastructure/rss/sources'
 import { fetchSource, ParsedArticle } from '@/infrastructure/rss/RssFetcher'
 import { fetchAdceutaOfficialNews } from '@/infrastructure/rss/adceutaFetcher'
+import { fetchGoogleNews } from '@/infrastructure/rss/googleNewsFetcher'
 import { NewsSupabaseRepository } from '@/infrastructure/supabase/NewsSupabaseRepository'
 import { sendNewsNotification } from '@/infrastructure/push/sendNewsNotification'
 import { logCron, logNotification } from '@/infrastructure/supabase/logCron'
@@ -18,7 +19,14 @@ const SOURCE_PRIORITY: Record<string, number> = {
   marca: 3,
   mundodeportivo: 4,
   '20minutos': 5,
-  elmundo: 6,
+  sport: 6,
+  as: 7,
+  confidencial: 8,
+  abc: 9,
+  lavanguardia: 10,
+  cope: 11,
+  ser: 12,
+  prensa: 13,
 }
 
 function pickMostRelevant(articles: ParsedArticle[]): ParsedArticle | null {
@@ -46,6 +54,11 @@ async function syncNews() {
       const newArticles = await repo.upsertArticles(articles)
       return { source: source.id, count: articles.length, newArticles }
     }),
+    (async () => {
+      const articles = await fetchGoogleNews()
+      const newArticles = await repo.upsertArticles(articles)
+      return { source: 'google-news', count: articles.length, newArticles }
+    })(),
   ])
 
   const allNew: ParsedArticle[] = []
