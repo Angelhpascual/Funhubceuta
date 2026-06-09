@@ -21,13 +21,11 @@ function isCeuta(entry: StandingEntry): boolean {
   return entry.teamName.toLowerCase().includes("ceuta");
 }
 
-const FORM_LABEL: Record<string, string> = { W: 'V', D: 'E', L: 'D' }
-
 function FormPill({ result }: { result: string }) {
-  const bg = result === 'W' ? 'bg-ceuta-black' : result === 'D' ? 'bg-ceuta-muted' : 'bg-ceuta-red'
+  const bg = result === 'W' ? 'bg-ceuta-red' : result === 'D' ? 'bg-ceuta-muted' : 'bg-ceuta-black'
   return (
     <div className={`flex size-[22px] items-center justify-center rounded-[4px] font-display text-[10px] font-black text-white ${bg}`}>
-      {FORM_LABEL[result] ?? result}
+      {result}
     </div>
   )
 }

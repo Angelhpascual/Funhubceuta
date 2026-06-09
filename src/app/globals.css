@@ -543,9 +543,9 @@ img { display: block; max-width: 100%; }
 .result-score.win { color: var(--red); }
 .result-score.lose { color: var(--muted); }
 .result-badge { font-family: var(--font-display); font-size: 10px; font-weight: 800; letter-spacing: 0.1em; padding: 4px 8px; text-transform: uppercase; min-width: 26px; text-align: center; }
-.badge-w { background: var(--black); color: var(--white); }
+.badge-w { background: var(--red); color: var(--white); }
 .badge-d { background: var(--bg-mid); color: var(--text); }
-.badge-l { background: var(--red); color: var(--white); }
+.badge-l { background: var(--black); color: var(--white); }
 
 .fixt-card {
   margin: 0 12px 8px; background: var(--white); border: 1px solid var(--border);
