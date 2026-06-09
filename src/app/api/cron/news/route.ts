@@ -89,13 +89,14 @@ async function syncNews() {
       })
   )
 
-  // Only notify about articles published in the last 2 hours — prevents
-  // notifying about old articles that were just inserted (new sources, feed outages, etc.)
-  // Cron runs hourly; 2h covers one missed execution without surfacing stale news.
-  const TWO_HOURS = 2 * 60 * 60 * 1000
+  // Only notify about articles published in the last 24 hours.
+  // Google News can reindex old articles with today's pubDate — so we also
+  // reject anything whose real publishedAt is older than 24h, which filters
+  // out articles re-surfaced from weeks/months ago.
+  const ONE_DAY = 24 * 60 * 60 * 1000
   const recentNew = allNew.filter((a) => {
     if (!a.publishedAt) return false
-    return Date.now() - new Date(a.publishedAt).getTime() < TWO_HOURS
+    return Date.now() - new Date(a.publishedAt).getTime() < ONE_DAY
   })
   const toNotify = pickMostRelevant(recentNew)
   let notifStats = null
