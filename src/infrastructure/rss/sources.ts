@@ -63,8 +63,8 @@ export const RSS_SOURCES: RssSource[] = [
   {
     id: 'elpueblo',
     name: 'El Pueblo de Ceuta',
-    url: 'https://www.elpueblodeceuta.es/rss/deportes/',
-    keywords: CEUTA_KEYWORDS, // feed de deportes de la ciudad — base conservador
+    url: 'https://www.elpueblodeceuta.es/rss/category/section/20269/',
+    keywords: CEUTA_KEYWORDS,
   },
   {
     id: 'marca',
@@ -88,9 +88,9 @@ export const RSS_SOURCES: RssSource[] = [
     baseKeywords: BASE_KEYWORDS_NATIONAL,
   },
   {
-    id: 'elmundo',
-    name: 'El Mundo',
-    url: 'https://www.elmundo.es/rss/deportes.xml',
+    id: 'sport',
+    name: 'Sport',
+    url: 'https://www.sport.es/es/rss/futbol/rss.xml',
     keywords: CEUTA_KEYWORDS_NATIONAL,
     baseKeywords: BASE_KEYWORDS_NATIONAL,
   },

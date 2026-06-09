@@ -15,7 +15,7 @@ const SOURCE_LABELS: Record<string, string> = {
   marca:          'Marca',
   mundodeportivo: 'Mundo Deportivo',
   '20minutos':    '20 Minutos',
-  elmundo:        'El Mundo',
+  sport:          'Sport',
 }
 
 export async function sendNewsNotification(article: ParsedArticle): Promise<{ recipients: number; sentOk: number; sentFail: number }> {
