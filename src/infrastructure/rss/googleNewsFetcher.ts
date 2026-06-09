@@ -89,8 +89,13 @@ export async function fetchGoogleNews(): Promise<ParsedArticle[]> {
       const realUrl = await resolveGoogleUrl(googleUrl)
       const sourceId = Object.entries(SOURCE_MAP).find(([k]) => sourceName.includes(k))?.[1] ?? 'prensa'
 
+      const rawGuid = item.guid
+      const guidStr = rawGuid && typeof rawGuid === 'object'
+        ? String((rawGuid as Record<string, unknown>)['#text'] ?? googleUrl)
+        : String(rawGuid ?? googleUrl)
+
       return {
-        externalId: String(item.guid ?? googleUrl),
+        externalId: guidStr,
         title,
         description: null,
         url: realUrl,
