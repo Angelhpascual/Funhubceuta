@@ -94,4 +94,11 @@ export const RSS_SOURCES: RssSource[] = [
     keywords: CEUTA_KEYWORDS_NATIONAL,
     baseKeywords: BASE_KEYWORDS_NATIONAL,
   },
+  {
+    id: 'as',
+    name: 'AS',
+    url: 'https://feeds.as.com/mrss-s/pages/as/site/as.com/section/futbol/subsection/segunda',
+    keywords: CEUTA_KEYWORDS_NATIONAL,
+    baseKeywords: BASE_KEYWORDS_NATIONAL,
+  },
 ]
