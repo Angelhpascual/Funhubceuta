@@ -31,6 +31,9 @@ const SOURCE_LABELS: Record<string, string> = {
   elpais:          'El País',
   rtve:            'RTVE',
   goal:            'Goal.com',
+  elgoldigital:    'El Gol Digital',
+  fondosegunda:    'Fondo Segunda',
+  transfermarkt:   'Transfermarkt',
 }
 
 export async function sendNewsNotification(article: ParsedArticle): Promise<{ recipients: number; sentOk: number; sentFail: number }> {
