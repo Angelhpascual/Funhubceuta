@@ -2,6 +2,7 @@
 
 import { StandingEntry } from "@/domain/standings/Standings";
 import { findLogo as findLogoUtil } from "@/lib/findLogo";
+import { FormPill } from "@/components/ui/FormPill";
 
 function getZone(pos: number, total: number): 'promo' | 'playoff' | 'relegation' | 'none' {
   if (pos <= 2) return "promo";
@@ -21,20 +22,6 @@ function isCeuta(entry: StandingEntry): boolean {
   return entry.teamName.toLowerCase().includes("ceuta");
 }
 
-const FORM_MAP: Record<string, { label: string; cls: string }> = {
-  W: { label: 'V', cls: 'bg-ceuta-red' },
-  D: { label: 'E', cls: 'bg-ceuta-muted' },
-  L: { label: 'D', cls: 'bg-ceuta-black' },
-}
-
-function FormPill({ result }: { result: string }) {
-  const f = FORM_MAP[result]
-  return (
-    <div className={`flex size-[22px] items-center justify-center rounded-[4px] font-display text-[10px] font-black text-white ${f?.cls ?? 'bg-ceuta-muted'}`}>
-      {f?.label ?? result}
-    </div>
-  )
-}
 
 const ZONE_BAR: Record<string, string> = {
   promo: 'bg-ceuta-gold',

@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import Image from 'next/image'
+import { FormPill } from '@/components/ui/FormPill'
 
 interface Props {
   entries: StandingEntry[]
@@ -27,23 +28,6 @@ function getDescriptionVariant(description: string | null) {
   return null
 }
 
-const FORM_MAP: Record<string, { label: string; bg: string }> = {
-  W: { label: 'V', bg: 'var(--win)' },
-  D: { label: 'E', bg: 'var(--draw)' },
-  L: { label: 'D', bg: 'var(--loss)' },
-}
-
-function FormBadge({ result }: { result: string }) {
-  const f = FORM_MAP[result]
-  return (
-    <span
-      className="inline-flex items-center justify-center w-5 h-5 rounded-full text-white font-display text-[11px] font-black uppercase"
-      style={{ backgroundColor: f?.bg ?? 'var(--draw)' }}
-    >
-      {f?.label ?? result}
-    </span>
-  )
-}
 
 export function StandingsTable({ entries }: Props) {
   return (
@@ -108,7 +92,7 @@ export function StandingsTable({ entries }: Props) {
                 <TableCell className="hidden md:table-cell">
                   <div className="flex gap-0.5 justify-center">
                     {entry.form?.split('').map((r, i) => (
-                      <FormBadge key={i} result={r} />
+                      <FormPill key={i} result={r} />
                     ))}
                   </div>
                 </TableCell>
