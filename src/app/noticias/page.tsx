@@ -9,7 +9,7 @@ const SOURCES: Record<string, { label: string; domain: string; color: string }> 
   elpueblo:        { label: 'El Pueblo de Ceuta', domain: 'elpueblodeceuta.es',     color: '#0E0E0E' },
   faro:            { label: 'El Faro de Ceuta',   domain: 'elfarodeceuta.es',       color: '#0E0E0E' },
   ceutatv:         { label: 'Ceuta Televisión',   domain: 'ceutatv.com',            color: '#0E0E0E' },
-  rtvc:            { label: 'RTV Ceuta',          domain: 'rtvc.es',                color: '#0E0E0E' },
+  rtvc:            { label: 'RTV Ceuta',          domain: 'rtvce.es',               color: '#0E0E0E' },
   laverdad:        { label: 'La Verdad de Ceuta', domain: 'laverdaddeceuta.com',    color: '#0E0E0E' },
   ceutaactualidad: { label: 'Ceuta Actualidad',   domain: 'ceutaactualidad.com',    color: '#0E0E0E' },
   ceutaaldia:      { label: 'Ceuta al Día',       domain: 'ceutaaldia.com',         color: '#0E0E0E' },
