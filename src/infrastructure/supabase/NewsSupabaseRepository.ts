@@ -33,6 +33,10 @@ export class NewsSupabaseRepository {
     return newArticles
   }
 
+  async updateImageUrl(externalId: string, imageUrl: string): Promise<void> {
+    await supabase.from('news').update({ image_url: imageUrl }).eq('external_id', externalId)
+  }
+
   async getLatest(limit = 10, offset = 0): Promise<NewsItem[]> {
     const { data, error } = await supabase
       .from('news')
