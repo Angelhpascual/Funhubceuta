@@ -30,6 +30,10 @@ const SOURCE_MAP: Record<string, string> = {
   'rtve': 'rtve',
   'rtve.es': 'rtve',
   'goal.com': 'goal',
+  'elgoldigital': 'elgoldigital',
+  'el gol digital': 'elgoldigital',
+  'fondo segunda': 'fondosegunda',
+  'transfermarkt': 'transfermarkt',
 }
 
 async function resolveGoogleUrl(googleUrl: string): Promise<string> {

@@ -27,6 +27,9 @@ const SOURCES: Record<string, { label: string; domain: string; color: string }> 
   elpais:          { label: 'El País',            domain: 'elpais.com',             color: '#6B7280' },
   rtve:            { label: 'RTVE',               domain: 'rtve.es',                color: '#6B7280' },
   goal:            { label: 'Goal.com',           domain: 'goal.com',               color: '#6B7280' },
+  elgoldigital:    { label: 'El Gol Digital',     domain: 'elgoldigital.com',       color: '#6B7280' },
+  fondosegunda:    { label: 'Fondo Segunda',      domain: 'fondosegunda.com',       color: '#6B7280' },
+  transfermarkt:   { label: 'Transfermarkt',      domain: 'transfermarkt.es',       color: '#6B7280' },
   prensa:          { label: 'Prensa',             domain: 'google.com',             color: '#6B7280' },
 }
 
