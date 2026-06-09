@@ -119,4 +119,10 @@ export const RSS_SOURCES: RssSource[] = [
     url: 'https://www.rtvce.es/rss/',
     keywords: CEUTA_KEYWORDS,
   },
+  {
+    id: 'laverdad',
+    name: 'La Verdad de Ceuta',
+    url: 'https://www.laverdaddeceuta.com/deportes/noticias/dep/rss',
+    keywords: CEUTA_KEYWORDS,
+  },
 ]
