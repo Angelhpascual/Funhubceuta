@@ -89,7 +89,14 @@ async function syncNews() {
       })
   )
 
-  const toNotify = pickMostRelevant(allNew)
+  // Only notify about articles published in the last 3 hours — prevents
+  // notifying about old articles that were just inserted (new sources, feed outages, etc.)
+  const THREE_HOURS = 3 * 60 * 60 * 1000
+  const recentNew = allNew.filter((a) => {
+    if (!a.publishedAt) return false
+    return Date.now() - new Date(a.publishedAt).getTime() < THREE_HOURS
+  })
+  const toNotify = pickMostRelevant(recentNew)
   let notifStats = null
   if (toNotify) {
     notifStats = await sendNewsNotification(toNotify).catch(() => null)
