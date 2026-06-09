@@ -40,8 +40,8 @@ function extractMediaUrl(obj: unknown): string | null {
 }
 
 const EMOJI_HOSTS = ['s.w.org', 'twemoji', 'gravatar.com']
-const IMG_EXT = /\.(?:jpg|jpeg|png|webp|gif|avif)(\?[^\s"<>]*)?$/i
-const IMG_URL_RE = /https?:\/\/[^\s"<>]+\.(?:jpg|jpeg|png|webp|gif|avif)(?:\?[^\s"<>]*)?/gi
+const IMG_EXT = /\.(?:jpg|jpeg|jfif|png|webp|gif|avif)(\?[^\s"<>]*)?$/i
+const IMG_URL_RE = /https?:\/\/[^\s"<>]+\.(?:jpg|jpeg|jfif|png|webp|gif|avif)(?:\?[^\s"<>]*)?/gi
 
 function isValidImage(url: string): boolean {
   return !EMOJI_HOSTS.some((h) => url.includes(h)) &&
