@@ -144,10 +144,13 @@ export async function fetchGoogleNews(): Promise<ParsedArticle[]> {
     })
   )
 
+  const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000
   const seen = new Set<string>()
   return resolved.filter((a) => {
     if (!a.externalId || !a.url) return false
     if (seen.has(a.externalId)) return false
+    // Drop articles older than 7 days — Google News resurfaces old articles
+    if (a.publishedAt && Date.now() - new Date(a.publishedAt).getTime() > SEVEN_DAYS) return false
     seen.add(a.externalId)
     return true
   })
