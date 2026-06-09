@@ -101,7 +101,25 @@ async function syncNews() {
   const toNotify = pickMostRelevant(recentNew)
   let notifStats = null
   if (toNotify) {
-    notifStats = await sendNewsNotification(toNotify).catch(() => null)
+    // Check if a very similar title was already notified in the last 6 hours
+    const SIX_HOURS_AGO = new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString()
+    const { data: recentNotifs } = await supabase
+      .from('notification_logs')
+      .select('article_title')
+      .gte('created_at', SIX_HOURS_AGO)
+
+    const normalize = (s: string) => s.toLowerCase().replace(/[^a-záéíóúüñ0-9]/g, '')
+    const titleNorm = normalize(toNotify.title)
+    const alreadySent = (recentNotifs ?? []).some(
+      (n) => normalize(n.article_title).includes(titleNorm.slice(0, 40)) ||
+             titleNorm.includes(normalize(n.article_title).slice(0, 40))
+    )
+
+    if (alreadySent) {
+      notifStats = null
+    } else {
+      notifStats = await sendNewsNotification(toNotify).catch(() => null)
+    }
     if (notifStats) {
       await logNotification({
         articleTitle:  toNotify.title,
