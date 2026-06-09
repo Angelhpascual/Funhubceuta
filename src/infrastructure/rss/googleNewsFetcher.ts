@@ -22,7 +22,14 @@ const SOURCE_MAP: Record<string, string> = {
   'radio television ceuta': 'rtvc',
   'la verdad de ceuta': 'laverdad',
   'ceuta actualidad': 'ceutaactualidad',
+  'ceuta al día': 'ceutaaldia',
+  'ceuta al dia': 'ceutaaldia',
   'onefootball': 'onefootball',
+  'el país': 'elpais',
+  'el pais': 'elpais',
+  'rtve': 'rtve',
+  'rtve.es': 'rtve',
+  'goal.com': 'goal',
 }
 
 async function resolveGoogleUrl(googleUrl: string): Promise<string> {

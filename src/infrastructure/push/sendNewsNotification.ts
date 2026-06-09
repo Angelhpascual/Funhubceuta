@@ -27,6 +27,10 @@ const SOURCE_LABELS: Record<string, string> = {
   laverdad:        'La Verdad de Ceuta',
   ceutaactualidad: 'Ceuta Actualidad',
   onefootball:     'OneFootball',
+  ceutaaldia:      'Ceuta al Día',
+  elpais:          'El País',
+  rtve:            'RTVE',
+  goal:            'Goal.com',
 }
 
 export async function sendNewsNotification(article: ParsedArticle): Promise<{ recipients: number; sentOk: number; sentFail: number }> {
