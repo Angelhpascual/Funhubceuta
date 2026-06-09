@@ -159,15 +159,19 @@ export function PartidosPage({ upcoming = [], results = [], logos = {} }: Props)
                   <Link
                     href={`/alineacion?eventId=${r.espn_event_id}&match=${encodeURIComponent(`${shortTeamName(r.home_team)} vs ${shortTeamName(r.away_team)}`)}`}
                     style={{
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                      background: 'var(--bg-soft)', border: '1px solid var(--border)',
-                      borderRadius: 8, padding: '8px 12px', textDecoration: 'none',
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      background: 'var(--black)', padding: '10px 14px', textDecoration: 'none',
+                      borderTop: '1px solid rgba(255,255,255,0.08)',
                     }}
                   >
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/>
-                    </svg>
-                    <span style={{ fontFamily: 'var(--font-display)', fontSize: 10, fontWeight: 900, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Ver alineación</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <div style={{ width: 3, height: 14, background: 'var(--red)', borderRadius: 2, flexShrink: 0 }} />
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.7 }}>
+                        <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/>
+                      </svg>
+                      <span style={{ fontFamily: 'var(--font-display)', fontSize: 11, fontWeight: 900, color: 'white', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Ver alineación</span>
+                    </div>
+                    <span style={{ fontFamily: 'var(--font-display)', fontSize: 14, fontWeight: 900, color: 'var(--red)' }}>→</span>
                   </Link>
                 )}
               </div>

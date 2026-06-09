@@ -27,15 +27,20 @@ function getDescriptionVariant(description: string | null) {
   return null
 }
 
+const FORM_MAP: Record<string, { label: string; bg: string }> = {
+  W: { label: 'V', bg: 'var(--win)' },
+  D: { label: 'E', bg: 'var(--draw)' },
+  L: { label: 'D', bg: 'var(--loss)' },
+}
+
 function FormBadge({ result }: { result: string }) {
-  const colors: Record<string, string> = {
-    W: 'bg-green-500',
-    D: 'bg-yellow-500',
-    L: 'bg-red-500',
-  }
+  const f = FORM_MAP[result]
   return (
-    <span className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-white text-xs font-bold ${colors[result] ?? 'bg-gray-400'}`}>
-      {result}
+    <span
+      className="inline-flex items-center justify-center w-5 h-5 rounded-full text-white font-display text-[11px] font-black uppercase"
+      style={{ backgroundColor: f?.bg ?? 'var(--draw)' }}
+    >
+      {f?.label ?? result}
     </span>
   )
 }
