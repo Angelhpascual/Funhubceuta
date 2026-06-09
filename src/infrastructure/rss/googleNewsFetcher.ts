@@ -16,6 +16,13 @@ const SOURCE_MAP: Record<string, string> = {
   'cope': 'cope',
   'cadena ser': 'ser',
   'el pueblo de ceuta': 'elpueblo',
+  'ceuta televisión': 'ceutatv',
+  'ceuta television': 'ceutatv',
+  'radio televisión ceuta': 'rtvc',
+  'radio television ceuta': 'rtvc',
+  'la verdad de ceuta': 'laverdad',
+  'ceuta actualidad': 'ceutaactualidad',
+  'onefootball': 'onefootball',
 }
 
 async function resolveGoogleUrl(googleUrl: string): Promise<string> {
