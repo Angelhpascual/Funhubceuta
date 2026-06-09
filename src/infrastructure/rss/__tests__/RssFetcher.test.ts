@@ -115,6 +115,26 @@ describe('fetchSource', () => {
     expect(result[0].imageUrl).toBe('https://img.asmedia.epimg.net/photo.jfif')
   })
 
+  it('rejects articles about Ceuta Depor even if they match base keywords', async () => {
+    const xml = makeRssFeed(
+      makeItem({ title: 'Entradas para el Ceuta Depor', description: 'El Ceuta Depor vende entradas' })
+    )
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(xml) }))
+
+    const result = await fetchSource(sourceWithKeywords)
+    expect(result).toHaveLength(0)
+  })
+
+  it('rejects articles about Atlético Ceuta', async () => {
+    const xml = makeRssFeed(
+      makeItem({ title: 'El Atlético Ceuta asciende', description: 'victoria del atlético ceuta' })
+    )
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(xml) }))
+
+    const result = await fetchSource(sourceWithKeywords)
+    expect(result).toHaveLength(0)
+  })
+
   it('filters out items not matching keywords', async () => {
     const xml = makeRssFeed(
       makeItem({ title: 'Noticia de Málaga', description: 'El Málaga ganó' }) +

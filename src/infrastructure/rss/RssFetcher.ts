@@ -133,6 +133,12 @@ async function fetchOgImage(articleUrl: string): Promise<string | null> {
   }
 }
 
+// Other Ceuta-based clubs that must never be matched
+const EXCLUDE_TERMS = [
+  'ceuta depor', 'ceutadepor', 'atletico ceuta', 'atlético ceuta',
+  'atletico de ceuta', 'atlético de ceuta',
+]
+
 function isRelevant(item: Record<string, unknown>, source: RssSource): boolean {
   // Feed already scoped to the club — accept everything
   if (source.keywords.length === 0) return true
@@ -148,6 +154,9 @@ function isRelevant(item: Record<string, unknown>, source: RssSource): boolean {
     .map((v) => String(v).replace(/<[^>]+>/g, ' '))  // strip HTML tags
     .join(' ')
     .toLowerCase()
+
+  // Reject articles about other Ceuta clubs
+  if (EXCLUDE_TERMS.some((t) => text.includes(t))) return false
 
   // At least one BASE_KEYWORD must be present to avoid matching unrelated city news.
   // National press sources can provide broader baseKeywords via source.baseKeywords.
