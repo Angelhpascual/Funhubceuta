@@ -8,10 +8,11 @@ const SOURCES: Record<string, { label: string; domain: string; color: string }> 
   oficial:         { label: 'AD Ceuta FC',        domain: 'adceutafc.com',          color: '#DA1A22' },
   elpueblo:        { label: 'El Pueblo de Ceuta', domain: 'elpueblodeceuta.es',     color: '#0E0E0E' },
   faro:            { label: 'El Faro de Ceuta',   domain: 'elfarodeceuta.es',       color: '#0E0E0E' },
-  ceutatv:         { label: 'Ceuta Televisión',   domain: 'ceutatv.es',             color: '#0E0E0E' },
+  ceutatv:         { label: 'Ceuta Televisión',   domain: 'ceutatv.com',            color: '#0E0E0E' },
   rtvc:            { label: 'RTV Ceuta',          domain: 'rtvc.es',                color: '#0E0E0E' },
   laverdad:        { label: 'La Verdad de Ceuta', domain: 'laverdaddeceuta.com',    color: '#0E0E0E' },
   ceutaactualidad: { label: 'Ceuta Actualidad',   domain: 'ceutaactualidad.com',    color: '#0E0E0E' },
+  ceutaaldia:      { label: 'Ceuta al Día',       domain: 'ceutaaldia.com',         color: '#0E0E0E' },
   marca:           { label: 'Marca',              domain: 'marca.com',              color: '#6B7280' },
   mundodeportivo:  { label: 'Mundo Deportivo',    domain: 'mundodeportivo.com',     color: '#6B7280' },
   '20minutos':     { label: '20 Minutos',         domain: '20minutos.es',           color: '#6B7280' },
@@ -23,6 +24,9 @@ const SOURCES: Record<string, { label: string; domain: string; color: string }> 
   cope:            { label: 'COPE',               domain: 'cope.es',                color: '#6B7280' },
   ser:             { label: 'Cadena SER',         domain: 'cadenaser.com',          color: '#6B7280' },
   onefootball:     { label: 'OneFootball',        domain: 'onefootball.com',        color: '#6B7280' },
+  elpais:          { label: 'El País',            domain: 'elpais.com',             color: '#6B7280' },
+  rtve:            { label: 'RTVE',               domain: 'rtve.es',                color: '#6B7280' },
+  goal:            { label: 'Goal.com',           domain: 'goal.com',               color: '#6B7280' },
   prensa:          { label: 'Prensa',             domain: 'google.com',             color: '#6B7280' },
 }
 
