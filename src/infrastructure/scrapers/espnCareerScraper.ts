@@ -18,11 +18,17 @@ export async function scrapeCareerHistory(espnId: string): Promise<CareerEntry[]
     seasonCount?: string
   }> = data.teamHistory ?? []
 
-  return teamHistory.map(t => ({
-    club: t.displayName,
-    seasons: t.seasons ?? '',
-    logo: t.logo ?? null,
-  }))
+  const NATIONAL_TEAMS = ['Spain', 'France', 'Argentina', 'Brazil', 'Portugal', 'Morocco',
+    'Senegal', 'Mali', 'Guinea', 'Colombia', 'Uruguay', 'Cameroon', 'Algeria', 'Nigeria', 'Ghana',
+    'Ivory Coast', 'Costa de Marfil']
+
+  return teamHistory
+    .filter(t => !NATIONAL_TEAMS.some(n => t.displayName.startsWith(n)))
+    .map(t => ({
+      club: t.displayName,
+      seasons: (t.seasons ?? '').replace(/CURRENT/g, 'Act.'),
+      logo: t.logo ?? null,
+    }))
 }
 
 export async function fetchEspnRoster(): Promise<{ espnId: string; name: string }[]> {

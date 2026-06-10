@@ -25,12 +25,16 @@ export async function POST(req: Request) {
         .select('id, name')
         .eq('season', CURRENT_SEASON)
 
-      // Match by last word (surname) — handles "J.g. Campaña" vs "José Campaña"
+      // Multi-strategy match: exact → last name → first name token
       const lastName = (n: string) => n.trim().split(' ').pop()!.toLowerCase()
-      const match = (squadPlayers ?? []).find(p =>
-        p.name.toLowerCase() === name.toLowerCase() ||
-        lastName(p.name) === lastName(name)
-      )
+      const firstToken = (n: string) => n.trim().split(' ')[0].toLowerCase()
+      const match = (squadPlayers ?? []).find(p => {
+        const pl = p.name.toLowerCase()
+        const nl = name.toLowerCase()
+        return pl === nl
+          || lastName(pl) === lastName(nl)
+          || pl.includes(firstToken(nl))
+      })
 
       if (match && career.length > 0) {
         await supabase
