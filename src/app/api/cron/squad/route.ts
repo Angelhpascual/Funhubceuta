@@ -9,10 +9,8 @@ async function syncSquad() {
   const players = await scrapeSquad()
   if (players.length === 0) return 0
 
-  // Clear current season squad and replace
-  await supabase.from('squad').delete().eq('season', CURRENT_SEASON)
-
-  const { error } = await supabase.from('squad').insert(
+  // Upsert by name+season — preserves career_history and espn_id
+  const { error } = await supabase.from('squad').upsert(
     players.map(p => ({
       dorsal: p.dorsal,
       name: p.name,
@@ -24,10 +22,11 @@ async function syncSquad() {
       birth_date: p.birthDate,
       photo_url: p.photoUrl,
       season: CURRENT_SEASON,
-    }))
+    })),
+    { onConflict: 'name,season', ignoreDuplicates: false }
   )
 
-  if (error) throw new Error(`Failed to insert squad: ${error.message}`)
+  if (error) throw new Error(`Failed to upsert squad: ${error.message}`)
   return players.length
 }
 
