@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import type { Group, Player } from "../clubTypes";
 
 const NAT_FLAGS: Record<string, string> = {
@@ -80,7 +81,11 @@ function CollapsibleGroup({ group, players, defaultOpen }: { group: string; play
       {open && (
         <div className="overflow-hidden rounded-b-[10px] bg-ceuta-bg-soft">
           {players.map((p, i) => (
-            <div key={i} className={`flex items-center gap-3 px-4 py-3 ${i > 0 ? 'border-t border-ceuta-border' : ''}`}>
+            <Link
+              key={i}
+              href={`/jugador/${p.id}`}
+              className={`flex items-center gap-3 px-4 py-3 active:bg-ceuta-bg-soft no-underline ${i > 0 ? 'border-t border-ceuta-border' : ''}`}
+            >
               <div className="min-w-[32px] text-center font-display text-[22px] font-black text-ceuta-bg-mid">{p.dorsal ?? '—'}</div>
               {p.photo_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -92,8 +97,13 @@ function CollapsibleGroup({ group, players, defaultOpen }: { group: string; play
                 <div className="font-display text-[13px] font-bold uppercase tracking-wide text-ceuta-black">{p.name}</div>
                 <div className="text-[12px] text-ceuta-muted">{capitalize(p.position)}</div>
               </div>
-              <div className="text-[16px]">{flag(p.nationality)}</div>
-            </div>
+              <div className="flex items-center gap-2">
+                <div className="text-[16px]">{flag(p.nationality)}</div>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-ceuta-muted">
+                  <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+              </div>
+            </Link>
           ))}
         </div>
       )}
