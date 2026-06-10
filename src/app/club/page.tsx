@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { ClubPage } from '@/features/club/ClubPage'
 import { StandingsService } from '@/domain/standings/StandingsService'
 import { StandingsSupabaseRepository } from '@/infrastructure/supabase/StandingsSupabaseRepository'
@@ -112,12 +113,14 @@ export default async function ClubServerPage() {
   ])
 
   return (
-    <ClubPage
-      grouped={grouped}
-      total={total}
-      ceuta={ceuta}
-      form={form}
-      leaders={leaders}
-    />
+    <Suspense>
+      <ClubPage
+        grouped={grouped}
+        total={total}
+        ceuta={ceuta}
+        form={form}
+        leaders={leaders}
+      />
+    </Suspense>
   )
 }

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { StandingEntry } from "@/domain/standings/Standings";
 import { EstadisticasTab } from "./tabs/EstadisticasTab";
 import { PlantillaTab } from "./tabs/PlantillaTab";
@@ -22,7 +23,13 @@ interface Props {
 }
 
 export function ClubPage({ grouped = [], total = 0, ceuta = null, form = [], leaders = null }: Props) {
-  const [tab, setTab] = useState("stats");
+  const searchParams = useSearchParams();
+  const [tab, setTab] = useState(() => searchParams.get('tab') ?? 'stats');
+
+  useEffect(() => {
+    const t = searchParams.get('tab')
+    if (t) setTab(t)
+  }, [searchParams]);
 
   return (
     <div className="page">
