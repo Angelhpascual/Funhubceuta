@@ -11,6 +11,7 @@ const NAT_FLAGS: Record<string, string> = {
   portugal: '🇵🇹', ghana: '🇬🇭', nigeria: '🇳🇬',
   'costa de marfil': '🇨🇮', 'ivory coast': '🇨🇮',
   'estados unidos': '🇺🇸', 'united states': '🇺🇸', 'usa': '🇺🇸',
+  'burkina faso': '🇧🇫',
 }
 
 function flag(nat: string): string {
