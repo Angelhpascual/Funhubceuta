@@ -10,6 +10,7 @@ const NAT_FLAGS: Record<string, string> = {
   Marruecos: '🇲🇦', Argelia: '🇩🇿', Camerún: '🇨🇲', Brasil: '🇧🇷',
   Portugal: '🇵🇹', Ghana: '🇬🇭', Nigeria: '🇳🇬',
   'Costa de Marfil': '🇨🇮', 'Ivory Coast': '🇨🇮',
+  'Estados Unidos': '🇺🇸', 'United States': '🇺🇸',
 }
 
 const STAFF = [
