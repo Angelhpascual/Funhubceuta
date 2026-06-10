@@ -1,3 +1,9 @@
+export interface CareerEntry {
+  club: string
+  seasons: string
+  logo: string | null
+}
+
 export interface Player {
   id: string
   dorsal: number | null
@@ -9,6 +15,7 @@ export interface Player {
   weight: string | null
   birth_date: string | null
   photo_url: string | null
+  career_history: CareerEntry[] | null
 }
 
 export interface Group {
