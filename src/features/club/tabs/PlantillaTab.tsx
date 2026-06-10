@@ -8,6 +8,8 @@ const NAT_FLAGS: Record<string, string> = {
   España: '🇪🇸', Mali: '🇲🇱', Senegal: '🇸🇳', Guinea: '🇬🇳', Bisau: '🇬🇼',
   Argentina: '🇦🇷', Uruguay: '🇺🇾', Colombia: '🇨🇴', Francia: '🇫🇷',
   Marruecos: '🇲🇦', Argelia: '🇩🇿', Camerún: '🇨🇲', Brasil: '🇧🇷',
+  Portugal: '🇵🇹', Ghana: '🇬🇭', Nigeria: '🇳🇬',
+  'Costa de Marfil': '🇨🇮', 'Ivory Coast': '🇨🇮',
 }
 
 const STAFF = [
@@ -19,7 +21,7 @@ function flag(nationality: string): string {
   for (const [key, emoji] of Object.entries(NAT_FLAGS)) {
     if (nationality.toLowerCase().includes(key.toLowerCase())) return emoji
   }
-  return '🏴'
+  return ''
 }
 
 function initials(name: string): string {
