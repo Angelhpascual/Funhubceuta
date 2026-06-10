@@ -7,7 +7,7 @@ const GROUP_ORDER = ['Porteros', 'Defensas', 'Centrocampistas', 'Delanteros']
 export async function GET() {
   const { data } = await supabase
     .from('squad')
-    .select('dorsal,name,position,position_group,nationality,photo_url')
+    .select('id,dorsal,name,position,position_group,nationality,height,weight,birth_date,photo_url')
     .eq('season', CURRENT_SEASON)
     .order('dorsal', { ascending: true, nullsFirst: false })
 

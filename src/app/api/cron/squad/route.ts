@@ -19,6 +19,9 @@ async function syncSquad() {
       position: p.position,
       position_group: p.positionGroup,
       nationality: p.nationality,
+      height: p.height,
+      weight: p.weight,
+      birth_date: p.birthDate,
       photo_url: p.photoUrl,
       season: CURRENT_SEASON,
     }))

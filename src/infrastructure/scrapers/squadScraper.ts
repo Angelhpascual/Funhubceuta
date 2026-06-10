@@ -6,6 +6,9 @@ export interface ScrapedPlayer {
   position: string
   positionGroup: string
   nationality: string
+  height: string | null
+  weight: string | null
+  birthDate: string | null
   photoUrl: string | null
 }
 
@@ -61,9 +64,9 @@ export async function scrapeSquad(): Promise<ScrapedPlayer[]> {
       })
     })
 
-    const NATIONALITIES = ['ESPAÑA', 'MALI', 'SENEGAL', 'GUINEA', 'ARGENTINA', 'URUGUAY', 'COLOMBIA', 'FRANCIA', 'MARRUECOS', 'ARGELIA', 'CAMERÚN', 'BRASIL']
+    const NATIONALITIES = ['ESPAÑA', 'MALI', 'SENEGAL', 'GUINEA', 'GUINEA-BISÁU', 'GUINEA BISÁU', 'ARGENTINA', 'URUGUAY', 'COLOMBIA', 'FRANCIA', 'MARRUECOS', 'ARGELIA', 'CAMERÚN', 'BRASIL', 'PORTUGAL', 'SENEGAL', 'GHANA', 'COSTA DE MARFIL', 'NIGERIA']
 
-    const players: ScrapedPlayer[] = raw.map(({ text, num, photoUrl }) => {
+    const players = raw.map(({ text, num, photoUrl }): ScrapedPlayer | null => {
       const parts = text.split('\n').map((l: string) => l.trim()).filter(Boolean)
       if (parts.length < 2) return null
 
@@ -75,10 +78,26 @@ export async function scrapeSquad(): Promise<ScrapedPlayer[]> {
       const position = parts.find((p: string) =>
         p === p.toUpperCase() && p.length > 3 &&
         !p.includes('CEUTA') && !NATIONALITIES.includes(p) &&
-        isNaN(parseInt(p))
+        isNaN(parseInt(p)) && !p.match(/^\d+\s*(CM|KG|cm|kg)/i)
       ) ?? ''
 
-      const nationality = parts[parts.length - 1] ?? ''
+      // Extract height (e.g. "180 cm", "1,80 m", "180Cm")
+      const heightPart = parts.find((p: string) => /^\d{2,3}\s*(cm|Cm|CM)$/.test(p) || /^1[,\.]\d{2}\s*m$/i.test(p))
+      const height = heightPart ?? null
+
+      // Extract weight (e.g. "80 kg", "80Kg")
+      const weightPart = parts.find((p: string) => /^\d{2,3}\s*(kg|Kg|KG)$/.test(p))
+      const weight = weightPart ?? null
+
+      // Nationality: a part that matches known nationalities OR is all-caps text that's not position/weight/height
+      const nationality = parts.find((p: string) =>
+        NATIONALITIES.includes(p.toUpperCase())
+      ) ?? parts.find((p: string) =>
+        p === p.toUpperCase() && p.length > 3 &&
+        !p.includes('CEUTA') && p !== position &&
+        isNaN(parseInt(p)) && !p.match(/^\d+\s*(CM|KG|cm|kg)/i)
+      ) ?? ''
+
       const positionGroup = GROUP_MAP[position.toUpperCase()] ?? 'Jugadores'
 
       return {
@@ -87,6 +106,9 @@ export async function scrapeSquad(): Promise<ScrapedPlayer[]> {
         position,
         positionGroup,
         nationality,
+        height,
+        weight,
+        birthDate: null,
         photoUrl: photoUrl ?? null,
       }
     }).filter((p): p is ScrapedPlayer => p !== null)
