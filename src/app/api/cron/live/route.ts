@@ -6,12 +6,6 @@ import { setConfig, deleteConfig } from '@/infrastructure/supabase/AppConfigRepo
 import { deleteSubscription } from '@/infrastructure/supabase/PushSubscriptionsRepository'
 import { ESPN_BASE as ESPN } from '@/lib/constants'
 
-webpush.setVapidDetails(
-  'mailto:angelhpascual@gmail.com',
-  process.env.VAPID_PUBLIC_KEY!,
-  process.env.VAPID_PRIVATE_KEY!
-)
-
 // ── Fetch live match from ESPN (same logic as /api/live) ──────────────────
 
 async function fetchLiveMatch(): Promise<LiveMatch | null> {
@@ -74,6 +68,12 @@ async function fetchLiveMatch(): Promise<LiveMatch | null> {
 
 // ── Send push to all subscribers ──────────────────────────────────────────
 async function sendPush(title: string, body: string, tag: string) {
+  webpush.setVapidDetails(
+    'mailto:angelhpascual@gmail.com',
+    process.env.VAPID_PUBLIC_KEY!,
+    process.env.VAPID_PRIVATE_KEY!
+  )
+
   const subs = await import('@/infrastructure/supabase/PushSubscriptionsRepository').then((m) =>
     m.getAllSubscriptions()
   )
