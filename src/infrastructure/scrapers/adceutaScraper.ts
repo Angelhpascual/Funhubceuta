@@ -3,8 +3,8 @@ import { ESPN_BASE as ESPN, ESPN_CEUTA_ID as CEUTA_ID } from '@/lib/constants'
 export interface ScrapedMatch {
   homeTeam: string
   awayTeam: string
-  date: string    // YYYY-MM-DD
-  time: string    // HH:MM
+  date: string // YYYY-MM-DD
+  time: string // HH:MM
   weekday: string
   isHome: boolean
   ticketsUrl: string | null
@@ -16,7 +16,7 @@ export interface ScrapedResult {
   awayTeam: string
   homeScore: number
   awayScore: number
-  date: string      // YYYY-MM-DD
+  date: string // YYYY-MM-DD
   weekday: string
   result: 'W' | 'D' | 'L'
   isHome: boolean
@@ -29,7 +29,8 @@ function parseScore(raw: unknown): number {
   if (typeof raw === 'number') return raw
   if (typeof raw === 'string') return parseInt(raw) || 0
   if (raw && typeof raw === 'object') {
-    const v = (raw as Record<string, unknown>).displayValue ?? (raw as Record<string, unknown>).value
+    const v =
+      (raw as Record<string, unknown>).displayValue ?? (raw as Record<string, unknown>).value
     return typeof v === 'string' ? parseInt(v) || 0 : Number(v) || 0
   }
   return 0
@@ -47,24 +48,28 @@ export async function scrapeNextMatches(): Promise<ScrapedMatch[]> {
   const today = new Date().toISOString().split('T')[0]
 
   return events
-    .filter(e => {
+    .filter((e) => {
       const comp = (e.competitions as Record<string, unknown>[])?.[0]
       const state = (comp?.status as Record<string, unknown>)?.type as Record<string, unknown>
       return (state?.state as string) === 'pre' && (e.date as string)?.slice(0, 10) >= today
     })
     .slice(0, 10)
-    .map(e => {
+    .map((e) => {
       const comp = (e.competitions as Record<string, unknown>[])[0]
       const competitors = comp.competitors as Record<string, unknown>[]
-      const home = competitors.find(c => c.homeAway === 'home')!
-      const away = competitors.find(c => c.homeAway === 'away')!
+      const home = competitors.find((c) => c.homeAway === 'home')!
+      const away = competitors.find((c) => c.homeAway === 'away')!
       const dateStr = (e.date as string).slice(0, 10)
       const dateObj = new Date(e.date as string)
       return {
         homeTeam: (home.team as Record<string, unknown>).displayName as string,
         awayTeam: (away.team as Record<string, unknown>).displayName as string,
         date: dateStr,
-        time: dateObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' }),
+        time: dateObj.toLocaleTimeString('es-ES', {
+          hour: '2-digit',
+          minute: '2-digit',
+          timeZone: 'Europe/Madrid',
+        }),
         weekday: WEEKDAYS_ES[dateObj.getDay()],
         isHome: ((home.team as Record<string, unknown>).id as string) === CEUTA_ID,
         ticketsUrl: null,
@@ -82,24 +87,25 @@ export async function scrapeRecentResults(limit = 10): Promise<ScrapedResult[]> 
   const events = await fetchSchedule()
 
   return events
-    .filter(e => {
+    .filter((e) => {
       const comp = (e.competitions as Record<string, unknown>[])?.[0]
       const state = (comp?.status as Record<string, unknown>)?.type as Record<string, unknown>
       return (state?.state as string) === 'post'
     })
     .slice(-limit)
     .reverse()
-    .map(e => {
+    .map((e) => {
       const comp = (e.competitions as Record<string, unknown>[])[0]
       const competitors = comp.competitors as Record<string, unknown>[]
-      const home = competitors.find(c => c.homeAway === 'home')!
-      const away = competitors.find(c => c.homeAway === 'away')!
+      const home = competitors.find((c) => c.homeAway === 'home')!
+      const away = competitors.find((c) => c.homeAway === 'away')!
       const homeScore = parseScore(home.score)
       const awayScore = parseScore(away.score)
       const isHome = ((home.team as Record<string, unknown>).id as string) === CEUTA_ID
       const ceutaGoals = isHome ? homeScore : awayScore
       const oppGoals = isHome ? awayScore : homeScore
-      const result: 'W' | 'D' | 'L' = ceutaGoals > oppGoals ? 'W' : ceutaGoals === oppGoals ? 'D' : 'L'
+      const result: 'W' | 'D' | 'L' =
+        ceutaGoals > oppGoals ? 'W' : ceutaGoals === oppGoals ? 'D' : 'L'
       const dateStr = (e.date as string).slice(0, 10)
       const dateObj = new Date(e.date as string)
       return {
@@ -118,5 +124,5 @@ export async function scrapeRecentResults(limit = 10): Promise<ScrapedResult[]> 
 
 export async function scrapeRecentForm(): Promise<string[]> {
   const results = await scrapeRecentResults(5)
-  return results.map(r => r.result)
+  return results.map((r) => r.result)
 }

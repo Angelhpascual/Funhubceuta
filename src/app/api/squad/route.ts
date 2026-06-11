@@ -14,10 +14,10 @@ export async function GET() {
   const players = data ?? []
 
   // Group by position_group in correct order
-  const grouped = GROUP_ORDER.map(group => ({
+  const grouped = GROUP_ORDER.map((group) => ({
     group,
-    players: players.filter(p => p.position_group === group),
-  })).filter(g => g.players.length > 0)
+    players: players.filter((p) => p.position_group === group),
+  })).filter((g) => g.players.length > 0)
 
   return NextResponse.json({ grouped, total: players.length })
 }

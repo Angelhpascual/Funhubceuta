@@ -65,7 +65,10 @@ describe('fetchSource', () => {
 
   it('parses a basic RSS item', async () => {
     const xml = makeRssFeed(makeItem())
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(xml) }))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(xml) })
+    )
 
     const result = await fetchSource(source)
     expect(result).toHaveLength(1)
@@ -76,7 +79,10 @@ describe('fetchSource', () => {
 
   it('parses publishedAt as ISO string', async () => {
     const xml = makeRssFeed(makeItem({ pubDate: 'Mon, 25 May 2026 09:00:00 +0000' }))
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(xml) }))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(xml) })
+    )
 
     const result = await fetchSource(source)
     expect(result[0].publishedAt).toBe(new Date('Mon, 25 May 2026 09:00:00 +0000').toISOString())
@@ -84,7 +90,10 @@ describe('fetchSource', () => {
 
   it('extracts media:thumbnail as imageUrl', async () => {
     const xml = makeRssFeed(makeItem({ mediaUrl: 'https://example.com/img.jpg' }))
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(xml) }))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(xml) })
+    )
 
     const result = await fetchSource(source)
     expect(result[0].imageUrl).toBe('https://example.com/img.jpg')
@@ -92,7 +101,10 @@ describe('fetchSource', () => {
 
   it('returns null imageUrl when no media', async () => {
     const xml = makeRssFeed(makeItem())
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(xml) }))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(xml) })
+    )
 
     const result = await fetchSource(source)
     expect(result[0].imageUrl).toBeNull()
@@ -100,7 +112,10 @@ describe('fetchSource', () => {
 
   it('accepts .jfif image URLs (AS.com format)', async () => {
     const xml = makeRssFeed(makeItem({ mediaUrl: 'https://img.asmedia.epimg.net/photo.jfif' }))
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(xml) }))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(xml) })
+    )
 
     const result = await fetchSource(source)
     expect(result[0].imageUrl).toBe('https://img.asmedia.epimg.net/photo.jfif')
@@ -109,7 +124,10 @@ describe('fetchSource', () => {
   it('extracts .jfif image URL from description HTML', async () => {
     const desc = '<![CDATA[<p><img src="https://img.asmedia.epimg.net/photo.jfif" /></p>]]>'
     const xml = makeRssFeed(makeItem({ description: desc }))
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(xml) }))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(xml) })
+    )
 
     const result = await fetchSource(source)
     expect(result[0].imageUrl).toBe('https://img.asmedia.epimg.net/photo.jfif')
@@ -117,9 +135,15 @@ describe('fetchSource', () => {
 
   it('rejects articles about Ceuta Depor even if they match base keywords', async () => {
     const xml = makeRssFeed(
-      makeItem({ title: 'Entradas para el Ceuta Depor', description: 'El Ceuta Depor vende entradas' })
+      makeItem({
+        title: 'Entradas para el Ceuta Depor',
+        description: 'El Ceuta Depor vende entradas',
+      })
     )
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(xml) }))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(xml) })
+    )
 
     const result = await fetchSource(sourceWithKeywords)
     expect(result).toHaveLength(0)
@@ -129,7 +153,10 @@ describe('fetchSource', () => {
     const xml = makeRssFeed(
       makeItem({ title: 'El Atlético Ceuta asciende', description: 'victoria del atlético ceuta' })
     )
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(xml) }))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(xml) })
+    )
 
     const result = await fetchSource(sourceWithKeywords)
     expect(result).toHaveLength(0)
@@ -138,9 +165,16 @@ describe('fetchSource', () => {
   it('filters out items not matching keywords', async () => {
     const xml = makeRssFeed(
       makeItem({ title: 'Noticia de Málaga', description: 'El Málaga ganó' }) +
-      makeItem({ title: 'El AD Ceuta remonta', link: 'https://example.com/2', guid: 'https://example.com/2' })
+        makeItem({
+          title: 'El AD Ceuta remonta',
+          link: 'https://example.com/2',
+          guid: 'https://example.com/2',
+        })
     )
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(xml) }))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(xml) })
+    )
 
     const result = await fetchSource(sourceWithKeywords)
     expect(result).toHaveLength(1)
@@ -150,9 +184,16 @@ describe('fetchSource', () => {
   it('accepts all items when keywords is empty', async () => {
     const xml = makeRssFeed(
       makeItem({ title: 'Noticia de Málaga' }) +
-      makeItem({ title: 'El Ceuta remonta', link: 'https://example.com/2', guid: 'https://example.com/2' })
+        makeItem({
+          title: 'El Ceuta remonta',
+          link: 'https://example.com/2',
+          guid: 'https://example.com/2',
+        })
     )
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(xml) }))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(xml) })
+    )
 
     const result = await fetchSource(source)
     expect(result).toHaveLength(2)
@@ -161,7 +202,10 @@ describe('fetchSource', () => {
   it('truncates description to 300 chars', async () => {
     const long = 'a'.repeat(500)
     const xml = makeRssFeed(makeItem({ description: long }))
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(xml) }))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(xml) })
+    )
 
     const result = await fetchSource(source)
     expect(result[0].description!.length).toBeLessThanOrEqual(300)
@@ -169,7 +213,10 @@ describe('fetchSource', () => {
 
   it('decodes HTML entities in title', async () => {
     const xml = makeRssFeed(makeItem({ title: 'Ceuta &#8211; Andorra' }))
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(xml) }))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(xml) })
+    )
 
     const result = await fetchSource(source)
     expect(result[0].title).toBe('Ceuta – Andorra')

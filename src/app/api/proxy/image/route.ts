@@ -32,16 +32,17 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid url' }, { status: 400 })
   }
 
-  if (!ALLOWED_DOMAINS.some(d => hostname === d || hostname.endsWith(`.${d}`))) {
+  if (!ALLOWED_DOMAINS.some((d) => hostname === d || hostname.endsWith(`.${d}`))) {
     return NextResponse.json({ error: 'Domain not allowed' }, { status: 403 })
   }
 
   const res = await fetch(url, {
     cache: 'no-store',
     headers: {
-      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36',
-      'Referer': `https://${hostname}/`,
-      'Accept': 'image/*,*/*',
+      'User-Agent':
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36',
+      Referer: `https://${hostname}/`,
+      Accept: 'image/*,*/*',
     },
   })
 

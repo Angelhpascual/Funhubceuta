@@ -5,13 +5,28 @@ import Image from 'next/image'
 import type { CareerEntry, Player } from './clubTypes'
 
 const NAT_FLAGS: Record<string, string> = {
-  españa: '🇪🇸', mali: '🇲🇱', senegal: '🇸🇳', guinea: '🇬🇳',
-  'guinea-bisáu': '🇬🇼', 'guinea bisáu': '🇬🇼',
-  argentina: '🇦🇷', uruguay: '🇺🇾', colombia: '🇨🇴', francia: '🇫🇷',
-  marruecos: '🇲🇦', argelia: '🇩🇿', camerún: '🇨🇲', brasil: '🇧🇷',
-  portugal: '🇵🇹', ghana: '🇬🇭', nigeria: '🇳🇬',
-  'costa de marfil': '🇨🇮', 'ivory coast': '🇨🇮',
-  'estados unidos': '🇺🇸', 'united states': '🇺🇸', 'usa': '🇺🇸',
+  españa: '🇪🇸',
+  mali: '🇲🇱',
+  senegal: '🇸🇳',
+  guinea: '🇬🇳',
+  'guinea-bisáu': '🇬🇼',
+  'guinea bisáu': '🇬🇼',
+  argentina: '🇦🇷',
+  uruguay: '🇺🇾',
+  colombia: '🇨🇴',
+  francia: '🇫🇷',
+  marruecos: '🇲🇦',
+  argelia: '🇩🇿',
+  camerún: '🇨🇲',
+  brasil: '🇧🇷',
+  portugal: '🇵🇹',
+  ghana: '🇬🇭',
+  nigeria: '🇳🇬',
+  'costa de marfil': '🇨🇮',
+  'ivory coast': '🇨🇮',
+  'estados unidos': '🇺🇸',
+  'united states': '🇺🇸',
+  usa: '🇺🇸',
   'burkina faso': '🇧🇫',
 }
 
@@ -65,12 +80,18 @@ export function PlayerDetailPage({ player, stats }: Props) {
   return (
     <div id="app-root">
       <div className="page">
-
         {/* ── TOP BAR ── */}
         <div className="pd-topbar">
           <Link href="/club?tab=plantilla" className="pd-back-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M19 12H5M12 19l-7-7 7-7"/>
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M19 12H5M12 19l-7-7 7-7" />
             </svg>
             Plantilla
           </Link>
@@ -124,7 +145,6 @@ export function PlayerDetailPage({ player, stats }: Props) {
 
         {/* ── BODY ── */}
         <div className="pd-body">
-
           {/* ── FICHA FÍSICA ── */}
           {(player.height || player.weight || hasNat) && (
             <>
@@ -132,13 +152,19 @@ export function PlayerDetailPage({ player, stats }: Props) {
               <div className="pd-bio-grid">
                 {player.height && (
                   <div className="pd-bio-tile">
-                    <div className="pd-bio-value">{player.height.replace(/\s*(cm|CM)/i, '')}<span className="pd-bio-unit">cm</span></div>
+                    <div className="pd-bio-value">
+                      {player.height.replace(/\s*(cm|CM)/i, '')}
+                      <span className="pd-bio-unit">cm</span>
+                    </div>
                     <div className="pd-bio-label">Altura</div>
                   </div>
                 )}
                 {player.weight && (
                   <div className="pd-bio-tile">
-                    <div className="pd-bio-value">{player.weight.replace(/\s*(kg|KG)/i, '')}<span className="pd-bio-unit">kg</span></div>
+                    <div className="pd-bio-value">
+                      {player.weight.replace(/\s*(kg|KG)/i, '')}
+                      <span className="pd-bio-unit">kg</span>
+                    </div>
                     <div className="pd-bio-label">Peso</div>
                   </div>
                 )}
@@ -214,11 +240,17 @@ export function PlayerDetailPage({ player, stats }: Props) {
                       </div>
                       <div className="pd-tl-body">
                         {entry.logo ? (
-                          <Image src={entry.logo} alt={entry.club} width={36} height={36} sizes="36px" quality={70} className="pd-tl-crest-img" />
+                          <Image
+                            src={entry.logo}
+                            alt={entry.club}
+                            width={36}
+                            height={36}
+                            sizes="36px"
+                            quality={70}
+                            className="pd-tl-crest-img"
+                          />
                         ) : (
-                          <div className="pd-tl-crest">
-                            {entry.club.slice(0, 3).toUpperCase()}
-                          </div>
+                          <div className="pd-tl-crest">{entry.club.slice(0, 3).toUpperCase()}</div>
                         )}
                         <div className="pd-tl-info">
                           <div className="pd-tl-club">{entry.club}</div>
@@ -230,7 +262,6 @@ export function PlayerDetailPage({ player, stats }: Props) {
               </div>
             </>
           )}
-
         </div>
       </div>
     </div>

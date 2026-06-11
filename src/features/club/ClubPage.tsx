@@ -1,17 +1,17 @@
-"use client";
+'use client'
 
-import { useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
-import { StandingEntry } from "@/domain/standings/Standings";
-import { EstadisticasTab } from "./tabs/EstadisticasTab";
-import { PlantillaTab } from "./tabs/PlantillaTab";
-import { HistoriaTab } from "./tabs/HistoriaTab";
-import type { Group, LeadersMap } from "./clubTypes";
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
+import { StandingEntry } from '@/domain/standings/Standings'
+import { EstadisticasTab } from './tabs/EstadisticasTab'
+import { PlantillaTab } from './tabs/PlantillaTab'
+import { HistoriaTab } from './tabs/HistoriaTab'
+import type { Group, LeadersMap } from './clubTypes'
 
 const TABS = [
-  { id: 'stats',     label: 'Estadísticas' },
+  { id: 'stats', label: 'Estadísticas' },
   { id: 'plantilla', label: 'Plantilla' },
-  { id: 'historia',  label: 'Historia' },
+  { id: 'historia', label: 'Historia' },
 ]
 
 interface Props {
@@ -22,14 +22,20 @@ interface Props {
   leaders?: LeadersMap | null
 }
 
-export function ClubPage({ grouped = [], total = 0, ceuta = null, form = [], leaders = null }: Props) {
-  const searchParams = useSearchParams();
-  const [tab, setTab] = useState(() => searchParams.get('tab') ?? 'stats');
+export function ClubPage({
+  grouped = [],
+  total = 0,
+  ceuta = null,
+  form = [],
+  leaders = null,
+}: Props) {
+  const searchParams = useSearchParams()
+  const [tab, setTab] = useState(() => searchParams.get('tab') ?? 'stats')
 
   useEffect(() => {
     const t = searchParams.get('tab')
     if (t) setTab(t)
-  }, [searchParams]);
+  }, [searchParams])
 
   return (
     <div className="page">
@@ -39,18 +45,22 @@ export function ClubPage({ grouped = [], total = 0, ceuta = null, form = [], lea
       </h1>
 
       <div className="chips mb-3">
-        {TABS.map(t => (
-          <button key={t.id} className={`chip ${tab === t.id ? 'active' : ''}`} onClick={() => setTab(t.id)}>
+        {TABS.map((t) => (
+          <button
+            key={t.id}
+            className={`chip ${tab === t.id ? 'active' : ''}`}
+            onClick={() => setTab(t.id)}
+          >
             {t.label}
           </button>
         ))}
       </div>
 
-      {tab === 'stats'     && <EstadisticasTab ceuta={ceuta} form={form} leaders={leaders} />}
+      {tab === 'stats' && <EstadisticasTab ceuta={ceuta} form={form} leaders={leaders} />}
       {tab === 'plantilla' && <PlantillaTab grouped={grouped} total={total} loading={false} />}
-      {tab === 'historia'  && <HistoriaTab />}
+      {tab === 'historia' && <HistoriaTab />}
 
       <div className="h-2" />
     </div>
-  );
+  )
 }

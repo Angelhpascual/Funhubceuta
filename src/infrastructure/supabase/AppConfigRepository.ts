@@ -1,11 +1,7 @@
 import { supabase } from './client'
 
 export async function getConfig(key: string): Promise<string | null> {
-  const { data } = await supabase
-    .from('app_config')
-    .select('value')
-    .eq('key', key)
-    .single()
+  const { data } = await supabase.from('app_config').select('value').eq('key', key).single()
   return data?.value ?? null
 }
 

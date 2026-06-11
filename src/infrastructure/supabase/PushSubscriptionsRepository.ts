@@ -7,13 +7,13 @@ export interface PushSubscription {
 }
 
 export async function getAllSubscriptions(): Promise<PushSubscription[]> {
-  const { data } = await supabase
-    .from('push_subscriptions')
-    .select('endpoint, p256dh, auth')
+  const { data } = await supabase.from('push_subscriptions').select('endpoint, p256dh, auth')
   return data ?? []
 }
 
-export async function upsertSubscription(sub: PushSubscription & { user_agent?: string | null }): Promise<void> {
+export async function upsertSubscription(
+  sub: PushSubscription & { user_agent?: string | null }
+): Promise<void> {
   await supabase
     .from('push_subscriptions')
     .upsert(

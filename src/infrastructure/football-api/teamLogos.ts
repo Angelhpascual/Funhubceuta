@@ -6,7 +6,8 @@ export const TEAM_LOGOS: Record<string, string> = {
   'CD Castellón': 'https://r2.thesportsdb.com/images/media/team/badge/ywibjw1733456820.png',
   'AD Ceuta FC': 'https://r2.thesportsdb.com/images/media/team/badge/ja7sl51677475273.png',
   'Córdoba CF': 'https://r2.thesportsdb.com/images/media/team/badge/ttyyvy1473503827.png',
-  'Cultural y Deportiva Leonesa': 'https://r2.thesportsdb.com/images/media/team/badge/yk28a51677472494.png',
+  'Cultural y Deportiva Leonesa':
+    'https://r2.thesportsdb.com/images/media/team/badge/yk28a51677472494.png',
   'RC Deportivo': 'https://r2.thesportsdb.com/images/media/team/badge/wtssuy1473502941.png',
   'SD Eibar': 'https://r2.thesportsdb.com/images/media/team/badge/hccive1680933599.png',
   'FC Andorra': 'https://r2.thesportsdb.com/images/media/team/badge/eyaka21639481902.png',

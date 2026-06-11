@@ -46,10 +46,12 @@ const IMG_EXT = /\.(?:jpg|jpeg|jfif|png|webp|gif|avif)(\?[^\s"<>]*)?$/i
 const IMG_URL_RE = /https?:\/\/[^\s"<>]+\.(?:jpg|jpeg|jfif|png|webp|gif|avif)(?:\?[^\s"<>]*)?/gi
 
 function isValidImage(url: string): boolean {
-  return !EMOJI_HOSTS.some((h) => url.includes(h)) &&
+  return (
+    !EMOJI_HOSTS.some((h) => url.includes(h)) &&
     !url.includes('youtube.com') &&
     !url.includes('youtu.be') &&
     IMG_EXT.test(url.split('?')[0])
+  )
 }
 
 function firstValidImage(html: string): string | null {
@@ -80,16 +82,24 @@ function extractImage(item: Record<string, unknown>): string | null {
   }
   // content:encoded — full HTML body (plain string or CDATA object)
   const encoded = item['content:encoded']
-  const encodedStr = typeof encoded === 'string' ? encoded
-    : encoded && typeof encoded === 'object' ? String((encoded as Record<string, unknown>)['__cdata'] ?? '') : ''
+  const encodedStr =
+    typeof encoded === 'string'
+      ? encoded
+      : encoded && typeof encoded === 'object'
+        ? String((encoded as Record<string, unknown>)['__cdata'] ?? '')
+        : ''
   if (encodedStr) {
     const found = firstValidImage(encodedStr)
     if (found) return found
   }
   // description — some feeds embed images here (plain string or CDATA object)
   const desc = item['description']
-  const descStr = typeof desc === 'string' ? desc
-    : desc && typeof desc === 'object' ? String((desc as Record<string, unknown>)['__cdata'] ?? '') : ''
+  const descStr =
+    typeof desc === 'string'
+      ? desc
+      : desc && typeof desc === 'object'
+        ? String((desc as Record<string, unknown>)['__cdata'] ?? '')
+        : ''
   if (descStr) {
     const found = firstValidImage(descStr)
     if (found) return found
@@ -127,7 +137,12 @@ async function fetchOgImage(articleUrl: string): Promise<string | null> {
     }
     reader.cancel()
     const html = new TextDecoder().decode(
-      chunks.reduce((a, b) => { const c = new Uint8Array(a.length + b.length); c.set(a); c.set(b, a.length); return c }, new Uint8Array())
+      chunks.reduce((a, b) => {
+        const c = new Uint8Array(a.length + b.length)
+        c.set(a)
+        c.set(b, a.length)
+        return c
+      }, new Uint8Array())
     )
     for (const re of OG_PATTERNS) {
       const m = html.match(re)
@@ -141,8 +156,12 @@ async function fetchOgImage(articleUrl: string): Promise<string | null> {
 
 // Other Ceuta-based clubs that must never be matched
 const EXCLUDE_TERMS = [
-  'ceuta depor', 'ceutadepor', 'atletico ceuta', 'atlético ceuta',
-  'atletico de ceuta', 'atlético de ceuta',
+  'ceuta depor',
+  'ceutadepor',
+  'atletico ceuta',
+  'atlético ceuta',
+  'atletico de ceuta',
+  'atlético de ceuta',
 ]
 
 function isRelevant(item: Record<string, unknown>, source: RssSource): boolean {
@@ -157,7 +176,7 @@ function isRelevant(item: Record<string, unknown>, source: RssSource): boolean {
     item['category'],
   ]
     .filter(Boolean)
-    .map((v) => String(v).replace(/<[^>]+>/g, ' '))  // strip HTML tags
+    .map((v) => String(v).replace(/<[^>]+>/g, ' ')) // strip HTML tags
     .join(' ')
     .toLowerCase()
 
@@ -203,7 +222,11 @@ export async function fetchSource(source: RssSource): Promise<ParsedArticle[]> {
       externalId: extractGuid(item),
       title: decodeEntities(String(item.title ?? '').replace(/<[^>]+>/g, '')).trim(),
       description: item.description
-        ? decodeEntities(String(item.description).replace(/<[^>]+>/g, '').trim()).slice(0, 300)
+        ? decodeEntities(
+            String(item.description)
+              .replace(/<[^>]+>/g, '')
+              .trim()
+          ).slice(0, 300)
         : null,
       url: String(item.link ?? ''),
       imageUrl: extractImage(item),

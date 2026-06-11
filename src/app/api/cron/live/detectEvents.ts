@@ -15,10 +15,7 @@ export interface PushNotification {
   tag: string
 }
 
-export function detectEvents(
-  match: LiveMatch,
-  prev: MatchState | null
-): PushNotification[] {
+export function detectEvents(match: LiveMatch, prev: MatchState | null): PushNotification[] {
   const notifications: PushNotification[] = []
   const ceutaIsHome = match.homeTeam.toLowerCase().includes('ceuta')
   const rival = ceutaIsHome ? match.awayTeam : match.homeTeam
@@ -40,7 +37,9 @@ export function detectEvents(
 
     for (let i = 0; i < homeGoals; i++) {
       const ceutaScored = ceutaIsHome
-      const scorer = match.events.filter((e: LiveEvent) => e.type === 'goal' && e.team === 'home').pop()
+      const scorer = match.events
+        .filter((e: LiveEvent) => e.type === 'goal' && e.team === 'home')
+        .pop()
       if (ceutaScored) {
         notifications.push({
           title: '🚨 ¡¡GOOOOOL DE CEUTA!! 🔥',
@@ -58,7 +57,9 @@ export function detectEvents(
 
     for (let i = 0; i < awayGoals; i++) {
       const ceutaScored = !ceutaIsHome
-      const scorer = match.events.filter((e: LiveEvent) => e.type === 'goal' && e.team === 'away').pop()
+      const scorer = match.events
+        .filter((e: LiveEvent) => e.type === 'goal' && e.team === 'away')
+        .pop()
       if (ceutaScored) {
         notifications.push({
           title: '🚨 ¡¡GOOOOOL DE CEUTA!! 🔥',

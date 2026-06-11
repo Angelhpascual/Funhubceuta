@@ -11,7 +11,9 @@ vi.mock('@/infrastructure/supabase/client', () => ({
 
 vi.mock('@/infrastructure/supabase/TeamsSupabaseRepository', () => ({
   TeamsSupabaseRepository: class {
-    getAllTeams() { return mockGetAllTeams() }
+    getAllTeams() {
+      return mockGetAllTeams()
+    }
   },
 }))
 
@@ -35,11 +37,7 @@ beforeEach(() => {
 
 describe('fetchCeutaForm', () => {
   it('returns reversed match results when finished matches exist', async () => {
-    const query = makeQuery({ data: [
-      { result: 'W' },
-      { result: 'D' },
-      { result: 'L' },
-    ]})
+    const query = makeQuery({ data: [{ result: 'W' }, { result: 'D' }, { result: 'L' }] })
     mockFrom.mockReturnValue(query)
 
     const form = await fetchCeutaForm()
@@ -52,9 +50,7 @@ describe('fetchCeutaForm', () => {
     // Second query (app_config) returns config value
     const configQuery = makeQuery({ data: { value: 'W,D,L,W,W' } })
 
-    mockFrom
-      .mockReturnValueOnce(matchQuery)
-      .mockReturnValueOnce(configQuery)
+    mockFrom.mockReturnValueOnce(matchQuery).mockReturnValueOnce(configQuery)
 
     const form = await fetchCeutaForm()
     expect(form).toEqual(['W', 'D', 'L', 'W', 'W'])
@@ -64,9 +60,7 @@ describe('fetchCeutaForm', () => {
     const matchQuery = makeQuery({ data: [] })
     const configQuery = makeQuery({ data: null })
 
-    mockFrom
-      .mockReturnValueOnce(matchQuery)
-      .mockReturnValueOnce(configQuery)
+    mockFrom.mockReturnValueOnce(matchQuery).mockReturnValueOnce(configQuery)
 
     const form = await fetchCeutaForm()
     expect(form).toEqual([])
@@ -76,9 +70,7 @@ describe('fetchCeutaForm', () => {
     const matchQuery = makeQuery({ data: [] })
     const configQuery = makeQuery({ data: { value: 'W,,D,,L' } })
 
-    mockFrom
-      .mockReturnValueOnce(matchQuery)
-      .mockReturnValueOnce(configQuery)
+    mockFrom.mockReturnValueOnce(matchQuery).mockReturnValueOnce(configQuery)
 
     const form = await fetchCeutaForm()
     expect(form).toEqual(['W', 'D', 'L'])
@@ -87,9 +79,9 @@ describe('fetchCeutaForm', () => {
   it('returns at most 5 results from matches', async () => {
     // The limit(5) is applied in the query, not in the function itself,
     // so we trust the mock returns exactly what the DB would
-    const query = makeQuery({ data: [
-      { result: 'W' }, { result: 'W' }, { result: 'D' }, { result: 'L' }, { result: 'W' },
-    ]})
+    const query = makeQuery({
+      data: [{ result: 'W' }, { result: 'W' }, { result: 'D' }, { result: 'L' }, { result: 'W' }],
+    })
     mockFrom.mockReturnValue(query)
 
     const form = await fetchCeutaForm()

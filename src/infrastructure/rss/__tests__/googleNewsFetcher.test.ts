@@ -47,8 +47,13 @@ describe('fetchGoogleNews', () => {
   })
 
   it('parses a recent article and strips source from title', async () => {
-    const xml = makeGoogleFeed(makeItem({ title: 'El Ceuta ficha nuevo delantero - El Confidencial', pubDate: daysAgo(0) }))
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(xml) }))
+    const xml = makeGoogleFeed(
+      makeItem({ title: 'El Ceuta ficha nuevo delantero - El Confidencial', pubDate: daysAgo(0) })
+    )
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(xml) })
+    )
 
     const result = await fetchGoogleNews()
     expect(result).toHaveLength(1)
@@ -58,7 +63,10 @@ describe('fetchGoogleNews', () => {
 
   it('drops articles older than 7 days', async () => {
     const xml = makeGoogleFeed(makeItem({ pubDate: daysAgo(8), guid: 'old-guid' }))
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(xml) }))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(xml) })
+    )
 
     const result = await fetchGoogleNews()
     expect(result).toHaveLength(0)
@@ -66,7 +74,10 @@ describe('fetchGoogleNews', () => {
 
   it('keeps articles exactly at 6 days old', async () => {
     const xml = makeGoogleFeed(makeItem({ pubDate: daysAgo(6), guid: 'recent-guid' }))
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(xml) }))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(xml) })
+    )
 
     const result = await fetchGoogleNews()
     expect(result).toHaveLength(1)
@@ -75,9 +86,12 @@ describe('fetchGoogleNews', () => {
   it('deduplicates articles with the same guid', async () => {
     const xml = makeGoogleFeed(
       makeItem({ guid: 'dup-guid', link: 'https://news.google.com/rss/articles/CBMitest1' }) +
-      makeItem({ guid: 'dup-guid', link: 'https://news.google.com/rss/articles/CBMitest2' })
+        makeItem({ guid: 'dup-guid', link: 'https://news.google.com/rss/articles/CBMitest2' })
     )
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(xml) }))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(xml) })
+    )
 
     const result = await fetchGoogleNews()
     expect(result).toHaveLength(1)
@@ -86,19 +100,27 @@ describe('fetchGoogleNews', () => {
   it('skips articles from covered sources (e.g. Marca)', async () => {
     const xml = makeGoogleFeed(
       makeItem({ title: 'Ceuta empata - Marca', guid: 'covered-1' }) +
-      makeItem({ title: 'Ceuta vence - El Confidencial', guid: 'not-covered-1' })
+        makeItem({ title: 'Ceuta vence - El Confidencial', guid: 'not-covered-1' })
     )
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(xml) }))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(xml) })
+    )
 
     const result = await fetchGoogleNews()
     // Marca is in COVERED_SOURCES, El Confidencial is not
-    expect(result.every(a => a.source !== 'marca')).toBe(true)
-    expect(result.some(a => a.source === 'confidencial')).toBe(true)
+    expect(result.every((a) => a.source !== 'marca')).toBe(true)
+    expect(result.some((a) => a.source === 'confidencial')).toBe(true)
   })
 
   it('maps unknown source to "prensa"', async () => {
-    const xml = makeGoogleFeed(makeItem({ title: 'Ceuta noticias - UnknownPress', guid: 'unknown-1' }))
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(xml) }))
+    const xml = makeGoogleFeed(
+      makeItem({ title: 'Ceuta noticias - UnknownPress', guid: 'unknown-1' })
+    )
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(xml) })
+    )
 
     const result = await fetchGoogleNews()
     expect(result[0].source).toBe('prensa')

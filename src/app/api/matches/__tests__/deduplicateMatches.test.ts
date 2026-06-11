@@ -22,28 +22,19 @@ describe('deduplicateMatches', () => {
   })
 
   it('removes exact duplicate keeping first', () => {
-    const rows = [
-      makeMatch({ result: null }),
-      makeMatch({ result: null }),
-    ]
+    const rows = [makeMatch({ result: null }), makeMatch({ result: null })]
     expect(deduplicateMatches(rows)).toHaveLength(1)
   })
 
   it('keeps the row with result when one has it and the other does not', () => {
-    const rows = [
-      makeMatch({ result: null }),
-      makeMatch({ result: 'W' }),
-    ]
+    const rows = [makeMatch({ result: null }), makeMatch({ result: 'W' })]
     const deduped = deduplicateMatches(rows)
     expect(deduped).toHaveLength(1)
     expect(deduped[0].result).toBe('W')
   })
 
   it('keeps the row with result regardless of order', () => {
-    const rows = [
-      makeMatch({ result: 'W' }),
-      makeMatch({ result: null }),
-    ]
+    const rows = [makeMatch({ result: 'W' }), makeMatch({ result: null })]
     const deduped = deduplicateMatches(rows)
     expect(deduped).toHaveLength(1)
     expect(deduped[0].result).toBe('W')
@@ -60,10 +51,7 @@ describe('deduplicateMatches', () => {
   })
 
   it('treats different dates as different matches', () => {
-    const rows = [
-      makeMatch({ date: '2026-05-01' }),
-      makeMatch({ date: '2026-05-08' }),
-    ]
+    const rows = [makeMatch({ date: '2026-05-01' }), makeMatch({ date: '2026-05-08' })]
     expect(deduplicateMatches(rows)).toHaveLength(2)
   })
 

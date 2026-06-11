@@ -11,63 +11,64 @@ Usa siempre las variables CSS — **nunca valores hexadecimales hardcodeados**.
 
 ### Colores de marca
 
-| Variable       | Valor     | Uso                                                  |
-|----------------|-----------|------------------------------------------------------|
-| `--red`        | `#DA1A22` | Color primario. Acciones, acentos, victorias, play-off |
-| `--red-dark`   | `#A8141B` | Estado hover / pressed del rojo                     |
-| `--red-soft`   | `#FCE9EA` | Fila destacada del AD Ceuta en la tabla             |
-| `--gold`       | `#F4C300` | **SOLO logros y ascenso directo. No decorativo.**   |
-| `--gold-soft`  | `#FFF6CC` | Fondo suave de elementos dorados                    |
-| `--black`      | `#0E0E0E` | Texto principal, superficies oscuras, descenso      |
-| `--white`      | `#FFFFFF` | Lienzo de la app                                    |
+| Variable      | Valor     | Uso                                                    |
+| ------------- | --------- | ------------------------------------------------------ |
+| `--red`       | `#DA1A22` | Color primario. Acciones, acentos, victorias, play-off |
+| `--red-dark`  | `#A8141B` | Estado hover / pressed del rojo                        |
+| `--red-soft`  | `#FCE9EA` | Fila destacada del AD Ceuta en la tabla                |
+| `--gold`      | `#F4C300` | **SOLO logros y ascenso directo. No decorativo.**      |
+| `--gold-soft` | `#FFF6CC` | Fondo suave de elementos dorados                       |
+| `--black`     | `#0E0E0E` | Texto principal, superficies oscuras, descenso         |
+| `--white`     | `#FFFFFF` | Lienzo de la app                                       |
 
 ### Neutros y superficies
 
-| Variable       | Valor     | Uso                                      |
-|----------------|-----------|------------------------------------------|
-| `--bg`         | `#FFFFFF` | Fondo general de página                  |
-| `--bone`       | `#F4F2EE` | Tarjetas suaves, fondos de sección       |
-| `--bone-2`     | `#ECEAE4` | Bordes suaves, badges neutros            |
-| `--muted`      | `#7A786F` | Texto secundario, metadatos              |
-| `--muted-2`    | `#A8A69D` | Texto terciario                          |
-| `--border`     | `#E6E3DD` | Separadores y bordes de tarjeta          |
-| `--border-ink` | `#0E0E0E` | Bordes de énfasis                        |
+| Variable       | Valor     | Uso                                |
+| -------------- | --------- | ---------------------------------- |
+| `--bg`         | `#FFFFFF` | Fondo general de página            |
+| `--bone`       | `#F4F2EE` | Tarjetas suaves, fondos de sección |
+| `--bone-2`     | `#ECEAE4` | Bordes suaves, badges neutros      |
+| `--muted`      | `#7A786F` | Texto secundario, metadatos        |
+| `--muted-2`    | `#A8A69D` | Texto terciario                    |
+| `--border`     | `#E6E3DD` | Separadores y bordes de tarjeta    |
+| `--border-ink` | `#0E0E0E` | Bordes de énfasis                  |
 
 ### Variables semánticas (fútbol)
 
-| Variable      | Color   | Significado               |
-|---------------|---------|---------------------------|
-| `--win`       | rojo    | Victoria                  |
-| `--draw`      | gris    | Empate                    |
-| `--loss`      | negro   | Derrota                   |
-| `--promo`     | oro     | Ascenso directo           |
-| `--playoff`   | rojo    | Play-off                  |
-| `--relegation`| negro   | Descenso                  |
+| Variable       | Color | Significado     |
+| -------------- | ----- | --------------- |
+| `--win`        | rojo  | Victoria        |
+| `--draw`       | gris  | Empate          |
+| `--loss`       | negro | Derrota         |
+| `--promo`      | oro   | Ascenso directo |
+| `--playoff`    | rojo  | Play-off        |
+| `--relegation` | negro | Descenso        |
 
 ---
 
 ## Tipografía
 
 Dos familias exclusivamente:
+
 - **Barlow Condensed** — todo lo display (títulos, números, labels, chips). Siempre en mayúsculas.
 - **Barlow** — texto corrido y datos densos.
 
-| Variable          | Fuente           | Uso                                           |
-|-------------------|------------------|-----------------------------------------------|
-| `--font-display`  | Barlow Condensed | Títulos, números, labels, chips, eyebrows     |
-| `--font-body`     | Barlow           | Párrafos de texto corrido                     |
+| Variable         | Fuente           | Uso                                       |
+| ---------------- | ---------------- | ----------------------------------------- |
+| `--font-display` | Barlow Condensed | Títulos, números, labels, chips, eyebrows |
+| `--font-body`    | Barlow           | Párrafos de texto corrido                 |
 
 ### Jerarquía tipográfica
 
-| Nombre       | Fuente               | Tamaño | Weight | Notas                              |
-|--------------|----------------------|--------|--------|------------------------------------|
-| Display XL   | Barlow Condensed     | 56px   | 900    | Uppercase                          |
-| Display L    | Barlow Condensed     | 40px   | 800    | Uppercase                          |
-| Título       | Barlow Condensed     | 28px   | 800    | `.sec-title`                       |
-| Encabezado   | Barlow Condensed     | 20px   | 700    |                                    |
-| Eyebrow      | Barlow Condensed     | 12px   | 700    | Uppercase, tracking 0.18em. `.sec-title-small` |
-| Cuerpo       | Barlow               | 16px   | 400    |                                    |
-| Small / meta | Barlow               | 13px   | 500    |                                    |
+| Nombre       | Fuente           | Tamaño | Weight | Notas                                          |
+| ------------ | ---------------- | ------ | ------ | ---------------------------------------------- |
+| Display XL   | Barlow Condensed | 56px   | 900    | Uppercase                                      |
+| Display L    | Barlow Condensed | 40px   | 800    | Uppercase                                      |
+| Título       | Barlow Condensed | 28px   | 800    | `.sec-title`                                   |
+| Encabezado   | Barlow Condensed | 20px   | 700    |                                                |
+| Eyebrow      | Barlow Condensed | 12px   | 700    | Uppercase, tracking 0.18em. `.sec-title-small` |
+| Cuerpo       | Barlow           | 16px   | 400    |                                                |
+| Small / meta | Barlow           | 13px   | 500    |                                                |
 
 ---
 
@@ -76,7 +77,7 @@ Dos familias exclusivamente:
 Escala base de **4px**. Márgenes de pantalla: 12–16px.
 
 | Variable | Valor |
-|----------|-------|
+| -------- | ----- |
 | `--s-1`  | 4px   |
 | `--s-2`  | 8px   |
 | `--s-3`  | 12px  |
@@ -91,22 +92,22 @@ Escala base de **4px**. Márgenes de pantalla: 12–16px.
 
 ## Radios
 
-| Variable    | Valor | Uso                          |
-|-------------|-------|------------------------------|
-| `--r-sm`    | 8px   | Botones, thumbnails          |
-| `--r-md`    | 14px  | Tarjetas                     |
-| `--r-lg`    | 18px  | Contenedores grandes         |
-| `--r-pill`  | 999px | Chips, avatares              |
+| Variable   | Valor | Uso                  |
+| ---------- | ----- | -------------------- |
+| `--r-sm`   | 8px   | Botones, thumbnails  |
+| `--r-md`   | 14px  | Tarjetas             |
+| `--r-lg`   | 18px  | Contenedores grandes |
+| `--r-pill` | 999px | Chips, avatares      |
 
 ---
 
 ## Sombras
 
 | Variable        | Valor                          | Uso                          |
-|-----------------|--------------------------------|------------------------------|
-| `--shadow-card` | `0 1px 2px rgba(0,0,0,0.04)`  | Tarjetas sutiles             |
-| `--shadow-pop`  | `0 12px 40px rgba(0,0,0,0.10)`| Modales, elementos flotantes |
-| `--shadow-hard` | `6px 6px 0 var(--red)`        | Tarjeta destacada AD Ceuta   |
+| --------------- | ------------------------------ | ---------------------------- |
+| `--shadow-card` | `0 1px 2px rgba(0,0,0,0.04)`   | Tarjetas sutiles             |
+| `--shadow-pop`  | `0 12px 40px rgba(0,0,0,0.10)` | Modales, elementos flotantes |
+| `--shadow-hard` | `6px 6px 0 var(--red)`         | Tarjeta destacada AD Ceuta   |
 
 ---
 
@@ -153,6 +154,7 @@ Grid de 2 columnas con clase `stats-grid`. Variantes: neutro (blanco), `red`, `d
 ### Indicador de forma (Últimos 5)
 
 **Siempre usar iniciales en castellano:**
+
 - **V** (victoria) → fondo negro
 - **E** (empate) → fondo gris (`--muted`)
 - **D** (derrota) → fondo rojo
@@ -162,6 +164,7 @@ Grid de 2 columnas con clase `stats-grid`. Variantes: neutro (blanco), `red`, `d
 ### Badge de resultado
 
 Mismo criterio que el indicador de forma:
+
 - `.badge-w` → negro (Victoria = **V**)
 - `.badge-d` → gris (Empate = **E**)
 - `.badge-l` → rojo (Derrota = **D**)
@@ -176,6 +179,7 @@ La pestaña activa: icono/etiqueta en negro + **indicador rojo centrado pegado a
 ## Nomenclatura del club
 
 **Fijar un único nombre oficial:**
+
 - ✅ **AD Ceuta FC** — cabeceras y fichas
 - ✅ **AD Ceuta** — tablas y resultados
 - ❌ Evitar: «Imperio AD Ceuta FC», «Imperio-AD Ceuta», mezclas con/sin «FC»
@@ -191,15 +195,15 @@ La pestaña activa: icono/etiqueta en negro + **indicador rojo centrado pegado a
 
 ## Auditoría de diseño (pendiente de resolver)
 
-| # | Prioridad | Problema | Fix |
-|---|-----------|----------|-----|
-| 1 | ~~Alta~~ ✅ | Nombre del club inconsistente | Usar `AD Ceuta FC` / `AD Ceuta` |
-| 2 | Alta | Indicador rojo de la nav «flotando» | `position:absolute; top:0` dentro de `.nav-item{position:relative}` |
-| 3 | Alta | Empty state «Próximos partidos» sin diseño | Empty state real con escudo atenuado + mensaje en condensada |
-| 4 | ~~Alta~~ ✅ | Forma reciente mezcla V/E/D con W/L | Corregido: V negro · E gris · D rojo |
-| 5 | Media | El oro tiene dos significados (logro + partido título) | Reservar oro solo para logros/ascenso |
-| 6 | Media | Resalte de fila AD Ceuta vs barra de play-off | Borde izquierdo grueso o fondo neutro en vez de rojo suave |
-| 7 | Media | Truncado de nombres a mitad de palabra | Nombres cortos oficiales en tablas, 2 líneas con elipsis |
-| 8 | Baja | Contraste de metadatos | Oscurecer `--muted` a ~`#6B6960` para texto <13px |
-| 9 | Baja | Barra superior solo muestra escudo | Opcional: escudo + «AD CEUTA» en condensada |
-| 10 | Baja | Bordes de resultado sin leyenda | Decidir si son redundantes con el badge o se mantienen |
+| #   | Prioridad   | Problema                                               | Fix                                                                 |
+| --- | ----------- | ------------------------------------------------------ | ------------------------------------------------------------------- |
+| 1   | ~~Alta~~ ✅ | Nombre del club inconsistente                          | Usar `AD Ceuta FC` / `AD Ceuta`                                     |
+| 2   | Alta        | Indicador rojo de la nav «flotando»                    | `position:absolute; top:0` dentro de `.nav-item{position:relative}` |
+| 3   | Alta        | Empty state «Próximos partidos» sin diseño             | Empty state real con escudo atenuado + mensaje en condensada        |
+| 4   | ~~Alta~~ ✅ | Forma reciente mezcla V/E/D con W/L                    | Corregido: V negro · E gris · D rojo                                |
+| 5   | Media       | El oro tiene dos significados (logro + partido título) | Reservar oro solo para logros/ascenso                               |
+| 6   | Media       | Resalte de fila AD Ceuta vs barra de play-off          | Borde izquierdo grueso o fondo neutro en vez de rojo suave          |
+| 7   | Media       | Truncado de nombres a mitad de palabra                 | Nombres cortos oficiales en tablas, 2 líneas con elipsis            |
+| 8   | Baja        | Contraste de metadatos                                 | Oscurecer `--muted` a ~`#6B6960` para texto <13px                   |
+| 9   | Baja        | Barra superior solo muestra escudo                     | Opcional: escudo + «AD CEUTA» en condensada                         |
+| 10  | Baja        | Bordes de resultado sin leyenda                        | Decidir si son redundantes con el badge o se mantienen              |

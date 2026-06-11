@@ -14,32 +14,51 @@ export interface RssSource {
 // Keywords that unambiguously identify the club — at least one must match.
 // Conservative: no standalone "ceuta" to avoid matching non-football city news.
 export const BASE_KEYWORDS = [
-  'ad ceuta', 'ceuta fc', 'ceuta f.c', 'adceuta', 'murube', 'caballas',
-  'el ceuta',   // "el Ceuta confirma", "adiós al Ceuta"
-  'del ceuta',  // "jugador del Ceuta"
-  'al ceuta',   // "ficha al Ceuta"
+  'ad ceuta',
+  'ceuta fc',
+  'ceuta f.c',
+  'adceuta',
+  'murube',
+  'caballas',
+  'el ceuta', // "el Ceuta confirma", "adiós al Ceuta"
+  'del ceuta', // "jugador del Ceuta"
+  'al ceuta', // "ficha al Ceuta"
 ]
 
 // Extended base keywords for national football press.
 // These feeds are football-only so standalone "ceuta" is safe there.
 const BASE_KEYWORDS_NATIONAL = [
   ...BASE_KEYWORDS,
-  ' ceuta ',    // "el recién ascendido Ceuta de José Juan"
-  'con ceuta',  // "en su temporada con Ceuta"
+  ' ceuta ', // "el recién ascendido Ceuta de José Juan"
+  'con ceuta', // "en su temporada con Ceuta"
 ]
 
 // Player full-name or unique identifiers — used as secondary match
 const SQUAD_KEYWORDS = [
   // Porteros
-  'pedro lópez', 'pery garcia', 'jose juan romero',
+  'pedro lópez',
+  'pery garcia',
+  'jose juan romero',
   // Defensas
-  'manu sánchez', 'carlos hernández', 'diego gonzález',
-  'redruello', 'almenara', 'antonio josé sánchez',
+  'manu sánchez',
+  'carlos hernández',
+  'diego gonzález',
+  'redruello',
+  'almenara',
+  'antonio josé sánchez',
   // Centrocampistas
-  'youness lachhab', 'aisar ahmed', 'marino illescas',
-  'bodiger', 'salvi sánchez', 'adri rueda', 'josema ceuta',
+  'youness lachhab',
+  'aisar ahmed',
+  'marino illescas',
+  'bodiger',
+  'salvi sánchez',
+  'adri rueda',
+  'josema ceuta',
   // Delanteros
-  'zalazar', 'bassinga', 'cristian rodríguez', 'koné ceuta',
+  'zalazar',
+  'bassinga',
+  'cristian rodríguez',
+  'koné ceuta',
   // Presidente y club
   'luhay hamido',
 ]

@@ -2,10 +2,10 @@ import { MatchEvent } from './lineup/route'
 import { ESPN_CEUTA_ID as CEUTA_ID } from '@/lib/constants'
 
 const EVENT_TYPES: Record<string, MatchEvent['type'] | undefined> = {
-  'goal': 'goal',
+  goal: 'goal',
   'yellow-card': 'yellow-card',
   'red-card': 'red-card',
-  'substitution': 'substitution',
+  substitution: 'substitution',
 }
 
 export function parseLineupEvents(
@@ -13,13 +13,13 @@ export function parseLineupEvents(
   homeTeamId: string
 ): MatchEvent[] {
   return allEvents
-    .filter(ev => {
+    .filter((ev) => {
       const typeStr = String((ev.type as Record<string, unknown>)?.type ?? '').toLowerCase()
       if (EVENT_TYPES[typeStr] === undefined) return false
       const teamId = String((ev.team as Record<string, unknown>)?.id ?? '')
       return teamId === CEUTA_ID
     })
-    .map(ev => {
+    .map((ev) => {
       const typeStr = String((ev.type as Record<string, unknown>)?.type ?? '').toLowerCase()
       const participants = ev.participants as Record<string, unknown>[] | undefined
       const p0 = participants?.[0]?.athlete as Record<string, unknown> | undefined

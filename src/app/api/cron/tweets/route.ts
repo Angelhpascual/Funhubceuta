@@ -9,7 +9,7 @@ async function syncTweets() {
   if (tweets.length === 0) return 0
 
   const { error } = await supabase.from('tweets').upsert(
-    tweets.map(t => ({
+    tweets.map((t) => ({
       tweet_id: t.tweetId,
       text: t.text,
       created_at_twitter: t.createdAt,
@@ -30,10 +30,12 @@ export async function POST(request: Request) {
     nextSigningKey: process.env.QSTASH_NEXT_SIGNING_KEY!,
   })
   const body = await request.text()
-  const valid = await receiver.verify({
-    signature: request.headers.get('Upstash-Signature') ?? '',
-    body,
-  }).catch(() => false)
+  const valid = await receiver
+    .verify({
+      signature: request.headers.get('Upstash-Signature') ?? '',
+      body,
+    })
+    .catch(() => false)
 
   if (!valid) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 

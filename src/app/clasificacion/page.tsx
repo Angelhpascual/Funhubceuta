@@ -18,11 +18,5 @@ export default async function ClasificacionServerPage() {
     fetchTeamLogos(),
   ])
 
-  return (
-    <ClasificacionPage
-      entries={standings?.entries ?? []}
-      form={form}
-      logos={logos}
-    />
-  )
+  return <ClasificacionPage entries={standings?.entries ?? []} form={form} logos={logos} />
 }

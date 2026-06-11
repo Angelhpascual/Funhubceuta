@@ -1,23 +1,47 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import type { Group, Player } from "../clubTypes";
+import { useState } from 'react'
+import Link from 'next/link'
+import Image from 'next/image'
+import type { Group, Player } from '../clubTypes'
 
 const NAT_FLAGS: Record<string, string> = {
-  España: '🇪🇸', Mali: '🇲🇱', Senegal: '🇸🇳', Guinea: '🇬🇳', Bisau: '🇬🇼',
-  Argentina: '🇦🇷', Uruguay: '🇺🇾', Colombia: '🇨🇴', Francia: '🇫🇷',
-  Marruecos: '🇲🇦', Argelia: '🇩🇿', Camerún: '🇨🇲', Brasil: '🇧🇷',
-  Portugal: '🇵🇹', Ghana: '🇬🇭', Nigeria: '🇳🇬',
-  'Costa de Marfil': '🇨🇮', 'Ivory Coast': '🇨🇮',
-  'Estados Unidos': '🇺🇸', 'United States': '🇺🇸',
+  España: '🇪🇸',
+  Mali: '🇲🇱',
+  Senegal: '🇸🇳',
+  Guinea: '🇬🇳',
+  Bisau: '🇬🇼',
+  Argentina: '🇦🇷',
+  Uruguay: '🇺🇾',
+  Colombia: '🇨🇴',
+  Francia: '🇫🇷',
+  Marruecos: '🇲🇦',
+  Argelia: '🇩🇿',
+  Camerún: '🇨🇲',
+  Brasil: '🇧🇷',
+  Portugal: '🇵🇹',
+  Ghana: '🇬🇭',
+  Nigeria: '🇳🇬',
+  'Costa de Marfil': '🇨🇮',
+  'Ivory Coast': '🇨🇮',
+  'Estados Unidos': '🇺🇸',
+  'United States': '🇺🇸',
   'Burkina Faso': '🇧🇫',
 }
 
 const STAFF = [
-  { name: 'José Juan Romero', role: 'Entrenador', photo: 'https://assets.laliga.com/squad/2025/t14705/man53081/512x512/man53081_t14705_2025_1_003_000.png' },
-  { name: 'Antonio José Sánchez', role: 'Segundo entrenador', photo: 'https://assets.laliga.com/squad/2025/t14705/man67065/512x512/man67065_t14705_2025_1_003_000.png' },
+  {
+    name: 'José Juan Romero',
+    role: 'Entrenador',
+    photo:
+      'https://assets.laliga.com/squad/2025/t14705/man53081/512x512/man53081_t14705_2025_1_003_000.png',
+  },
+  {
+    name: 'Antonio José Sánchez',
+    role: 'Segundo entrenador',
+    photo:
+      'https://assets.laliga.com/squad/2025/t14705/man67065/512x512/man67065_t14705_2025_1_003_000.png',
+  },
 ]
 
 function flag(nationality: string): string {
@@ -28,7 +52,12 @@ function flag(nationality: string): string {
 }
 
 function initials(name: string): string {
-  return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
+  return name
+    .split(' ')
+    .map((w) => w[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase()
 }
 
 function capitalize(s: string): string {
@@ -40,23 +69,44 @@ function CollapsibleStaff() {
   return (
     <div className="mb-1">
       <button
-        onClick={() => setOpen(o => !o)}
+        onClick={() => setOpen((o) => !o)}
         className={`flex w-full items-center justify-between bg-ceuta-bg-soft px-4 py-3 ${open ? 'rounded-t-[10px]' : 'rounded-[10px]'}`}
       >
         <div className="flex items-center gap-2.5">
           <div className="h-4 w-[3px] rounded-sm bg-ceuta-red" />
-          <span className="font-display text-[12px] font-extrabold uppercase tracking-widest text-ceuta-black">Cuerpo técnico</span>
-          <span className="font-display text-[10px] tracking-wide text-ceuta-muted">{STAFF.length} miembros</span>
+          <span className="font-display text-[12px] font-extrabold uppercase tracking-widest text-ceuta-black">
+            Cuerpo técnico
+          </span>
+          <span className="font-display text-[10px] tracking-wide text-ceuta-muted">
+            {STAFF.length} miembros
+          </span>
         </div>
-        <span className={`text-[14px] text-ceuta-muted transition-transform duration-200 ${open ? 'rotate-180' : ''}`}>▼</span>
+        <span
+          className={`text-[14px] text-ceuta-muted transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+        >
+          ▼
+        </span>
       </button>
       {open && (
         <div className="overflow-hidden rounded-b-[10px] bg-ceuta-bg-soft">
           {STAFF.map((s, i) => (
-            <div key={i} className={`flex items-center gap-3 px-4 py-3 ${i > 0 ? 'border-t border-ceuta-border' : ''}`}>
-              <Image src={s.photo} alt={s.name} width={38} height={38} sizes="38px" quality={70} className="size-[38px] shrink-0 rounded-full object-cover object-top" />
+            <div
+              key={i}
+              className={`flex items-center gap-3 px-4 py-3 ${i > 0 ? 'border-t border-ceuta-border' : ''}`}
+            >
+              <Image
+                src={s.photo}
+                alt={s.name}
+                width={38}
+                height={38}
+                sizes="38px"
+                quality={70}
+                className="size-[38px] shrink-0 rounded-full object-cover object-top"
+              />
               <div className="flex-1 min-w-0">
-                <div className="font-display text-[13px] font-bold uppercase tracking-wide text-ceuta-black">{s.name}</div>
+                <div className="font-display text-[13px] font-bold uppercase tracking-wide text-ceuta-black">
+                  {s.name}
+                </div>
                 <div className="text-[12px] text-ceuta-muted">{s.role}</div>
               </div>
             </div>
@@ -67,20 +117,36 @@ function CollapsibleStaff() {
   )
 }
 
-function CollapsibleGroup({ group, players, defaultOpen }: { group: string; players: Player[]; defaultOpen?: boolean }) {
+function CollapsibleGroup({
+  group,
+  players,
+  defaultOpen,
+}: {
+  group: string
+  players: Player[]
+  defaultOpen?: boolean
+}) {
   const [open, setOpen] = useState(defaultOpen ?? false)
   return (
     <div className="mb-1">
       <button
-        onClick={() => setOpen(o => !o)}
+        onClick={() => setOpen((o) => !o)}
         className={`flex w-full items-center justify-between bg-ceuta-bg-soft px-4 py-3 ${open ? 'rounded-t-[10px]' : 'rounded-[10px]'}`}
       >
         <div className="flex items-center gap-2.5">
           <div className="h-4 w-[3px] rounded-sm bg-ceuta-red" />
-          <span className="font-display text-[12px] font-extrabold uppercase tracking-widest text-ceuta-black">{group}</span>
-          <span className="font-display text-[10px] tracking-wide text-ceuta-muted">{players.length} jugadores</span>
+          <span className="font-display text-[12px] font-extrabold uppercase tracking-widest text-ceuta-black">
+            {group}
+          </span>
+          <span className="font-display text-[10px] tracking-wide text-ceuta-muted">
+            {players.length} jugadores
+          </span>
         </div>
-        <span className={`text-[14px] text-ceuta-muted transition-transform duration-200 ${open ? 'rotate-180' : ''}`}>▼</span>
+        <span
+          className={`text-[14px] text-ceuta-muted transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+        >
+          ▼
+        </span>
       </button>
       {open && (
         <div className="overflow-hidden rounded-b-[10px] bg-ceuta-bg-soft">
@@ -90,20 +156,44 @@ function CollapsibleGroup({ group, players, defaultOpen }: { group: string; play
               href={`/jugador/${p.id}`}
               className={`flex items-center gap-3 px-4 py-3 active:bg-ceuta-bg-soft no-underline ${i > 0 ? 'border-t border-ceuta-border' : ''}`}
             >
-              <div className="min-w-[32px] text-center font-display text-[22px] font-black text-ceuta-bg-mid">{p.dorsal ?? '—'}</div>
+              <div className="min-w-[32px] text-center font-display text-[22px] font-black text-ceuta-bg-mid">
+                {p.dorsal ?? '—'}
+              </div>
               {p.photo_url ? (
-                <Image src={p.photo_url} alt={p.name} width={38} height={38} sizes="38px" quality={70} className="size-[38px] shrink-0 rounded-full object-cover object-top" />
+                <Image
+                  src={p.photo_url}
+                  alt={p.name}
+                  width={38}
+                  height={38}
+                  sizes="38px"
+                  quality={70}
+                  className="size-[38px] shrink-0 rounded-full object-cover object-top"
+                />
               ) : (
-                <div className="flex size-[38px] shrink-0 items-center justify-center rounded-full bg-ceuta-bg-mid font-display text-[12px] font-extrabold text-ceuta-muted">{initials(p.name)}</div>
+                <div className="flex size-[38px] shrink-0 items-center justify-center rounded-full bg-ceuta-bg-mid font-display text-[12px] font-extrabold text-ceuta-muted">
+                  {initials(p.name)}
+                </div>
               )}
               <div className="flex-1 min-w-0">
-                <div className="font-display text-[13px] font-bold uppercase tracking-wide text-ceuta-black">{p.name}</div>
+                <div className="font-display text-[13px] font-bold uppercase tracking-wide text-ceuta-black">
+                  {p.name}
+                </div>
                 <div className="text-[12px] text-ceuta-muted">{capitalize(p.position)}</div>
               </div>
               <div className="flex items-center gap-2">
                 <div className="text-[16px]">{flag(p.nationality)}</div>
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-ceuta-muted">
-                  <path d="M5 12h14M12 5l7 7-7 7"/>
+                <svg
+                  width="10"
+                  height="10"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="text-ceuta-muted"
+                >
+                  <path d="M5 12h14M12 5l7 7-7 7" />
                 </svg>
               </div>
             </Link>
@@ -114,7 +204,11 @@ function CollapsibleGroup({ group, players, defaultOpen }: { group: string; play
   )
 }
 
-export function PlantillaTab({ grouped, total, loading }: {
+export function PlantillaTab({
+  grouped,
+  total,
+  loading,
+}: {
   grouped: Group[]
   total: number
   loading: boolean
@@ -134,7 +228,12 @@ export function PlantillaTab({ grouped, total, loading }: {
       ) : (
         <div className="flex flex-col gap-1 px-3">
           {grouped.map((g, i) => (
-            <CollapsibleGroup key={g.group} group={g.group} players={g.players} defaultOpen={i === 0} />
+            <CollapsibleGroup
+              key={g.group}
+              group={g.group}
+              players={g.players}
+              defaultOpen={i === 0}
+            />
           ))}
         </div>
       )}

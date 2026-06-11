@@ -59,59 +59,141 @@ export function HimnoPage({ onBack }: Props) {
   return (
     <div className="page">
       {/* Header con botón atrás */}
-      <div style={{
-        display: 'flex', alignItems: 'center', gap: 12,
-        padding: '20px 16px 8px',
-        borderBottom: '1px solid var(--border)',
-      }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+          padding: '20px 16px 8px',
+          borderBottom: '1px solid var(--border)',
+        }}
+      >
         <button
           onClick={onBack}
           style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            width: 36, height: 36,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: 36,
+            height: 36,
             background: 'var(--bg-soft)',
             borderRadius: '50%',
-            border: 'none', cursor: 'pointer',
+            border: 'none',
+            cursor: 'pointer',
             flexShrink: 0,
           }}
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--black)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M19 12H5M12 5l-7 7 7 7"/>
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="var(--black)"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M19 12H5M12 5l-7 7 7 7" />
           </svg>
         </button>
         <div>
-          <div style={{ fontFamily: 'var(--font-display)', fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--red)', marginBottom: 2 }}>
+          <div
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: '0.14em',
+              textTransform: 'uppercase',
+              color: 'var(--red)',
+              marginBottom: 2,
+            }}
+          >
             Liga Hypermotion 2025–26
           </div>
-          <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 900, letterSpacing: '0.02em', textTransform: 'uppercase', color: 'var(--black)', lineHeight: 1 }}>
+          <div
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: 20,
+              fontWeight: 900,
+              letterSpacing: '0.02em',
+              textTransform: 'uppercase',
+              color: 'var(--black)',
+              lineHeight: 1,
+            }}
+          >
             Himno AD Ceuta
           </div>
         </div>
       </div>
 
       {/* Hero negro */}
-      <div style={{
-        margin: '16px 12px 0',
-        background: 'var(--black)',
-        borderRadius: 'var(--radius)',
-        padding: '20px',
-        display: 'flex', alignItems: 'center', gap: 14,
-        position: 'relative', overflow: 'hidden',
-      }}>
-        <div style={{ position: 'absolute', inset: 0, background: 'repeating-linear-gradient(-45deg, transparent 0 7px, rgba(255,255,255,0.03) 7px 14px)' }} />
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--red)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, position: 'relative', zIndex: 1 }}>
-          <path d="M9 18V5l12-2v13"/>
-          <circle cx="6" cy="18" r="3"/>
-          <circle cx="18" cy="16" r="3"/>
+      <div
+        style={{
+          margin: '16px 12px 0',
+          background: 'var(--black)',
+          borderRadius: 'var(--radius)',
+          padding: '20px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 14,
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background:
+              'repeating-linear-gradient(-45deg, transparent 0 7px, rgba(255,255,255,0.03) 7px 14px)',
+          }}
+        />
+        <svg
+          width="32"
+          height="32"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="var(--red)"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          style={{ flexShrink: 0, position: 'relative', zIndex: 1 }}
+        >
+          <path d="M9 18V5l12-2v13" />
+          <circle cx="6" cy="18" r="3" />
+          <circle cx="18" cy="16" r="3" />
         </svg>
         <div style={{ position: 'relative', zIndex: 1 }}>
-          <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 14, color: 'white', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+          <div
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontWeight: 800,
+              fontSize: 14,
+              color: 'white',
+              letterSpacing: '0.04em',
+              textTransform: 'uppercase',
+            }}
+          >
             ¡Canta con nosotros!
           </div>
-          <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>
+          <div
+            style={{
+              fontFamily: 'var(--font-body)',
+              fontSize: 12,
+              color: 'rgba(255,255,255,0.5)',
+              marginTop: 2,
+            }}
+          >
             El himno oficial del AD Ceuta FC
           </div>
-          <div style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 4 }}>
+          <div
+            style={{
+              fontFamily: 'var(--font-body)',
+              fontSize: 11,
+              color: 'rgba(255,255,255,0.35)',
+              marginTop: 4,
+            }}
+          >
             Letra y música: Fran Amado &amp; Sarayma
           </div>
         </div>
@@ -122,29 +204,42 @@ export function HimnoPage({ onBack }: Props) {
         {VERSES.map((verse, vi) => (
           <div key={vi}>
             {verse.chorus && (
-              <div style={{
-                fontFamily: 'var(--font-display)', fontSize: 10, fontWeight: 700,
-                letterSpacing: '0.14em', textTransform: 'uppercase',
-                color: 'var(--red)', marginBottom: 8,
-              }}>
+              <div
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  fontSize: 10,
+                  fontWeight: 700,
+                  letterSpacing: '0.14em',
+                  textTransform: 'uppercase',
+                  color: 'var(--red)',
+                  marginBottom: 8,
+                }}
+              >
                 — Estribillo —
               </div>
             )}
-            <div style={{
-              borderLeft: `3px solid ${verse.chorus ? 'var(--red)' : 'var(--border)'}`,
-              paddingLeft: 14,
-              display: 'flex', flexDirection: 'column', gap: 6,
-            }}>
+            <div
+              style={{
+                borderLeft: `3px solid ${verse.chorus ? 'var(--red)' : 'var(--border)'}`,
+                paddingLeft: 14,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 6,
+              }}
+            >
               {verse.lines.map((line, li) => (
-                <div key={li} style={{
-                  fontFamily: verse.chorus ? 'var(--font-display)' : 'var(--font-body)',
-                  fontSize: verse.chorus ? 17 : 15,
-                  fontWeight: verse.chorus ? 700 : 400,
-                  color: verse.chorus ? 'var(--black)' : 'var(--text)',
-                  lineHeight: 1.5,
-                  letterSpacing: verse.chorus ? '0.01em' : '0',
-                  textTransform: verse.chorus ? 'uppercase' : 'none',
-                }}>
+                <div
+                  key={li}
+                  style={{
+                    fontFamily: verse.chorus ? 'var(--font-display)' : 'var(--font-body)',
+                    fontSize: verse.chorus ? 17 : 15,
+                    fontWeight: verse.chorus ? 700 : 400,
+                    color: verse.chorus ? 'var(--black)' : 'var(--text)',
+                    lineHeight: 1.5,
+                    letterSpacing: verse.chorus ? '0.01em' : '0',
+                    textTransform: verse.chorus ? 'uppercase' : 'none',
+                  }}
+                >
                   {line}
                 </div>
               ))}

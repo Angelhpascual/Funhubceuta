@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server'
-import { upsertSubscription, deleteSubscription } from '@/infrastructure/supabase/PushSubscriptionsRepository'
+import {
+  upsertSubscription,
+  deleteSubscription,
+} from '@/infrastructure/supabase/PushSubscriptionsRepository'
 
 export async function POST(request: Request) {
   const body = await request.json()

@@ -51,7 +51,7 @@ describe('detectEvents — kickoff', () => {
     const match = makeMatch({ state: 'in' })
     const prev = makeState({ state: 'in' })
     const result = detectEvents(match, prev)
-    expect(result.find(n => n.tag === 'kickoff')).toBeUndefined()
+    expect(result.find((n) => n.tag === 'kickoff')).toBeUndefined()
   })
 })
 
@@ -111,14 +111,14 @@ describe('detectEvents — goals', () => {
     const prev = makeState({ homeScore: 0, awayScore: 0 })
     const result = detectEvents(match, prev)
     expect(result).toHaveLength(2)
-    expect(result.every(n => n.title.includes('GOOOOOL'))).toBe(true)
+    expect(result.every((n) => n.title.includes('GOOOOOL'))).toBe(true)
   })
 
   it('does not notify goals when match is pre', () => {
     const match = makeMatch({ state: 'pre', homeScore: 0, awayScore: 0 })
     const prev = makeState({ state: 'pre' })
     const result = detectEvents(match, prev)
-    expect(result.find(n => n.tag.startsWith('goal'))).toBeUndefined()
+    expect(result.find((n) => n.tag.startsWith('goal'))).toBeUndefined()
   })
 })
 
@@ -129,7 +129,7 @@ describe('detectEvents — red cards', () => {
     })
     const prev = makeState({ eventCount: 0 })
     const result = detectEvents(match, prev)
-    expect(result.find(n => n.title.includes('quedamos con 10'))).toBeDefined()
+    expect(result.find((n) => n.title.includes('quedamos con 10'))).toBeDefined()
   })
 
   it('notifies red card for rival player', () => {
@@ -138,7 +138,7 @@ describe('detectEvents — red cards', () => {
     })
     const prev = makeState({ eventCount: 0 })
     const result = detectEvents(match, prev)
-    expect(result.find(n => n.title.includes('Roja para el rival'))).toBeDefined()
+    expect(result.find((n) => n.title.includes('Roja para el rival'))).toBeDefined()
   })
 
   it('only notifies new red cards (not already seen events)', () => {
@@ -150,7 +150,7 @@ describe('detectEvents — red cards', () => {
     })
     const prev = makeState({ eventCount: 1 }) // first card already seen
     const result = detectEvents(match, prev)
-    const redCards = result.filter(n => n.tag.startsWith('red-'))
+    const redCards = result.filter((n) => n.tag.startsWith('red-'))
     expect(redCards).toHaveLength(1)
     expect(redCards[0].body).toContain('New')
   })
@@ -183,6 +183,6 @@ describe('detectEvents — fulltime', () => {
     const match = makeMatch({ state: 'post', homeScore: 1, awayScore: 0 })
     const prev = makeState({ state: 'pre' })
     const result = detectEvents(match, prev)
-    expect(result.find(n => n.tag === 'fulltime')).toBeUndefined()
+    expect(result.find((n) => n.tag === 'fulltime')).toBeUndefined()
   })
 })

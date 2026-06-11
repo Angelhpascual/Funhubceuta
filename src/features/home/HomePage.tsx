@@ -14,32 +14,32 @@ function proxyImg(url: string | null | undefined): string | null {
 }
 
 const SOURCES: Record<string, { label: string; domain: string }> = {
-  oficial:         { label: 'AD Ceuta FC',        domain: 'adceutafc.com' },
-  elpueblo:        { label: 'El Pueblo de Ceuta', domain: 'elpueblodeceuta.es' },
-  faro:            { label: 'El Faro de Ceuta',   domain: 'elfarodeceuta.es' },
-  ceutatv:         { label: 'Ceuta Televisión',   domain: 'ceutatv.com' },
-  rtvc:            { label: 'RTV Ceuta',          domain: 'rtvce.es' },
-  laverdad:        { label: 'La Verdad de Ceuta', domain: 'laverdaddeceuta.com' },
-  ceutaactualidad: { label: 'Ceuta Actualidad',   domain: 'ceutaactualidad.com' },
-  ceutaaldia:      { label: 'Ceuta al Día',       domain: 'ceutaaldia.com' },
-  marca:           { label: 'Marca',              domain: 'marca.com' },
-  mundodeportivo:  { label: 'Mundo Deportivo',    domain: 'mundodeportivo.com' },
-  '20minutos':     { label: '20 Minutos',         domain: '20minutos.es' },
-  sport:           { label: 'Sport',              domain: 'sport.es' },
-  as:              { label: 'AS',                 domain: 'as.com' },
-  confidencial:    { label: 'El Confidencial',    domain: 'elconfidencial.com' },
-  abc:             { label: 'ABC',                domain: 'abc.es' },
-  lavanguardia:    { label: 'La Vanguardia',      domain: 'lavanguardia.com' },
-  cope:            { label: 'COPE',               domain: 'cope.es' },
-  ser:             { label: 'Cadena SER',         domain: 'cadenaser.com' },
-  onefootball:     { label: 'OneFootball',        domain: 'onefootball.com' },
-  elpais:          { label: 'El País',            domain: 'elpais.com' },
-  rtve:            { label: 'RTVE',               domain: 'rtve.es' },
-  goal:            { label: 'Goal.com',           domain: 'goal.com' },
-  elgoldigital:    { label: 'El Gol Digital',     domain: 'elgoldigital.com' },
-  fondosegunda:    { label: 'Fondo Segunda',      domain: 'fondosegunda.com' },
-  transfermarkt:   { label: 'Transfermarkt',      domain: 'transfermarkt.es' },
-  prensa:          { label: 'Prensa',             domain: 'google.com' },
+  oficial: { label: 'AD Ceuta FC', domain: 'adceutafc.com' },
+  elpueblo: { label: 'El Pueblo de Ceuta', domain: 'elpueblodeceuta.es' },
+  faro: { label: 'El Faro de Ceuta', domain: 'elfarodeceuta.es' },
+  ceutatv: { label: 'Ceuta Televisión', domain: 'ceutatv.com' },
+  rtvc: { label: 'RTV Ceuta', domain: 'rtvce.es' },
+  laverdad: { label: 'La Verdad de Ceuta', domain: 'laverdaddeceuta.com' },
+  ceutaactualidad: { label: 'Ceuta Actualidad', domain: 'ceutaactualidad.com' },
+  ceutaaldia: { label: 'Ceuta al Día', domain: 'ceutaaldia.com' },
+  marca: { label: 'Marca', domain: 'marca.com' },
+  mundodeportivo: { label: 'Mundo Deportivo', domain: 'mundodeportivo.com' },
+  '20minutos': { label: '20 Minutos', domain: '20minutos.es' },
+  sport: { label: 'Sport', domain: 'sport.es' },
+  as: { label: 'AS', domain: 'as.com' },
+  confidencial: { label: 'El Confidencial', domain: 'elconfidencial.com' },
+  abc: { label: 'ABC', domain: 'abc.es' },
+  lavanguardia: { label: 'La Vanguardia', domain: 'lavanguardia.com' },
+  cope: { label: 'COPE', domain: 'cope.es' },
+  ser: { label: 'Cadena SER', domain: 'cadenaser.com' },
+  onefootball: { label: 'OneFootball', domain: 'onefootball.com' },
+  elpais: { label: 'El País', domain: 'elpais.com' },
+  rtve: { label: 'RTVE', domain: 'rtve.es' },
+  goal: { label: 'Goal.com', domain: 'goal.com' },
+  elgoldigital: { label: 'El Gol Digital', domain: 'elgoldigital.com' },
+  fondosegunda: { label: 'Fondo Segunda', domain: 'fondosegunda.com' },
+  transfermarkt: { label: 'Transfermarkt', domain: 'transfermarkt.es' },
+  prensa: { label: 'Prensa', domain: 'google.com' },
 }
 
 function timeAgo(dateStr: string | null): string {
@@ -65,26 +65,48 @@ const THUMB_COLORS = [
 
 function SourceTag({ source }: { source: string }) {
   const s = SOURCES[source]
-  if (!s) return <span className="font-display text-[10px] font-bold uppercase tracking-[0.14em] text-ceuta-red">{source}</span>
+  if (!s)
+    return (
+      <span className="font-display text-[10px] font-bold uppercase tracking-[0.14em] text-ceuta-red">
+        {source}
+      </span>
+    )
   return (
     <span className="flex items-center gap-1 font-display text-[10px] font-bold uppercase tracking-[0.14em] text-ceuta-red">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={`/api/proxy/favicon?domain=${s.domain}`} alt="" width={12} height={12} className="rounded-[2px]" />
+      <img
+        src={`/api/proxy/favicon?domain=${s.domain}`}
+        alt=""
+        width={12}
+        height={12}
+        className="rounded-[2px]"
+      />
       {s.label}
     </span>
   )
 }
 
-export function HomePage({ onReady, onOpenHimno }: { onReady?: () => void; onOpenHimno?: () => void }) {
+export function HomePage({
+  onReady,
+  onOpenHimno,
+}: {
+  onReady?: () => void
+  onOpenHimno?: () => void
+}) {
   const [news, setNews] = useState<NewsItem[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     fetch('/api/news?limit=10')
       .then((r) => (r.ok ? r.json() : null))
-      .then((data) => { if (data?.news) setNews(data.news) })
+      .then((data) => {
+        if (data?.news) setNews(data.news)
+      })
       .catch(() => {})
-      .finally(() => { setLoading(false); onReady?.() })
+      .finally(() => {
+        setLoading(false)
+        onReady?.()
+      })
   }, [])
 
   const featured = news[0]
@@ -93,7 +115,6 @@ export function HomePage({ onReady, onOpenHimno }: { onReady?: () => void; onOpe
 
   return (
     <div className="page">
-
       {/* ── HERO ── */}
       {featured ? (
         <a
@@ -113,7 +134,13 @@ export function HomePage({ onReady, onOpenHimno }: { onReady?: () => void; onOpe
           <div className="absolute bottom-0 left-0 right-0 p-4">
             <div className="mb-2.5 flex w-fit items-center gap-1.5 bg-ceuta-red px-[9px] py-[3px]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={`/api/proxy/favicon?domain=${SOURCES[featured.source]?.domain}`} alt="" width={14} height={14} className="rounded-[2px]" />
+              <img
+                src={`/api/proxy/favicon?domain=${SOURCES[featured.source]?.domain}`}
+                alt=""
+                width={14}
+                height={14}
+                className="rounded-[2px]"
+              />
               <span className="font-display text-[10.5px] font-bold uppercase tracking-[0.12em] text-white">
                 {SOURCES[featured.source]?.label ?? featured.source}
               </span>
@@ -131,8 +158,12 @@ export function HomePage({ onReady, onOpenHimno }: { onReady?: () => void; onOpe
           </div>
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-4">
-            <div className="mb-2.5 w-fit bg-ceuta-red px-[9px] py-[3px] font-display text-[10.5px] font-bold uppercase tracking-[0.12em] text-white">Destacado</div>
-            <div className="font-display text-[24px] font-black uppercase leading-[1.05] text-white">Bienvenido a AD Ceuta Info</div>
+            <div className="mb-2.5 w-fit bg-ceuta-red px-[9px] py-[3px] font-display text-[10.5px] font-bold uppercase tracking-[0.12em] text-white">
+              Destacado
+            </div>
+            <div className="font-display text-[24px] font-black uppercase leading-[1.05] text-white">
+              Bienvenido a AD Ceuta Info
+            </div>
             <div className="mt-2 text-[12px] text-white/70">Noticias próximamente</div>
           </div>
         </div>
@@ -191,10 +222,16 @@ export function HomePage({ onReady, onOpenHimno }: { onReady?: () => void; onOpe
           {n.imageUrl ? (
             <div
               className="relative size-[88px] shrink-0 overflow-hidden rounded-[8px]"
-              style={{ backgroundImage: `url(${proxyImg(n.imageUrl)})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+              style={{
+                backgroundImage: `url(${proxyImg(n.imageUrl)})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+              }}
             />
           ) : (
-            <div className={`relative size-[88px] shrink-0 overflow-hidden rounded-[8px] ${THUMB_COLORS[i % THUMB_COLORS.length]}`} />
+            <div
+              className={`relative size-[88px] shrink-0 overflow-hidden rounded-[8px] ${THUMB_COLORS[i % THUMB_COLORS.length]}`}
+            />
           )}
           <div className="min-w-0 flex-1">
             <SourceTag source={n.source} />
@@ -229,16 +266,27 @@ export function HomePage({ onReady, onOpenHimno }: { onReady?: () => void; onOpe
                 className="w-[220px] shrink-0 overflow-hidden rounded-[14px] border border-ceuta-border bg-white [scroll-snap-align:start]"
               >
                 {n.imageUrl ? (
-                  <div className="h-[110px] w-full shrink-0" style={{ backgroundImage: `url(${proxyImg(n.imageUrl)})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
+                  <div
+                    className="h-[110px] w-full shrink-0"
+                    style={{
+                      backgroundImage: `url(${proxyImg(n.imageUrl)})`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                    }}
+                  />
                 ) : (
-                  <div className={`h-[110px] w-full shrink-0 ${THUMB_COLORS[i % THUMB_COLORS.length]}`} />
+                  <div
+                    className={`h-[110px] w-full shrink-0 ${THUMB_COLORS[i % THUMB_COLORS.length]}`}
+                  />
                 )}
                 <div className="flex flex-1 flex-col gap-1 p-[8px_10px_10px]">
                   <SourceTag source={n.source} />
                   <div className="line-clamp-3 font-display text-[12px] font-bold uppercase leading-[1.35] text-ceuta-black">
                     {n.title}
                   </div>
-                  <div className="mt-auto text-[11px] text-ceuta-muted">{timeAgo(n.publishedAt)}</div>
+                  <div className="mt-auto text-[11px] text-ceuta-muted">
+                    {timeAgo(n.publishedAt)}
+                  </div>
                 </div>
               </a>
             ))}
@@ -261,13 +309,26 @@ export function HomePage({ onReady, onOpenHimno }: { onReady?: () => void; onOpe
           <div className="relative flex items-center gap-[14px] overflow-hidden rounded-[14px] bg-ceuta-black px-[18px] py-4">
             <div
               className="pointer-events-none absolute inset-0"
-              style={{ background: 'repeating-linear-gradient(-45deg, transparent 0 7px, rgba(255,255,255,0.03) 7px 14px)' }}
+              style={{
+                background:
+                  'repeating-linear-gradient(-45deg, transparent 0 7px, rgba(255,255,255,0.03) 7px 14px)',
+              }}
             />
             <div className="h-[42px] w-1 shrink-0 rounded-[2px] bg-ceuta-red" />
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
-              <path d="M9 18V5l12-2v13"/>
-              <circle cx="6" cy="18" r="3"/>
-              <circle cx="18" cy="16" r="3"/>
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="white"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="shrink-0"
+            >
+              <path d="M9 18V5l12-2v13" />
+              <circle cx="6" cy="18" r="3" />
+              <circle cx="18" cy="16" r="3" />
             </svg>
             <div className="flex-1">
               <div className="font-display text-[15px] font-black uppercase tracking-[0.04em] text-white">

@@ -16,8 +16,9 @@ export async function downloadAndUploadImage(
     // Download image from source (server-side, bypasses hotlink protection)
     const res = await fetch(sourceUrl, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36',
-        'Referer': new URL(sourceUrl).origin + '/',
+        'User-Agent':
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36',
+        Referer: new URL(sourceUrl).origin + '/',
       },
     })
 
@@ -35,12 +36,10 @@ export async function downloadAndUploadImage(
     const path = `${filename}.webp`
 
     // Upload to Supabase Storage
-    const { error } = await supabaseAdmin.storage
-      .from(BUCKET)
-      .upload(path, webpBuffer, {
-        contentType: 'image/webp',
-        upsert: true,
-      })
+    const { error } = await supabaseAdmin.storage.from(BUCKET).upload(path, webpBuffer, {
+      contentType: 'image/webp',
+      upsert: true,
+    })
 
     if (error) {
       console.error('[imageUploader] Upload error:', error.message)

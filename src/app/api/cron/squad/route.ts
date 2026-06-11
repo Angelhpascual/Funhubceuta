@@ -11,7 +11,7 @@ async function syncSquad() {
 
   // Upsert by name+season — preserves career_history and espn_id
   const { error } = await supabase.from('squad').upsert(
-    players.map(p => ({
+    players.map((p) => ({
       dorsal: p.dorsal,
       name: p.name,
       position: p.position,

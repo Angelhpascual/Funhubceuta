@@ -55,7 +55,7 @@ async function syncNews() {
       const newArticles = await repo.upsertArticles(articles)
       return { source: 'oficial', count: articles.length, newArticles }
     })(),
-    ...RSS_SOURCES.filter(s => s.id !== 'oficial').map(async (source) => {
+    ...RSS_SOURCES.filter((s) => s.id !== 'oficial').map(async (source) => {
       const articles = await fetchSource(source)
       const newArticles = await repo.upsertArticles(articles)
       return { source: source.id, count: articles.length, newArticles }
@@ -111,8 +111,9 @@ async function syncNews() {
     const normalize = (s: string) => s.toLowerCase().replace(/[^a-záéíóúüñ0-9]/g, '')
     const titleNorm = normalize(toNotify.title)
     const alreadySent = (recentNotifs ?? []).some(
-      (n) => normalize(n.article_title).includes(titleNorm.slice(0, 40)) ||
-             titleNorm.includes(normalize(n.article_title).slice(0, 40))
+      (n) =>
+        normalize(n.article_title).includes(titleNorm.slice(0, 40)) ||
+        titleNorm.includes(normalize(n.article_title).slice(0, 40))
     )
 
     if (alreadySent) {
@@ -122,22 +123,26 @@ async function syncNews() {
     }
     if (notifStats) {
       await logNotification({
-        articleTitle:  toNotify.title,
+        articleTitle: toNotify.title,
         articleSource: toNotify.source,
-        articleUrl:    toNotify.url,
-        recipients:    notifStats.recipients,
-        sentOk:        notifStats.sentOk,
-        sentFail:      notifStats.sentFail,
+        articleUrl: toNotify.url,
+        recipients: notifStats.recipients,
+        sentOk: notifStats.sentOk,
+        sentFail: notifStats.sentFail,
       })
     }
   }
 
   // Get current subscriber count for the log
   const { count: subscribers } = await supabase
-    .from('push_subscriptions').select('*', { count: 'exact', head: true })
+    .from('push_subscriptions')
+    .select('*', { count: 'exact', head: true })
 
-  const articlesFound = results.reduce((acc, r) => acc + (r.status === 'fulfilled' ? r.value.count : 0), 0)
-  const newArticles   = allNew.length
+  const articlesFound = results.reduce(
+    (acc, r) => acc + (r.status === 'fulfilled' ? r.value.count : 0),
+    0
+  )
+  const newArticles = allNew.length
 
   await logCron('news', 'success', Date.now() - t0, {
     articlesFound,
@@ -165,10 +170,12 @@ export async function POST(request: Request) {
   })
 
   const body = await request.text()
-  const valid = await receiver.verify({
-    signature: request.headers.get('Upstash-Signature') ?? '',
-    body,
-  }).catch(() => false)
+  const valid = await receiver
+    .verify({
+      signature: request.headers.get('Upstash-Signature') ?? '',
+      body,
+    })
+    .catch(() => false)
 
   if (!valid) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 

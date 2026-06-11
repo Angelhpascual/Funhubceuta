@@ -11,32 +11,32 @@ function proxyImg(url: string | null | undefined): string | null {
 }
 
 const SOURCES: Record<string, { label: string; domain: string; color: string }> = {
-  oficial:         { label: 'AD Ceuta FC',        domain: 'adceutafc.com',          color: '#DA1A22' },
-  elpueblo:        { label: 'El Pueblo de Ceuta', domain: 'elpueblodeceuta.es',     color: '#0E0E0E' },
-  faro:            { label: 'El Faro de Ceuta',   domain: 'elfarodeceuta.es',       color: '#0E0E0E' },
-  ceutatv:         { label: 'Ceuta Televisión',   domain: 'ceutatv.com',            color: '#0E0E0E' },
-  rtvc:            { label: 'RTV Ceuta',          domain: 'rtvce.es',               color: '#0E0E0E' },
-  laverdad:        { label: 'La Verdad de Ceuta', domain: 'laverdaddeceuta.com',     color: '#0E0E0E' },
-  ceutaactualidad: { label: 'Ceuta Actualidad',   domain: 'ceutaactualidad.com',    color: '#0E0E0E' },
-  ceutaaldia:      { label: 'Ceuta al Día',       domain: 'ceutaaldia.com',         color: '#0E0E0E' },
-  marca:           { label: 'Marca',              domain: 'marca.com',              color: '#6B7280' },
-  mundodeportivo:  { label: 'Mundo Deportivo',    domain: 'mundodeportivo.com',     color: '#6B7280' },
-  '20minutos':     { label: '20 Minutos',         domain: '20minutos.es',           color: '#6B7280' },
-  sport:           { label: 'Sport',              domain: 'sport.es',               color: '#6B7280' },
-  as:              { label: 'AS',                 domain: 'as.com',                 color: '#6B7280' },
-  confidencial:    { label: 'El Confidencial',    domain: 'elconfidencial.com',     color: '#6B7280' },
-  abc:             { label: 'ABC',                domain: 'abc.es',                 color: '#6B7280' },
-  lavanguardia:    { label: 'La Vanguardia',      domain: 'lavanguardia.com',       color: '#6B7280' },
-  cope:            { label: 'COPE',               domain: 'cope.es',                color: '#6B7280' },
-  ser:             { label: 'Cadena SER',         domain: 'cadenaser.com',          color: '#6B7280' },
-  onefootball:     { label: 'OneFootball',        domain: 'onefootball.com',        color: '#6B7280' },
-  elpais:          { label: 'El País',            domain: 'elpais.com',             color: '#6B7280' },
-  rtve:            { label: 'RTVE',               domain: 'rtve.es',                color: '#6B7280' },
-  goal:            { label: 'Goal.com',           domain: 'goal.com',               color: '#6B7280' },
-  elgoldigital:    { label: 'El Gol Digital',     domain: 'elgoldigital.com',       color: '#6B7280' },
-  fondosegunda:    { label: 'Fondo Segunda',      domain: 'fondosegunda.com',       color: '#6B7280' },
-  transfermarkt:   { label: 'Transfermarkt',      domain: 'transfermarkt.es',       color: '#6B7280' },
-  prensa:          { label: 'Prensa',             domain: 'google.com',             color: '#6B7280' },
+  oficial: { label: 'AD Ceuta FC', domain: 'adceutafc.com', color: '#DA1A22' },
+  elpueblo: { label: 'El Pueblo de Ceuta', domain: 'elpueblodeceuta.es', color: '#0E0E0E' },
+  faro: { label: 'El Faro de Ceuta', domain: 'elfarodeceuta.es', color: '#0E0E0E' },
+  ceutatv: { label: 'Ceuta Televisión', domain: 'ceutatv.com', color: '#0E0E0E' },
+  rtvc: { label: 'RTV Ceuta', domain: 'rtvce.es', color: '#0E0E0E' },
+  laverdad: { label: 'La Verdad de Ceuta', domain: 'laverdaddeceuta.com', color: '#0E0E0E' },
+  ceutaactualidad: { label: 'Ceuta Actualidad', domain: 'ceutaactualidad.com', color: '#0E0E0E' },
+  ceutaaldia: { label: 'Ceuta al Día', domain: 'ceutaaldia.com', color: '#0E0E0E' },
+  marca: { label: 'Marca', domain: 'marca.com', color: '#6B7280' },
+  mundodeportivo: { label: 'Mundo Deportivo', domain: 'mundodeportivo.com', color: '#6B7280' },
+  '20minutos': { label: '20 Minutos', domain: '20minutos.es', color: '#6B7280' },
+  sport: { label: 'Sport', domain: 'sport.es', color: '#6B7280' },
+  as: { label: 'AS', domain: 'as.com', color: '#6B7280' },
+  confidencial: { label: 'El Confidencial', domain: 'elconfidencial.com', color: '#6B7280' },
+  abc: { label: 'ABC', domain: 'abc.es', color: '#6B7280' },
+  lavanguardia: { label: 'La Vanguardia', domain: 'lavanguardia.com', color: '#6B7280' },
+  cope: { label: 'COPE', domain: 'cope.es', color: '#6B7280' },
+  ser: { label: 'Cadena SER', domain: 'cadenaser.com', color: '#6B7280' },
+  onefootball: { label: 'OneFootball', domain: 'onefootball.com', color: '#6B7280' },
+  elpais: { label: 'El País', domain: 'elpais.com', color: '#6B7280' },
+  rtve: { label: 'RTVE', domain: 'rtve.es', color: '#6B7280' },
+  goal: { label: 'Goal.com', domain: 'goal.com', color: '#6B7280' },
+  elgoldigital: { label: 'El Gol Digital', domain: 'elgoldigital.com', color: '#6B7280' },
+  fondosegunda: { label: 'Fondo Segunda', domain: 'fondosegunda.com', color: '#6B7280' },
+  transfermarkt: { label: 'Transfermarkt', domain: 'transfermarkt.es', color: '#6B7280' },
+  prensa: { label: 'Prensa', domain: 'google.com', color: '#6B7280' },
 }
 
 const PAGE_SIZE = 20
@@ -65,7 +65,7 @@ export default function NoticiasPage() {
     if (!res.ok) return
     const data = await res.json()
     const items: NewsItem[] = data.news ?? []
-    if (append) setNews(prev => [...prev, ...items])
+    if (append) setNews((prev) => [...prev, ...items])
     else setNews(items)
     setHasMore(items.length === PAGE_SIZE)
   }, [])
@@ -85,126 +85,164 @@ export default function NoticiasPage() {
 
   return (
     <div id="app-root">
-    <div className="page">
-
-      {/* ── HERO ── */}
-      <div className="relative mt-2 overflow-hidden bg-ceuta-black px-[18px] pb-[52px] pt-[22px] text-white">
-        <div
-          className="pointer-events-none absolute bottom-0 right-[-40px] top-0 w-[180px]"
-          style={{
-            background: 'repeating-linear-gradient(-45deg, white 0 14px, #0A0A0A 14px 28px)',
-            clipPath: 'polygon(60px 0, 100% 0, 100% 100%, 0 100%)',
-          }}
-        />
-        {/* back arrow */}
-        <Link href="/" className="mb-3 flex items-center gap-1.5 text-ceuta-muted no-underline" style={{ width: 'fit-content' }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M19 12H5M12 5l-7 7 7 7"/>
-          </svg>
-          <span className="font-display text-[11px] font-bold uppercase tracking-[0.14em]">Volver</span>
-        </Link>
-        <div className="flex items-center gap-2 font-display text-[11px] font-bold uppercase tracking-[0.16em] text-ceuta-red">
-          <div className="h-0.5 w-[18px] bg-ceuta-red" />
-          AD Ceuta FC · Actualidad
-        </div>
-        <div className="mt-2 font-display text-[38px] font-black uppercase leading-[0.95]">
-          TODAS LAS<br />
-          <em className="not-italic text-ceuta-gold">NOTICIAS</em>
-        </div>
-      </div>
-
-      {/* ── NEWS LIST CARD ── */}
-      <div className="relative z-[2] -mt-7 mx-3 overflow-hidden rounded-[14px] border-2 border-ceuta-black bg-white shadow-[6px_6px_0_#D62027]">
-        {loading ? (
-          <div className="px-[18px] py-6 font-display text-[11px] font-bold uppercase tracking-[0.1em] text-ceuta-muted">
-            Cargando noticias…
+      <div className="page">
+        {/* ── HERO ── */}
+        <div className="relative mt-2 overflow-hidden bg-ceuta-black px-[18px] pb-[52px] pt-[22px] text-white">
+          <div
+            className="pointer-events-none absolute bottom-0 right-[-40px] top-0 w-[180px]"
+            style={{
+              background: 'repeating-linear-gradient(-45deg, white 0 14px, #0A0A0A 14px 28px)',
+              clipPath: 'polygon(60px 0, 100% 0, 100% 100%, 0 100%)',
+            }}
+          />
+          {/* back arrow */}
+          <Link
+            href="/"
+            className="mb-3 flex items-center gap-1.5 text-ceuta-muted no-underline"
+            style={{ width: 'fit-content' }}
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M19 12H5M12 5l-7 7 7 7" />
+            </svg>
+            <span className="font-display text-[11px] font-bold uppercase tracking-[0.14em]">
+              Volver
+            </span>
+          </Link>
+          <div className="flex items-center gap-2 font-display text-[11px] font-bold uppercase tracking-[0.16em] text-ceuta-red">
+            <div className="h-0.5 w-[18px] bg-ceuta-red" />
+            AD Ceuta FC · Actualidad
           </div>
-        ) : (
-          <>
-            {news.map((n) => {
-              const src = SOURCES[n.source]
-              return (
-                <a
-                  key={n.id}
-                  href={n.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 border-b border-ceuta-border px-[14px] py-[12px] active:bg-ceuta-bg-soft"
-                  style={{ textDecoration: 'none', borderLeftWidth: 3, borderLeftStyle: 'solid', borderLeftColor: src?.color ?? '#6B7280' }}
-                >
-                  {/* thumbnail */}
-                  {n.imageUrl ? (
-                    <div
-                      className="size-[48px] shrink-0 rounded-[8px]"
-                      style={{ backgroundImage: `url(${proxyImg(n.imageUrl)})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
-                    />
-                  ) : (
-                    <div className="flex size-[48px] shrink-0 items-center justify-center rounded-[8px] bg-ceuta-bg-soft font-display text-[10px] font-black uppercase text-ceuta-muted">
-                      {src?.label.slice(0, 3) ?? '···'}
-                    </div>
-                  )}
+          <div className="mt-2 font-display text-[38px] font-black uppercase leading-[0.95]">
+            TODAS LAS
+            <br />
+            <em className="not-italic text-ceuta-gold">NOTICIAS</em>
+          </div>
+        </div>
 
-                  {/* body */}
-                  <div className="min-w-0 flex-1">
-                    {/* source tag */}
-                    <div className="mb-0.5 flex items-center gap-1.5">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={`/api/proxy/favicon?domain=${src?.domain}`}
-                        alt=""
-                        width={11}
-                        height={11}
-                        className="rounded-[2px]"
+        {/* ── NEWS LIST CARD ── */}
+        <div className="relative z-[2] -mt-7 mx-3 overflow-hidden rounded-[14px] border-2 border-ceuta-black bg-white shadow-[6px_6px_0_#D62027]">
+          {loading ? (
+            <div className="px-[18px] py-6 font-display text-[11px] font-bold uppercase tracking-[0.1em] text-ceuta-muted">
+              Cargando noticias…
+            </div>
+          ) : (
+            <>
+              {news.map((n) => {
+                const src = SOURCES[n.source]
+                return (
+                  <a
+                    key={n.id}
+                    href={n.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 border-b border-ceuta-border px-[14px] py-[12px] active:bg-ceuta-bg-soft"
+                    style={{
+                      textDecoration: 'none',
+                      borderLeftWidth: 3,
+                      borderLeftStyle: 'solid',
+                      borderLeftColor: src?.color ?? '#6B7280',
+                    }}
+                  >
+                    {/* thumbnail */}
+                    {n.imageUrl ? (
+                      <div
+                        className="size-[48px] shrink-0 rounded-[8px]"
+                        style={{
+                          backgroundImage: `url(${proxyImg(n.imageUrl)})`,
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center',
+                        }}
                       />
-                      <span
-                        className="font-display text-[9.5px] font-bold uppercase tracking-[0.1em]"
-                        style={{ color: src?.color ?? '#6B7280' }}
-                      >
-                        {src?.label ?? n.source}
-                      </span>
-                    </div>
-                    {/* title */}
-                    <div className="font-display text-[13.5px] font-bold uppercase leading-[1.25] tracking-[0.01em] text-ceuta-black line-clamp-2">
-                      {n.title}
-                    </div>
-                    {/* time */}
-                    <div className="mt-1 font-display text-[10px] font-semibold uppercase tracking-[0.08em] text-ceuta-muted">
-                      {timeAgo(n.publishedAt)}
-                    </div>
-                  </div>
+                    ) : (
+                      <div className="flex size-[48px] shrink-0 items-center justify-center rounded-[8px] bg-ceuta-bg-soft font-display text-[10px] font-black uppercase text-ceuta-muted">
+                        {src?.label.slice(0, 3) ?? '···'}
+                      </div>
+                    )}
 
-                  {/* arrow */}
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-ceuta-muted">
-                    <path d="M5 12h14M12 5l7 7-7 7"/>
-                  </svg>
-                </a>
-              )
-            })}
+                    {/* body */}
+                    <div className="min-w-0 flex-1">
+                      {/* source tag */}
+                      <div className="mb-0.5 flex items-center gap-1.5">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={`/api/proxy/favicon?domain=${src?.domain}`}
+                          alt=""
+                          width={11}
+                          height={11}
+                          className="rounded-[2px]"
+                        />
+                        <span
+                          className="font-display text-[9.5px] font-bold uppercase tracking-[0.1em]"
+                          style={{ color: src?.color ?? '#6B7280' }}
+                        >
+                          {src?.label ?? n.source}
+                        </span>
+                      </div>
+                      {/* title */}
+                      <div className="font-display text-[13.5px] font-bold uppercase leading-[1.25] tracking-[0.01em] text-ceuta-black line-clamp-2">
+                        {n.title}
+                      </div>
+                      {/* time */}
+                      <div className="mt-1 font-display text-[10px] font-semibold uppercase tracking-[0.08em] text-ceuta-muted">
+                        {timeAgo(n.publishedAt)}
+                      </div>
+                    </div>
 
-            {hasMore && (
-              <div className="px-[14px] py-3">
-                <button
-                  onClick={loadMore}
-                  disabled={loadingMore}
-                  className="w-full rounded-[10px] bg-ceuta-bg-soft py-[13px] font-display text-[12px] font-black uppercase tracking-[0.1em]"
-                  style={{ border: 'none', color: loadingMore ? '#6B7280' : '#0A0A0A', cursor: loadingMore ? 'default' : 'pointer' }}
-                >
-                  {loadingMore ? 'Cargando…' : 'Cargar más noticias'}
-                </button>
-              </div>
-            )}
+                    {/* arrow */}
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="shrink-0 text-ceuta-muted"
+                    >
+                      <path d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
+                  </a>
+                )
+              })}
 
-            {!hasMore && news.length > 0 && (
-              <div className="px-[14px] py-4 text-center font-display text-[11px] font-semibold uppercase tracking-[0.1em] text-ceuta-muted">
-                Ya has visto todas las noticias
-              </div>
-            )}
-          </>
-        )}
+              {hasMore && (
+                <div className="px-[14px] py-3">
+                  <button
+                    onClick={loadMore}
+                    disabled={loadingMore}
+                    className="w-full rounded-[10px] bg-ceuta-bg-soft py-[13px] font-display text-[12px] font-black uppercase tracking-[0.1em]"
+                    style={{
+                      border: 'none',
+                      color: loadingMore ? '#6B7280' : '#0A0A0A',
+                      cursor: loadingMore ? 'default' : 'pointer',
+                    }}
+                  >
+                    {loadingMore ? 'Cargando…' : 'Cargar más noticias'}
+                  </button>
+                </div>
+              )}
+
+              {!hasMore && news.length > 0 && (
+                <div className="px-[14px] py-4 text-center font-display text-[11px] font-semibold uppercase tracking-[0.1em] text-ceuta-muted">
+                  Ya has visto todas las noticias
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
+        <div className="h-6" />
       </div>
-
-      <div className="h-6" />
-    </div>
     </div>
   )
 }

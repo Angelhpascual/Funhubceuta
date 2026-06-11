@@ -8,7 +8,9 @@ export const revalidate = 3600
 async function fetchPlayer(id: string) {
   const { data } = await supabase
     .from('squad')
-    .select('id,dorsal,name,position,position_group,nationality,height,weight,birth_date,photo_url,career_history,bio')
+    .select(
+      'id,dorsal,name,position,position_group,nationality,height,weight,birth_date,photo_url,career_history,bio'
+    )
     .eq('id', id)
     .eq('season', CURRENT_SEASON)
     .single()

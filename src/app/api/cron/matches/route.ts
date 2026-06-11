@@ -2,7 +2,11 @@ export const maxDuration = 60
 
 import { NextResponse } from 'next/server'
 import { Receiver } from '@upstash/qstash'
-import { scrapeNextMatches, scrapeRecentForm, scrapeRecentResults } from '@/infrastructure/scrapers/adceutaScraper'
+import {
+  scrapeNextMatches,
+  scrapeRecentForm,
+  scrapeRecentResults,
+} from '@/infrastructure/scrapers/adceutaScraper'
 import { MatchesSupabaseRepository } from '@/infrastructure/supabase/MatchesSupabaseRepository'
 import { supabase } from '@/infrastructure/supabase/client'
 import { setConfig } from '@/infrastructure/supabase/AppConfigRepository'
@@ -22,8 +26,10 @@ async function syncMatches() {
   // Store finished results in matches table
   if (results.length > 0) {
     await supabase.from('matches').upsert(
-      results.map(r => ({
-        external_id: `result-${r.date}-${r.homeTeam}-${r.awayTeam}`.toLowerCase().replace(/\s+/g, '-'),
+      results.map((r) => ({
+        external_id: `result-${r.date}-${r.homeTeam}-${r.awayTeam}`
+          .toLowerCase()
+          .replace(/\s+/g, '-'),
         home_team: r.homeTeam,
         away_team: r.awayTeam,
         date: r.date,
@@ -67,10 +73,12 @@ export async function POST(request: Request) {
   })
 
   const body = await request.text()
-  const valid = await receiver.verify({
-    signature: request.headers.get('Upstash-Signature') ?? '',
-    body,
-  }).catch(() => false)
+  const valid = await receiver
+    .verify({
+      signature: request.headers.get('Upstash-Signature') ?? '',
+      body,
+    })
+    .catch(() => false)
 
   if (!valid) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 

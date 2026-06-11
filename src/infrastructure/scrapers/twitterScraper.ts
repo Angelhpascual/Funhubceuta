@@ -6,22 +6,30 @@ export interface ScrapedTweet {
   imageUrl: string | null
 }
 
-export async function scrapeLatestTweets(screenName = 'ADCeuta_FC', limit = 10): Promise<ScrapedTweet[]> {
+export async function scrapeLatestTweets(
+  screenName = 'ADCeuta_FC',
+  limit = 10
+): Promise<ScrapedTweet[]> {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const https = require('https') as typeof import('https')
   const html = await new Promise<string>((resolve, reject) => {
-    const https = require('https')
     const options = {
       hostname: 'syndication.twitter.com',
       path: `/srv/timeline-profile/screen-name/${screenName}?lang=es`,
       method: 'GET',
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'User-Agent':
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
         'Accept-Language': 'es-ES,es;q=0.9',
-        'Referer': 'https://twitter.com/',
+        Referer: 'https://twitter.com/',
       },
     }
     const req = https.request(options, (res: NodeJS.ReadableStream & { statusCode: number }) => {
-      if (res.statusCode !== 200) { reject(new Error(`Twitter syndication failed: ${res.statusCode}`)); return }
+      if (res.statusCode !== 200) {
+        reject(new Error(`Twitter syndication failed: ${res.statusCode}`))
+        return
+      }
       const chunks: Buffer[] = []
       res.on('data', (c: Buffer) => chunks.push(c))
       res.on('end', () => resolve(Buffer.concat(chunks).toString('utf-8')))
