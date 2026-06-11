@@ -3,7 +3,15 @@ import { parseFormation, assignRows } from '../lineupUtils'
 import type { LineupPlayer } from '@/app/api/matches/lineup/route'
 
 function makePlayer(positionAbbr: string, name = positionAbbr): LineupPlayer {
-  return { name, shortName: name, jersey: '1', position: positionAbbr, positionAbbr, starter: true, photoUrl: null }
+  return {
+    name,
+    shortName: name,
+    jersey: '1',
+    position: positionAbbr,
+    positionAbbr,
+    starter: true,
+    photoUrl: null,
+  }
 }
 
 describe('parseFormation', () => {
@@ -33,9 +41,16 @@ describe('assignRows', () => {
   it('assigns 11 players to correct rows for 4-3-3', () => {
     const starters: LineupPlayer[] = [
       makePlayer('GK'),
-      makePlayer('LB'), makePlayer('CB'), makePlayer('CB'), makePlayer('RB'),
-      makePlayer('CM'), makePlayer('CM'), makePlayer('CM'),
-      makePlayer('LW'), makePlayer('CF'), makePlayer('RW'),
+      makePlayer('LB'),
+      makePlayer('CB'),
+      makePlayer('CB'),
+      makePlayer('RB'),
+      makePlayer('CM'),
+      makePlayer('CM'),
+      makePlayer('CM'),
+      makePlayer('LW'),
+      makePlayer('CF'),
+      makePlayer('RW'),
     ]
     const rows = assignRows(starters, '4-3-3')
     expect(rows).toHaveLength(4)
@@ -48,9 +63,16 @@ describe('assignRows', () => {
   it('puts GK alone in last row', () => {
     const starters: LineupPlayer[] = [
       makePlayer('GK'),
-      makePlayer('LB'), makePlayer('CB'), makePlayer('CB'), makePlayer('RB'),
-      makePlayer('CM'), makePlayer('CM'), makePlayer('CM'),
-      makePlayer('LW'), makePlayer('CF'), makePlayer('RW'),
+      makePlayer('LB'),
+      makePlayer('CB'),
+      makePlayer('CB'),
+      makePlayer('RB'),
+      makePlayer('CM'),
+      makePlayer('CM'),
+      makePlayer('CM'),
+      makePlayer('LW'),
+      makePlayer('CF'),
+      makePlayer('RW'),
     ]
     const rows = assignRows(starters, '4-3-3')
     expect(rows[rows.length - 1]).toHaveLength(1)
@@ -60,9 +82,15 @@ describe('assignRows', () => {
   it('total players across rows equals starters length', () => {
     const starters: LineupPlayer[] = [
       makePlayer('GK'),
-      makePlayer('LB'), makePlayer('CB'), makePlayer('CB'), makePlayer('RB'),
-      makePlayer('DM'), makePlayer('CM'),
-      makePlayer('LW'), makePlayer('CAM'), makePlayer('RW'),
+      makePlayer('LB'),
+      makePlayer('CB'),
+      makePlayer('CB'),
+      makePlayer('RB'),
+      makePlayer('DM'),
+      makePlayer('CM'),
+      makePlayer('LW'),
+      makePlayer('CAM'),
+      makePlayer('RW'),
       makePlayer('CF'),
     ]
     const rows = assignRows(starters, '4-2-3-1')

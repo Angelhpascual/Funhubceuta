@@ -9,10 +9,13 @@ export async function fetchCeutaForm(): Promise<string[]> {
     .not('result', 'is', null)
     .order('date', { ascending: false })
     .limit(5)
-  if (data?.length) return data.map(m => m.result as string).reverse()
+  if (data?.length) return data.map((m) => m.result as string).reverse()
 
   const { data: config } = await supabase
-    .from('app_config').select('value').eq('key', 'ceuta_form').single()
+    .from('app_config')
+    .select('value')
+    .eq('key', 'ceuta_form')
+    .single()
   return config?.value?.split(',').filter(Boolean) ?? []
 }
 

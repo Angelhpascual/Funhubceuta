@@ -28,43 +28,61 @@ if (process.env.NODE_ENV !== 'production') {
 const HOME = 'FC Andorra'
 const AWAY = 'Ceuta'
 
-const STEPS: Record<string, {
-  state: 'pre' | 'in' | 'post'
-  homeScore: number
-  awayScore: number
-  clock: string
-  events: { type: string; minute: string; team: string; playerName: string }[]
-  label: string
-}> = {
+const STEPS: Record<
+  string,
+  {
+    state: 'pre' | 'in' | 'post'
+    homeScore: number
+    awayScore: number
+    clock: string
+    events: { type: string; minute: string; team: string; playerName: string }[]
+    label: string
+  }
+> = {
   kickoff: {
-    state: 'in', homeScore: 0, awayScore: 0, clock: "1'",
+    state: 'in',
+    homeScore: 0,
+    awayScore: 0,
+    clock: "1'",
     events: [],
     label: '⚽ Partido comenzado — min 1',
   },
   goal1: {
-    state: 'in', homeScore: 0, awayScore: 1, clock: "23'",
+    state: 'in',
+    homeScore: 0,
+    awayScore: 1,
+    clock: "23'",
     events: [{ type: 'goal', minute: "23'", team: 'away', playerName: 'Bassinga' }],
-    label: '🚨 GOL DEL CEUTA! 0-1 · Bassinga 23\'',
+    label: "🚨 GOL DEL CEUTA! 0-1 · Bassinga 23'",
   },
   goal2: {
-    state: 'in', homeScore: 1, awayScore: 1, clock: "38'",
+    state: 'in',
+    homeScore: 1,
+    awayScore: 1,
+    clock: "38'",
     events: [
       { type: 'goal', minute: "23'", team: 'away', playerName: 'Bassinga' },
       { type: 'goal', minute: "38'", team: 'home', playerName: 'Riera' },
     ],
-    label: '⚽ Gol rival. Empate 1-1 · Riera 38\'',
+    label: "⚽ Gol rival. Empate 1-1 · Riera 38'",
   },
   redcard: {
-    state: 'in', homeScore: 1, awayScore: 1, clock: "42'",
+    state: 'in',
+    homeScore: 1,
+    awayScore: 1,
+    clock: "42'",
     events: [
       { type: 'goal', minute: "23'", team: 'away', playerName: 'Bassinga' },
       { type: 'goal', minute: "38'", team: 'home', playerName: 'Riera' },
       { type: 'redCard', minute: "42'", team: 'home', playerName: 'Lainez' },
     ],
-    label: '🟥 Tarjeta roja rival — Lainez 42\'',
+    label: "🟥 Tarjeta roja rival — Lainez 42'",
   },
   halftime: {
-    state: 'in', homeScore: 1, awayScore: 1, clock: 'HT',
+    state: 'in',
+    homeScore: 1,
+    awayScore: 1,
+    clock: 'HT',
     events: [
       { type: 'goal', minute: "23'", team: 'away', playerName: 'Bassinga' },
       { type: 'goal', minute: "38'", team: 'home', playerName: 'Riera' },
@@ -73,17 +91,23 @@ const STEPS: Record<string, {
     label: '⏸ Descanso — 1-1',
   },
   goal3: {
-    state: 'in', homeScore: 1, awayScore: 2, clock: "67'",
+    state: 'in',
+    homeScore: 1,
+    awayScore: 2,
+    clock: "67'",
     events: [
       { type: 'goal', minute: "23'", team: 'away', playerName: 'Bassinga' },
       { type: 'goal', minute: "38'", team: 'home', playerName: 'Riera' },
       { type: 'redCard', minute: "42'", team: 'home', playerName: 'Lainez' },
       { type: 'goal', minute: "67'", team: 'away', playerName: 'Zalazar' },
     ],
-    label: '🚨 GOL DEL CEUTA! 1-2 · Zalazar 67\'',
+    label: "🚨 GOL DEL CEUTA! 1-2 · Zalazar 67'",
   },
   fulltime: {
-    state: 'post', homeScore: 1, awayScore: 2, clock: '',
+    state: 'post',
+    homeScore: 1,
+    awayScore: 2,
+    clock: '',
     events: [
       { type: 'goal', minute: "23'", team: 'away', playerName: 'Bassinga' },
       { type: 'goal', minute: "38'", team: 'home', playerName: 'Riera' },
@@ -98,15 +122,17 @@ async function sendPushAll(title: string, body: string, tag: string) {
   const { data: subs } = await supabase.from('push_subscriptions').select('endpoint, p256dh, auth')
   if (!subs?.length) return 0
   let sent = 0
-  await Promise.allSettled(subs.map(async sub => {
-    try {
-      await webpush.sendNotification(
-        { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
-        JSON.stringify({ title, body, tag, url: '/' })
-      )
-      sent++
-    } catch {}
-  }))
+  await Promise.allSettled(
+    subs.map(async (sub) => {
+      try {
+        await webpush.sendNotification(
+          { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
+          JSON.stringify({ title, body, tag, url: '/' })
+        )
+        sent++
+      } catch {}
+    })
+  )
   return sent
 }
 
@@ -128,13 +154,20 @@ export async function GET(request: NextRequest) {
 
   // Push de prueba directo
   if (step === 'push') {
-    const sent = await sendPushAll('🧪 Prueba de notificación', 'Las alertas del Ceuta funcionan ✅', 'test')
+    const sent = await sendPushAll(
+      '🧪 Prueba de notificación',
+      'Las alertas del Ceuta funcionan ✅',
+      'test'
+    )
     return NextResponse.json({ ok: true, sent, message: `Push enviado a ${sent} dispositivos` })
   }
 
   const data = STEPS[step]
   if (!data) {
-    return NextResponse.json({ error: `Step desconocido. Usa: ${Object.keys(STEPS).join(', ')}` }, { status: 400 })
+    return NextResponse.json(
+      { error: `Step desconocido. Usa: ${Object.keys(STEPS).join(', ')}` },
+      { status: 400 }
+    )
   }
 
   // Guarda el mock como estado actual del partido
@@ -153,12 +186,20 @@ export async function GET(request: NextRequest) {
   }
 
   await supabase.from('app_config').upsert(
-    { key: 'live_match_mock', value: JSON.stringify(mockMatch), updated_at: new Date().toISOString() },
+    {
+      key: 'live_match_mock',
+      value: JSON.stringify(mockMatch),
+      updated_at: new Date().toISOString(),
+    },
     { onConflict: 'key' }
   )
 
   // Lee el estado anterior y compara para enviar notificaciones
-  const { data: prevData } = await supabase.from('app_config').select('value').eq('key', 'live_match_state').single()
+  const { data: prevData } = await supabase
+    .from('app_config')
+    .select('value')
+    .eq('key', 'live_match_state')
+    .single()
   const prev = prevData?.value ? JSON.parse(prevData.value) : null
 
   const notifications: string[] = []
@@ -180,7 +221,7 @@ export async function GET(request: NextRequest) {
     const homeRivalGoals = data.homeScore - (prev.homeScore ?? 0)
 
     for (let i = 0; i < awayCeutaGoals; i++) {
-      const scorer = data.events.filter(e => e.type === 'goal' && e.team === 'away').pop()
+      const scorer = data.events.filter((e) => e.type === 'goal' && e.team === 'away').pop()
       const sent = await sendPushAll(
         `🚨 ¡¡GOOOOOL DE CEUTA!! 🔥`,
         `¡${scorer?.playerName ?? 'GOOOL'}! ¡Qué locura! Marcador: ${score} (${scorer?.minute ?? ''}) ¡VAMOS CABALLAS! 🖤⚪`,
@@ -190,7 +231,7 @@ export async function GET(request: NextRequest) {
     }
 
     for (let i = 0; i < homeRivalGoals; i++) {
-      const scorer = data.events.filter(e => e.type === 'goal' && e.team === 'home').pop()
+      const scorer = data.events.filter((e) => e.type === 'goal' && e.team === 'home').pop()
       const sent = await sendPushAll(
         `😤 Gol en contra... (${score})`,
         `Nos han marcado${scorer ? ` ${scorer.playerName}` : ''}. Pero esto no ha terminado. ¡A por ellos! 💪`,
@@ -199,8 +240,10 @@ export async function GET(request: NextRequest) {
       notifications.push(`goal-rival (${sent} enviados)`)
     }
 
-    const prevRedCards = (prev.events ?? []).filter((e: { type: string }) => e.type === 'redCard').length
-    const newRedCards = data.events.filter(e => e.type === 'redCard').slice(prevRedCards)
+    const prevRedCards = (prev.events ?? []).filter(
+      (e: { type: string }) => e.type === 'redCard'
+    ).length
+    const newRedCards = data.events.filter((e) => e.type === 'redCard').slice(prevRedCards)
     for (const card of newRedCards) {
       const isCeuta = card.team === 'away'
       const sent = isCeuta
@@ -232,16 +275,33 @@ export async function GET(request: NextRequest) {
       title = `😔 Derrota... pero seguimos juntos (${score})`
       body = `No era el día. Esto es el fútbol. Pero el Ceuta siempre se levanta. ¡Gracias por el apoyo! 🖤⚪`
     }
-    const sent = await sendPushAll(title, body, 'fulltime'
-    )
+    const sent = await sendPushAll(title, body, 'fulltime')
     notifications.push(`fulltime (${sent} enviados)`)
   }
 
   // Actualiza estado
   await supabase.from('app_config').upsert(
-    { key: 'live_match_state', value: JSON.stringify({ espnId: 'test', homeScore: data.homeScore, awayScore: data.awayScore, state: data.state, eventCount: data.events.length, events: data.events }), updated_at: new Date().toISOString() },
+    {
+      key: 'live_match_state',
+      value: JSON.stringify({
+        espnId: 'test',
+        homeScore: data.homeScore,
+        awayScore: data.awayScore,
+        state: data.state,
+        eventCount: data.events.length,
+        events: data.events,
+      }),
+      updated_at: new Date().toISOString(),
+    },
     { onConflict: 'key' }
   )
 
-  return NextResponse.json({ ok: true, step, label: data.label, score: `${data.homeScore}-${data.awayScore}`, state: data.state, notifications })
+  return NextResponse.json({
+    ok: true,
+    step,
+    label: data.label,
+    score: `${data.homeScore}-${data.awayScore}`,
+    state: data.state,
+    notifications,
+  })
 }

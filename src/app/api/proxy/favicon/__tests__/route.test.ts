@@ -31,11 +31,14 @@ describe('GET /api/proxy/favicon', () => {
 
   it('proxies favicon bytes with correct content-type', async () => {
     const fakeBuffer = new Uint8Array([0x89, 0x50, 0x4e, 0x47]).buffer
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: true,
-      arrayBuffer: () => Promise.resolve(fakeBuffer),
-      headers: { get: () => 'image/png' },
-    }))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        arrayBuffer: () => Promise.resolve(fakeBuffer),
+        headers: { get: () => 'image/png' },
+      })
+    )
 
     const res = await GET(makeRequest('marca.com'))
     expect(res.status).toBe(200)

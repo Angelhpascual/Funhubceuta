@@ -8,7 +8,7 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
   const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/')
   const raw = atob(base64)
-  return Uint8Array.from([...raw].map(c => c.charCodeAt(0)))
+  return Uint8Array.from([...raw].map((c) => c.charCodeAt(0)))
 }
 
 export function usePushNotifications() {
@@ -22,14 +22,17 @@ export function usePushNotifications() {
     }
     setPermission(Notification.permission as PermissionState)
     navigator.serviceWorker.ready
-      .then(reg => reg.pushManager.getSubscription())
-      .then(sub => { setSubscribed(!!sub) })
+      .then((reg) => reg.pushManager.getSubscription())
+      .then((sub) => {
+        setSubscribed(!!sub)
+      })
       .catch(() => {})
   }, [])
 
   const subscribe = async (): Promise<{ ok: boolean; error?: string }> => {
     if (!('serviceWorker' in navigator)) return { ok: false, error: 'ServiceWorker no disponible' }
-    if (!('PushManager' in window)) return { ok: false, error: 'Push no soportado en este navegador' }
+    if (!('PushManager' in window))
+      return { ok: false, error: 'Push no soportado en este navegador' }
 
     try {
       const reg = await navigator.serviceWorker.register('/sw.js')

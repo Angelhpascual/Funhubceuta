@@ -15,8 +15,8 @@ export interface LiveEvent {
 export interface LiveMatch {
   espnId: string
   state: 'pre' | 'in' | 'post'
-  status: string        // "Scheduled" | "1st Half" | "Half Time" | "2nd Half" | "Full Time"
-  clock: string         // "23'" | "HT" | ""
+  status: string // "Scheduled" | "1st Half" | "Half Time" | "2nd Half" | "Full Time"
+  clock: string // "23'" | "HT" | ""
   homeTeam: string
   awayTeam: string
   homeScore: number
@@ -25,7 +25,6 @@ export interface LiveMatch {
   venue: string
   startDate: string
 }
-
 
 async function fetchEspn(url: string) {
   const res = await fetch(url, {
@@ -63,8 +62,12 @@ export async function GET() {
   const statusType = status?.type as Record<string, unknown>
   const competitors = competition.competitors as Record<string, unknown>[]
 
-  const home = competitors?.find(c => (c as Record<string, unknown>).homeAway === 'home') as Record<string, unknown>
-  const away = competitors?.find(c => (c as Record<string, unknown>).homeAway === 'away') as Record<string, unknown>
+  const home = competitors?.find(
+    (c) => (c as Record<string, unknown>).homeAway === 'home'
+  ) as Record<string, unknown>
+  const away = competitors?.find(
+    (c) => (c as Record<string, unknown>).homeAway === 'away'
+  ) as Record<string, unknown>
   const homeTeamData = home?.team as Record<string, unknown>
   const awayTeamData = away?.team as Record<string, unknown>
   const venue = competition.venue as Record<string, unknown>
@@ -82,14 +85,16 @@ export async function GET() {
     liveEvents = plays
       .filter((p: unknown) => {
         const play = p as Record<string, unknown>
-        const type = ((play.type as Record<string, unknown>)?.text as string ?? '').toLowerCase()
+        const type = (((play.type as Record<string, unknown>)?.text as string) ?? '').toLowerCase()
         return type.includes('goal') || type.includes('yellow') || type.includes('red')
       })
       .map((p: unknown) => {
         const play = p as Record<string, unknown>
-        const typeText = ((play.type as Record<string, unknown>)?.text as string ?? '').toLowerCase()
+        const typeText = (
+          ((play.type as Record<string, unknown>)?.text as string) ?? ''
+        ).toLowerCase()
         const clock = play.clock as Record<string, unknown>
-        const participants = play.participants as Record<string, unknown>[] ?? []
+        const participants = (play.participants as Record<string, unknown>[]) ?? []
         const athlete = participants[0]?.athlete as Record<string, unknown>
 
         let type: LiveEvent['type'] = 'goal'
@@ -98,13 +103,13 @@ export async function GET() {
         else if (typeText.includes('substitution')) type = 'substitution'
 
         const playTeamId = (play.team as Record<string, unknown>)?.id
-        const team: 'home' | 'away' = playTeamId === (homeTeamData?.id) ? 'home' : 'away'
+        const team: 'home' | 'away' = playTeamId === homeTeamData?.id ? 'home' : 'away'
 
         return {
           type,
-          minute: clock?.displayValue as string ?? '',
+          minute: (clock?.displayValue as string) ?? '',
           team,
-          playerName: athlete?.displayName as string ?? '',
+          playerName: (athlete?.displayName as string) ?? '',
         }
       })
   }
@@ -113,14 +118,14 @@ export async function GET() {
     espnId: ceutaEvent.id as string,
     state: (state as 'pre' | 'in' | 'post') ?? 'pre',
     status: statusDesc ?? '',
-    clock: state === 'in' ? (clockDisplay || '') : '',
-    homeTeam: homeTeamData?.displayName as string ?? '',
-    awayTeam: awayTeamData?.displayName as string ?? '',
-    homeScore: parseInt(home?.score as string ?? '0'),
-    awayScore: parseInt(away?.score as string ?? '0'),
+    clock: state === 'in' ? clockDisplay || '' : '',
+    homeTeam: (homeTeamData?.displayName as string) ?? '',
+    awayTeam: (awayTeamData?.displayName as string) ?? '',
+    homeScore: parseInt((home?.score as string) ?? '0'),
+    awayScore: parseInt((away?.score as string) ?? '0'),
     events: liveEvents,
-    venue: (venue as Record<string, unknown>)?.fullName as string ?? '',
-    startDate: ceutaEvent.date as string ?? '',
+    venue: ((venue as Record<string, unknown>)?.fullName as string) ?? '',
+    startDate: (ceutaEvent.date as string) ?? '',
   }
 
   // Don't show a finished match that ended more than 3 hours ago
@@ -138,7 +143,9 @@ export async function GET() {
           if (storedState.espnId === ceutaEvent.id && storedState.events?.length) {
             liveEvents = storedState.events
           }
-        } catch { /* ignore */ }
+        } catch {
+          /* ignore */
+        }
       }
     }
   }

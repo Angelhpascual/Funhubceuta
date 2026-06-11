@@ -1,15 +1,32 @@
-const STOPWORDS = new Set(['fc', 'cf', 'ad', 'sd', 'ud', 'cd', 'rc', 'real', 'atletico', 'deportivo', 'balompie', 'bp', 'club'])
+const STOPWORDS = new Set([
+  'fc',
+  'cf',
+  'ad',
+  'sd',
+  'ud',
+  'cd',
+  'rc',
+  'real',
+  'atletico',
+  'deportivo',
+  'balompie',
+  'bp',
+  'club',
+])
 
 function norm(s: string): string {
   return s
     .toLowerCase()
-    .normalize('NFD').replace(/[̀-ͯ]/g, '') // remove accents
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '') // remove accents
     .replace(/[^a-z0-9\s]/g, '')
     .trim()
 }
 
 function keywords(name: string): string[] {
-  return norm(name).split(/\s+/).filter(w => w.length > 2 && !STOPWORDS.has(w))
+  return norm(name)
+    .split(/\s+/)
+    .filter((w) => w.length > 2 && !STOPWORDS.has(w))
 }
 
 export function findLogo(logos: Record<string, string>, name: string): string | null {
@@ -29,7 +46,7 @@ export function findLogo(logos: Record<string, string>, name: string): string | 
     if (target.includes(n) || n.includes(target)) return logo
 
     // Keyword overlap — if any significant keyword matches
-    if (targetKws.some(kw => nKws.includes(kw))) return logo
+    if (targetKws.some((kw) => nKws.includes(kw))) return logo
   }
 
   return null

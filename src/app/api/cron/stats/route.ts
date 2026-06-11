@@ -5,13 +5,13 @@ const LALIGA_URL = 'https://www.laliga.com/en-GB/clubs/ad-ceuta-fc/stats'
 const CDN_BASE = 'https://assets.laliga.com/squad/2025/t14705'
 
 const STAT_LABELS: Record<string, { label: string; icon: string }> = {
-  total_goals_ranking:         { label: 'Goleadores',     icon: '⚽' },
-  total_assists_ranking:       { label: 'Asistencias',    icon: '🎯' },
+  total_goals_ranking: { label: 'Goleadores', icon: '⚽' },
+  total_assists_ranking: { label: 'Asistencias', icon: '🎯' },
   total_ontarget_attempt_ranking: { label: 'Disparos a puerta', icon: '🥊' },
-  total_pass_ranking:          { label: 'Pases',          icon: '🔵' },
-  total_interception_ranking:  { label: 'Interceptaciones', icon: '🛡️' },
-  total_yellow_card_ranking:   { label: 'Tarjetas amarillas', icon: '🟨' },
-  total_red_card_ranking:      { label: 'Tarjetas rojas', icon: '🟥' },
+  total_pass_ranking: { label: 'Pases', icon: '🔵' },
+  total_interception_ranking: { label: 'Interceptaciones', icon: '🛡️' },
+  total_yellow_card_ranking: { label: 'Tarjetas amarillas', icon: '🟨' },
+  total_red_card_ranking: { label: 'Tarjetas rojas', icon: '🟥' },
 }
 
 interface LaLigaPlayer {
@@ -32,13 +32,18 @@ async function scrapeLeaders() {
   if (!res.ok) throw new Error(`LaLiga responded ${res.status}`)
 
   const html = await res.text()
-  const match = html.match(/<script id="__NEXT_DATA__" type="application\/json">([\s\S]*?)<\/script>/)
+  const match = html.match(
+    /<script id="__NEXT_DATA__" type="application\/json">([\s\S]*?)<\/script>/
+  )
   if (!match) throw new Error('__NEXT_DATA__ not found in LaLiga page')
 
   const data = JSON.parse(match[1])
   const rawStats: Record<string, LaLigaPlayer[]> = data?.props?.pageProps?.leadersStats ?? {}
 
-  const result: Record<string, { label: string; icon: string; leaders: { name: string; value: number; photo: string }[] }> = {}
+  const result: Record<
+    string,
+    { label: string; icon: string; leaders: { name: string; value: number; photo: string }[] }
+  > = {}
 
   for (const [key, players] of Object.entries(rawStats)) {
     const statKey = key.replace('stat.', '')
@@ -51,9 +56,10 @@ async function scrapeLeaders() {
       label: meta.label,
       icon: meta.icon,
       leaders: players.slice(0, 5).map((p) => {
-        const value = p.stats.find(s => s.name === `total_${statName}`)?.stat
-          ?? p.stats.find(s => !s.name.includes('ranking'))?.stat
-          ?? 0
+        const value =
+          p.stats.find((s) => s.name === `total_${statName}`)?.stat ??
+          p.stats.find((s) => !s.name.includes('ranking'))?.stat ??
+          0
         const pid = p.opta_player_id
         return {
           name: p.extra_info.name,

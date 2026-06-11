@@ -10,7 +10,7 @@ export class MatchesSupabaseRepository {
     await supabase.from('matches').delete().eq('status', 'scheduled')
 
     const { error } = await supabase.from('matches').insert(
-      matches.map(m => ({
+      matches.map((m) => ({
         external_id: `${m.date}-${m.homeTeam}-${m.awayTeam}`.toLowerCase().replace(/\s+/g, '-'),
         home_team: m.homeTeam,
         away_team: m.awayTeam,

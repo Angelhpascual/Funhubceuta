@@ -10,7 +10,9 @@ export function shortTeamName(name: string): string {
   return name
     .replace('AD CEUTA FC', 'AD Ceuta')
     .replace('CEUTA FC', 'AD Ceuta')
-    .split(' ').map(w => w.charAt(0) + w.slice(1).toLowerCase()).join(' ')
+    .split(' ')
+    .map((w) => w.charAt(0) + w.slice(1).toLowerCase())
+    .join(' ')
 }
 
 export function resultLabel(r: string | null): { cls: string; label: string } | null {

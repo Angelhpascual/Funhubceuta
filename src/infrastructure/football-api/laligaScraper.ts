@@ -61,7 +61,19 @@ export async function scrapeStandings(
       const goalDifference = goalsFor - goalsAgainst
 
       if (position && teamName) {
-        results.push({ position, teamName, teamLogo, points, played, won, drawn, lost, goalsFor, goalsAgainst, goalDifference })
+        results.push({
+          position,
+          teamName,
+          teamLogo,
+          points,
+          played,
+          won,
+          drawn,
+          lost,
+          goalsFor,
+          goalsAgainst,
+          goalDifference,
+        })
       }
     })
 

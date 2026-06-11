@@ -6,12 +6,6 @@ import { setConfig, deleteConfig } from '@/infrastructure/supabase/AppConfigRepo
 import { deleteSubscription } from '@/infrastructure/supabase/PushSubscriptionsRepository'
 import { ESPN_BASE as ESPN } from '@/lib/constants'
 
-webpush.setVapidDetails(
-  'mailto:angelhpascual@gmail.com',
-  process.env.VAPID_PUBLIC_KEY!,
-  process.env.VAPID_PRIVATE_KEY!
-)
-
 // ── Fetch live match from ESPN (same logic as /api/live) ──────────────────
 
 async function fetchLiveMatch(): Promise<LiveMatch | null> {
@@ -26,8 +20,8 @@ async function fetchLiveMatch(): Promise<LiveMatch | null> {
 
   const comp = event.competitions?.[0]
   const statusType = comp?.status?.type
-  const home = comp?.competitors?.find((c: Record<string,unknown>) => c.homeAway === 'home')
-  const away = comp?.competitors?.find((c: Record<string,unknown>) => c.homeAway === 'away')
+  const home = comp?.competitors?.find((c: Record<string, unknown>) => c.homeAway === 'home')
+  const away = comp?.competitors?.find((c: Record<string, unknown>) => c.homeAway === 'away')
   const state: 'pre' | 'in' | 'post' = statusType?.state ?? 'pre'
 
   let events: LiveEvent[] = []
@@ -36,17 +30,20 @@ async function fetchLiveMatch(): Promise<LiveMatch | null> {
     if (sum.ok) {
       const sumData = await sum.json()
       events = (sumData.plays ?? [])
-        .filter((p: Record<string,unknown>) => {
-          const t = ((p.type as Record<string,unknown>)?.text as string ?? '').toLowerCase()
+        .filter((p: Record<string, unknown>) => {
+          const t = (((p.type as Record<string, unknown>)?.text as string) ?? '').toLowerCase()
           return t.includes('goal') || t.includes('yellow') || t.includes('red')
         })
-        .map((p: Record<string,unknown>) => {
-          const t = ((p.type as Record<string,unknown>)?.text as string ?? '').toLowerCase()
-          const teamId = (p.team as Record<string,unknown>)?.id
-          const athlete = ((p.participants as Record<string,unknown>[])?.[0]?.athlete as Record<string,unknown>)
+        .map((p: Record<string, unknown>) => {
+          const t = (((p.type as Record<string, unknown>)?.text as string) ?? '').toLowerCase()
+          const teamId = (p.team as Record<string, unknown>)?.id
+          const athlete = (p.participants as Record<string, unknown>[])?.[0]?.athlete as Record<
+            string,
+            unknown
+          >
           return {
             type: t.includes('yellow') ? 'yellowCard' : t.includes('red') ? 'redCard' : 'goal',
-            minute: ((p.clock as Record<string,unknown>)?.displayValue as string) ?? '',
+            minute: ((p.clock as Record<string, unknown>)?.displayValue as string) ?? '',
             team: teamId === home?.team?.id ? 'home' : 'away',
             playerName: (athlete?.displayName as string) ?? '',
           } satisfies LiveEvent
@@ -71,8 +68,15 @@ async function fetchLiveMatch(): Promise<LiveMatch | null> {
 
 // ── Send push to all subscribers ──────────────────────────────────────────
 async function sendPush(title: string, body: string, tag: string) {
-  const subs = await import('@/infrastructure/supabase/PushSubscriptionsRepository')
-    .then(m => m.getAllSubscriptions())
+  webpush.setVapidDetails(
+    'mailto:angelhpascual@gmail.com',
+    process.env.VAPID_PUBLIC_KEY!,
+    process.env.VAPID_PRIVATE_KEY!
+  )
+
+  const subs = await import('@/infrastructure/supabase/PushSubscriptionsRepository').then((m) =>
+    m.getAllSubscriptions()
+  )
 
   if (!subs.length) return 0
 
@@ -80,7 +84,7 @@ async function sendPush(title: string, body: string, tag: string) {
   let sent = 0
 
   await Promise.allSettled(
-    subs.map(async sub => {
+    subs.map(async (sub) => {
       try {
         await webpush.sendNotification(
           { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
@@ -88,7 +92,7 @@ async function sendPush(title: string, body: string, tag: string) {
         )
         sent++
       } catch (err: unknown) {
-        const status = (err as Record<string,unknown>)?.statusCode
+        const status = (err as Record<string, unknown>)?.statusCode
         if (status === 410 || status === 404) {
           await deleteSubscription(sub.endpoint)
         }
@@ -112,7 +116,11 @@ async function getStoredState(): Promise<MatchState | null> {
   const { getConfig } = await import('@/infrastructure/supabase/AppConfigRepository')
   const raw = await getConfig('live_match_state')
   if (!raw) return null
-  try { return JSON.parse(raw) } catch { return null }
+  try {
+    return JSON.parse(raw)
+  } catch {
+    return null
+  }
 }
 
 async function saveState(state: MatchState) {
@@ -168,7 +176,7 @@ async function checkAndNotify() {
 
     for (let i = 0; i < homeGoals; i++) {
       const ceutaScored = ceutaIsHome
-      const scorer = match.events.filter(e => e.type === 'goal' && e.team === 'home').pop()
+      const scorer = match.events.filter((e) => e.type === 'goal' && e.team === 'home').pop()
 
       if (ceutaScored) {
         await sendPush(
@@ -188,7 +196,7 @@ async function checkAndNotify() {
 
     for (let i = 0; i < awayGoals; i++) {
       const ceutaScored = !ceutaIsHome
-      const scorer = match.events.filter(e => e.type === 'goal' && e.team === 'away').pop()
+      const scorer = match.events.filter((e) => e.type === 'goal' && e.team === 'away').pop()
 
       if (ceutaScored) {
         await sendPush(
@@ -208,7 +216,7 @@ async function checkAndNotify() {
 
     // ── Red card ────────────────────────────────────────────────────────
     const newEvents = match.events.slice(prev.eventCount)
-    const redCards = newEvents.filter(e => e.type === 'redCard')
+    const redCards = newEvents.filter((e) => e.type === 'redCard')
     for (const card of redCards) {
       const isCeuta = card.team === (ceutaIsHome ? 'home' : 'away')
       if (isCeuta) {
@@ -256,7 +264,10 @@ async function checkAndNotify() {
   }
 
   await saveState(newState)
-  return { match: { state: match.state, score: `${match.homeScore}-${match.awayScore}` }, notifications }
+  return {
+    match: { state: match.state, score: `${match.homeScore}-${match.awayScore}` },
+    notifications,
+  }
 }
 
 // ── Routes ────────────────────────────────────────────────────────────────
@@ -266,10 +277,12 @@ export async function POST(request: Request) {
     nextSigningKey: process.env.QSTASH_NEXT_SIGNING_KEY!,
   })
   const body = await request.text()
-  const valid = await receiver.verify({
-    signature: request.headers.get('Upstash-Signature') ?? '',
-    body,
-  }).catch(() => false)
+  const valid = await receiver
+    .verify({
+      signature: request.headers.get('Upstash-Signature') ?? '',
+      body,
+    })
+    .catch(() => false)
 
   if (!valid) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 

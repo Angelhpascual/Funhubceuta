@@ -2,7 +2,7 @@ export interface HistoryPlayer {
   id: string
   name: string
   slug: string
-  position: "GK" | "DEF" | "MID" | "FWD" | null
+  position: 'GK' | 'DEF' | 'MID' | 'FWD' | null
   nationality: string | null
   birthDate: string | null
   photoUrl: string | null

@@ -9,21 +9,15 @@ async function fetcher<T>(endpoint: string): Promise<T> {
 }
 
 export const theSportsDbClient = {
-  getStandings: (season: string) =>
-    fetcher(`/lookuptable.php?l=${LEAGUE_ID}&s=${season}`),
+  getStandings: (season: string) => fetcher(`/lookuptable.php?l=${LEAGUE_ID}&s=${season}`),
 
-  getTeamMatches: (season: string) =>
-    fetcher(`/searchevents.php?id=${TEAM_ID}&s=${season}`),
+  getTeamMatches: (season: string) => fetcher(`/searchevents.php?id=${TEAM_ID}&s=${season}`),
 
-  getNextMatches: () =>
-    fetcher(`/eventsnext.php?id=${TEAM_ID}`),
+  getNextMatches: () => fetcher(`/eventsnext.php?id=${TEAM_ID}`),
 
-  getLastMatches: () =>
-    fetcher(`/eventslast.php?id=${TEAM_ID}`),
+  getLastMatches: () => fetcher(`/eventslast.php?id=${TEAM_ID}`),
 
-  getTeamSquad: () =>
-    fetcher(`/lookup_all_players.php?id=${TEAM_ID}`),
+  getTeamSquad: () => fetcher(`/lookup_all_players.php?id=${TEAM_ID}`),
 
-  getTeamInfo: () =>
-    fetcher(`/lookupteam.php?id=${TEAM_ID}`),
+  getTeamInfo: () => fetcher(`/lookupteam.php?id=${TEAM_ID}`),
 }

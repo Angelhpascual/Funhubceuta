@@ -21,13 +21,16 @@ async function syncFromEspn(season: string) {
   const rows = entries.map((e: unknown, i: number) => {
     const entry = e as Record<string, unknown>
     const team = entry.team as Record<string, unknown>
-    const stats = (entry.stats as Record<string, unknown>[]).reduce<Record<string, number>>((acc, s) => {
-      if (s.value !== undefined) acc[s.name as string] = Number(s.value) || 0
-      return acc
-    }, {})
+    const stats = (entry.stats as Record<string, unknown>[]).reduce<Record<string, number>>(
+      (acc, s) => {
+        if (s.value !== undefined) acc[s.name as string] = Number(s.value) || 0
+        return acc
+      },
+      {}
+    )
 
     const logos = team.logos as Record<string, unknown>[] | undefined
-    const logoUrl = logos?.[0]?.href as string ?? null
+    const logoUrl = (logos?.[0]?.href as string) ?? null
 
     return {
       externalId: `${season}-${i + 1}`,
@@ -52,7 +55,7 @@ async function syncFromEspn(season: string) {
   const teamsRepo = new TeamsSupabaseRepository()
 
   await repo.upsertEntries(rows)
-  await teamsRepo.upsertTeams(rows.map(r => ({ name: r.teamName, logoUrl: r.teamLogo, season })))
+  await teamsRepo.upsertTeams(rows.map((r) => ({ name: r.teamName, logoUrl: r.teamLogo, season })))
 
   const { supabase } = await import('@/infrastructure/supabase/client')
   const { setConfig } = await import('@/infrastructure/supabase/AppConfigRepository')
@@ -65,7 +68,10 @@ async function syncFromEspn(season: string) {
     .limit(5)
 
   if (finishedMatches && finishedMatches.length > 0) {
-    const form = finishedMatches.map(m => m.result).reverse().join(',')
+    const form = finishedMatches
+      .map((m) => m.result)
+      .reverse()
+      .join(',')
     await setConfig('ceuta_form', form)
   }
 

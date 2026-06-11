@@ -21,13 +21,15 @@ const AD_CEUTA_NAME = 'AD Ceuta'
 
 function getDescriptionVariant(description: string | null) {
   if (!description) return null
-  if (description.toLowerCase().includes('promotion') && !description.toLowerCase().includes('playoff'))
+  if (
+    description.toLowerCase().includes('promotion') &&
+    !description.toLowerCase().includes('playoff')
+  )
     return 'default'
   if (description.toLowerCase().includes('playoff')) return 'secondary'
   if (description.toLowerCase().includes('relegat')) return 'destructive'
   return null
 }
-
 
 export function StandingsTable({ entries }: Props) {
   return (
@@ -50,7 +52,8 @@ export function StandingsTable({ entries }: Props) {
         </TableHeader>
         <TableBody>
           {entries.map((entry) => {
-            const isCeuta = entry.teamName.includes(AD_CEUTA_NAME) || entry.teamName.includes('Ceuta')
+            const isCeuta =
+              entry.teamName.includes(AD_CEUTA_NAME) || entry.teamName.includes('Ceuta')
             const variant = getDescriptionVariant(entry.description)
 
             return (
@@ -61,7 +64,9 @@ export function StandingsTable({ entries }: Props) {
                 <TableCell className="text-center">
                   <div className="flex items-center justify-center gap-1">
                     {variant && (
-                      <span className={`w-1.5 h-1.5 rounded-full ${variant === 'default' ? 'bg-green-500' : variant === 'secondary' ? 'bg-yellow-500' : 'bg-red-500'}`} />
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full ${variant === 'default' ? 'bg-green-500' : variant === 'secondary' ? 'bg-yellow-500' : 'bg-red-500'}`}
+                      />
                     )}
                     {entry.position}
                   </div>
@@ -78,7 +83,11 @@ export function StandingsTable({ entries }: Props) {
                       />
                     )}
                     <span className={isCeuta ? 'text-[#4a90d9]' : ''}>{entry.teamName}</span>
-                    {isCeuta && <Badge variant="outline" className="text-xs border-[#4a90d9] text-[#4a90d9]">Nosotros</Badge>}
+                    {isCeuta && (
+                      <Badge variant="outline" className="text-xs border-[#4a90d9] text-[#4a90d9]">
+                        Nosotros
+                      </Badge>
+                    )}
                   </div>
                 </TableCell>
                 <TableCell className="text-center">{entry.played}</TableCell>
@@ -87,7 +96,9 @@ export function StandingsTable({ entries }: Props) {
                 <TableCell className="text-center">{entry.lost}</TableCell>
                 <TableCell className="text-center">{entry.goalsFor}</TableCell>
                 <TableCell className="text-center">{entry.goalsAgainst}</TableCell>
-                <TableCell className="text-center">{entry.goalDifference > 0 ? `+${entry.goalDifference}` : entry.goalDifference}</TableCell>
+                <TableCell className="text-center">
+                  {entry.goalDifference > 0 ? `+${entry.goalDifference}` : entry.goalDifference}
+                </TableCell>
                 <TableCell className="text-center font-bold">{entry.points}</TableCell>
                 <TableCell className="hidden md:table-cell">
                   <div className="flex gap-0.5 justify-center">

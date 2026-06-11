@@ -11,8 +11,14 @@ const POSITION_GROUP: Record<string, string> = {
   F: 'Delanteros',
 }
 
-interface EspnStat { name: string; value: number }
-interface EspnCategory { name: string; stats: EspnStat[] }
+interface EspnStat {
+  name: string
+  value: number
+}
+interface EspnCategory {
+  name: string
+  stats: EspnStat[]
+}
 interface EspnAthlete {
   id: string
   displayName: string
@@ -53,15 +59,15 @@ async function scrapePlayerStats() {
           position: a.position?.displayName ?? '',
           position_group: POSITION_GROUP[posAbbr] ?? 'Centrocampistas',
           photo_url: a.headshot?.href ?? null,
-          appearances:     Math.round(getStat(cats, 'appearances')),
-          goals:           Math.round(getStat(cats, 'totalGoals')),
-          assists:         Math.round(getStat(cats, 'goalAssists')),
-          shots:           Math.round(getStat(cats, 'totalShots')),
+          appearances: Math.round(getStat(cats, 'appearances')),
+          goals: Math.round(getStat(cats, 'totalGoals')),
+          assists: Math.round(getStat(cats, 'goalAssists')),
+          shots: Math.round(getStat(cats, 'totalShots')),
           shots_on_target: Math.round(getStat(cats, 'shotsOnTarget')),
-          yellow_cards:    Math.round(getStat(cats, 'yellowCards')),
-          red_cards:       Math.round(getStat(cats, 'redCards')),
-          saves:           Math.round(getStat(cats, 'saves')),
-          goals_conceded:  Math.round(getStat(cats, 'goalsConceded')),
+          yellow_cards: Math.round(getStat(cats, 'yellowCards')),
+          red_cards: Math.round(getStat(cats, 'redCards')),
+          saves: Math.round(getStat(cats, 'saves')),
+          goals_conceded: Math.round(getStat(cats, 'goalsConceded')),
           updated_at: new Date().toISOString(),
         }
       })
@@ -74,7 +80,10 @@ async function scrapePlayerStats() {
 
     if (error) throw new Error(`Supabase upsert failed: ${error.message}`)
 
-    await logCron('player-stats', 'success', Date.now() - t0, { updated: rows.length, season: CURRENT_SEASON })
+    await logCron('player-stats', 'success', Date.now() - t0, {
+      updated: rows.length,
+      season: CURRENT_SEASON,
+    })
     return rows.length
   } catch (err) {
     await logCron('player-stats', 'error', Date.now() - t0, { error: (err as Error).message })
@@ -115,10 +124,12 @@ export async function POST(request: Request) {
   })
 
   const body = await request.text()
-  const valid = await receiver.verify({
-    signature: request.headers.get('Upstash-Signature') ?? '',
-    body,
-  }).catch(() => false)
+  const valid = await receiver
+    .verify({
+      signature: request.headers.get('Upstash-Signature') ?? '',
+      body,
+    })
+    .catch(() => false)
 
   if (!valid) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 

@@ -4,7 +4,7 @@ import { StandingsSupabaseRepository } from '@/infrastructure/supabase/Standings
 import { CURRENT_SEASON } from '@/lib/constants'
 import { fetchCeutaForm, fetchTeamLogos } from '@/lib/serverFetches'
 
-export const revalidate = 300
+export const dynamic = 'force-dynamic'
 
 async function fetchStandings() {
   const service = new StandingsService(new StandingsSupabaseRepository())
@@ -18,11 +18,5 @@ export default async function ClasificacionServerPage() {
     fetchTeamLogos(),
   ])
 
-  return (
-    <ClasificacionPage
-      entries={standings?.entries ?? []}
-      form={form}
-      logos={logos}
-    />
-  )
+  return <ClasificacionPage entries={standings?.entries ?? []} form={form} logos={logos} />
 }

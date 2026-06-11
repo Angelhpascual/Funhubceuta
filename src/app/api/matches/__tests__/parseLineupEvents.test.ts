@@ -5,14 +5,22 @@ const CEUTA_ID = '5404'
 const RIVAL_ID = '9999'
 const HOME_ID = CEUTA_ID
 
-function makeEvent(overrides: {
-  type?: string
-  teamId?: string
-  minute?: string
-  player0?: string
-  player1?: string
-} = {}) {
-  const { type = 'goal', teamId = CEUTA_ID, minute = "17'", player0 = 'Marcos Fernández', player1 } = overrides
+function makeEvent(
+  overrides: {
+    type?: string
+    teamId?: string
+    minute?: string
+    player0?: string
+    player1?: string
+  } = {}
+) {
+  const {
+    type = 'goal',
+    teamId = CEUTA_ID,
+    minute = "17'",
+    player0 = 'Marcos Fernández',
+    player1,
+  } = overrides
   return {
     type: { type },
     team: { id: teamId },
@@ -44,9 +52,10 @@ describe('parseLineupEvents', () => {
   })
 
   it('parses substitution with playerOut', () => {
-    const events = parseLineupEvents([
-      makeEvent({ type: 'substitution', player0: 'Salvi', player1: 'Rubén Díez' }),
-    ], HOME_ID)
+    const events = parseLineupEvents(
+      [makeEvent({ type: 'substitution', player0: 'Salvi', player1: 'Rubén Díez' })],
+      HOME_ID
+    )
     expect(events[0].type).toBe('substitution')
     expect(events[0].playerName).toBe('Salvi')
     expect(events[0].playerOut).toBe('Rubén Díez')
@@ -63,18 +72,18 @@ describe('parseLineupEvents', () => {
   })
 
   it('filters out events from rival team', () => {
-    const events = parseLineupEvents([
-      makeEvent({ teamId: CEUTA_ID }),
-      makeEvent({ teamId: RIVAL_ID }),
-    ], HOME_ID)
+    const events = parseLineupEvents(
+      [makeEvent({ teamId: CEUTA_ID }), makeEvent({ teamId: RIVAL_ID })],
+      HOME_ID
+    )
     expect(events).toHaveLength(1)
   })
 
   it('filters out unknown event types', () => {
-    const events = parseLineupEvents([
-      makeEvent({ type: 'corner-kick' }),
-      makeEvent({ type: 'goal' }),
-    ], HOME_ID)
+    const events = parseLineupEvents(
+      [makeEvent({ type: 'corner-kick' }), makeEvent({ type: 'goal' })],
+      HOME_ID
+    )
     expect(events).toHaveLength(1)
     expect(events[0].type).toBe('goal')
   })
@@ -84,12 +93,15 @@ describe('parseLineupEvents', () => {
   })
 
   it('handles multiple events in order', () => {
-    const events = parseLineupEvents([
-      makeEvent({ type: 'goal', minute: "17'" }),
-      makeEvent({ type: 'yellow-card', minute: "45'" }),
-      makeEvent({ type: 'substitution', minute: "67'", player0: 'Salvi', player1: 'Lachhab' }),
-    ], HOME_ID)
+    const events = parseLineupEvents(
+      [
+        makeEvent({ type: 'goal', minute: "17'" }),
+        makeEvent({ type: 'yellow-card', minute: "45'" }),
+        makeEvent({ type: 'substitution', minute: "67'", player0: 'Salvi', player1: 'Lachhab' }),
+      ],
+      HOME_ID
+    )
     expect(events).toHaveLength(3)
-    expect(events.map(e => e.type)).toEqual(['goal', 'yellow-card', 'substitution'])
+    expect(events.map((e) => e.type)).toEqual(['goal', 'yellow-card', 'substitution'])
   })
 })

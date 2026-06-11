@@ -1,16 +1,17 @@
 export function LoadingScreen() {
   return (
-    <div style={{
-      position: 'fixed',
-      inset: 0,
-      background: 'var(--white)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 999,
-    }}>
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        background: 'var(--white)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 999,
+      }}
+    >
       <div style={{ position: 'relative', width: 120, height: 120 }}>
-
         {/* Circular spinner */}
         <svg
           width="120"
@@ -19,15 +20,12 @@ export function LoadingScreen() {
           style={{ position: 'absolute', inset: 0, animation: 'spin 1.4s linear infinite' }}
         >
           {/* Track */}
-          <circle
-            cx="60" cy="60" r="52"
-            fill="none"
-            stroke="var(--bg-mid)"
-            strokeWidth="4"
-          />
+          <circle cx="60" cy="60" r="52" fill="none" stroke="var(--bg-mid)" strokeWidth="4" />
           {/* Progress arc */}
           <circle
-            cx="60" cy="60" r="52"
+            cx="60"
+            cy="60"
+            r="52"
             fill="none"
             stroke="var(--red)"
             strokeWidth="4"
@@ -39,13 +37,15 @@ export function LoadingScreen() {
         </svg>
 
         {/* Escudo centrado */}
-        <div style={{
-          position: 'absolute',
-          inset: 0,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}>
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/escudo.png"

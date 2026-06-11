@@ -1,40 +1,67 @@
 import { XMLParser } from 'fast-xml-parser'
 import { ParsedArticle } from './RssFetcher'
+import { BASE_KEYWORDS, CEUTA_KEYWORDS } from './sources'
 
 const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: '@_' })
 
+// Title must contain at least one club keyword — rejects articles that only
+// mention Ceuta in the body as a past club (e.g. "ex-jugador del AD Ceuta")
+function titleIsRelevant(title: string): boolean {
+  const t = title.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+  return [...BASE_KEYWORDS, ...CEUTA_KEYWORDS].some((kw) =>
+    t.includes(kw.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''))
+  )
+}
+
 // Sources already covered by our own RSS scrapers — skip duplicates from Google News
-const COVERED_SOURCES = ['el faro de ceuta', 'marca', 'mundo deportivo', '20 minutos', 'sport', 'ad ceuta fc', 'diario as', ' as', 'ceuta televisión', 'ceuta television', 'ceuta actualidad', 'el pueblo de ceuta', 'radio televisión ceuta', 'radio television ceuta', 'rtvce', 'la verdad de ceuta']
+const COVERED_SOURCES = [
+  'el faro de ceuta',
+  'marca',
+  'mundo deportivo',
+  '20 minutos',
+  'sport',
+  'ad ceuta fc',
+  'diario as',
+  ' as',
+  'ceuta televisión',
+  'ceuta television',
+  'ceuta actualidad',
+  'el pueblo de ceuta',
+  'radio televisión ceuta',
+  'radio television ceuta',
+  'rtvce',
+  'la verdad de ceuta',
+]
 
 // Map Google News source names to our internal source IDs
 const SOURCE_MAP: Record<string, string> = {
   'diario as': 'as',
-  'as': 'as',
+  as: 'as',
   'el confidencial': 'confidencial',
-  'abc': 'abc',
+  abc: 'abc',
   'la vanguardia': 'lavanguardia',
-  'cope': 'cope',
+  cope: 'cope',
   'cadena ser': 'ser',
   'el pueblo de ceuta': 'elpueblo',
   'ceuta televisión': 'ceutatv',
   'ceuta television': 'ceutatv',
   'radio televisión ceuta': 'rtvc',
   'radio television ceuta': 'rtvc',
-  'rtvce': 'rtvc',
+  rtvce: 'rtvc',
   'la verdad de ceuta': 'laverdad',
   'ceuta actualidad': 'ceutaactualidad',
   'ceuta al día': 'ceutaaldia',
   'ceuta al dia': 'ceutaaldia',
-  'onefootball': 'onefootball',
+  onefootball: 'onefootball',
   'el país': 'elpais',
   'el pais': 'elpais',
-  'rtve': 'rtve',
+  rtve: 'rtve',
   'rtve.es': 'rtve',
   'goal.com': 'goal',
-  'elgoldigital': 'elgoldigital',
+  elgoldigital: 'elgoldigital',
   'el gol digital': 'elgoldigital',
   'fondo segunda': 'fondosegunda',
-  'transfermarkt': 'transfermarkt',
+  transfermarkt: 'transfermarkt',
 }
 
 // Decode the real article URL from a Google News RSS link.
@@ -77,7 +104,7 @@ async function resolveGoogleUrl(googleUrl: string): Promise<string> {
       redirect: 'follow',
       headers: {
         'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15',
-        'Accept': 'text/html,application/xhtml+xml',
+        Accept: 'text/html,application/xhtml+xml',
         'Accept-Language': 'es-ES,es;q=0.9',
       },
       signal: AbortSignal.timeout(6000),
@@ -90,7 +117,8 @@ async function resolveGoogleUrl(googleUrl: string): Promise<string> {
 }
 
 export async function fetchGoogleNews(): Promise<ParsedArticle[]> {
-  const url = 'https://news.google.com/rss/search?q=%22AD+Ceuta%22+f%C3%BAtbol&hl=es&gl=ES&ceid=ES:es'
+  const url =
+    'https://news.google.com/rss/search?q=%22AD+Ceuta%22+f%C3%BAtbol&hl=es&gl=ES&ceid=ES:es'
 
   const res = await fetch(url, {
     headers: { 'User-Agent': 'FunHubCeuta/1.0 RSS Reader' },
@@ -114,8 +142,11 @@ export async function fetchGoogleNews(): Promise<ParsedArticle[]> {
   })
 
   // Skip articles from sources we already scrape directly
-  const filtered = parsed_items.filter(({ sourceName }) =>
-    !COVERED_SOURCES.some((s) => sourceName.includes(s))
+  // Also require the title itself to mention the club — avoids articles that only
+  // mention Ceuta as a past club in the body text (e.g. "ex jugador del AD Ceuta")
+  const filtered = parsed_items.filter(
+    ({ title, sourceName }) =>
+      !COVERED_SOURCES.some((s) => sourceName.includes(s)) && titleIsRelevant(title)
   )
 
   if (filtered.length === 0) return []
@@ -125,12 +156,14 @@ export async function fetchGoogleNews(): Promise<ParsedArticle[]> {
     filtered.map(async ({ item, title, sourceName }) => {
       const googleUrl = String(item.link ?? '')
       const realUrl = await resolveGoogleUrl(googleUrl)
-      const sourceId = Object.entries(SOURCE_MAP).find(([k]) => sourceName.includes(k))?.[1] ?? 'prensa'
+      const sourceId =
+        Object.entries(SOURCE_MAP).find(([k]) => sourceName.includes(k))?.[1] ?? 'prensa'
 
       const rawGuid = item.guid
-      const guidStr = rawGuid && typeof rawGuid === 'object'
-        ? String((rawGuid as Record<string, unknown>)['#text'] ?? googleUrl)
-        : String(rawGuid ?? googleUrl)
+      const guidStr =
+        rawGuid && typeof rawGuid === 'object'
+          ? String((rawGuid as Record<string, unknown>)['#text'] ?? googleUrl)
+          : String(rawGuid ?? googleUrl)
 
       return {
         externalId: guidStr,

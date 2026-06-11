@@ -12,7 +12,7 @@ export async function GET() {
     .limit(5)
 
   if (data && data.length > 0) {
-    const form = data.map(m => m.result).reverse()
+    const form = data.map((m) => m.result).reverse()
     return NextResponse.json({ form })
   }
 
