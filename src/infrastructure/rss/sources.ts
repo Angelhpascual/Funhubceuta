@@ -35,24 +35,32 @@ const BASE_KEYWORDS_NATIONAL = [
 
 // Player full-name or unique identifiers — used as secondary match
 const SQUAD_KEYWORDS = [
-  // Nombres únicos / poco ambiguos — safe to match standalone
+  // Porteros
+  'pedro lópez',
   'pery garcia',
   'jose juan romero',
+  // Defensas
+  'manu sánchez',
+  'carlos hernández',
+  'diego gonzález',
   'redruello',
   'almenara',
+  'antonio josé sánchez',
+  // Centrocampistas
   'youness lachhab',
   'aisar ahmed',
   'marino illescas',
   'bodiger',
+  'salvi sánchez',
   'adri rueda',
   'josema ceuta',
+  // Delanteros
   'zalazar',
   'bassinga',
+  'cristian rodríguez',
   'koné ceuta',
+  // Presidente y club
   'luhay hamido',
-  // Nombres comunes — solo safe con "ceuta" en el contexto (cubierto por BASE_KEYWORDS)
-  // pedro lópez, manu sánchez, carlos hernández, diego gonzález, etc. omitidos:
-  // demasiado genéricos y ya cubiertos si el artículo menciona al club
 ]
 
 export const CEUTA_KEYWORDS = [...BASE_KEYWORDS, ...SQUAD_KEYWORDS]
