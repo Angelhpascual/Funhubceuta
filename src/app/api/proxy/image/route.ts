@@ -17,6 +17,7 @@ const ALLOWED_DOMAINS = [
   'estaticos-cdn.prensaiberica.es',
   'lh3.googleusercontent.com',
   'a.espncdn.com',
+  'i.ytimg.com',
 ]
 
 export async function GET(request: NextRequest) {
