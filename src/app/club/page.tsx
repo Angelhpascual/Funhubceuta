@@ -7,7 +7,7 @@ import { CURRENT_SEASON } from '@/lib/constants'
 import type { LeadersMap } from '@/features/club/clubTypes'
 import { fetchCeutaForm } from '@/lib/serverFetches'
 
-export const revalidate = 300
+export const dynamic = 'force-dynamic'
 
 const CATEGORIES = [
   { key: 'appearances', label: 'Partidos jugados', icon: '📋', min: 1 },
