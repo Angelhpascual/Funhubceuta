@@ -58,13 +58,17 @@ export class TeamsSupabaseRepository {
   }
 
   async getAllTeams(season = CURRENT_SEASON): Promise<TeamRecord[]> {
-    const { data } = await supabase.from('teams').select('*').eq('season', season).order('name')
+    const { data } = await supabase
+      .from('teams')
+      .select('name, short_name, logo_url, season')
+      .eq('season', season)
+      .order('name')
 
     return (data ?? []).map((row) => ({
       name: row.name,
       shortName: row.short_name,
       logoUrl: row.logo_url,
-      venue: row.venue ?? null,
+      venue: null,
       season: row.season,
     }))
   }

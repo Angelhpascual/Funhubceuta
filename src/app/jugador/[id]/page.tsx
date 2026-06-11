@@ -3,7 +3,7 @@ import { supabase } from '@/infrastructure/supabase/client'
 import { CURRENT_SEASON } from '@/lib/constants'
 import { PlayerDetailPage } from '@/features/club/PlayerDetailPage'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 3600
 
 async function fetchPlayer(id: string) {
   const { data } = await supabase
