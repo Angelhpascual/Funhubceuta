@@ -2,12 +2,6 @@ import { NextResponse } from 'next/server'
 import webpush from 'web-push'
 import { supabase } from '@/infrastructure/supabase/client'
 
-webpush.setVapidDetails(
-  'mailto:angelhpascual@gmail.com',
-  process.env.VAPID_PUBLIC_KEY!,
-  process.env.VAPID_PRIVATE_KEY!
-)
-
 export interface PushPayload {
   title: string
   body: string
@@ -16,6 +10,12 @@ export interface PushPayload {
 }
 
 export async function POST(request: Request) {
+  webpush.setVapidDetails(
+    'mailto:angelhpascual@gmail.com',
+    process.env.VAPID_PUBLIC_KEY!,
+    process.env.VAPID_PRIVATE_KEY!
+  )
+
   const payload: PushPayload = await request.json()
 
   const { data: subs } = await supabase.from('push_subscriptions').select('endpoint, p256dh, auth')

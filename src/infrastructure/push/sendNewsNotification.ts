@@ -5,12 +5,6 @@ import {
   deleteSubscription,
 } from '@/infrastructure/supabase/PushSubscriptionsRepository'
 
-webpush.setVapidDetails(
-  'mailto:angelhpascual@gmail.com',
-  process.env.VAPID_PUBLIC_KEY!,
-  process.env.VAPID_PRIVATE_KEY!
-)
-
 const SOURCE_LABELS: Record<string, string> = {
   oficial: 'AD Ceuta FC',
   faro: 'El Faro de Ceuta',
@@ -42,6 +36,12 @@ const SOURCE_LABELS: Record<string, string> = {
 export async function sendNewsNotification(
   article: ParsedArticle
 ): Promise<{ recipients: number; sentOk: number; sentFail: number }> {
+  webpush.setVapidDetails(
+    'mailto:angelhpascual@gmail.com',
+    process.env.VAPID_PUBLIC_KEY!,
+    process.env.VAPID_PRIVATE_KEY!
+  )
+
   const subs = await getAllSubscriptions()
   if (subs.length === 0) return { recipients: 0, sentOk: 0, sentFail: 0 }
 
