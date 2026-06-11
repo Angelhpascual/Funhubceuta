@@ -3,7 +3,7 @@ import { supabase } from '@/infrastructure/supabase/client'
 import { deduplicateMatches } from '@/app/api/matches/deduplicateMatches'
 import { fetchTeamLogos } from '@/lib/serverFetches'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 300
 
 async function fetchMatches() {
   const { data } = await supabase

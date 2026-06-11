@@ -4,7 +4,7 @@ import { StandingsSupabaseRepository } from '@/infrastructure/supabase/Standings
 import { CURRENT_SEASON } from '@/lib/constants'
 import { fetchCeutaForm, fetchTeamLogos } from '@/lib/serverFetches'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 300 // refresca cada 5 min en vez de en cada visita
 
 async function fetchStandings() {
   const service = new StandingsService(new StandingsSupabaseRepository())
