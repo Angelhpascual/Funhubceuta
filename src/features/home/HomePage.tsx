@@ -7,6 +7,12 @@ import { LiveMatchCard } from './LiveMatchCard'
 import { NotificationBanner } from '@/components/ui/NotificationBanner'
 import Link from 'next/link'
 
+function proxyImg(url: string | null | undefined): string | null {
+  if (!url) return null
+  if (url.startsWith('/')) return url
+  return `/api/proxy/image?url=${encodeURIComponent(url)}`
+}
+
 const SOURCES: Record<string, { label: string; domain: string }> = {
   oficial:         { label: 'AD Ceuta FC',        domain: 'adceutafc.com' },
   elpueblo:        { label: 'El Pueblo de Ceuta', domain: 'elpueblodeceuta.es' },
@@ -98,7 +104,7 @@ export function HomePage({ onReady, onOpenHimno }: { onReady?: () => void; onOpe
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={featured.imageUrl!}
+            src={proxyImg(featured.imageUrl)!}
             alt={featured.title}
             className="absolute inset-0 size-full object-cover"
             style={{ objectPosition: 'center 20%' }}
@@ -185,7 +191,7 @@ export function HomePage({ onReady, onOpenHimno }: { onReady?: () => void; onOpe
           {n.imageUrl ? (
             <div
               className="relative size-[88px] shrink-0 overflow-hidden rounded-[8px]"
-              style={{ backgroundImage: `url(${n.imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+              style={{ backgroundImage: `url(${proxyImg(n.imageUrl)})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
             />
           ) : (
             <div className={`relative size-[88px] shrink-0 overflow-hidden rounded-[8px] ${THUMB_COLORS[i % THUMB_COLORS.length]}`} />
@@ -223,7 +229,7 @@ export function HomePage({ onReady, onOpenHimno }: { onReady?: () => void; onOpe
                 className="w-[220px] shrink-0 overflow-hidden rounded-[14px] border border-ceuta-border bg-white [scroll-snap-align:start]"
               >
                 {n.imageUrl ? (
-                  <div className="h-[110px] w-full shrink-0" style={{ backgroundImage: `url(${n.imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
+                  <div className="h-[110px] w-full shrink-0" style={{ backgroundImage: `url(${proxyImg(n.imageUrl)})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
                 ) : (
                   <div className={`h-[110px] w-full shrink-0 ${THUMB_COLORS[i % THUMB_COLORS.length]}`} />
                 )}

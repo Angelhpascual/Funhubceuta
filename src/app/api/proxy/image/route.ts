@@ -6,6 +6,17 @@ const ALLOWED_DOMAINS = [
   'elfarodeceuta.es',
   'assets.laliga.com',
   'r2.thesportsdb.com',
+  'www.laverdaddeceuta.com',
+  'www.ceutatv.com',
+  'www.ceutaactualidad.com',
+  'www.rtvce.es',
+  'www.elpueblodeceuta.es',
+  'img.asmedia.epimg.net',
+  'imagenes2.mundodeportivo.com',
+  'objetos-xlk.estaticos-marca.com',
+  'estaticos-cdn.prensaiberica.es',
+  'lh3.googleusercontent.com',
+  'a.espncdn.com',
 ]
 
 export async function GET(request: NextRequest) {

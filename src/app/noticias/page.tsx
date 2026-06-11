@@ -4,6 +4,12 @@ import { useEffect, useState, useCallback } from 'react'
 import { NewsItem } from '@/domain/news/News'
 import Link from 'next/link'
 
+function proxyImg(url: string | null | undefined): string | null {
+  if (!url) return null
+  if (url.startsWith('/')) return url
+  return `/api/proxy/image?url=${encodeURIComponent(url)}`
+}
+
 const SOURCES: Record<string, { label: string; domain: string; color: string }> = {
   oficial:         { label: 'AD Ceuta FC',        domain: 'adceutafc.com',          color: '#DA1A22' },
   elpueblo:        { label: 'El Pueblo de Ceuta', domain: 'elpueblodeceuta.es',     color: '#0E0E0E' },
@@ -130,7 +136,7 @@ export default function NoticiasPage() {
                   {n.imageUrl ? (
                     <div
                       className="size-[48px] shrink-0 rounded-[8px]"
-                      style={{ backgroundImage: `url(${n.imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+                      style={{ backgroundImage: `url(${proxyImg(n.imageUrl)})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
                     />
                   ) : (
                     <div className="flex size-[48px] shrink-0 items-center justify-center rounded-[8px] bg-ceuta-bg-soft font-display text-[10px] font-black uppercase text-ceuta-muted">
