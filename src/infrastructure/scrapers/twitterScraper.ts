@@ -25,7 +25,7 @@ export async function scrapeLatestTweets(
         Referer: 'https://twitter.com/',
       },
     }
-    const req = https.request(options, (res: NodeJS.ReadableStream & { statusCode: number }) => {
+    const req = https.request(options, (res) => {
       if (res.statusCode !== 200) {
         reject(new Error(`Twitter syndication failed: ${res.statusCode}`))
         return

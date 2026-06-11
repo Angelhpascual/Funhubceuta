@@ -3,6 +3,8 @@ import { calculateStandings } from '../standingsCalculator'
 import type { OpenFootballMatch } from '../openFootballClient'
 
 const match = (team1: string, team2: string, ft: [number, number]): OpenFootballMatch => ({
+  round: '1',
+  date: '2025-01-01',
   team1,
   team2,
   score: { ft },
