@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import type { CareerEntry, Player } from './clubTypes'
 
 const NAT_FLAGS: Record<string, string> = {
@@ -81,10 +82,14 @@ export function PlayerDetailPage({ player, stats }: Props) {
 
           {player.photo_url && (
             <div className="pd-hero-photo">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 src={player.photo_url}
                 alt={player.name}
+                width={220}
+                height={220}
+                priority
+                sizes="220px"
+                quality={85}
                 className="pd-hero-photo-img"
               />
             </div>
@@ -147,6 +152,16 @@ export function PlayerDetailPage({ player, stats }: Props) {
             </>
           )}
 
+          {/* ── BIO ── */}
+          {player.bio && (
+            <>
+              <div className="pd-sec-eyebrow">Sobre el jugador</div>
+              <div className="mb-6 rounded-[10px] bg-ceuta-bg-soft border-l-[3px] border-ceuta-red px-4 py-3 text-[13.5px] leading-relaxed text-ceuta-black">
+                {player.bio}
+              </div>
+            </>
+          )}
+
           {/* ── ESTADÍSTICAS ── */}
           {stats && (
             <div className="pd-stats-card">
@@ -199,8 +214,7 @@ export function PlayerDetailPage({ player, stats }: Props) {
                       </div>
                       <div className="pd-tl-body">
                         {entry.logo ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={entry.logo} alt={entry.club} className="pd-tl-crest-img" />
+                          <Image src={entry.logo} alt={entry.club} width={36} height={36} sizes="36px" quality={70} className="pd-tl-crest-img" />
                         ) : (
                           <div className="pd-tl-crest">
                             {entry.club.slice(0, 3).toUpperCase()}

@@ -106,18 +106,21 @@ export const RSS_SOURCES: RssSource[] = [
     name: 'Ceuta Televisión',
     url: 'https://www.ceutatv.com/rss/',
     keywords: CEUTA_KEYWORDS,
+    baseKeywords: BASE_KEYWORDS, // feed general de ciudad — exige keywords de club explícitas
   },
   {
     id: 'ceutaactualidad',
     name: 'Ceuta Actualidad',
     url: 'https://www.ceutaactualidad.com/rss/',
     keywords: CEUTA_KEYWORDS,
+    baseKeywords: BASE_KEYWORDS,
   },
   {
     id: 'rtvc',
     name: 'RTV Ceuta',
     url: 'https://www.rtvce.es/rss/',
     keywords: CEUTA_KEYWORDS,
+    baseKeywords: BASE_KEYWORDS,
   },
   {
     id: 'laverdad',

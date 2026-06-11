@@ -14,6 +14,8 @@ export interface ParsedArticle {
 const parser = new XMLParser({
   ignoreAttributes: false,
   attributeNamePrefix: '@_',
+  cdataPropName: '__cdata',
+  processEntities: true,
 })
 
 function decodeEntities(str: string): string {
@@ -76,16 +78,20 @@ function extractImage(item: Record<string, unknown>): string | null {
     const u = (enclosure as Record<string, unknown>)['@_url']
     if (typeof u === 'string' && isValidImage(u)) return u
   }
-  // content:encoded — full HTML body
+  // content:encoded — full HTML body (plain string or CDATA object)
   const encoded = item['content:encoded']
-  if (typeof encoded === 'string') {
-    const found = firstValidImage(encoded)
+  const encodedStr = typeof encoded === 'string' ? encoded
+    : encoded && typeof encoded === 'object' ? String((encoded as Record<string, unknown>)['__cdata'] ?? '') : ''
+  if (encodedStr) {
+    const found = firstValidImage(encodedStr)
     if (found) return found
   }
-  // description — some feeds (El Pueblo) embed images here too
+  // description — some feeds embed images here (plain string or CDATA object)
   const desc = item['description']
-  if (typeof desc === 'string') {
-    const found = firstValidImage(desc)
+  const descStr = typeof desc === 'string' ? desc
+    : desc && typeof desc === 'object' ? String((desc as Record<string, unknown>)['__cdata'] ?? '') : ''
+  if (descStr) {
+    const found = firstValidImage(descStr)
     if (found) return found
   }
   return null

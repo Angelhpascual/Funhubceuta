@@ -16,6 +16,7 @@ export interface Player {
   birth_date: string | null
   photo_url: string | null
   career_history: CareerEntry[] | null
+  bio: string | null
 }
 
 export interface Group {

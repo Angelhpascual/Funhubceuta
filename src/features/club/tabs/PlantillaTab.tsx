@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import type { Group, Player } from "../clubTypes";
 
 const NAT_FLAGS: Record<string, string> = {
@@ -53,8 +54,7 @@ function CollapsibleStaff() {
         <div className="overflow-hidden rounded-b-[10px] bg-ceuta-bg-soft">
           {STAFF.map((s, i) => (
             <div key={i} className={`flex items-center gap-3 px-4 py-3 ${i > 0 ? 'border-t border-ceuta-border' : ''}`}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={s.photo} alt={s.name} className="size-[38px] shrink-0 rounded-full object-cover object-top" />
+              <Image src={s.photo} alt={s.name} width={38} height={38} sizes="38px" quality={70} className="size-[38px] shrink-0 rounded-full object-cover object-top" />
               <div className="flex-1 min-w-0">
                 <div className="font-display text-[13px] font-bold uppercase tracking-wide text-ceuta-black">{s.name}</div>
                 <div className="text-[12px] text-ceuta-muted">{s.role}</div>
@@ -92,8 +92,7 @@ function CollapsibleGroup({ group, players, defaultOpen }: { group: string; play
             >
               <div className="min-w-[32px] text-center font-display text-[22px] font-black text-ceuta-bg-mid">{p.dorsal ?? '—'}</div>
               {p.photo_url ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={p.photo_url} alt={p.name} className="size-[38px] shrink-0 rounded-full object-cover object-top" />
+                <Image src={p.photo_url} alt={p.name} width={38} height={38} sizes="38px" quality={70} className="size-[38px] shrink-0 rounded-full object-cover object-top" />
               ) : (
                 <div className="flex size-[38px] shrink-0 items-center justify-center rounded-full bg-ceuta-bg-mid font-display text-[12px] font-extrabold text-ceuta-muted">{initials(p.name)}</div>
               )}

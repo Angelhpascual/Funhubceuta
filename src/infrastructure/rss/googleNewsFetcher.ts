@@ -1,7 +1,17 @@
 import { XMLParser } from 'fast-xml-parser'
 import { ParsedArticle } from './RssFetcher'
+import { BASE_KEYWORDS, CEUTA_KEYWORDS } from './sources'
 
 const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: '@_' })
+
+// Title must contain at least one club keyword — rejects articles that only
+// mention Ceuta in the body as a past club (e.g. "ex-jugador del AD Ceuta")
+function titleIsRelevant(title: string): boolean {
+  const t = title.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+  return [...BASE_KEYWORDS, ...CEUTA_KEYWORDS].some(kw =>
+    t.includes(kw.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''))
+  )
+}
 
 // Sources already covered by our own RSS scrapers — skip duplicates from Google News
 const COVERED_SOURCES = ['el faro de ceuta', 'marca', 'mundo deportivo', '20 minutos', 'sport', 'ad ceuta fc', 'diario as', ' as', 'ceuta televisión', 'ceuta television', 'ceuta actualidad', 'el pueblo de ceuta', 'radio televisión ceuta', 'radio television ceuta', 'rtvce', 'la verdad de ceuta']
@@ -114,8 +124,10 @@ export async function fetchGoogleNews(): Promise<ParsedArticle[]> {
   })
 
   // Skip articles from sources we already scrape directly
-  const filtered = parsed_items.filter(({ sourceName }) =>
-    !COVERED_SOURCES.some((s) => sourceName.includes(s))
+  // Also require the title itself to mention the club — avoids articles that only
+  // mention Ceuta as a past club in the body text (e.g. "ex jugador del AD Ceuta")
+  const filtered = parsed_items.filter(({ title, sourceName }) =>
+    !COVERED_SOURCES.some((s) => sourceName.includes(s)) && titleIsRelevant(title)
   )
 
   if (filtered.length === 0) return []
