@@ -14,14 +14,14 @@ function PlayerDot({ player }: { player: LineupPlayer }) {
     player.shortName
 
   return (
-    <div className="flex flex-col items-center gap-1">
+    <div className="player-dot flex flex-col items-center gap-1">
       <div className="relative">
         {/* shadow ring */}
         <div
           className={`absolute -inset-[3px] rounded-full ${isGK ? 'bg-ceuta-red/40' : 'bg-black/30'} blur-[3px]`}
         />
         <div
-          className={`relative flex size-[46px] items-center justify-center overflow-hidden rounded-full border-2 ${isGK ? 'border-ceuta-red bg-ceuta-red' : 'border-white bg-white/20'}`}
+          className={`player-dot__circle relative flex items-center justify-center overflow-hidden rounded-full border-2 ${isGK ? 'border-ceuta-red bg-ceuta-red' : 'border-white bg-white/20'}`}
         >
           {player.photoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -38,19 +38,19 @@ function PlayerDot({ player }: { player: LineupPlayer }) {
             />
           ) : null}
           <span
-            className="font-display text-[15px] font-black text-white"
+            className="player-dot__jersey font-display font-black text-white"
             style={{ display: player.photoUrl ? 'none' : 'flex' }}
           >
             {player.jersey}
           </span>
         </div>
         {/* dorsal badge */}
-        <span className="absolute -bottom-1 -right-1 flex size-[17px] items-center justify-center rounded-full bg-ceuta-black ring-1 ring-white/30 font-display text-[8px] font-black text-white">
+        <span className="player-dot__badge absolute -bottom-1 -right-1 flex items-center justify-center rounded-full bg-ceuta-black ring-1 ring-white/30 font-display font-black text-white">
           {player.jersey}
         </span>
       </div>
       <span
-        className="max-w-[58px] truncate text-center font-display text-[9px] font-black uppercase tracking-wide text-white"
+        className="player-dot__name truncate text-center font-display font-black uppercase tracking-wide text-white"
         style={{ textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}
       >
         {displayName}
@@ -119,6 +119,7 @@ export function LineupField({ lineup }: { lineup: MatchLineup }) {
           style={{
             background: '#1a7a1a',
             aspectRatio: '100 / 160',
+            containerType: 'inline-size',
           }}
         >
           {/* base grass */}
