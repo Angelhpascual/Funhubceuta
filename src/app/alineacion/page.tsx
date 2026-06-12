@@ -70,37 +70,25 @@ function LineupContent() {
               Once inicial
             </div>
 
-            {matchLabel.includes(' vs ') ? (
-              <div className="mt-3 grid grid-cols-[1fr_auto_1fr] items-center gap-3 pr-[70px]">
-                {/* home */}
-                <div className="font-display text-[22px] font-black uppercase leading-[0.95] text-white">
+            <div className="mt-2 pr-[70px] font-display text-[32px] font-black uppercase leading-[0.95]">
+              {matchLabel.includes(' vs ') ? (
+                <>
                   {matchLabel.split(' vs ')[0]}
-                </div>
-                {/* score / vs */}
-                <div className="text-center">
-                  {score ? (
-                    <>
-                      <div className="font-display text-[38px] font-black leading-none tracking-[-0.02em] text-ceuta-gold">
-                        {score.replace('-', ' – ')}
-                      </div>
-                      <div className="mt-0.5 font-display text-[9px] font-bold uppercase tracking-[0.14em] text-white/40">
-                        Resultado
-                      </div>
-                    </>
-                  ) : (
-                    <div className="font-display text-[16px] font-black tracking-[0.12em] text-ceuta-muted">
-                      VS
-                    </div>
-                  )}
-                </div>
-                {/* away */}
-                <div className="text-right font-display text-[22px] font-black uppercase leading-[0.95] text-white">
+                  <em className="not-italic text-ceuta-gold"> vs </em>
                   {matchLabel.split(' vs ')[1]}
+                </>
+              ) : (
+                matchLabel
+              )}
+            </div>
+            {score && (
+              <div className="mt-3 flex items-center gap-2">
+                <div className="font-display text-[32px] font-black leading-none tracking-[-0.02em] text-ceuta-gold">
+                  {score.replace('-', ' – ')}
                 </div>
-              </div>
-            ) : (
-              <div className="mt-2 pr-[70px] font-display text-[32px] font-black uppercase leading-[0.95]">
-                {matchLabel}
+                <div className="font-display text-[10px] font-bold uppercase tracking-[0.14em] text-white/40">
+                  Resultado
+                </div>
               </div>
             )}
           </div>
