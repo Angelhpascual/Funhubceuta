@@ -74,7 +74,7 @@ export function ClasificacionPage({ entries = [], form = [], logos = {} }: Props
   return (
     <div className="page">
       {/* ── HERO ── */}
-      <div className="relative mt-2 overflow-hidden bg-ceuta-black px-[18px] pb-[52px] pt-[22px] text-white">
+      <div className="page-hero-full relative mt-2 overflow-hidden bg-ceuta-black px-[18px] pb-[52px] pt-[22px] text-white">
         {/* diagonal stripes */}
         <div
           className="pointer-events-none absolute bottom-0 right-[-40px] top-0 w-[180px]"
