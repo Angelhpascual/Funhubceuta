@@ -35,7 +35,7 @@ function LineupContent() {
   return (
     <div className="page">
         {/* ── HERO ── */}
-        <div className="relative overflow-hidden bg-ceuta-black px-[18px] pt-[22px] text-white" style={{ paddingBottom: score ? 72 : 52 }}>
+        <div className="relative overflow-hidden bg-ceuta-black px-[18px] pb-[52px] pt-[22px] text-white">
           {/* rayas — sólo esquina derecha, no invaden el texto */}
           <div
             className="pointer-events-none absolute bottom-0 right-0 top-0 w-[120px]"
@@ -74,23 +74,15 @@ function LineupContent() {
               {matchLabel.includes(' vs ') ? (
                 <>
                   {matchLabel.split(' vs ')[0]}
-                  <em className="not-italic text-ceuta-gold"> vs </em>
+                  <em className="not-italic text-ceuta-gold">
+                    {score ? ` ${score.replace('-', '–')} ` : ' vs '}
+                  </em>
                   {matchLabel.split(' vs ')[1]}
                 </>
               ) : (
                 matchLabel
               )}
             </div>
-            {score && (
-              <div className="mt-3 flex items-center gap-2">
-                <div className="font-display text-[32px] font-black leading-none tracking-[-0.02em] text-ceuta-gold">
-                  {score.replace('-', ' – ')}
-                </div>
-                <div className="font-display text-[10px] font-bold uppercase tracking-[0.14em] text-white/40">
-                  Resultado
-                </div>
-              </div>
-            )}
           </div>
         </div>
 
