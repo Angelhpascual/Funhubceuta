@@ -35,7 +35,7 @@ function LineupContent() {
   return (
     <div className="page">
         {/* ── HERO ── */}
-        <div className="relative overflow-hidden bg-ceuta-black px-[18px] pb-[52px] pt-[22px] text-white">
+        <div className="relative overflow-hidden bg-ceuta-black px-[18px] pt-[22px] text-white" style={{ paddingBottom: score ? 72 : 52 }}>
           {/* rayas — sólo esquina derecha, no invaden el texto */}
           <div
             className="pointer-events-none absolute bottom-0 right-0 top-0 w-[120px]"
