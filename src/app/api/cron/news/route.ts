@@ -108,13 +108,23 @@ async function syncNews() {
       .select('article_title')
       .gte('created_at', SIX_HOURS_AGO)
 
-    const normalize = (s: string) => s.toLowerCase().replace(/[^a-záéíóúüñ0-9]/g, '')
-    const titleNorm = normalize(toNotify.title)
-    const alreadySent = (recentNotifs ?? []).some(
-      (n) =>
-        normalize(n.article_title).includes(titleNorm.slice(0, 40)) ||
-        titleNorm.includes(normalize(n.article_title).slice(0, 40))
-    )
+    // Extract meaningful keywords (words > 4 chars, ignore stopwords)
+    const STOPWORDS = new Set(['ceuta', 'para', 'como', 'pero', 'este', 'esta', 'desde', 'hasta', 'sobre', 'entre', 'todos', 'tiene', 'tras'])
+    const keywords = (s: string): Set<string> => {
+      const words = s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9\s]/g, '').split(/\s+/)
+      return new Set(words.filter(w => w.length > 4 && !STOPWORDS.has(w)))
+    }
+    const titleKw = keywords(toNotify.title)
+    const alreadySent = (recentNotifs ?? []).some((n) => {
+      const sentKw = keywords(n.article_title)
+      if (titleKw.size === 0 || sentKw.size === 0) return false
+      // Count how many keywords overlap
+      let overlap = 0
+      for (const w of titleKw) if (sentKw.has(w)) overlap++
+      // Similar if >40% of the smaller set's keywords match
+      const minSize = Math.min(titleKw.size, sentKw.size)
+      return overlap / minSize >= 0.4
+    })
 
     if (alreadySent) {
       notifStats = null
