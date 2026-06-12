@@ -10,6 +10,7 @@ function LineupContent() {
   const router = useRouter()
   const eventId = params.get('eventId')
   const matchLabel = params.get('match') ?? 'Alineación'
+  const score = params.get('score') // e.g. "1-0"
 
   const [lineup, setLineup] = useState<MatchLineup | null>(null)
   const [loading, setLoading] = useState(true)
@@ -68,17 +69,40 @@ function LineupContent() {
               <div className="h-0.5 w-[18px] bg-ceuta-red" />
               Once inicial
             </div>
-            <div className="mt-2 pr-[70px] font-display text-[32px] font-black uppercase leading-[0.95]">
-              {matchLabel.includes(' vs ') ? (
-                <>
+
+            {matchLabel.includes(' vs ') ? (
+              <div className="mt-3 grid grid-cols-[1fr_auto_1fr] items-center gap-3 pr-[70px]">
+                {/* home */}
+                <div className="font-display text-[22px] font-black uppercase leading-[0.95] text-white">
                   {matchLabel.split(' vs ')[0]}
-                  <em className="not-italic text-ceuta-gold"> vs </em>
+                </div>
+                {/* score / vs */}
+                <div className="text-center">
+                  {score ? (
+                    <>
+                      <div className="font-display text-[38px] font-black leading-none tracking-[-0.02em] text-ceuta-gold">
+                        {score.replace('-', ' – ')}
+                      </div>
+                      <div className="mt-0.5 font-display text-[9px] font-bold uppercase tracking-[0.14em] text-white/40">
+                        Resultado
+                      </div>
+                    </>
+                  ) : (
+                    <div className="font-display text-[16px] font-black tracking-[0.12em] text-ceuta-muted">
+                      VS
+                    </div>
+                  )}
+                </div>
+                {/* away */}
+                <div className="text-right font-display text-[22px] font-black uppercase leading-[0.95] text-white">
                   {matchLabel.split(' vs ')[1]}
-                </>
-              ) : (
-                matchLabel
-              )}
-            </div>
+                </div>
+              </div>
+            ) : (
+              <div className="mt-2 pr-[70px] font-display text-[32px] font-black uppercase leading-[0.95]">
+                {matchLabel}
+              </div>
+            )}
           </div>
         </div>
 

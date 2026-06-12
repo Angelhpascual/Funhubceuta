@@ -91,10 +91,10 @@ function MatchEvents({ events }: { events: LiveMatch['events'] }) {
   )
 }
 
-function LineupButton({ eventId, match }: { eventId: string; match: string }) {
+function LineupButton({ eventId, match, score }: { eventId: string; match: string; score?: string }) {
   return (
     <Link
-      href={`/alineacion?eventId=${eventId}&match=${encodeURIComponent(match)}`}
+      href={`/alineacion?eventId=${eventId}&match=${encodeURIComponent(match)}${score ? `&score=${encodeURIComponent(score)}` : ''}`}
       className="flex items-center gap-1.5 rounded-full bg-ceuta-red px-3 py-1.5"
     >
       <svg
@@ -328,7 +328,11 @@ export function LiveMatchCard() {
           {match.venue || 'Liga Hypermotion'}
         </span>
         {match.espnId && (
-          <LineupButton eventId={match.espnId} match={`${match.homeTeam} vs ${match.awayTeam}`} />
+          <LineupButton
+            eventId={match.espnId}
+            match={`${match.homeTeam} vs ${match.awayTeam}`}
+            score={(isLive || isFinished) ? `${match.homeScore}-${match.awayScore}` : undefined}
+          />
         )}
       </div>
     </MatchCardShell>
