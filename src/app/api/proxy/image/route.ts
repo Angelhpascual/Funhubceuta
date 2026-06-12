@@ -18,6 +18,7 @@ const ALLOWED_DOMAINS = [
   'lh3.googleusercontent.com',
   'a.espncdn.com',
   'i.ytimg.com',
+  'onguesyapdtatsadsxmc.supabase.co',
 ]
 
 export async function GET(request: NextRequest) {

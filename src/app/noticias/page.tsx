@@ -7,8 +7,6 @@ import Link from 'next/link'
 function proxyImg(url: string | null | undefined): string | null {
   if (!url) return null
   if (url.startsWith('/')) return url
-  // Supabase storage URLs are same-origin-ish — no proxy needed, Brave won't block them
-  if (url.includes('supabase.co/storage')) return url
   return `/api/proxy/image?url=${encodeURIComponent(url)}`
 }
 
