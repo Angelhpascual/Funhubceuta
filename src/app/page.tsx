@@ -100,13 +100,13 @@ function AppInner() {
   }
 
   return (
-    <div id="app-root">
+    <div id="app-root" className="home-shell">
       {!ready && <LoadingScreen />}
 
       {/* Modal views — slide over the main content */}
       {modal === 'himno' && (
         <>
-          <div className="topbar" style={{ justifyContent: 'center' }}>
+          <div className="topbar home-topbar-mobile" style={{ justifyContent: 'center' }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/escudo.png"
@@ -122,7 +122,7 @@ function AppInner() {
 
       {/* Main app */}
       <div style={{ display: modal ? 'none' : 'contents' }}>
-        <div className="topbar" style={{ justifyContent: 'center' }}>
+        <div className="topbar home-topbar-mobile" style={{ justifyContent: 'center' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/escudo.png"

@@ -32,8 +32,7 @@ function LineupContent() {
   }, [eventId])
 
   return (
-    <div id="app-root">
-      <div className="page">
+    <div className="page">
         {/* ── HERO ── */}
         <div className="relative overflow-hidden bg-ceuta-black px-[18px] pb-[52px] pt-[22px] text-white">
           {/* rayas — sólo esquina derecha, no invaden el texto */}
@@ -110,7 +109,6 @@ function LineupContent() {
 
         <div className="h-6" />
       </div>
-    </div>
   )
 }
 

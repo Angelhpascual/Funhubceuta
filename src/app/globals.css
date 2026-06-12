@@ -1879,6 +1879,9 @@ img {
 /* Ocultar/mostrar por viewport */
 .desktop-only { display: none; }
 
+/* Desktop topbar overlay — shown only on desktop, sits above the home page shell */
+.desktop-topbar-overlay { display: none; }
+
 @media (min-width: 768px) {
   .desktop-only { display: flex; }
 
@@ -1942,7 +1945,9 @@ img {
     align-items: stretch;
     gap: 4px;
     height: 72px;
-    flex: 1;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
   }
 
   .top-nav-item {
@@ -2019,5 +2024,23 @@ img {
     margin-left: -32px;
     margin-right: -32px;
     width: calc(100% + 64px);
+  }
+
+  /* Desktop topbar overlay for home page */
+  .desktop-topbar-overlay {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 200;
+  }
+
+  /* Hide home page's own topbar (logo-only) when desktop overlay is active */
+  .home-topbar-mobile { display: none; }
+
+  /* Push home page #app-root below the fixed desktop topbar */
+  #app-root.home-shell {
+    padding-top: 72px;
   }
 }

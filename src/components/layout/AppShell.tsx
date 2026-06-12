@@ -52,43 +52,59 @@ const NAV = [
   },
 ]
 
-const SSR_ROUTES = ['/clasificacion', '/partidos', '/club', '/noticias']
+const SSR_ROUTES = ['/clasificacion', '/partidos', '/club', '/noticias', '/alineacion']
+
+// Topbar rendered on SSR routes AND on home in desktop-only mode
+function Topbar({ pathname, router }: { pathname: string; router: ReturnType<typeof useRouter> }) {
+  return (
+    <div className="topbar">
+      <div className="topbar-logo" style={{ cursor: 'pointer' }} onClick={() => router.push('/')}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/escudo.png" alt="AD Ceuta" style={{ width: 40, height: 40, objectFit: 'contain' }} />
+        <span className="topbar-title desktop-only">AD CEUTA <b>INFO</b></span>
+      </div>
+      <nav className="top-nav desktop-only">
+        {NAV.map((n) => (
+          <button
+            key={n.id}
+            className={`top-nav-item ${pathname === n.id ? 'active' : ''}`}
+            onClick={() => router.push(n.id)}
+          >
+            {n.icon}
+            {n.label}
+          </button>
+        ))}
+      </nav>
+    </div>
+  )
+}
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
 
-  const usesNewShell = SSR_ROUTES.some((r) => pathname === r || pathname.startsWith(r + '/'))
-  if (!usesNewShell) return <>{children}</>
+  const isSSRRoute = SSR_ROUTES.some((r) => pathname === r || pathname.startsWith(r + '/'))
+
+  // Home page has its own mobile shell; on desktop we inject a topbar above it via CSS
+  if (!isSSRRoute) {
+    return (
+      <>
+        {/* Desktop-only topbar overlay for home and other non-SSR pages */}
+        <div className="desktop-topbar-overlay">
+          <Topbar pathname={pathname} router={router} />
+        </div>
+        {children}
+      </>
+    )
+  }
 
   return (
     <div id="app-root">
-      {/* ── Topbar: mobile = logo only · desktop = logo + horizontal nav ── */}
-      <div className="topbar">
-        <div className="topbar-logo" style={{ cursor: 'pointer' }} onClick={() => router.push('/')}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/escudo.png" alt="AD Ceuta" style={{ width: 40, height: 40, objectFit: 'contain' }} />
-          <span className="topbar-title desktop-only">AD CEUTA <b>INFO</b></span>
-        </div>
-
-        {/* Desktop nav — hidden on mobile via CSS */}
-        <nav className="top-nav desktop-only">
-          {NAV.map((n) => (
-            <button
-              key={n.id}
-              className={`top-nav-item ${pathname === n.id ? 'active' : ''}`}
-              onClick={() => router.push(n.id)}
-            >
-              {n.icon}
-              {n.label}
-            </button>
-          ))}
-        </nav>
-      </div>
+      <Topbar pathname={pathname} router={router} />
 
       <div className="scroll-area">{children}</div>
 
-      {/* ── Bottom nav: mobile only ── */}
+      {/* Bottom nav: mobile only */}
       <div className="bottom-nav">
         {NAV.map((n) => (
           <button

@@ -104,7 +104,7 @@ export function LineupField({ lineup }: { lineup: MatchLineup }) {
   return (
     <div className="flex flex-col gap-4">
       {/* ── PITCH ── */}
-      <div>
+      <div className="mx-auto w-full" style={{ maxWidth: 620 }}>
         <div className="mb-2 flex items-center justify-between px-1">
           <span className="font-display text-[10px] font-bold uppercase tracking-[0.14em] text-ceuta-muted">
             Once inicial · AD Ceuta FC
@@ -118,7 +118,7 @@ export function LineupField({ lineup }: { lineup: MatchLineup }) {
           className="relative overflow-hidden rounded-[16px]"
           style={{
             background: '#1a7a1a',
-            minHeight: 420,
+            aspectRatio: '100 / 160',
           }}
         >
           {/* base grass */}
@@ -228,8 +228,7 @@ export function LineupField({ lineup }: { lineup: MatchLineup }) {
 
           {/* players */}
           <div
-            className="relative z-10 flex h-full flex-col justify-around px-3 py-5"
-            style={{ minHeight: 420 }}
+            className="absolute inset-0 z-10 flex flex-col justify-around px-3 py-5"
           >
             {rows.map((row, ri) => (
               <div key={ri} className="flex items-center justify-around">
