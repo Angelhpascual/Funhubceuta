@@ -47,6 +47,25 @@ const MOMENTOS = [
 export function HistoriaTab() {
   return (
     <>
+      {/* ── FOTO HERO MURUBE ── */}
+      <div className="relative mx-3 mb-2 h-[200px] overflow-hidden rounded-[14px]">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="https://elfarodeceuta.es/wp-content/uploads/2025/09/alfonso-murube-estadio-altura-futbol-profesional-7.jpg"
+          alt="Estadio Alfonso Murube"
+          className="size-full object-cover object-center"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 p-4">
+          <div className="font-display text-[10px] font-bold uppercase tracking-widest text-white/60">
+            Ceuta · España
+          </div>
+          <div className="font-display text-[24px] font-black uppercase leading-tight text-white">
+            Estadio Alfonso <em className="not-italic text-ceuta-gold">Murube</em>
+          </div>
+        </div>
+      </div>
+
       <div className="mb-2 grid grid-cols-2 gap-2 px-3">
         {HISTORIA.map((h, i) => (
           <Tile
@@ -66,20 +85,31 @@ export function HistoriaTab() {
         ))}
       </div>
 
-      <div className="mx-3 mb-2 rounded-[14px] bg-ceuta-bg-soft p-4">
-        <p className="mb-2.5 font-display text-[9px] font-bold uppercase tracking-widest text-ceuta-muted">
-          Nuestra historia
-        </p>
-        <p className="font-body text-[13px] leading-relaxed text-ceuta-black">
-          Fundado en 1956 como Club Atlético de Ceuta, el club adoptó en 2013 el nombre y colores de
-          la histórica AD Ceuta. Con sede en la ciudad autónoma de Ceuta, en el estrecho de
-          Gibraltar, representa a una ciudad única: española en África.
-        </p>
-        <p className="mt-2.5 font-body text-[13px] leading-relaxed text-ceuta-black">
-          Tras décadas en categorías inferiores, el 11 de mayo de 2025 lograron el ascenso a Segunda
-          División — la Liga Hypermotion — 45 años después de la última vez que una entidad ceutí
-          militó en el fútbol profesional español. Los Caballas son hoy una realidad en la élite.
-        </p>
+      <div className="mx-3 mb-2 overflow-hidden rounded-[14px] bg-ceuta-bg-soft">
+        <div className="relative h-[130px] w-full">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="https://elfarodeceuta.es/wp-content/uploads/2025/09/alfonso-murube-estadio-altura-futbol-profesional-1.jpg"
+            alt="Interior del Murube"
+            className="size-full object-cover object-top"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-ceuta-bg-soft" />
+        </div>
+        <div className="p-4 pt-2">
+          <p className="mb-2.5 font-display text-[9px] font-bold uppercase tracking-widest text-ceuta-muted">
+            Nuestra historia
+          </p>
+          <p className="font-body text-[13px] leading-relaxed text-ceuta-black">
+            Fundado en 1956 como Club Atlético de Ceuta, el club adoptó en 2013 el nombre y colores de
+            la histórica AD Ceuta. Con sede en la ciudad autónoma de Ceuta, en el estrecho de
+            Gibraltar, representa a una ciudad única: española en África.
+          </p>
+          <p className="mt-2.5 font-body text-[13px] leading-relaxed text-ceuta-black">
+            Tras décadas en categorías inferiores, el 11 de mayo de 2025 lograron el ascenso a Segunda
+            División — la Liga Hypermotion — 45 años después de la última vez que una entidad ceutí
+            militó en el fútbol profesional español. Los Caballas son hoy una realidad en la élite.
+          </p>
+        </div>
       </div>
 
       <div className="mx-3 mb-2 flex items-center gap-4 rounded-[14px] bg-ceuta-red p-4">
