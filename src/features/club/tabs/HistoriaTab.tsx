@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image'
 
 const HISTORY = [
   { year: '2012', title: 'Nace la AD Ceuta FC', desc: 'El fútbol de la ciudad se reorganiza y echa a andar la Asociación Deportiva Ceuta FC, heredera de la tradición caballa.', tone: 'key' },
@@ -137,7 +136,8 @@ export function HistoriaTab() {
       {/* ── IDENTIDAD ── */}
       <div className="hist-identity">
         <div className="hist-identity-crest">
-          <Image src="/escudo.png" alt="Escudo AD Ceuta" width={78} height={78} />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/escudo.png" alt="Escudo AD Ceuta" width={78} height={78} style={{ objectFit: 'contain' }} />
         </div>
         <div className="hist-identity-body">
           <div className="hist-identity-eyebrow">Identidad</div>
