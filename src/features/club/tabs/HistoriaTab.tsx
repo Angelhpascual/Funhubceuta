@@ -1,56 +1,82 @@
 'use client'
 
+import {
+  CalendarDays,
+  Flag,
+  Heart,
+  Landmark,
+  MapPin,
+  Shield,
+  Trophy,
+  Users,
+  type LucideIcon,
+} from 'lucide-react'
+
 const HISTORY = [
   {
     year: '1956',
     title: 'Fundación del Club',
     desc: 'El 9 de julio de 1956 nace el Club Atlético de Ceuta, fusión entre la S.D. Ceuta y el Atlético de Tetuán. En una ciudad donde conviven desde siempre cuatro culturas —cristiana, musulmana, judía e hindú— el fútbol se convierte desde el primer día en el lenguaje común que une a todos.',
     tone: 'key',
+    icon: Flag,
   },
   {
     year: '1960',
     title: 'Mejor clasificación histórica en 2ª',
     desc: 'Subcampeones de Segunda División en 1960–61, con una plantilla que refleja ya el mosaico humano ceutí. Disputan la promoción a Primera ante el Elche CF, quedándose a un paso del sueño.',
     tone: '',
+    icon: Trophy,
   },
   {
     year: '1968',
     title: 'Décadas de resistencia',
     desc: 'El club oscila entre Tercera y Segunda B durante décadas, pero el Murube nunca deja de llenarse. Cristianos, musulmanes, judíos e hindúes se funden en las gradas con una sola voz: la del fútbol caballa.',
     tone: '',
+    icon: Heart,
   },
   {
     year: '2013',
     title: 'Refundación como AD Ceuta FC',
     desc: 'Tras la disolución del club anterior por deudas en 2012, la ciudad entera —con toda su diversidad cultural— se vuelca para refundar el proyecto. Nace la AD Ceuta FC, heredera de colores, escudo y del espíritu plural que define a Ceuta.',
     tone: 'key',
+    icon: Shield,
   },
   {
     year: '2021',
     title: 'Ascenso a Segunda RFEF',
     desc: 'Un gol de Misfutt en el minuto 89 frente al Xerez CD lleva a Ceuta a Segunda RFEF. La celebración recorre los barrios de toda la ciudad, donde cuatro culturas comparten la misma alegría.',
     tone: '',
+    icon: Trophy,
   },
   {
     year: '2022',
     title: 'Salto a Primera Federación y noche ante el Barça',
     desc: 'Play-off ganado ante Navalcarnero (2–0) y salto a la 3ª categoría nacional. En Copa del Rey eliminan a Ibiza y al Elche antes de medirse al FC Barcelona: una noche que paraliza a toda la ciudad, de la medina al barrio del Príncipe.',
     tone: '',
+    icon: Landmark,
   },
   {
     year: '2025',
     title: 'Ascenso histórico a Segunda División',
     desc: 'El 11 de mayo de 2025, victoria 1–2 en Fuenlabrada y regreso al fútbol profesional tras 57 años. Las calles de Ceuta se llenan: musulmanes, cristianos, judíos e hindúes celebran juntos el mayor logro deportivo de la ciudad.',
     tone: 'gold',
+    icon: Trophy,
   },
   {
     year: '2026',
     title: 'Primera temporada en Segunda División',
     desc: 'La AD Ceuta FC debuta en LaLiga Hypermotion como embajadora de una ciudad única en Europa. Un club que representa a cuatro culturas en el punto donde se encuentran dos continentes.',
     tone: 'key',
+    icon: CalendarDays,
   },
 ]
 
+const CULTURES = [
+  { symbol: '✝', label: 'Cristiana' },
+  { symbol: '☪', label: 'Musulmana' },
+  { symbol: '✡', label: 'Judía' },
+  { symbol: 'ॐ', label: 'Hindú' },
+]
 
 const STADIUM_FACTS = [
   { num: '6.500', lbl: 'Aforo' },
@@ -61,12 +87,11 @@ const STADIUM_FACTS = [
 
 const TAGS = [
   { label: 'Los caballas', red: true, dark: false },
-  { label: 'Blanquinegros', red: false, dark: true },
-  { label: '#AupaCeuta', red: false, dark: false },
-  { label: 'Ceuta · España', red: false, dark: false },
+  { label: 'Blanquinegros', red: false, dark: true },  
+  
 ]
 
-const MURUBE_PHOTO = '/api/proxy/image?url=' + encodeURIComponent('https://elfarodeceuta.es/wp-content/uploads/2025/09/alfonso-murube-estadio-altura-futbol-profesional-1.jpg')
+const MURUBE_PHOTO = '/api/proxy/image?url=' + encodeURIComponent('https://static.elpueblodeceuta.es/clip/f2461653-947e-4115-b9e3-e53a34fc5db7_16-9-aspect-ratio_1600w_0.webp')
 
 function MLabel({ children }: { children: React.ReactNode }) {
   return (
@@ -86,11 +111,23 @@ function IdentityBlock() {
           <img src="/escudo.png" alt="Escudo AD Ceuta" style={{ width: '78%', height: '78%', objectFit: 'contain' }} />
         </div>
         <div className="hist-identity-text-col">
-          <div className="hist-identity-eyebrow">Identidad</div>
+          <div className="hist-identity-eyebrow">
+            <Users size={14} strokeWidth={2.4} />
+            Identidad
+          </div>
           <div className="hist-identity-title">Caballas de corazón</div>
           <div className="hist-identity-body">
-            La AD Ceuta FC es el club de una ciudad única en Europa: <strong style={{ color: 'var(--black)' }}>cuatro culturas</strong> —cristiana, musulmana, judía e hindú— conviven en apenas 19 km². Sus aficionados, conocidos como <strong style={{ color: 'var(--black)' }}>los caballas</strong>, llenan el <strong style={{ color: 'var(--black)' }}>Estadio Alfonso Murube</strong> semana a semana con una sola voz, la misma desde 1956: orgullo de ciudad, orgullo de frontera.
+            La AD Ceuta FC es el club de una ciudad única en Europa: <strong style={{ color: 'var(--black)' }}>cuatro culturas</strong> —cristiana, musulmana, judía e hindú— conviven en apenas 19 km². Sus aficionados, conocidos como <strong style={{ color: 'var(--black)' }}>los caballas</strong>, llenan el <strong style={{ color: 'var(--black)' }}>Estadio Alfonso Murube</strong> semana a semana con una sola voz, la misma desde 1956: orgullo de ciudad.
           </div>
+          <div className="hist-culture-row" aria-label="Culturas presentes en Ceuta">
+            {CULTURES.map((culture) => (
+              <span key={culture.label} className="hist-culture-pill">
+                <span className="hist-culture-symbol" aria-hidden="true">{culture.symbol}</span>
+                <span>{culture.label}</span>
+              </span>
+            ))}
+          </div>
+          
           <div className="hist-tags">
             {TAGS.map((t, i) => (
               <span key={i} style={{ fontFamily: 'var(--font-display)', fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', padding: '6px 12px', borderRadius: 999, background: t.red ? 'var(--red)' : t.dark ? 'var(--black)' : 'var(--white)', border: `1.5px solid ${t.red ? 'var(--red)' : t.dark ? 'var(--black)' : 'var(--border)'}`, color: (t.red || t.dark) ? 'var(--white)' : 'var(--black)' }}>{t.label}</span>
@@ -108,10 +145,17 @@ function StadiumCard() {
       <div className="hist-stadium-photo">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={MURUBE_PHOTO} alt="Estadio Alfonso Murube" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 40%, rgba(10,10,10,0.5) 100%)' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 40%, rgba(14,14,14,0.5) 100%)' }} />
+        <div className="hist-stadium-badge">
+          <MapPin size={14} strokeWidth={2.6} />
+          Murube
+        </div>
       </div>
       <div style={{ padding: '14px 16px 16px' }}>
-        <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 22, lineHeight: 1, textTransform: 'uppercase' }}>Alfonso Murube</div>
+        <div className="hist-stadium-title">
+          <Landmark size={18} strokeWidth={2.4} />
+          Alfonso Murube
+        </div>
         <div style={{ fontSize: 12.5, color: 'var(--muted)', marginTop: 4 }}>Ceuta · Inaugurado en 1944</div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, marginTop: 14, background: 'var(--border)', border: '1px solid var(--border)', borderRadius: 8, overflow: 'hidden' }}>
           {STADIUM_FACTS.map((f, i) => (
@@ -131,17 +175,24 @@ function Timeline() {
   return (
     <div className="hist-timeline">
       <div className="hist-tl-line" />
-      {HISTORY.map((e, i) => (
-        <div key={i} className="hist-tl-item" style={{ paddingBottom: i === HISTORY.length - 1 ? 0 : undefined }}>
-          <div className="hist-tl-dot" style={{
-            background: e.tone === 'key' ? 'var(--red)' : e.tone === 'gold' ? 'var(--gold)' : 'var(--white)',
-            borderColor: e.tone === 'key' ? 'var(--red)' : e.tone === 'gold' ? 'var(--gold)' : 'var(--muted)',
-          }} />
-          <div className="hist-tl-year" style={{ color: e.tone === 'key' ? 'var(--red)' : e.tone === 'gold' ? '#B8930A' : 'var(--black)' }}>{e.year}</div>
-          <div className="hist-tl-title">{e.title}</div>
-          <div className="hist-tl-desc">{e.desc}</div>
-        </div>
-      ))}
+      {HISTORY.map((e, i) => {
+        const Icon = e.icon as LucideIcon
+
+        return (
+          <div key={i} className="hist-tl-item" style={{ paddingBottom: i === HISTORY.length - 1 ? 0 : undefined }}>
+            <div className="hist-tl-dot" style={{
+              background: e.tone === 'key' ? 'var(--red)' : e.tone === 'gold' ? 'var(--gold)' : 'var(--white)',
+              borderColor: e.tone === 'key' ? 'var(--red)' : e.tone === 'gold' ? 'var(--gold)' : 'var(--muted)',
+            }} />
+            <div className="hist-tl-kicker">
+              <Icon size={14} strokeWidth={2.4} />
+              <div className="hist-tl-year" style={{ color: e.tone === 'key' ? 'var(--red)' : e.tone === 'gold' ? 'var(--gold)' : 'var(--black)' }}>{e.year}</div>
+            </div>
+            <div className="hist-tl-title">{e.title}</div>
+            <div className="hist-tl-desc">{e.desc}</div>
+          </div>
+        )
+      })}
     </div>
   )
 }
@@ -174,7 +225,7 @@ export function HistoriaTab() {
           position: absolute;
           top: 0; right: -30px; bottom: 0;
           width: 230px;
-          background: repeating-linear-gradient(-45deg, white 0 12px, #0A0A0A 12px 24px);
+          background: repeating-linear-gradient(-45deg, var(--white) 0 12px, var(--black) 12px 24px);
           clip-path: polygon(70px 0, 100% 0, 100% 100%, 0 100%);
           opacity: 0.07;
           pointer-events: none;
@@ -201,6 +252,9 @@ export function HistoriaTab() {
           align-items: center;
           gap: 8px;
           position: relative;
+        }
+        .hist-hero-eyebrow svg {
+          flex-shrink: 0;
         }
         .hist-hero-title {
           font-family: var(--font-display);
@@ -261,6 +315,15 @@ export function HistoriaTab() {
           font-size: 22px;
           line-height: 1;
         }
+        .hist-tl-kicker {
+          display: flex;
+          align-items: center;
+          gap: 7px;
+        }
+        .hist-tl-kicker svg {
+          color: var(--muted);
+          flex-shrink: 0;
+        }
         .hist-tl-title {
           font-family: var(--font-display);
           font-weight: 700;
@@ -281,6 +344,38 @@ export function HistoriaTab() {
           height: 140px;
           position: relative;
           background: var(--black);
+        }
+        .hist-stadium-badge {
+          position: absolute;
+          left: 12px;
+          bottom: 12px;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          border-radius: var(--r-pill);
+          background: rgba(14,14,14,0.72);
+          color: var(--white);
+          padding: 6px 10px;
+          font-family: var(--font-display);
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: 0.08em;
+          line-height: 1;
+          text-transform: uppercase;
+        }
+        .hist-stadium-title {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-family: var(--font-display);
+          font-weight: 800;
+          font-size: 22px;
+          line-height: 1;
+          text-transform: uppercase;
+        }
+        .hist-stadium-title svg {
+          color: var(--red);
+          flex-shrink: 0;
         }
         .hist-fact-num {
           font-family: var(--font-display);
@@ -327,6 +422,9 @@ export function HistoriaTab() {
           margin-top: 14px;
         }
         .hist-identity-eyebrow {
+          display: inline-flex;
+          align-items: center;
+          gap: 7px;
           font-family: var(--font-display);
           font-size: 11px;
           font-weight: 700;
@@ -345,8 +443,45 @@ export function HistoriaTab() {
         .hist-identity-body {
           font-size: 13px;
           line-height: 1.55;
-          color: #444;
+          color: var(--muted);
           margin-top: 10px;
+        }
+        .hist-culture-row {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
+          gap: 6px;
+          margin-top: 14px;
+        }
+        .hist-culture-pill {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          border: 1px solid var(--border);
+          border-radius: var(--r-pill);
+          background: var(--white);
+          color: var(--black);
+          padding: 6px 10px;
+          font-family: var(--font-display);
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 0.08em;
+          line-height: 1;
+          text-transform: uppercase;
+        }
+        .hist-culture-symbol {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 18px;
+          height: 18px;
+          border-radius: 50%;
+          background: var(--bg-soft);
+          color: var(--red);
+          font-family: var(--font-display);
+          font-size: 13px;
+          font-weight: 800;
+          line-height: 1;
         }
         .hist-tags {
           display: flex;
@@ -366,7 +501,7 @@ export function HistoriaTab() {
           .hist-hero-stripes {
             right: -60px;
             width: 520px;
-            background: repeating-linear-gradient(-45deg, white 0 16px, #0A0A0A 16px 32px);
+            background: repeating-linear-gradient(-45deg, var(--white) 0 16px, var(--black) 16px 32px);
             clip-path: polygon(140px 0, 100% 0, 100% 100%, 0 100%);
           }
           .hist-hero-ghost { font-size: 210px; right: 44px; }
@@ -419,6 +554,7 @@ export function HistoriaTab() {
           .hist-identity-title { font-size: 30px; line-height: 1.02; }
           .hist-identity-body { font-size: 15px; max-width: 640px; }
           .hist-tags { justify-content: flex-start; }
+          .hist-culture-row { justify-content: flex-start; }
         }
       `}</style>
 
@@ -428,7 +564,7 @@ export function HistoriaTab() {
           <div className="hist-hero-stripes" />
           <div className="hist-hero-ghost">1956</div>
           <div className="hist-hero-eyebrow">
-            <div style={{ width: 18, height: 2, background: 'var(--red)', flexShrink: 0 }} />
+            <Flag size={14} strokeWidth={2.6} />
             Orgullo caballa
           </div>
           <div className="hist-hero-title">
