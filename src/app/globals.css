@@ -788,6 +788,430 @@ img {
   background: var(--black);
 }
 
+/* ════════ HISTORIA TAB ════════ */
+.hist-root { padding-bottom: 24px; }
+
+/* hero */
+.hist-hero {
+  position: relative;
+  background: var(--black);
+  color: var(--white);
+  overflow: hidden;
+  padding: 28px 20px 26px;
+  margin: 0 12px;
+  border-radius: 14px;
+  margin-top: 8px;
+}
+.hist-hero-stripes {
+  position: absolute;
+  top: 0; right: -30px; bottom: 0;
+  width: 230px;
+  background: repeating-linear-gradient(-45deg, var(--white) 0 12px, var(--black) 12px 24px);
+  clip-path: polygon(70px 0, 100% 0, 100% 100%, 0 100%);
+  opacity: .07;
+  pointer-events: none;
+}
+.hist-year-ghost {
+  position: absolute;
+  top: -6px; right: 14px;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 120px;
+  line-height: .8;
+  color: rgba(255,255,255,.05);
+  pointer-events: none;
+  letter-spacing: -.02em;
+}
+.hist-hero-eyebrow {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--red);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+.hist-hero-eyebrow::before {
+  content: '';
+  width: 18px;
+  height: 2px;
+  background: var(--red);
+}
+.hist-hero-title {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 38px;
+  line-height: .95;
+  letter-spacing: -.01em;
+  text-transform: uppercase;
+  margin-top: 10px;
+  position: relative;
+}
+.hist-hero-title em { font-style: normal; color: var(--gold); }
+.hist-hero-sub {
+  margin-top: 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(255,255,255,.72);
+  position: relative;
+}
+
+/* stats grid */
+.hist-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 12px 12px 0;
+}
+.hist-stat-tile {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  background: var(--white);
+}
+.hist-stat-tile.red  { background: var(--red);   border-color: var(--red); }
+.hist-stat-tile.dark { background: var(--black); border-color: var(--black); }
+.hist-stat-value {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 34px;
+  line-height: 1;
+  color: var(--black);
+}
+.hist-stat-tile.red  .hist-stat-value,
+.hist-stat-tile.dark .hist-stat-value { color: var(--white); }
+.hist-stat-label {
+  font-family: var(--font-display);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 6px;
+}
+.hist-stat-tile.red  .hist-stat-label,
+.hist-stat-tile.dark .hist-stat-label { color: rgba(255,255,255,.7); }
+
+/* section label */
+.hist-section-label {
+  padding: 20px 0 10px;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--red);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.hist-section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* layout */
+.hist-layout {
+  padding: 0 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.hist-main {}
+.hist-side { display: flex; flex-direction: column; gap: 14px; padding-top: 8px; }
+
+/* timeline */
+.hist-timeline {
+  position: relative;
+  padding-left: 30px;
+}
+.hist-timeline::before {
+  content: '';
+  position: absolute;
+  left: 6px; top: 8px; bottom: 8px;
+  width: 2px;
+  background: var(--border);
+}
+.hist-tl-event {
+  position: relative;
+  padding: 0 0 22px 18px;
+}
+.hist-tl-event:last-child { padding-bottom: 0; }
+.hist-tl-event::before {
+  content: '';
+  position: absolute;
+  left: -23px; top: 3px;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: var(--white);
+  border: 3px solid var(--muted);
+}
+.hist-tl-event.key::before  { border-color: var(--red);  background: var(--red); }
+.hist-tl-event.gold::before { border-color: var(--gold); background: var(--gold); }
+.hist-tl-year {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--black);
+}
+.hist-tl-event.key  .hist-tl-year { color: var(--red); }
+.hist-tl-event.gold .hist-tl-year { color: #B8930A; }
+.hist-tl-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  color: var(--black);
+  margin-top: 3px;
+}
+.hist-tl-desc {
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+/* stadium card */
+.hist-stadium-card {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.hist-stadium-photo {
+  height: 150px;
+  position: relative;
+  background: var(--black);
+}
+.hist-stadium-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 40%, rgba(10,10,10,.5) 100%);
+}
+.hist-stadium-body { padding: 14px 16px 16px; }
+.hist-stadium-name {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 22px;
+  line-height: 1;
+  text-transform: uppercase;
+}
+.hist-stadium-loc { font-size: 12.5px; color: var(--muted); margin-top: 4px; }
+.hist-stadium-facts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  margin-top: 14px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.hist-stadium-fact { background: var(--white); padding: 11px 13px; }
+.hist-sf-num {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 18px;
+}
+.hist-sf-lbl {
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+/* palmarés */
+.hist-palmares-card {
+  background: var(--black);
+  color: var(--white);
+  border-radius: 14px;
+  padding: 18px;
+  position: relative;
+  overflow: hidden;
+}
+.hist-palmares-card::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: 70px;
+  background: repeating-linear-gradient(-45deg, transparent 0 7px, rgba(255,255,255,.04) 7px 14px);
+}
+.hist-palmares-title {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 12px;
+  position: relative;
+}
+.hist-palmares-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 0;
+  border-top: 1px solid rgba(255,255,255,.1);
+  position: relative;
+}
+.hist-palmares-item:first-of-type { border-top: none; }
+.hist-palmares-count {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 24px;
+  color: var(--gold);
+  min-width: 30px;
+  line-height: 1;
+}
+.hist-palmares-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 13.5px;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  line-height: 1.1;
+}
+.hist-palmares-year {
+  font-size: 11px;
+  color: rgba(255,255,255,.55);
+  margin-top: 2px;
+}
+
+/* identidad */
+.hist-identity {
+  margin: 20px 12px 0;
+  background: var(--bg-soft);
+  border-radius: 14px;
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0;
+}
+.hist-identity-crest {
+  width: 96px; height: 96px;
+  background: var(--white);
+  border: 2px solid var(--black);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 4px 4px 0 var(--red);
+  flex-shrink: 0;
+}
+.hist-identity-body { margin-top: 16px; }
+.hist-identity-eyebrow {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--red);
+}
+.hist-identity-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 24px;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+.hist-identity-text {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: #444;
+  margin-top: 10px;
+}
+.hist-identity-tags {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 14px;
+}
+.hist-tag {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  color: var(--black);
+}
+.hist-tag.red   { background: var(--red);   color: var(--white); border-color: var(--red); }
+.hist-tag.black { background: var(--black); color: var(--white); border-color: var(--black); }
+
+/* ── DESKTOP ── */
+@media (min-width: 768px) {
+  .hist-hero {
+    padding: 56px 48px 52px;
+    min-height: 280px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    margin: 24px 0 0;
+    border-radius: 14px;
+  }
+  .hist-year-ghost { font-size: 210px; right: 44px; top: 6px; }
+  .hist-hero-title { font-size: 72px; max-width: 640px; }
+  .hist-hero-sub   { max-width: 520px; font-size: 16px; }
+  .hist-stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    padding: 20px 0 0;
+  }
+  .hist-stat-tile  { padding: 22px; }
+  .hist-stat-value { font-size: 48px; }
+  .hist-layout {
+    flex-direction: row;
+    align-items: start;
+    gap: 36px;
+    padding: 0;
+  }
+  .hist-main  { flex: 1; }
+  .hist-side  {
+    width: 340px;
+    flex-shrink: 0;
+    position: sticky;
+    top: calc(72px + 24px);
+    padding-top: 0;
+  }
+  .hist-stadium-photo { height: 170px; }
+  .hist-timeline { padding-left: 36px; }
+  .hist-timeline::before { left: 6px; }
+  .hist-tl-event { padding: 0 0 30px 28px; }
+  .hist-tl-event::before { left: -27px; top: 4px; width: 14px; height: 14px; }
+  .hist-tl-year  { font-size: 26px; }
+  .hist-tl-title { font-size: 17px; }
+  .hist-tl-desc  { font-size: 14px; max-width: 540px; }
+  .hist-identity {
+    flex-direction: row;
+    text-align: left;
+    align-items: center;
+    padding: 34px 36px;
+    gap: 34px;
+    margin: 40px 0 0;
+  }
+  .hist-identity-crest { width: 130px; height: 130px; }
+  .hist-identity-body  { margin-top: 0; }
+  .hist-identity-title { font-size: 30px; }
+  .hist-identity-text  { max-width: 620px; font-size: 15px; }
+  .hist-identity-tags  { justify-content: flex-start; }
+  .hist-section-label  { padding-top: 30px; }
+}
+
 /* Chips / filtros */
 .chips {
   display: flex;

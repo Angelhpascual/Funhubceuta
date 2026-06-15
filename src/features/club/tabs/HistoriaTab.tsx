@@ -1,159 +1,158 @@
 'use client'
 
-import { Tile, TileValue, TileLabel } from '../components/ClubTiles'
+import Image from 'next/image'
 
-const HISTORIA = [
-  { label: 'Fundación', value: '1923', icon: '📅' },
-  { label: 'Estadio', value: 'Alfonso Murube', icon: '🏟️' },
-  { label: 'Capacidad', value: '8.500', icon: '👥' },
-  { label: 'Ciudad', value: 'Ceuta', icon: '📍' },
-  { label: 'Colores', value: 'Negro y blanco', icon: '🎨' },
-  { label: 'Apodo', value: 'Caballas', icon: '🐟' },
+const HISTORY = [
+  { year: '2012', title: 'Nace la AD Ceuta FC', desc: 'El fútbol de la ciudad se reorganiza y echa a andar la Asociación Deportiva Ceuta FC, heredera de la tradición caballa.', tone: 'key' },
+  { year: '2014', title: 'Primeros pasos en categoría nacional', desc: 'El club se asienta en las divisiones de bronce del fútbol español y empieza a forjar una afición fiel.' },
+  { year: '2019', title: 'Reforma del Alfonso Murube', desc: 'El estadio se moderniza para acoger una afición cada vez más numerosa en las noches grandes del fútbol.' },
+  { year: '2021', title: 'Salto a Primera RFEF', desc: 'La AD Ceuta accede a la nueva tercera categoría del fútbol nacional y se mide a clubes históricos.' },
+  { year: '2023', title: 'Mejor temporada de su historia', desc: 'El equipo roza el play-off y firma registros de récord como local en el Murube.' },
+  { year: '2025', title: 'Ascenso histórico a Segunda División', desc: 'Tras una temporada inolvidable, la AD Ceuta sella su primer ascenso al fútbol profesional. La ciudad se vuelca.', tone: 'gold' },
+  { year: '2026', title: 'Debut en el fútbol profesional', desc: 'El club afronta su primera campaña en Segunda División, escribiendo una nueva página de su historia.', tone: 'key' },
 ]
 
-const MOMENTOS = [
-  {
-    año: '1960',
-    icono: '⭐',
-    titulo: 'Segundos en Segunda División',
-    desc: 'El Club Atlético de Ceuta logra su mejor clasificación histórica: segundo en Segunda División, rozando el ascenso a Primera.',
-  },
-  {
-    año: '2023',
-    icono: '🏟️',
-    titulo: 'El Barça en el Murube',
-    desc: 'El FC Barcelona de Lewandowski y Xavi visita el Alfonso Murube en octavos de Copa del Rey. Más de 7.000 caballas lo vivieron en directo.',
-  },
-  {
-    año: '2025',
-    icono: '🏆',
-    titulo: 'Campeones y de vuelta a Segunda',
-    desc: 'Ceuta gana el grupo de Primera Federación y asciende de forma directa a Segunda División el 11 de mayo de 2025, 45 años después.',
-  },
-  {
-    año: '2025',
-    icono: '⚽',
-    titulo: 'Debut en la Liga Hypermotion',
-    desc: 'Temporada 2025-26: la AD Ceuta FC debuta en la Liga Hypermotion (Segunda División) ante los mejores equipos del fútbol español.',
-  },
-  {
-    año: '2025',
-    icono: '👩',
-    titulo: 'El femenino llega a la élite',
-    desc: 'El AD Ceuta FC Femenino asciende a Primera División (Liga F), siendo el primer equipo femenino de la ciudad en alcanzar la élite nacional.',
-  },
+const PALMARES = [
+  { count: '1', name: 'Ascenso a Segunda División', year: '2025' },
+  { count: '2', name: 'Ascensos de categoría', year: '2014 · 2021' },
+  { count: '1', name: 'Campeón de grupo', year: '2021' },
 ]
 
-export function HistoriaTab() {
+const STADIUM_FACTS = [
+  { num: '6.500', lbl: 'Aforo' },
+  { num: '105×68', lbl: 'Dimensiones (m)' },
+  { num: 'Natural', lbl: 'Césped' },
+  { num: '1944', lbl: 'Inauguración' },
+]
+
+const STATS = [
+  { value: '2012', label: 'Fundación', variant: 'red' },
+  { value: '2025', label: 'Ascenso a 2ª', variant: 'dark' },
+  { value: '6.500', label: 'Aforo Murube', variant: '' },
+  { value: '⚫⚪', label: 'Blanquinegros', variant: '' },
+]
+
+const STADIUM_PHOTO = 'https://upload.wikimedia.org/wikipedia/commons/2/2a/6092c97fa861df960efb2efd_Estadio-Murube-1.jpg'
+
+function Timeline({ mobile }: { mobile?: boolean }) {
   return (
-    <>
-      {/* ── FOTO HERO MURUBE ── */}
-      <div className="relative mx-3 mb-2 h-[200px] overflow-hidden rounded-[14px]">
+    <div className={mobile ? 'hist-timeline-mobile' : 'hist-timeline'}>
+      {HISTORY.map((e, i) => (
+        <div key={i} className={`hist-tl-event ${e.tone ?? ''}`}>
+          <div className="hist-tl-year">{e.year}</div>
+          <div className="hist-tl-title">{e.title}</div>
+          <div className="hist-tl-desc">{e.desc}</div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function StadiumCard() {
+  return (
+    <div className="hist-stadium-card">
+      <div className="hist-stadium-photo">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="https://upload.wikimedia.org/wikipedia/commons/2/2a/6092c97fa861df960efb2efd_Estadio-Murube-1.jpg"
+          src={STADIUM_PHOTO}
           alt="Estadio Alfonso Murube"
-          className="size-full object-cover object-center"
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 p-4">
-          <div className="font-display text-[10px] font-bold uppercase tracking-widest text-white/60">
-            Ceuta · España
-          </div>
-          <div className="font-display text-[24px] font-black uppercase leading-tight text-white">
-            Estadio Alfonso <em className="not-italic text-ceuta-gold">Murube</em>
-          </div>
-        </div>
+        <div className="hist-stadium-overlay" />
       </div>
-
-      <div className="mb-2 grid grid-cols-2 gap-2 px-3">
-        {HISTORIA.map((h, i) => (
-          <Tile
-            key={i}
-            className={`min-h-[90px] ${i === 0 ? 'bg-ceuta-red' : i === 1 ? 'bg-ceuta-black' : ''}`}
-          >
-            <div className="mb-1.5 text-[22px] leading-none">{h.icon}</div>
-            <div>
-              <TileValue className={`text-[18px] ${i <= 1 ? 'text-white' : 'text-ceuta-black'}`}>
-                {h.value}
-              </TileValue>
-              <TileLabel className={i <= 1 ? 'text-white/75' : 'text-ceuta-muted'}>
-                {h.label}
-              </TileLabel>
-            </div>
-          </Tile>
-        ))}
-      </div>
-
-      <div className="mx-3 mb-2 overflow-hidden rounded-[14px] bg-ceuta-bg-soft">
-        <div className="relative h-[130px] w-full">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="https://doragonsports.com/wp-content/uploads/2025/10/1379148c-cecc-459c-9d42-b2932818b4fd.png"
-            alt="Interior del Murube"
-            className="size-full object-cover object-top"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-ceuta-bg-soft" />
-        </div>
-        <div className="p-4 pt-2">
-          <p className="mb-2.5 font-display text-[9px] font-bold uppercase tracking-widest text-ceuta-muted">
-            Nuestra historia
-          </p>
-          <p className="font-body text-[13px] leading-relaxed text-ceuta-black">
-            Fundado en 1956 como Club Atlético de Ceuta, el club adoptó en 2013 el nombre y colores de
-            la histórica AD Ceuta. Con sede en la ciudad autónoma de Ceuta, en el estrecho de
-            Gibraltar, representa a una ciudad única: española en África.
-          </p>
-          <p className="mt-2.5 font-body text-[13px] leading-relaxed text-ceuta-black">
-            Tras décadas en categorías inferiores, el 11 de mayo de 2025 lograron el ascenso a Segunda
-            División — la Liga Hypermotion — 45 años después de la última vez que una entidad ceutí
-            militó en el fútbol profesional español. Los Caballas son hoy una realidad en la élite.
-          </p>
-        </div>
-      </div>
-
-      <div className="mx-3 mb-2 flex items-center gap-4 rounded-[14px] bg-ceuta-red p-4">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="https://elfarodeceuta.es/wp-content/uploads/2025/08/Caballati-AD-Ceuta-Sporting-Gijon-011.jpeg"
-          alt="Caballati"
-          className="size-20 shrink-0 rounded-xl object-cover object-top"
-        />
-        <div>
-          <div className="font-display text-[20px] font-black text-white">Caballati</div>
-          <div className="mb-2 font-display text-[9px] font-bold uppercase tracking-widest text-white/75">
-            Mascota oficial
-          </div>
-          <p className="font-body text-[12px] leading-relaxed text-white/85">
-            Caballati es la mascota oficial del AD Ceuta FC, inspirada en la caballa, el pez emblema
-            de Ceuta y origen del apodo «Las Caballas» que llevan con orgullo sus aficionados.
-          </p>
-        </div>
-      </div>
-
-      <div className="mx-3 mb-2">
-        <p className="mb-2 pl-1 font-display text-[9px] font-bold uppercase tracking-widest text-ceuta-muted">
-          Momentos míticos
-        </p>
-        <div className="flex flex-col gap-2">
-          {MOMENTOS.map((m, i) => (
-            <div key={i} className="flex items-start gap-3.5 rounded-[14px] bg-ceuta-bg-soft p-4">
-              <div className="min-w-[36px] shrink-0 text-center">
-                <div className="text-[24px] leading-none">{m.icono}</div>
-                <div className="mt-1 font-display text-[10px] font-black tracking-wide text-ceuta-red">
-                  {m.año}
-                </div>
-              </div>
-              <div>
-                <div className="mb-1 font-display text-[13px] font-black leading-snug text-ceuta-black">
-                  {m.titulo}
-                </div>
-                <p className="font-body text-[12px] leading-relaxed text-ceuta-muted">{m.desc}</p>
-              </div>
+      <div className="hist-stadium-body">
+        <div className="hist-stadium-name">Alfonso Murube</div>
+        <div className="hist-stadium-loc">Ceuta · Inaugurado en 1944</div>
+        <div className="hist-stadium-facts">
+          {STADIUM_FACTS.map((f, i) => (
+            <div key={i} className="hist-stadium-fact">
+              <div className="hist-sf-num">{f.num}</div>
+              <div className="hist-sf-lbl">{f.lbl}</div>
             </div>
           ))}
         </div>
       </div>
-    </>
+    </div>
+  )
+}
+
+function PalmaresCard() {
+  return (
+    <div className="hist-palmares-card">
+      <div className="hist-palmares-title">Palmarés</div>
+      {PALMARES.map((p, i) => (
+        <div key={i} className="hist-palmares-item">
+          <div className="hist-palmares-count">{p.count}</div>
+          <div>
+            <div className="hist-palmares-name">{p.name}</div>
+            <div className="hist-palmares-year">{p.year}</div>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+export function HistoriaTab() {
+  return (
+    <div className="hist-root">
+      {/* ── HERO ── */}
+      <div className="hist-hero">
+        <div className="hist-hero-stripes" />
+        <div className="hist-year-ghost">1956</div>
+        <div className="hist-hero-eyebrow">Orgullo caballa</div>
+        <div className="hist-hero-title">
+          Más de un siglo de <em>fútbol</em> en Ceuta
+        </div>
+        <div className="hist-hero-sub">
+          Del primer balón que rodó frente al Estrecho al debut en el fútbol profesional. Esta es la historia de la AD Ceuta.
+        </div>
+      </div>
+
+      {/* ── STATS GRID ── */}
+      <div className="hist-stats-grid">
+        {STATS.map((s, i) => (
+          <div key={i} className={`hist-stat-tile ${s.variant}`}>
+            <div className="hist-stat-value">{s.value}</div>
+            <div className="hist-stat-label">{s.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* ── DESKTOP: 2 columnas / MOBILE: 1 columna ── */}
+      <div className="hist-layout">
+        {/* columna principal: timeline */}
+        <div className="hist-main">
+          <div className="hist-section-label">Cronología del club</div>
+          <Timeline />
+        </div>
+
+        {/* sidebar: estadio + palmarés */}
+        <div className="hist-side">
+          <StadiumCard />
+          <PalmaresCard />
+        </div>
+      </div>
+
+      {/* ── IDENTIDAD ── */}
+      <div className="hist-identity">
+        <div className="hist-identity-crest">
+          <Image src="/escudo.png" alt="Escudo AD Ceuta" width={78} height={78} />
+        </div>
+        <div className="hist-identity-body">
+          <div className="hist-identity-eyebrow">Identidad</div>
+          <div className="hist-identity-title">Caballas de corazón</div>
+          <div className="hist-identity-text">
+            La afición de la AD Ceuta es conocida como <strong>los caballas</strong>, gentilicio que toma su nombre del pez emblema de la ciudad. El escudo luce con orgullo los <strong>colores y símbolos de Ceuta</strong>, puente entre dos continentes. Cada partido en el Murube es una declaración de identidad: la de una ciudad que vive su fútbol con pasión fronteriza.
+          </div>
+          <div className="hist-identity-tags">
+            <span className="hist-tag red">Los caballas</span>
+            <span className="hist-tag black">Blanquinegros</span>
+            <span className="hist-tag">#AupaCeuta</span>
+            <span className="hist-tag">Ciudad de Ceuta</span>
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }
