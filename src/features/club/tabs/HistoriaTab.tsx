@@ -51,11 +51,6 @@ const HISTORY = [
   },
 ]
 
-const PALMARES = [
-  { count: '1', name: 'Ascenso a Segunda División', year: '2025' },
-  { count: '2', name: 'Ascensos de categoría', year: '2014 · 2021' },
-  { count: '1', name: 'Campeón de grupo', year: '2021' },
-]
 
 const STADIUM_FACTS = [
   { num: '6.500', lbl: 'Aforo' },
@@ -71,7 +66,7 @@ const TAGS = [
   { label: 'Ceuta · España', red: false, dark: false },
 ]
 
-const MURUBE_PHOTO = '/api/proxy/image?url=' + encodeURIComponent('https://upload.wikimedia.org/wikipedia/commons/2/2a/6092c97fa861df960efb2efd_Estadio-Murube-1.jpg')
+const MURUBE_PHOTO = '/api/proxy/image?url=' + encodeURIComponent('https://elfarodeceuta.es/wp-content/uploads/2025/09/alfonso-murube-estadio-altura-futbol-profesional-1.jpg')
 
 function MLabel({ children }: { children: React.ReactNode }) {
   return (
@@ -131,23 +126,6 @@ function StadiumCard() {
   )
 }
 
-function PalmaresCard() {
-  return (
-    <div style={{ background: 'var(--black)', color: 'var(--white)', borderRadius: 14, padding: 18, position: 'relative', overflow: 'hidden' }}>
-      <div style={{ position: 'absolute', top: 0, right: 0, bottom: 0, width: 70, background: 'repeating-linear-gradient(-45deg, transparent 0 7px, rgba(255,255,255,0.04) 7px 14px)' }} />
-      <div style={{ fontFamily: 'var(--font-display)', fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: 12, position: 'relative' }}>Títulos y logros</div>
-      {PALMARES.map((p, i) => (
-        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '9px 0', borderTop: i === 0 ? 'none' : '1px solid rgba(255,255,255,0.1)', position: 'relative' }}>
-          <div className="hist-pal-count">{p.count}</div>
-          <div>
-            <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 13.5, letterSpacing: '0.02em', textTransform: 'uppercase', lineHeight: 1.1 }}>{p.name}</div>
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', marginTop: 2 }}>{p.year}</div>
-          </div>
-        </div>
-      ))}
-    </div>
-  )
-}
 
 function Timeline() {
   return (
@@ -309,14 +287,6 @@ export function HistoriaTab() {
           font-weight: 800;
           font-size: 18px;
         }
-        .hist-pal-count {
-          font-family: var(--font-display);
-          font-weight: 900;
-          font-size: 24px;
-          color: var(--gold);
-          min-width: 30px;
-          line-height: 1;
-        }
 
         .hist-layout {
           display: flex;
@@ -411,9 +381,8 @@ export function HistoriaTab() {
           .hist-tl-desc { font-size: 14px; max-width: 540px; margin-top: 5px; }
           .hist-tl-item { padding-bottom: 28px; }
 
-          .hist-stadium-photo { height: 170px; }
+          .hist-stadium-photo { height: 220px; }
           .hist-fact-num { font-size: 20px; }
-          .hist-pal-count { font-size: 26px; min-width: 34px; }
 
           .hist-layout {
             display: grid;
@@ -485,8 +454,6 @@ export function HistoriaTab() {
           <div className="hist-sidebar">
             <MLabel>El estadio</MLabel>
             <StadiumCard />
-            <MLabel>Palmarés</MLabel>
-            <PalmaresCard />
           </div>
         </div>
       </div>
