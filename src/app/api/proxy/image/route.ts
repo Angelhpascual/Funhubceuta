@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import sharp from 'sharp'
 
 const ALLOWED_DOMAINS = [
   'adceutafc.com',
@@ -23,9 +24,23 @@ const ALLOWED_DOMAINS = [
   'onguesyapdtatsadsxmc.supabase.co',
 ]
 
+function imageResponse(body: ArrayBuffer | Buffer, contentType: string) {
+  return new NextResponse(body instanceof ArrayBuffer ? body : new Uint8Array(body), {
+    headers: {
+      'Content-Type': contentType,
+      'Cache-Control': 'public, max-age=604800, stale-while-revalidate=86400, immutable',
+      Vary: 'Accept',
+    },
+  })
+}
+
 export async function GET(request: NextRequest) {
   const url = request.nextUrl.searchParams.get('url')
   if (!url) return NextResponse.json({ error: 'Missing url' }, { status: 400 })
+  const width = parseInt(request.nextUrl.searchParams.get('w') ?? '', 10)
+  const quality = parseInt(request.nextUrl.searchParams.get('q') ?? '70', 10)
+  const targetWidth = Number.isFinite(width) ? Math.min(Math.max(width, 32), 1200) : null
+  const targetQuality = Number.isFinite(quality) ? Math.min(Math.max(quality, 45), 85) : 70
 
   // Security: only proxy from allowed domains
   let hostname: string
@@ -54,11 +69,32 @@ export async function GET(request: NextRequest) {
 
   const contentType = res.headers.get('content-type') ?? 'image/jpeg'
   const buffer = await res.arrayBuffer()
+  const acceptsAvif = request.headers.get('accept')?.includes('image/avif') ?? false
+  const acceptsWebp = request.headers.get('accept')?.includes('image/webp') ?? false
 
-  return new NextResponse(buffer, {
-    headers: {
-      'Content-Type': contentType,
-      'Cache-Control': 'public, max-age=604800, stale-while-revalidate=86400, immutable',
-    },
-  })
+  if (targetWidth && contentType.startsWith('image/') && !contentType.includes('svg')) {
+    try {
+      const transformer = sharp(Buffer.from(buffer), { animated: false }).resize({
+        width: targetWidth,
+        withoutEnlargement: true,
+      })
+
+      if (acceptsAvif) {
+        const optimized = await transformer.avif({ quality: targetQuality }).toBuffer()
+        return imageResponse(optimized, 'image/avif')
+      }
+
+      if (acceptsWebp) {
+        const optimized = await transformer.webp({ quality: targetQuality }).toBuffer()
+        return imageResponse(optimized, 'image/webp')
+      }
+
+      const optimized = await transformer.jpeg({ quality: targetQuality }).toBuffer()
+      return imageResponse(optimized, 'image/jpeg')
+    } catch {
+      // Fall back to the original response if sharp cannot decode a remote image.
+    }
+  }
+
+  return imageResponse(buffer, contentType)
 }

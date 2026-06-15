@@ -1,12 +1,12 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { NewsItem } from '@/domain/news/News'
 import { SocialLinks } from '@/components/social/TwitterTimeline'
 import { LiveMatchCard } from './LiveMatchCard'
 import { NotificationBanner } from '@/components/ui/NotificationBanner'
 import Link from 'next/link'
-import Image from 'next/image'
+import Image, { type ImageLoaderProps } from 'next/image'
 import { proxyImage } from '@/lib/proxyImage'
 
 const SOURCES: Record<string, { label: string; domain: string }> = {
@@ -59,6 +59,45 @@ const THUMB_COLORS = [
   'bg-ceuta-bg-mid',
 ]
 
+function newsImageLoader({ src, width, quality }: ImageLoaderProps): string {
+  if (!src.startsWith('/api/proxy/image')) return src
+
+  const params = new URLSearchParams(src.split('?')[1] ?? '')
+  params.set('w', String(width))
+  params.set('q', String(quality ?? 70))
+  return `/api/proxy/image?${params.toString()}`
+}
+
+function loaderFor(src: string) {
+  return src.startsWith('/api/proxy/image') ? newsImageLoader : undefined
+}
+
+function useNearViewport<T extends HTMLElement>() {
+  const ref = useRef<T | null>(null)
+  const [isNear, setIsNear] = useState(false)
+
+  useEffect(() => {
+    if (isNear) return
+    const element = ref.current
+    if (!element) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsNear(true)
+          observer.disconnect()
+        }
+      },
+      { rootMargin: '360px 0px' }
+    )
+
+    observer.observe(element)
+    return () => observer.disconnect()
+  }, [isNear])
+
+  return [ref, isNear] as const
+}
+
 function SourceTag({ source }: { source: string }) {
   const s = SOURCES[source]
   if (!s)
@@ -93,6 +132,11 @@ export function HomePage({
 }) {
   const [news, setNews] = useState<NewsItem[]>([])
   const [loading, setLoading] = useState(true)
+  const onReadyRef = useRef(onReady)
+
+  useEffect(() => {
+    onReadyRef.current = onReady
+  }, [onReady])
 
   useEffect(() => {
     fetch('/api/news?limit=10')
@@ -103,7 +147,7 @@ export function HomePage({
       .catch(() => {})
       .finally(() => {
         setLoading(false)
-        onReady?.()
+        onReadyRef.current?.()
       })
   }, [])
 
@@ -111,6 +155,7 @@ export function HomePage({
   const featuredImage = proxyImage(featured?.imageUrl)
   const recent = news.slice(1, 5)
   const older = news.slice(5)
+  const [olderRef, olderImagesReady] = useNearViewport<HTMLDivElement>()
 
   return (
     <div className="page">
@@ -124,12 +169,13 @@ export function HomePage({
         >
           {featuredImage && (
             <Image
+              loader={loaderFor(featuredImage)}
               src={featuredImage}
               alt={featured.title}
               fill
-              priority
+              preload
               sizes="(max-width: 768px) 100vw, 420px"
-              quality={75}
+              quality={70}
               className="object-cover"
               style={{ objectPosition: 'center 20%' }}
             />
@@ -231,11 +277,13 @@ export function HomePage({
             {image ? (
               <div className="relative size-[88px] shrink-0 overflow-hidden rounded-[8px]">
                 <Image
+                  loader={loaderFor(image)}
                   src={image}
                   alt=""
                   fill
                   sizes="88px"
-                  quality={70}
+                  quality={65}
+                  loading="lazy"
                   className="object-cover"
                 />
               </div>
@@ -270,7 +318,10 @@ export function HomePage({
               </div>
             </div>
           </div>
-          <div className="flex gap-2 overflow-x-auto px-3 pb-3 [scrollbar-width:none] [scroll-snap-type:x_mandatory] [-webkit-overflow-scrolling:touch]">
+          <div
+            ref={olderRef}
+            className="flex gap-2 overflow-x-auto px-3 pb-3 [scrollbar-width:none] [scroll-snap-type:x_mandatory] [-webkit-overflow-scrolling:touch]"
+          >
             {older.map((n, i) => {
               const image = proxyImage(n.imageUrl)
 
@@ -282,14 +333,16 @@ export function HomePage({
                   rel="noopener noreferrer"
                   className="w-[220px] shrink-0 overflow-hidden rounded-[14px] border border-ceuta-border bg-white [scroll-snap-align:start]"
                 >
-                  {image ? (
+                  {image && olderImagesReady ? (
                     <div className="relative h-[110px] w-full shrink-0">
                       <Image
+                        loader={loaderFor(image)}
                         src={image}
                         alt=""
                         fill
                         sizes="220px"
-                        quality={70}
+                        quality={65}
+                        loading="lazy"
                         className="object-cover"
                       />
                     </div>

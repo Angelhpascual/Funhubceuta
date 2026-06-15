@@ -9,5 +9,12 @@ export async function GET(request: Request) {
   const offset = Math.max(parseInt(searchParams.get('offset') ?? '0'), 0)
 
   const news = await repo.getLatest(limit, offset)
-  return NextResponse.json({ news })
+  return NextResponse.json(
+    { news },
+    {
+      headers: {
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+      },
+    }
+  )
 }
