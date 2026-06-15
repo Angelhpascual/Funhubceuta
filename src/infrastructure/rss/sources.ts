@@ -128,6 +128,13 @@ export const RSS_SOURCES: RssSource[] = [
     baseKeywords: BASE_KEYWORDS, // feed general de ciudad — exige keywords de club explícitas
   },
   {
+    id: 'teleceuta',
+    name: 'Teleceuta',
+    url: 'https://teleceuta.com/feed/',
+    keywords: CEUTA_KEYWORDS,
+    baseKeywords: BASE_KEYWORDS,
+  },
+  {
     id: 'ceutaactualidad',
     name: 'Ceuta Actualidad',
     url: 'https://www.ceutaactualidad.com/rss/',

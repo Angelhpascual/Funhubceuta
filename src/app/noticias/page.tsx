@@ -10,6 +10,7 @@ const SOURCES: Record<string, { label: string; domain: string; color: string }> 
   oficial: { label: 'AD Ceuta FC', domain: 'adceutafc.com', color: 'var(--red)' },
   elpueblo: { label: 'El Pueblo de Ceuta', domain: 'elpueblodeceuta.es', color: 'var(--black)' },
   faro: { label: 'El Faro de Ceuta', domain: 'elfarodeceuta.es', color: 'var(--black)' },
+  teleceuta: { label: 'Teleceuta', domain: 'teleceuta.com', color: 'var(--black)' },
   ceutatv: { label: 'Ceuta Televisión', domain: 'ceutatv.com', color: 'var(--black)' },
   rtvc: { label: 'RTV Ceuta', domain: 'rtvce.es', color: 'var(--black)' },
   laverdad: { label: 'La Verdad de Ceuta', domain: 'laverdaddeceuta.com', color: 'var(--black)' },

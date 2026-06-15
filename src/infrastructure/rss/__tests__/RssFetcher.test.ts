@@ -133,6 +133,25 @@ describe('fetchSource', () => {
     expect(result[0].imageUrl).toBe('https://img.asmedia.epimg.net/photo.jfif')
   })
 
+  it('extracts Teleceuta data-img-url images from description HTML', async () => {
+    const image =
+      'https://teleceuta.fra1.digitaloceanspaces.com/media/2026/06/15100025/Noticia-actualidad-33-120-696x364.jpg'
+    const desc = `<![CDATA[<span class="entry-thumb" data-img-url="${image}"></span>]]>`
+    const xml = makeRssFeed(
+      makeItem({
+        title: 'El AD Ceuta refuerza su filial con Yaya Bodian',
+        description: desc,
+      })
+    )
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(xml) })
+    )
+
+    const result = await fetchSource(source)
+    expect(result[0].imageUrl).toBe(image)
+  })
+
   it('rejects articles about Ceuta Depor even if they match base keywords', async () => {
     const xml = makeRssFeed(
       makeItem({

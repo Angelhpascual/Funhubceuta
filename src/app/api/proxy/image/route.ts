@@ -5,6 +5,8 @@ const ALLOWED_DOMAINS = [
   'adceutafc.com',
   'static.elpueblodeceuta.es',
   'elfarodeceuta.es',
+  'teleceuta.com',
+  'teleceuta.fra1.digitaloceanspaces.com',
   'assets.laliga.com',
   'r2.thesportsdb.com',
   'www.laverdaddeceuta.com',

@@ -13,6 +13,7 @@ const SOURCES: Record<string, { label: string; domain: string }> = {
   oficial: { label: 'AD Ceuta FC', domain: 'adceutafc.com' },
   elpueblo: { label: 'El Pueblo de Ceuta', domain: 'elpueblodeceuta.es' },
   faro: { label: 'El Faro de Ceuta', domain: 'elfarodeceuta.es' },
+  teleceuta: { label: 'Teleceuta', domain: 'teleceuta.com' },
   ceutatv: { label: 'Ceuta Televisión', domain: 'ceutatv.com' },
   rtvc: { label: 'RTV Ceuta', domain: 'rtvce.es' },
   laverdad: { label: 'La Verdad de Ceuta', domain: 'laverdaddeceuta.com' },

@@ -44,6 +44,7 @@ function extractMediaUrl(obj: unknown): string | null {
 const EMOJI_HOSTS = ['s.w.org', 'twemoji', 'gravatar.com']
 const IMG_EXT = /\.(?:jpg|jpeg|jfif|png|webp|gif|avif)(\?[^\s"<>]*)?$/i
 const IMG_URL_RE = /https?:\/\/[^\s"<>]+\.(?:jpg|jpeg|jfif|png|webp|gif|avif)(?:\?[^\s"<>]*)?/gi
+const DATA_IMG_URL_RE = /data-img-url=["']([^"']+)["']/gi
 
 function isValidImage(url: string): boolean {
   return (
@@ -55,6 +56,12 @@ function isValidImage(url: string): boolean {
 }
 
 function firstValidImage(html: string): string | null {
+  const dataUrlMatches = html.matchAll(DATA_IMG_URL_RE)
+  for (const m of dataUrlMatches) {
+    const url = m[1]
+    if (isValidImage(url)) return url
+  }
+
   const matches = html.matchAll(IMG_URL_RE)
   for (const m of matches) {
     const url = m[0].replace(/-\d+x\d+(\.\w+)$/, '$1')
