@@ -69,14 +69,16 @@ function getZoneLabel(pos: number): string {
 }
 
 const STAT_TILES = [
-  { key: 'played', label: 'Partidos jugados' },
   { key: 'won', label: 'Victorias' },
   { key: 'drawn', label: 'Empates' },
   { key: 'lost', label: 'Derrotas' },
+  { key: 'played', label: 'Partidos jugados' },
   { key: 'goalsFor', label: 'Goles a favor' },
   { key: 'goalsAgainst', label: 'Goles en contra' },
   { key: 'goalDiff', label: 'Diferencia de goles' },
 ] as const
+
+const FORM_DISPLAY: Record<string, string> = { W: 'V', D: 'E', L: 'D' }
 
 export function EstadisticasTab({
   ceuta,
@@ -106,42 +108,47 @@ export function EstadisticasTab({
   return (
     <>
       <div className="mb-2 grid grid-cols-2 gap-2 px-3">
-        <Tile className="min-h-[110px] bg-ceuta-red">
-          <TileValue className="text-[54px] text-white">
+        <Tile className="min-h-[130px] bg-ceuta-red">
+          <TileValue className="text-[64px] text-white">
             {ceuta?.position ?? '—'}
-            <span className="align-super text-[22px]">º</span>
+            <span className="align-super text-[26px]">º</span>
           </TileValue>
           <TileLabel className="text-white/75">
             {ceuta ? getZoneLabel(ceuta.position) : 'Clasificación'}
           </TileLabel>
         </Tile>
-        <Tile className="min-h-[110px] bg-ceuta-black">
-          <TileValue className="text-[54px] text-white">{ceuta?.points ?? '—'}</TileValue>
+        <Tile className="min-h-[130px] bg-ceuta-black">
+          <TileValue className="text-[64px] text-white">{ceuta?.points ?? '—'}</TileValue>
           <TileLabel className="text-white/75">Puntos</TileLabel>
         </Tile>
       </div>
 
+      {form.length > 0 && (
+        <div className="mb-2 px-3">
+          <Tile className="min-h-0 py-3">
+            <div className="flex items-center justify-between">
+              <TileLabel className="mt-0 text-ceuta-muted">Últimos 5 partidos</TileLabel>
+              <div className="flex gap-1.5">
+                {form.slice(-5).map((f, i) => (
+                  <div key={i} className={`form-pill ${f}`}>
+                    {FORM_DISPLAY[f] ?? f}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Tile>
+        </div>
+      )}
+
       <div className="mb-2 grid grid-cols-2 gap-2 px-3">
         {STAT_TILES.map(({ key, label }) => (
-          <Tile key={key}>
-            <TileValue className="text-[42px] text-ceuta-black">
+          <Tile key={key} className="min-h-[110px]">
+            <TileValue className="text-[48px] text-ceuta-black">
               {(tileValues[key] as React.ReactNode) ?? '—'}
             </TileValue>
             <TileLabel className="text-ceuta-muted">{label}</TileLabel>
           </Tile>
         ))}
-        {form.length > 0 && (
-          <Tile>
-            <div className="flex flex-wrap gap-1">
-              {form.slice(-5).map((f, i) => (
-                <div key={i} className={`form-pill ${f}`}>
-                  {f}
-                </div>
-              ))}
-            </div>
-            <TileLabel className="text-ceuta-muted">Últimos 5</TileLabel>
-          </Tile>
-        )}
       </div>
 
       {leaders ? (

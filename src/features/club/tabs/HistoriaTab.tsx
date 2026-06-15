@@ -1,124 +1,152 @@
 'use client'
 
-import { Tile, TileValue, TileLabel } from '../components/ClubTiles'
-
-const HISTORIA = [
-  { label: 'Fundación', value: '1923', icon: '📅' },
-  { label: 'Estadio', value: 'Alfonso Murube', icon: '🏟️' },
-  { label: 'Capacidad', value: '8.500', icon: '👥' },
-  { label: 'Ciudad', value: 'Ceuta', icon: '📍' },
-  { label: 'Colores', value: 'Negro y blanco', icon: '🎨' },
-  { label: 'Apodo', value: 'Caballas', icon: '🐟' },
+const DATOS = [
+  { label: 'Fundación', value: '1923', sub: 'Club Atlético de Ceuta' },
+  { label: 'Nombre actual', value: '2013', sub: 'AD Ceuta FC' },
+  { label: 'Estadio', value: 'Murube', sub: 'Alfonso Murube · 8.500 plazas' },
+  { label: 'Apodo', value: 'Caballas', sub: 'Por el pez emblema de la ciudad' },
 ]
 
 const MOMENTOS = [
   {
     año: '1960',
-    icono: '⭐',
-    titulo: 'Segundos en Segunda División',
-    desc: 'El Club Atlético de Ceuta logra su mejor clasificación histórica: segundo en Segunda División, rozando el ascenso a Primera.',
+    titulo: '2º en Segunda División',
+    desc: 'El Club Atlético de Ceuta logra su mejor clasificación histórica: subcampeón de Segunda División, rozando el ascenso a Primera.',
+    color: 'var(--red)',
   },
   {
     año: '2023',
-    icono: '🏟️',
     titulo: 'El Barça en el Murube',
-    desc: 'El FC Barcelona de Lewandowski y Xavi visita el Alfonso Murube en octavos de Copa del Rey. Más de 7.000 caballas lo vivieron en directo.',
+    desc: 'El FC Barcelona visita el Alfonso Murube en octavos de Copa del Rey. Más de 7.000 caballas lo viven en directo.',
+    color: 'var(--black)',
   },
   {
     año: '2025',
-    icono: '🏆',
     titulo: 'Campeones y de vuelta a Segunda',
-    desc: 'Ceuta gana el grupo de Primera Federación y asciende de forma directa a Segunda División el 11 de mayo de 2025, 45 años después.',
+    desc: 'El 11 de mayo de 2025, Ceuta gana el grupo de Primera Federación y asciende de forma directa a Segunda División — 45 años después.',
+    color: 'var(--red)',
   },
   {
     año: '2025',
-    icono: '⚽',
     titulo: 'Debut en la Liga Hypermotion',
-    desc: 'Temporada 2025-26: la AD Ceuta FC debuta en la Liga Hypermotion (Segunda División) ante los mejores equipos del fútbol español.',
+    desc: 'Temporada 2025-26: el AD Ceuta FC debuta en Segunda División ante los mejores equipos del fútbol español.',
+    color: 'var(--black)',
   },
   {
     año: '2025',
-    icono: '👩',
-    titulo: 'El femenino llega a la élite',
+    titulo: 'El femenino en la élite',
     desc: 'El AD Ceuta FC Femenino asciende a Primera División (Liga F), siendo el primer equipo femenino de la ciudad en alcanzar la élite nacional.',
+    color: 'var(--red)',
   },
 ]
 
 export function HistoriaTab() {
   return (
     <>
+      {/* ── BLOQUE IDENTIDAD ── */}
+      <div className="mx-3 mb-2 overflow-hidden rounded-[14px] bg-ceuta-black">
+        <div className="px-5 pb-4 pt-5">
+          <div className="mb-1 font-display text-[10px] font-bold uppercase tracking-widest text-white/40">
+            AD Ceuta FC
+          </div>
+          <div className="font-display text-[32px] font-black uppercase leading-[0.95] text-white">
+            Una ciudad,<br />
+            <em className="not-italic text-ceuta-gold">un club</em>
+          </div>
+          <p className="mt-3 font-body text-[13px] leading-relaxed text-white/70">
+            Nacido en 1923 en la ciudad autónoma de Ceuta, a orillas del Estrecho de Gibraltar, el AD Ceuta FC representa a una ciudad única: española en África. Tras décadas en categorías inferiores, el 11 de mayo de 2025 volvió al fútbol profesional — 45 años después.
+          </p>
+        </div>
+        <div
+          className="h-1 w-full"
+          style={{ background: 'linear-gradient(to right, var(--red), var(--gold))' }}
+        />
+      </div>
+
+      {/* ── DATOS CLAVE ── */}
       <div className="mb-2 grid grid-cols-2 gap-2 px-3">
-        {HISTORIA.map((h, i) => (
-          <Tile
+        {DATOS.map((d, i) => (
+          <div
             key={i}
-            className={`min-h-[90px] ${i === 0 ? 'bg-ceuta-red' : i === 1 ? 'bg-ceuta-black' : ''}`}
+            className={`flex min-h-[100px] flex-col justify-between rounded-[14px] p-4 ${
+              i === 0 ? 'bg-ceuta-red' : i === 2 ? 'bg-ceuta-black' : 'bg-ceuta-bg-soft'
+            }`}
           >
-            <div className="mb-1.5 text-[22px] leading-none">{h.icon}</div>
-            <div>
-              <TileValue className={`text-[18px] ${i <= 1 ? 'text-white' : 'text-ceuta-black'}`}>
-                {h.value}
-              </TileValue>
-              <TileLabel className={i <= 1 ? 'text-white/75' : 'text-ceuta-muted'}>
-                {h.label}
-              </TileLabel>
+            <div
+              className={`font-display text-[10px] font-bold uppercase tracking-widest ${
+                i === 0 || i === 2 ? 'text-white/50' : 'text-ceuta-muted'
+              }`}
+            >
+              {d.label}
             </div>
-          </Tile>
+            <div>
+              <div
+                className={`font-display text-[22px] font-black leading-none ${
+                  i === 0 || i === 2 ? 'text-white' : 'text-ceuta-black'
+                }`}
+              >
+                {d.value}
+              </div>
+              <div
+                className={`mt-1 font-display text-[9px] font-semibold uppercase tracking-wide ${
+                  i === 0 || i === 2 ? 'text-white/60' : 'text-ceuta-muted'
+                }`}
+              >
+                {d.sub}
+              </div>
+            </div>
+          </div>
         ))}
       </div>
 
-      <div className="mx-3 mb-2 rounded-[14px] bg-ceuta-bg-soft p-4">
-        <p className="mb-2.5 font-display text-[9px] font-bold uppercase tracking-widest text-ceuta-muted">
-          Nuestra historia
-        </p>
-        <p className="font-body text-[13px] leading-relaxed text-ceuta-black">
-          Fundado en 1956 como Club Atlético de Ceuta, el club adoptó en 2013 el nombre y colores de
-          la histórica AD Ceuta. Con sede en la ciudad autónoma de Ceuta, en el estrecho de
-          Gibraltar, representa a una ciudad única: española en África.
-        </p>
-        <p className="mt-2.5 font-body text-[13px] leading-relaxed text-ceuta-black">
-          Tras décadas en categorías inferiores, el 11 de mayo de 2025 lograron el ascenso a Segunda
-          División — la Liga Hypermotion — 45 años después de la última vez que una entidad ceutí
-          militó en el fútbol profesional español. Los Caballas son hoy una realidad en la élite.
-        </p>
-      </div>
-
-      <div className="mx-3 mb-2 flex items-center gap-4 rounded-[14px] bg-ceuta-red p-4">
+      {/* ── MASCOTA ── */}
+      <div className="mx-3 mb-2 flex items-center gap-4 overflow-hidden rounded-[14px] bg-ceuta-bg-soft p-4">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="https://elfarodeceuta.es/wp-content/uploads/2025/08/Caballati-AD-Ceuta-Sporting-Gijon-011.jpeg"
           alt="Caballati"
-          className="size-20 shrink-0 rounded-xl object-cover object-top"
+          className="size-[72px] shrink-0 rounded-[10px] object-cover object-top"
         />
-        <div>
-          <div className="font-display text-[20px] font-black text-white">Caballati</div>
-          <div className="mb-2 font-display text-[9px] font-bold uppercase tracking-widest text-white/75">
+        <div className="min-w-0">
+          <div className="font-display text-[10px] font-bold uppercase tracking-widest text-ceuta-muted">
             Mascota oficial
           </div>
-          <p className="font-body text-[12px] leading-relaxed text-white/85">
-            Caballati es la mascota oficial del AD Ceuta FC, inspirada en la caballa, el pez emblema
-            de Ceuta y origen del apodo «Las Caballas» que llevan con orgullo sus aficionados.
+          <div className="mt-0.5 font-display text-[20px] font-black text-ceuta-black">
+            Caballati
+          </div>
+          <p className="mt-1 font-body text-[12px] leading-relaxed text-ceuta-muted">
+            Inspirada en la caballa, el pez emblema de Ceuta y origen del apodo que llevan con orgullo sus aficionados.
           </p>
         </div>
       </div>
 
+      {/* ── MOMENTOS MÍTICOS — timeline ── */}
       <div className="mx-3 mb-2">
-        <p className="mb-2 pl-1 font-display text-[9px] font-bold uppercase tracking-widest text-ceuta-muted">
-          Momentos míticos
-        </p>
-        <div className="flex flex-col gap-2">
+        <div className="mb-3 font-display text-[10px] font-bold uppercase tracking-widest text-ceuta-muted">
+          Momentos históricos
+        </div>
+        <div className="relative flex flex-col gap-0">
+          {/* línea vertical */}
+          <div className="absolute bottom-0 left-[19px] top-0 w-[2px] bg-ceuta-border" />
           {MOMENTOS.map((m, i) => (
-            <div key={i} className="flex items-start gap-3.5 rounded-[14px] bg-ceuta-bg-soft p-4">
-              <div className="min-w-[36px] shrink-0 text-center">
-                <div className="text-[24px] leading-none">{m.icono}</div>
-                <div className="mt-1 font-display text-[10px] font-black tracking-wide text-ceuta-red">
+            <div key={i} className="relative flex gap-4 pb-5 last:pb-0">
+              {/* nodo */}
+              <div
+                className="relative z-[1] mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-full font-display text-[10px] font-black text-white"
+                style={{ background: m.color }}
+              >
+                {m.año.slice(2)}
+              </div>
+              <div className="min-w-0 flex-1 rounded-[12px] bg-ceuta-bg-soft p-3">
+                <div className="mb-0.5 font-display text-[9px] font-bold uppercase tracking-widest text-ceuta-muted">
                   {m.año}
                 </div>
-              </div>
-              <div>
-                <div className="mb-1 font-display text-[13px] font-black leading-snug text-ceuta-black">
+                <div className="font-display text-[13px] font-black leading-snug text-ceuta-black">
                   {m.titulo}
                 </div>
-                <p className="font-body text-[12px] leading-relaxed text-ceuta-muted">{m.desc}</p>
+                <p className="mt-1 font-body text-[12px] leading-relaxed text-ceuta-muted">
+                  {m.desc}
+                </p>
               </div>
             </div>
           ))}
