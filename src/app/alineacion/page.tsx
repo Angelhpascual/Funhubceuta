@@ -10,6 +10,7 @@ function LineupContent() {
   const router = useRouter()
   const eventId = params.get('eventId')
   const matchLabel = params.get('match') ?? 'Alineación'
+  const score = params.get('score') // e.g. "1-0"
 
   const [lineup, setLineup] = useState<MatchLineup | null>(null)
   const [loading, setLoading] = useState(true)
@@ -32,8 +33,7 @@ function LineupContent() {
   }, [eventId])
 
   return (
-    <div id="app-root">
-      <div className="page">
+    <div className="page">
         {/* ── HERO ── */}
         <div className="relative overflow-hidden bg-ceuta-black px-[18px] pb-[52px] pt-[22px] text-white">
           {/* rayas — sólo esquina derecha, no invaden el texto */}
@@ -67,8 +67,9 @@ function LineupContent() {
             </button>
             <div className="flex items-center gap-2 font-display text-[11px] font-bold uppercase tracking-[0.16em] text-ceuta-red">
               <div className="h-0.5 w-[18px] bg-ceuta-red" />
-              Once inicial
+              Once inicial{score && <span className="text-ceuta-gold"> · {score.replace('-', '–')}</span>}
             </div>
+
             <div className="mt-2 pr-[70px] font-display text-[32px] font-black uppercase leading-[0.95]">
               {matchLabel.includes(' vs ') ? (
                 <>
@@ -110,7 +111,6 @@ function LineupContent() {
 
         <div className="h-6" />
       </div>
-    </div>
   )
 }
 

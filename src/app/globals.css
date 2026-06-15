@@ -1873,3 +1873,197 @@ img {
 .pd-tl-item--current .pd-tl-club {
   color: #fff;
 }
+
+/* ════════ DESKTOP LAYOUT (≥ 768px) ════════ */
+
+/* Ocultar/mostrar por viewport */
+.desktop-only { display: none; }
+
+/* Desktop topbar overlay — shown only on desktop, sits above the home page shell */
+.desktop-topbar-overlay { display: none; }
+
+/* ── LineupField player dots — scale with pitch container width ── */
+.player-dot__circle {
+  width: 12cqw;
+  height: 12cqw;
+  max-width: 64px;
+  max-height: 64px;
+  min-width: 38px;
+  min-height: 38px;
+}
+.player-dot__jersey { font-size: calc(12cqw * 0.33); }
+.player-dot__badge {
+  width: calc(12cqw * 0.38);
+  height: calc(12cqw * 0.38);
+  font-size: calc(12cqw * 0.18);
+  min-width: 14px;
+  min-height: 14px;
+}
+.player-dot__name {
+  font-size: calc(12cqw * 0.22);
+  max-width: calc(12cqw * 1.3);
+  min-font-size: 8px;
+}
+
+@media (min-width: 768px) {
+  .desktop-only { display: flex; }
+
+  /* Full-width, sin el "phone frame" oscuro */
+  html, body {
+    background: var(--bg);
+  }
+
+  #app-root {
+    max-width: 100%;
+    min-height: 100vh;
+    flex-direction: column;
+    overflow: visible;
+    box-shadow: none;
+  }
+
+  /* ── Topbar horizontal ── */
+  .topbar {
+    position: sticky;
+    top: 0;
+    left: 0;
+    transform: none;
+    width: 100%;
+    max-width: 100%;
+    height: 72px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0 32px;
+    gap: 36px;
+    border-bottom: 1px solid var(--border);
+    background: var(--white);
+    z-index: 100;
+  }
+
+  .topbar-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+
+  .topbar-logo img {
+    width: 44px !important;
+    height: 44px !important;
+  }
+
+  .topbar-title {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 22px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--black);
+    line-height: 1;
+  }
+
+  /* ── Top nav (horizontal) ── */
+  .top-nav {
+    display: flex;
+    align-items: stretch;
+    gap: 4px;
+    height: 72px;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .top-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 18px;
+    position: relative;
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    transition: color 0.18s;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+
+  .top-nav-item svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+
+  .top-nav-item:hover { color: var(--black); }
+
+  .top-nav-item.active { color: var(--black); }
+
+  .top-nav-item.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 14px;
+    right: 14px;
+    height: 3px;
+    background: var(--red);
+    border-radius: 3px 3px 0 0;
+  }
+
+  /* ── Scroll area: full width, sin padding-bottom del nav ── */
+  .scroll-area {
+    margin-top: 0;
+    padding-bottom: 64px;
+    max-width: 100%;
+    overflow-y: visible;
+    overflow-x: clip;
+    min-height: calc(100vh - 72px);
+  }
+
+  /* ── Bottom nav: oculto en desktop ── */
+  .bottom-nav { display: none; }
+
+  /* ── Contenido con max-width centrado ── */
+  .desktop-wrap {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  /* Todas las páginas se centran automáticamente */
+  .page {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding-left: 32px;
+    padding-right: 32px;
+    width: 100%;
+  }
+
+  /* Elementos que deben romper el contenedor (hero full-width) */
+  .page .clas-hero,
+  .page .page-hero-full {
+    margin-left: -32px;
+    margin-right: -32px;
+    width: calc(100% + 64px);
+  }
+
+  /* Desktop topbar overlay for home page */
+  .desktop-topbar-overlay {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 200;
+  }
+
+  /* Hide home page's own topbar (logo-only) when desktop overlay is active */
+  .home-topbar-mobile { display: none; }
+
+  /* Push home page #app-root below the fixed desktop topbar */
+  #app-root.home-shell {
+    padding-top: 72px;
+  }
+}

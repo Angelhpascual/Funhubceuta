@@ -273,7 +273,7 @@ export function PartidosPage({ upcoming = [], results = [], logos = {} }: Props)
                 </div>
                 {r.espn_event_id && (
                   <Link
-                    href={`/alineacion?eventId=${r.espn_event_id}&match=${encodeURIComponent(`${shortTeamName(r.home_team)} vs ${shortTeamName(r.away_team)}`)}`}
+                    href={`/alineacion?eventId=${r.espn_event_id}&match=${encodeURIComponent(`${shortTeamName(r.home_team)} vs ${shortTeamName(r.away_team)}`)}&score=${r.home_score}-${r.away_score}`}
                     style={{
                       display: 'flex',
                       alignItems: 'center',

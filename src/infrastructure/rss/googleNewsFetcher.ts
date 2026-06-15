@@ -1,5 +1,5 @@
 import { XMLParser } from 'fast-xml-parser'
-import { ParsedArticle } from './RssFetcher'
+import { ParsedArticle, EXCLUDE_TITLE_PATTERNS } from './RssFetcher'
 import { BASE_KEYWORDS, CEUTA_KEYWORDS } from './sources'
 
 const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: '@_' })
@@ -144,9 +144,12 @@ export async function fetchGoogleNews(): Promise<ParsedArticle[]> {
   // Skip articles from sources we already scrape directly
   // Also require the title itself to mention the club — avoids articles that only
   // mention Ceuta as a past club in the body text (e.g. "ex jugador del AD Ceuta")
+  // Also reject generic jornada preview/roundup pages from rival clubs' websites
   const filtered = parsed_items.filter(
     ({ title, sourceName }) =>
-      !COVERED_SOURCES.some((s) => sourceName.includes(s)) && titleIsRelevant(title)
+      !COVERED_SOURCES.some((s) => sourceName.includes(s)) &&
+      titleIsRelevant(title) &&
+      !EXCLUDE_TITLE_PATTERNS.some((re) => re.test(title))
   )
 
   if (filtered.length === 0) return []
@@ -177,13 +180,13 @@ export async function fetchGoogleNews(): Promise<ParsedArticle[]> {
     })
   )
 
-  const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000
+  const FIVE_DAYS = 5 * 24 * 60 * 60 * 1000
   const seen = new Set<string>()
   return resolved.filter((a) => {
     if (!a.externalId || !a.url) return false
     if (seen.has(a.externalId)) return false
-    // Drop articles older than 7 days — Google News resurfaces old articles
-    if (a.publishedAt && Date.now() - new Date(a.publishedAt).getTime() > SEVEN_DAYS) return false
+    // Drop articles older than 5 days — Google News resurfaces old articles
+    if (a.publishedAt && Date.now() - new Date(a.publishedAt).getTime() > FIVE_DAYS) return false
     seen.add(a.externalId)
     return true
   })
