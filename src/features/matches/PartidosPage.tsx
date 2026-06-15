@@ -269,70 +269,52 @@ export function PartidosPage({ upcoming = [], results = [], logos = {} }: Props)
                       <div className={`result-score ${awayScoreCls}`}>{r.away_score}</div>
                     </div>
                   </div>
-                  {resultBadge(r.result)}
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
+                    {resultBadge(r.result)}
+                    {r.espn_event_id && (
+                      <Link
+                        href={`/alineacion?eventId=${r.espn_event_id}&match=${encodeURIComponent(`${shortTeamName(r.home_team)} vs ${shortTeamName(r.away_team)}`)}&score=${r.home_score}-${r.away_score}`}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 5,
+                          background: 'var(--black)',
+                          border: '1.5px solid var(--black)',
+                          borderRadius: 6,
+                          padding: '4px 8px',
+                          textDecoration: 'none',
+                        }}
+                      >
+                        <svg
+                          width="10"
+                          height="10"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="white"
+                          strokeWidth="2.2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <rect x="3" y="3" width="18" height="18" rx="2" />
+                          <path d="M3 9h18M3 15h18M9 3v18" />
+                        </svg>
+                        <span
+                          style={{
+                            fontFamily: 'var(--font-display)',
+                            fontSize: 9,
+                            fontWeight: 900,
+                            color: 'white',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.08em',
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          Alineación
+                        </span>
+                      </Link>
+                    )}
+                  </div>
                 </div>
-                {r.espn_event_id && (
-                  <Link
-                    href={`/alineacion?eventId=${r.espn_event_id}&match=${encodeURIComponent(`${shortTeamName(r.home_team)} vs ${shortTeamName(r.away_team)}`)}&score=${r.home_score}-${r.away_score}`}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      background: 'var(--black)',
-                      padding: '10px 14px',
-                      textDecoration: 'none',
-                      borderTop: '1px solid rgba(255,255,255,0.08)',
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <div
-                        style={{
-                          width: 3,
-                          height: 14,
-                          background: 'var(--red)',
-                          borderRadius: 2,
-                          flexShrink: 0,
-                        }}
-                      />
-                      <svg
-                        width="12"
-                        height="12"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="white"
-                        strokeWidth="2.2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        style={{ opacity: 0.7 }}
-                      >
-                        <rect x="3" y="3" width="18" height="18" rx="2" />
-                        <path d="M3 9h18M3 15h18M9 3v18" />
-                      </svg>
-                      <span
-                        style={{
-                          fontFamily: 'var(--font-display)',
-                          fontSize: 11,
-                          fontWeight: 900,
-                          color: 'white',
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.1em',
-                        }}
-                      >
-                        Ver alineación
-                      </span>
-                    </div>
-                    <span
-                      style={{
-                        fontFamily: 'var(--font-display)',
-                        fontSize: 14,
-                        fontWeight: 900,
-                        color: 'var(--red)',
-                      }}
-                    >
-                      →
-                    </span>
-                  </Link>
-                )}
               </div>
             )
           })}
