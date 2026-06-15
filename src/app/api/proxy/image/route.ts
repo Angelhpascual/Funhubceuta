@@ -37,13 +37,14 @@ export async function GET(request: NextRequest) {
   }
 
   const res = await fetch(url, {
-    cache: 'no-store',
+    next: { revalidate: 604800 },
     headers: {
       'User-Agent':
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36',
       Referer: `https://${hostname}/`,
       Accept: 'image/*,*/*',
     },
+    signal: AbortSignal.timeout(10000),
   })
 
   if (!res.ok) return NextResponse.json({ error: 'Failed to fetch image' }, { status: 502 })
@@ -54,7 +55,7 @@ export async function GET(request: NextRequest) {
   return new NextResponse(buffer, {
     headers: {
       'Content-Type': contentType,
-      'Cache-Control': 'public, max-age=86400',
+      'Cache-Control': 'public, max-age=604800, stale-while-revalidate=86400, immutable',
     },
   })
 }

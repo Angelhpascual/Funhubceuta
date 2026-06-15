@@ -1,14 +1,13 @@
-const PROXY_DOMAINS = ['adceutafc.com']
+const DIRECT_DOMAINS = ['supabase.co']
 
-export function proxyImage(url: string | null): string | null {
+export function proxyImage(url: string | null | undefined): string | null {
   if (!url) return null
+  if (url.startsWith('/')) return url
+
   try {
     const hostname = new URL(url).hostname
-    if (PROXY_DOMAINS.some((d) => hostname === d || hostname.endsWith(`.${d}`))) {
-      const proxied = `/api/proxy/image?url=${encodeURIComponent(url)}`
-      console.log('[proxyImage]', url.slice(0, 60), '→', proxied.slice(0, 60))
-      return proxied
-    }
+    if (DIRECT_DOMAINS.some((d) => hostname === d || hostname.endsWith(`.${d}`))) return url
   } catch {}
-  return url
+
+  return `/api/proxy/image?url=${encodeURIComponent(url)}`
 }
