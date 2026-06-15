@@ -72,6 +72,15 @@ function loaderFor(src: string) {
   return src.startsWith('/api/proxy/image') ? newsImageLoader : undefined
 }
 
+function isStoredNewsImage(src: string): boolean {
+  try {
+    const url = new URL(src)
+    return url.hostname.endsWith('.supabase.co') && url.pathname.includes('/news-images/')
+  } catch {
+    return false
+  }
+}
+
 function useNearViewport<T extends HTMLElement>() {
   const ref = useRef<T | null>(null)
   const [isNear, setIsNear] = useState(false)
@@ -229,6 +238,7 @@ export function HomePage({
               preload
               sizes="(max-width: 768px) 100vw, 420px"
               quality={70}
+              unoptimized={isStoredNewsImage(featuredImage)}
               className="object-cover"
               style={{ objectPosition: 'center 20%' }}
               onLoad={(event) => reportFeaturedImageLoad(event.currentTarget)}
@@ -338,6 +348,7 @@ export function HomePage({
                   sizes="88px"
                   quality={65}
                   loading="lazy"
+                  unoptimized={isStoredNewsImage(image)}
                   className="object-cover"
                 />
               </div>
@@ -397,6 +408,7 @@ export function HomePage({
                         sizes="220px"
                         quality={65}
                         loading="lazy"
+                        unoptimized={isStoredNewsImage(image)}
                         className="object-cover"
                       />
                     </div>
