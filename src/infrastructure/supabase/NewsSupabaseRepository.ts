@@ -2,6 +2,13 @@ import { supabase } from './client'
 import { ParsedArticle } from '../rss/RssFetcher'
 import { NewsItem } from '@/domain/news/News'
 
+export interface NewsImageBackfillRow {
+  id: string
+  externalId: string
+  source: string
+  imageUrl: string
+}
+
 export class NewsSupabaseRepository {
   // Returns articles that were genuinely new (not previously in DB)
   async upsertArticles(articles: ParsedArticle[]): Promise<ParsedArticle[]> {
@@ -35,6 +42,30 @@ export class NewsSupabaseRepository {
 
   async updateImageUrl(externalId: string, imageUrl: string): Promise<void> {
     await supabase.from('news').update({ image_url: imageUrl }).eq('external_id', externalId)
+  }
+
+  async updateImageUrlById(id: string, imageUrl: string): Promise<void> {
+    await supabase.from('news').update({ image_url: imageUrl }).eq('id', id)
+  }
+
+  async getLatestRowsWithImages(limit = 20): Promise<NewsImageBackfillRow[]> {
+    const { data, error } = await supabase
+      .from('news')
+      .select('id, external_id, source, image_url')
+      .not('image_url', 'is', null)
+      .order('published_at', { ascending: false })
+      .limit(limit)
+
+    if (error || !data) return []
+
+    return data
+      .filter((row) => row.image_url)
+      .map((row) => ({
+        id: row.id,
+        externalId: row.external_id,
+        source: row.source,
+        imageUrl: row.image_url,
+      }))
   }
 
   async getLatest(limit = 10, offset = 0): Promise<NewsItem[]> {

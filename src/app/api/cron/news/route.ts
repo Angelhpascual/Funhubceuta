@@ -9,6 +9,11 @@ import { NewsSupabaseRepository } from '@/infrastructure/supabase/NewsSupabaseRe
 import { sendNewsNotification } from '@/infrastructure/push/sendNewsNotification'
 import { logCron, logNotification } from '@/infrastructure/supabase/logCron'
 import { supabase } from '@/infrastructure/supabase/client'
+import {
+  downloadAndUploadImage,
+  isStoredNewsImage,
+  newsImageFilename,
+} from '@/infrastructure/storage/imageUploader'
 
 const repo = new NewsSupabaseRepository()
 
@@ -53,6 +58,42 @@ function isRecent(publishedAt: string | null): boolean {
   return Date.now() - new Date(publishedAt).getTime() < MAX_ARTICLE_AGE_MS
 }
 
+async function storeArticleImage(article: ParsedArticle): Promise<boolean> {
+  if (!article.imageUrl || isStoredNewsImage(article.imageUrl)) return false
+
+  const storedUrl = await downloadAndUploadImage(
+    article.imageUrl,
+    newsImageFilename(article.source, article.externalId)
+  )
+
+  if (!storedUrl) return false
+  article.imageUrl = storedUrl
+  await repo.updateImageUrl(article.externalId, storedUrl)
+  return true
+}
+
+async function backfillLatestRemoteImages(limit = 20): Promise<number> {
+  const rows = await repo.getLatestRowsWithImages(limit)
+  let optimized = 0
+
+  await Promise.all(
+    rows
+      .filter((row) => !isStoredNewsImage(row.imageUrl))
+      .slice(0, 6)
+      .map(async (row) => {
+        const storedUrl = await downloadAndUploadImage(
+          row.imageUrl,
+          newsImageFilename(row.source, row.externalId)
+        )
+        if (!storedUrl) return
+        await repo.updateImageUrlById(row.id, storedUrl)
+        optimized += 1
+      })
+  )
+
+  return optimized
+}
+
 async function syncNews() {
   const t0 = Date.now()
 
@@ -95,6 +136,12 @@ async function syncNews() {
         }
       })
   )
+
+  const optimizedNewImages = (
+    await Promise.all(allNew.filter((a) => a.imageUrl).map((a) => storeArticleImage(a)))
+  ).filter(Boolean).length
+
+  const backfilledImages = await backfillLatestRemoteImages(20)
 
   // Only notify about articles published in the last 24 hours.
   // Google News can reindex old articles with today's pubDate — so we also
@@ -164,6 +211,8 @@ async function syncNews() {
   await logCron('news', 'success', Date.now() - t0, {
     articlesFound,
     newArticles,
+    optimizedNewImages,
+    backfilledImages,
     subscribers: subscribers ?? 0,
     notified: toNotify?.title ?? null,
     summary,

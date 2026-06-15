@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { createHash } from 'crypto'
 
 // Use service role key for storage uploads
 const supabaseAdmin = createClient(
@@ -7,6 +8,22 @@ const supabaseAdmin = createClient(
 )
 
 const BUCKET = 'news-images'
+const SUPABASE_HOST_RE = /\.supabase\.co$/i
+
+export function isStoredNewsImage(url: string | null | undefined): boolean {
+  if (!url) return false
+  try {
+    return SUPABASE_HOST_RE.test(new URL(url).hostname)
+  } catch {
+    return false
+  }
+}
+
+export function newsImageFilename(source: string, externalId: string): string {
+  const safeSource = source.toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-|-$/g, '')
+  const hash = createHash('sha1').update(externalId).digest('hex').slice(0, 16)
+  return `${safeSource || 'news'}-${hash}`
+}
 
 export async function downloadAndUploadImage(
   sourceUrl: string,
@@ -38,6 +55,7 @@ export async function downloadAndUploadImage(
     // Upload to Supabase Storage
     const { error } = await supabaseAdmin.storage.from(BUCKET).upload(path, webpBuffer, {
       contentType: 'image/webp',
+      cacheControl: '31536000',
       upsert: true,
     })
 
