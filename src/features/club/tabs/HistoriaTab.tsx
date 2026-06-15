@@ -51,7 +51,7 @@ export function HistoriaTab() {
       <div className="relative mx-3 mb-2 h-[200px] overflow-hidden rounded-[14px]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="https://elfarodeceuta.es/wp-content/uploads/2025/09/alfonso-murube-estadio-altura-futbol-profesional-7.jpg"
+          src="https://upload.wikimedia.org/wikipedia/commons/2/2a/6092c97fa861df960efb2efd_Estadio-Murube-1.jpg"
           alt="Estadio Alfonso Murube"
           className="size-full object-cover object-center"
         />
@@ -89,7 +89,7 @@ export function HistoriaTab() {
         <div className="relative h-[130px] w-full">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="https://elfarodeceuta.es/wp-content/uploads/2025/09/alfonso-murube-estadio-altura-futbol-profesional-1.jpg"
+            src="https://doragonsports.com/wp-content/uploads/2025/10/1379148c-cecc-459c-9d42-b2932818b4fd.png"
             alt="Interior del Murube"
             className="size-full object-cover object-top"
           />

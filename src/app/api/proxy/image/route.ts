@@ -18,6 +18,8 @@ const ALLOWED_DOMAINS = [
   'lh3.googleusercontent.com',
   'a.espncdn.com',
   'i.ytimg.com',
+  'upload.wikimedia.org',
+  'doragonsports.com',
   'onguesyapdtatsadsxmc.supabase.co',
 ]
 
