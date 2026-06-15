@@ -6,12 +6,8 @@ import { SocialLinks } from '@/components/social/TwitterTimeline'
 import { LiveMatchCard } from './LiveMatchCard'
 import { NotificationBanner } from '@/components/ui/NotificationBanner'
 import Link from 'next/link'
-
-function proxyImg(url: string | null | undefined): string | null {
-  if (!url) return null
-  if (url.startsWith('/')) return url
-  return `/api/proxy/image?url=${encodeURIComponent(url)}`
-}
+import Image from 'next/image'
+import { proxyImage } from '@/lib/proxyImage'
 
 const SOURCES: Record<string, { label: string; domain: string }> = {
   oficial: { label: 'AD Ceuta FC', domain: 'adceutafc.com' },
@@ -79,6 +75,8 @@ function SourceTag({ source }: { source: string }) {
         alt=""
         width={12}
         height={12}
+        loading="lazy"
+        decoding="async"
         className="rounded-[2px]"
       />
       {s.label}
@@ -110,6 +108,7 @@ export function HomePage({
   }, [])
 
   const featured = news[0]
+  const featuredImage = proxyImage(featured?.imageUrl)
   const recent = news.slice(1, 5)
   const older = news.slice(5)
 
@@ -123,13 +122,18 @@ export function HomePage({
           rel="noopener noreferrer"
           className="relative mx-3 mt-3 block aspect-[16/10] cursor-pointer overflow-hidden rounded-[14px] bg-ceuta-black"
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={proxyImg(featured.imageUrl)!}
-            alt={featured.title}
-            className="absolute inset-0 size-full object-cover"
-            style={{ objectPosition: 'center 20%' }}
-          />
+          {featuredImage && (
+            <Image
+              src={featuredImage}
+              alt={featured.title}
+              fill
+              priority
+              sizes="(max-width: 768px) 100vw, 420px"
+              quality={75}
+              className="object-cover"
+              style={{ objectPosition: 'center 20%' }}
+            />
+          )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-4">
             <div className="mb-2.5 flex w-fit items-center gap-1.5 bg-ceuta-red px-[9px] py-[3px]">
@@ -139,6 +143,8 @@ export function HomePage({
                 alt=""
                 width={14}
                 height={14}
+                loading="eager"
+                decoding="async"
                 className="rounded-[2px]"
               />
               <span className="font-display text-[10.5px] font-bold uppercase tracking-[0.12em] text-white">
@@ -211,37 +217,45 @@ export function HomePage({
       )}
 
       {/* Lista vertical — noticias recientes */}
-      {recent.map((n, i) => (
-        <a
-          key={n.id}
-          href={n.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex cursor-pointer items-start gap-3 border-b border-ceuta-border px-4 py-[14px] transition-colors active:bg-ceuta-bg-soft"
-        >
-          {n.imageUrl ? (
-            <div
-              className="relative size-[88px] shrink-0 overflow-hidden rounded-[8px]"
-              style={{
-                backgroundImage: `url(${proxyImg(n.imageUrl)})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-              }}
-            />
-          ) : (
-            <div
-              className={`relative size-[88px] shrink-0 overflow-hidden rounded-[8px] ${THUMB_COLORS[i % THUMB_COLORS.length]}`}
-            />
-          )}
-          <div className="min-w-0 flex-1">
-            <SourceTag source={n.source} />
-            <div className="mt-1 font-display text-[16px] font-bold uppercase leading-[1.2] tracking-[0.01em] text-ceuta-black">
-              {n.title}
+      {recent.map((n, i) => {
+        const image = proxyImage(n.imageUrl)
+
+        return (
+          <a
+            key={n.id}
+            href={n.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex cursor-pointer items-start gap-3 border-b border-ceuta-border px-4 py-[14px] transition-colors active:bg-ceuta-bg-soft"
+          >
+            {image ? (
+              <div className="relative size-[88px] shrink-0 overflow-hidden rounded-[8px]">
+                <Image
+                  src={image}
+                  alt=""
+                  fill
+                  sizes="88px"
+                  quality={70}
+                  className="object-cover"
+                />
+              </div>
+            ) : (
+              <div
+                className={`relative size-[88px] shrink-0 overflow-hidden rounded-[8px] ${THUMB_COLORS[i % THUMB_COLORS.length]}`}
+              />
+            )}
+            <div className="min-w-0 flex-1">
+              <SourceTag source={n.source} />
+              <div className="mt-1 font-display text-[16px] font-bold uppercase leading-[1.2] tracking-[0.01em] text-ceuta-black">
+                {n.title}
+              </div>
+              <div className="mt-[5px] text-[11.5px] text-ceuta-muted">
+                {timeAgo(n.publishedAt)}
+              </div>
             </div>
-            <div className="mt-[5px] text-[11.5px] text-ceuta-muted">{timeAgo(n.publishedAt)}</div>
-          </div>
-        </a>
-      ))}
+          </a>
+        )
+      })}
 
       {/* Carrusel horizontal — noticias anteriores */}
       {older.length > 0 && (
@@ -257,39 +271,45 @@ export function HomePage({
             </div>
           </div>
           <div className="flex gap-2 overflow-x-auto px-3 pb-3 [scrollbar-width:none] [scroll-snap-type:x_mandatory] [-webkit-overflow-scrolling:touch]">
-            {older.map((n, i) => (
-              <a
-                key={n.id}
-                href={n.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-[220px] shrink-0 overflow-hidden rounded-[14px] border border-ceuta-border bg-white [scroll-snap-align:start]"
-              >
-                {n.imageUrl ? (
-                  <div
-                    className="h-[110px] w-full shrink-0"
-                    style={{
-                      backgroundImage: `url(${proxyImg(n.imageUrl)})`,
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
-                    }}
-                  />
-                ) : (
-                  <div
-                    className={`h-[110px] w-full shrink-0 ${THUMB_COLORS[i % THUMB_COLORS.length]}`}
-                  />
-                )}
-                <div className="flex flex-1 flex-col gap-1 p-[8px_10px_10px]">
-                  <SourceTag source={n.source} />
-                  <div className="line-clamp-3 font-display text-[12px] font-bold uppercase leading-[1.35] text-ceuta-black">
-                    {n.title}
+            {older.map((n, i) => {
+              const image = proxyImage(n.imageUrl)
+
+              return (
+                <a
+                  key={n.id}
+                  href={n.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-[220px] shrink-0 overflow-hidden rounded-[14px] border border-ceuta-border bg-white [scroll-snap-align:start]"
+                >
+                  {image ? (
+                    <div className="relative h-[110px] w-full shrink-0">
+                      <Image
+                        src={image}
+                        alt=""
+                        fill
+                        sizes="220px"
+                        quality={70}
+                        className="object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div
+                      className={`h-[110px] w-full shrink-0 ${THUMB_COLORS[i % THUMB_COLORS.length]}`}
+                    />
+                  )}
+                  <div className="flex flex-1 flex-col gap-1 p-[8px_10px_10px]">
+                    <SourceTag source={n.source} />
+                    <div className="line-clamp-3 font-display text-[12px] font-bold uppercase leading-[1.35] text-ceuta-black">
+                      {n.title}
+                    </div>
+                    <div className="mt-auto text-[11px] text-ceuta-muted">
+                      {timeAgo(n.publishedAt)}
+                    </div>
                   </div>
-                  <div className="mt-auto text-[11px] text-ceuta-muted">
-                    {timeAgo(n.publishedAt)}
-                  </div>
-                </div>
-              </a>
-            ))}
+                </a>
+              )
+            })}
           </div>
         </>
       )}

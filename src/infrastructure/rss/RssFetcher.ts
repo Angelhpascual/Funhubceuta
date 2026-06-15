@@ -164,6 +164,16 @@ const EXCLUDE_TERMS = [
   'atlético de ceuta',
 ]
 
+// Title patterns from press that are generic roundup/preview content, not real club news.
+// These slip through keyword filters because they mention the club in passing.
+export const EXCLUDE_TITLE_PATTERNS = [
+  /\bjornada\s+\d+/i,          // "previa jornada 32", "resumen jornada 32"
+  /previa\b.*\bjornada\b/i,    // "previa de la jornada"
+  /jornada\b.*\bprevia\b/i,
+  /\bclasificaci[oó]n\b.*\bjornada\b/i,
+  /\bjornada\b.*\bclasificaci[oó]n\b/i,
+]
+
 function isRelevant(item: Record<string, unknown>, source: RssSource): boolean {
   // Feed already scoped to the club — accept everything
   if (source.keywords.length === 0) return true
@@ -182,6 +192,10 @@ function isRelevant(item: Record<string, unknown>, source: RssSource): boolean {
 
   // Reject articles about other Ceuta clubs
   if (EXCLUDE_TERMS.some((t) => text.includes(t))) return false
+
+  // Reject generic jornada preview/roundup articles from press
+  const title = String(item.title ?? '').replace(/<[^>]+>/g, '')
+  if (EXCLUDE_TITLE_PATTERNS.some((re) => re.test(title))) return false
 
   // At least one BASE_KEYWORD must be present to avoid matching unrelated city news.
   // National press sources can provide broader baseKeywords via source.baseKeywords.

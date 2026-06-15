@@ -3,40 +3,36 @@
 import { useEffect, useState, useCallback } from 'react'
 import { NewsItem } from '@/domain/news/News'
 import Link from 'next/link'
-
-function proxyImg(url: string | null | undefined): string | null {
-  if (!url) return null
-  if (url.startsWith('/')) return url
-  return `/api/proxy/image?url=${encodeURIComponent(url)}`
-}
+import Image from 'next/image'
+import { proxyImage } from '@/lib/proxyImage'
 
 const SOURCES: Record<string, { label: string; domain: string; color: string }> = {
-  oficial: { label: 'AD Ceuta FC', domain: 'adceutafc.com', color: '#DA1A22' },
-  elpueblo: { label: 'El Pueblo de Ceuta', domain: 'elpueblodeceuta.es', color: '#0E0E0E' },
-  faro: { label: 'El Faro de Ceuta', domain: 'elfarodeceuta.es', color: '#0E0E0E' },
-  ceutatv: { label: 'Ceuta Televisión', domain: 'ceutatv.com', color: '#0E0E0E' },
-  rtvc: { label: 'RTV Ceuta', domain: 'rtvce.es', color: '#0E0E0E' },
-  laverdad: { label: 'La Verdad de Ceuta', domain: 'laverdaddeceuta.com', color: '#0E0E0E' },
-  ceutaactualidad: { label: 'Ceuta Actualidad', domain: 'ceutaactualidad.com', color: '#0E0E0E' },
-  ceutaaldia: { label: 'Ceuta al Día', domain: 'ceutaaldia.com', color: '#0E0E0E' },
-  marca: { label: 'Marca', domain: 'marca.com', color: '#6B7280' },
-  mundodeportivo: { label: 'Mundo Deportivo', domain: 'mundodeportivo.com', color: '#6B7280' },
-  '20minutos': { label: '20 Minutos', domain: '20minutos.es', color: '#6B7280' },
-  sport: { label: 'Sport', domain: 'sport.es', color: '#6B7280' },
-  as: { label: 'AS', domain: 'as.com', color: '#6B7280' },
-  confidencial: { label: 'El Confidencial', domain: 'elconfidencial.com', color: '#6B7280' },
-  abc: { label: 'ABC', domain: 'abc.es', color: '#6B7280' },
-  lavanguardia: { label: 'La Vanguardia', domain: 'lavanguardia.com', color: '#6B7280' },
-  cope: { label: 'COPE', domain: 'cope.es', color: '#6B7280' },
-  ser: { label: 'Cadena SER', domain: 'cadenaser.com', color: '#6B7280' },
-  onefootball: { label: 'OneFootball', domain: 'onefootball.com', color: '#6B7280' },
-  elpais: { label: 'El País', domain: 'elpais.com', color: '#6B7280' },
-  rtve: { label: 'RTVE', domain: 'rtve.es', color: '#6B7280' },
-  goal: { label: 'Goal.com', domain: 'goal.com', color: '#6B7280' },
-  elgoldigital: { label: 'El Gol Digital', domain: 'elgoldigital.com', color: '#6B7280' },
-  fondosegunda: { label: 'Fondo Segunda', domain: 'fondosegunda.com', color: '#6B7280' },
-  transfermarkt: { label: 'Transfermarkt', domain: 'transfermarkt.es', color: '#6B7280' },
-  prensa: { label: 'Prensa', domain: 'google.com', color: '#6B7280' },
+  oficial: { label: 'AD Ceuta FC', domain: 'adceutafc.com', color: 'var(--red)' },
+  elpueblo: { label: 'El Pueblo de Ceuta', domain: 'elpueblodeceuta.es', color: 'var(--black)' },
+  faro: { label: 'El Faro de Ceuta', domain: 'elfarodeceuta.es', color: 'var(--black)' },
+  ceutatv: { label: 'Ceuta Televisión', domain: 'ceutatv.com', color: 'var(--black)' },
+  rtvc: { label: 'RTV Ceuta', domain: 'rtvce.es', color: 'var(--black)' },
+  laverdad: { label: 'La Verdad de Ceuta', domain: 'laverdaddeceuta.com', color: 'var(--black)' },
+  ceutaactualidad: { label: 'Ceuta Actualidad', domain: 'ceutaactualidad.com', color: 'var(--black)' },
+  ceutaaldia: { label: 'Ceuta al Día', domain: 'ceutaaldia.com', color: 'var(--black)' },
+  marca: { label: 'Marca', domain: 'marca.com', color: 'var(--muted)' },
+  mundodeportivo: { label: 'Mundo Deportivo', domain: 'mundodeportivo.com', color: 'var(--muted)' },
+  '20minutos': { label: '20 Minutos', domain: '20minutos.es', color: 'var(--muted)' },
+  sport: { label: 'Sport', domain: 'sport.es', color: 'var(--muted)' },
+  as: { label: 'AS', domain: 'as.com', color: 'var(--muted)' },
+  confidencial: { label: 'El Confidencial', domain: 'elconfidencial.com', color: 'var(--muted)' },
+  abc: { label: 'ABC', domain: 'abc.es', color: 'var(--muted)' },
+  lavanguardia: { label: 'La Vanguardia', domain: 'lavanguardia.com', color: 'var(--muted)' },
+  cope: { label: 'COPE', domain: 'cope.es', color: 'var(--muted)' },
+  ser: { label: 'Cadena SER', domain: 'cadenaser.com', color: 'var(--muted)' },
+  onefootball: { label: 'OneFootball', domain: 'onefootball.com', color: 'var(--muted)' },
+  elpais: { label: 'El País', domain: 'elpais.com', color: 'var(--muted)' },
+  rtve: { label: 'RTVE', domain: 'rtve.es', color: 'var(--muted)' },
+  goal: { label: 'Goal.com', domain: 'goal.com', color: 'var(--muted)' },
+  elgoldigital: { label: 'El Gol Digital', domain: 'elgoldigital.com', color: 'var(--muted)' },
+  fondosegunda: { label: 'Fondo Segunda', domain: 'fondosegunda.com', color: 'var(--muted)' },
+  transfermarkt: { label: 'Transfermarkt', domain: 'transfermarkt.es', color: 'var(--muted)' },
+  prensa: { label: 'Prensa', domain: 'google.com', color: 'var(--muted)' },
 }
 
 const PAGE_SIZE = 20
@@ -91,7 +87,8 @@ export default function NoticiasPage() {
           <div
             className="pointer-events-none absolute bottom-0 right-[-40px] top-0 w-[180px]"
             style={{
-              background: 'repeating-linear-gradient(-45deg, white 0 14px, #0A0A0A 14px 28px)',
+              background:
+                'repeating-linear-gradient(-45deg, var(--white) 0 14px, var(--black) 14px 28px)',
               clipPath: 'polygon(60px 0, 100% 0, 100% 100%, 0 100%)',
             }}
           />
@@ -129,7 +126,7 @@ export default function NoticiasPage() {
         </div>
 
         {/* ── NEWS LIST CARD ── */}
-        <div className="relative z-[2] -mt-7 mx-3 overflow-hidden rounded-[14px] border-2 border-ceuta-black bg-white shadow-[6px_6px_0_#D62027]">
+        <div className="relative z-[2] -mt-7 mx-3 overflow-hidden rounded-[14px] border-2 border-ceuta-black bg-white shadow-[var(--shadow-hard)]">
           {loading ? (
             <div className="px-[18px] py-6 font-display text-[11px] font-bold uppercase tracking-[0.1em] text-ceuta-muted">
               Cargando noticias…
@@ -138,6 +135,8 @@ export default function NoticiasPage() {
             <>
               {news.map((n) => {
                 const src = SOURCES[n.source]
+                const image = proxyImage(n.imageUrl)
+
                 return (
                   <a
                     key={n.id}
@@ -149,19 +148,21 @@ export default function NoticiasPage() {
                       textDecoration: 'none',
                       borderLeftWidth: 3,
                       borderLeftStyle: 'solid',
-                      borderLeftColor: src?.color ?? '#6B7280',
+                      borderLeftColor: src?.color ?? 'var(--muted)',
                     }}
                   >
                     {/* thumbnail */}
-                    {n.imageUrl ? (
-                      <div
-                        className="size-[48px] shrink-0 rounded-[8px]"
-                        style={{
-                          backgroundImage: `url(${proxyImg(n.imageUrl)})`,
-                          backgroundSize: 'cover',
-                          backgroundPosition: 'center',
-                        }}
-                      />
+                    {image ? (
+                      <div className="relative size-[48px] shrink-0 overflow-hidden rounded-[8px]">
+                        <Image
+                          src={image}
+                          alt=""
+                          fill
+                          sizes="48px"
+                          quality={65}
+                          className="object-cover"
+                        />
+                      </div>
                     ) : (
                       <div className="flex size-[48px] shrink-0 items-center justify-center rounded-[8px] bg-ceuta-bg-soft font-display text-[10px] font-black uppercase text-ceuta-muted">
                         {src?.label.slice(0, 3) ?? '···'}
@@ -178,11 +179,13 @@ export default function NoticiasPage() {
                           alt=""
                           width={11}
                           height={11}
+                          loading="lazy"
+                          decoding="async"
                           className="rounded-[2px]"
                         />
                         <span
                           className="font-display text-[9.5px] font-bold uppercase tracking-[0.1em]"
-                          style={{ color: src?.color ?? '#6B7280' }}
+                          style={{ color: src?.color ?? 'var(--muted)' }}
                         >
                           {src?.label ?? n.source}
                         </span>
@@ -223,7 +226,7 @@ export default function NoticiasPage() {
                     className="w-full rounded-[10px] bg-ceuta-bg-soft py-[13px] font-display text-[12px] font-black uppercase tracking-[0.1em]"
                     style={{
                       border: 'none',
-                      color: loadingMore ? '#6B7280' : '#0A0A0A',
+                      color: loadingMore ? 'var(--muted)' : 'var(--black)',
                       cursor: loadingMore ? 'default' : 'pointer',
                     }}
                   >

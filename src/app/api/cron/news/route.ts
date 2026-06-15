@@ -46,22 +46,29 @@ function pickMostRelevant(articles: ParsedArticle[]): ParsedArticle | null {
   })[0]
 }
 
+const MAX_ARTICLE_AGE_MS = 5 * 24 * 60 * 60 * 1000 // 5 days
+
+function isRecent(publishedAt: string | null): boolean {
+  if (!publishedAt) return true // no date → don't discard
+  return Date.now() - new Date(publishedAt).getTime() < MAX_ARTICLE_AGE_MS
+}
+
 async function syncNews() {
   const t0 = Date.now()
 
   const results = await Promise.allSettled([
     (async () => {
-      const articles = await fetchAdceutaOfficialNews(15)
+      const articles = (await fetchAdceutaOfficialNews(15)).filter((a) => isRecent(a.publishedAt))
       const newArticles = await repo.upsertArticles(articles)
       return { source: 'oficial', count: articles.length, newArticles }
     })(),
     ...RSS_SOURCES.filter((s) => s.id !== 'oficial').map(async (source) => {
-      const articles = await fetchSource(source)
+      const articles = (await fetchSource(source)).filter((a) => isRecent(a.publishedAt))
       const newArticles = await repo.upsertArticles(articles)
       return { source: source.id, count: articles.length, newArticles }
     }),
     (async () => {
-      const articles = await fetchGoogleNews()
+      const articles = (await fetchGoogleNews()).filter((a) => isRecent(a.publishedAt))
       const newArticles = await repo.upsertArticles(articles)
       return { source: 'google-news', count: articles.length, newArticles }
     })(),

@@ -3,6 +3,15 @@ import type { NextConfig } from 'next'
 const nextConfig: NextConfig = {
   images: {
     minimumCacheTTL: 604800, // 7 días
+    formats: ['image/avif', 'image/webp'],
+    qualities: [65, 70, 75],
+    deviceSizes: [390, 640, 828, 1080],
+    imageSizes: [48, 88, 110, 220],
+    localPatterns: [
+      {
+        pathname: '/api/proxy/image',
+      },
+    ],
     remotePatterns: [
       {
         protocol: 'https',
@@ -15,6 +24,11 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'a.espncdn.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.supabase.co',
+        pathname: '/storage/v1/object/public/**',
       },
     ],
   },
