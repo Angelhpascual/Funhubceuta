@@ -15,7 +15,7 @@ const SOURCES: Record<string, { label: string; domain: string; color: string }> 
   rtvc: { label: 'RTV Ceuta', domain: 'rtvce.es', color: 'var(--black)' },
   laverdad: { label: 'La Verdad de Ceuta', domain: 'laverdaddeceuta.com', color: 'var(--black)' },
   ceutaactualidad: { label: 'Ceuta Actualidad', domain: 'ceutaactualidad.com', color: 'var(--black)' },
-  ceutaaldia: { label: 'Ceuta al Día', domain: 'ceutaaldia.com', color: 'var(--black)' },
+  ceutaaldia: { label: 'Ceuta al Día', domain: 'ceutaldia.com', color: 'var(--black)' },
   marca: { label: 'Marca', domain: 'marca.com', color: 'var(--muted)' },
   mundodeportivo: { label: 'Mundo Deportivo', domain: 'mundodeportivo.com', color: 'var(--muted)' },
   '20minutos': { label: '20 Minutos', domain: '20minutos.es', color: 'var(--muted)' },

@@ -18,7 +18,7 @@ const SOURCES: Record<string, { label: string; domain: string }> = {
   rtvc: { label: 'RTV Ceuta', domain: 'rtvce.es' },
   laverdad: { label: 'La Verdad de Ceuta', domain: 'laverdaddeceuta.com' },
   ceutaactualidad: { label: 'Ceuta Actualidad', domain: 'ceutaactualidad.com' },
-  ceutaaldia: { label: 'Ceuta al Día', domain: 'ceutaaldia.com' },
+  ceutaaldia: { label: 'Ceuta al Día', domain: 'ceutaldia.com' },
   marca: { label: 'Marca', domain: 'marca.com' },
   mundodeportivo: { label: 'Mundo Deportivo', domain: 'mundodeportivo.com' },
   '20minutos': { label: '20 Minutos', domain: '20minutos.es' },

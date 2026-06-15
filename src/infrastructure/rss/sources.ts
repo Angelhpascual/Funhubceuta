@@ -142,6 +142,13 @@ export const RSS_SOURCES: RssSource[] = [
     baseKeywords: BASE_KEYWORDS,
   },
   {
+    id: 'ceutaaldia',
+    name: 'Ceuta al Día',
+    url: 'https://www.ceutaldia.com/rss/deportes/',
+    keywords: CEUTA_KEYWORDS,
+    baseKeywords: BASE_KEYWORDS,
+  },
+  {
     id: 'rtvc',
     name: 'RTV Ceuta',
     url: 'https://www.rtvce.es/rss/',

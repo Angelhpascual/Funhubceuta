@@ -3,7 +3,6 @@ import { Receiver } from '@upstash/qstash'
 import { RSS_SOURCES } from '@/infrastructure/rss/sources'
 import { fetchSource, ParsedArticle } from '@/infrastructure/rss/RssFetcher'
 import { fetchAdceutaOfficialNews } from '@/infrastructure/rss/adceutaFetcher'
-import { fetchGoogleNews } from '@/infrastructure/rss/googleNewsFetcher'
 import { fetchOgImage } from '@/infrastructure/rss/fetchOgImage'
 import { NewsSupabaseRepository } from '@/infrastructure/supabase/NewsSupabaseRepository'
 import { sendNewsNotification } from '@/infrastructure/push/sendNewsNotification'
@@ -37,7 +36,8 @@ const SOURCE_PRIORITY: Record<string, number> = {
   rtvc: 15,
   laverdad: 16,
   ceutaactualidad: 17,
-  prensa: 18,
+  ceutaaldia: 18,
+  teleceuta: 19,
 }
 
 function pickMostRelevant(articles: ParsedArticle[]): ParsedArticle | null {
@@ -108,11 +108,6 @@ async function syncNews() {
       const newArticles = await repo.upsertArticles(articles)
       return { source: source.id, count: articles.length, newArticles }
     }),
-    (async () => {
-      const articles = (await fetchGoogleNews()).filter((a) => isRecent(a.publishedAt))
-      const newArticles = await repo.upsertArticles(articles)
-      return { source: 'google-news', count: articles.length, newArticles }
-    })(),
   ])
 
   const allNew: ParsedArticle[] = []
@@ -144,9 +139,6 @@ async function syncNews() {
   const backfilledImages = await backfillLatestRemoteImages(20)
 
   // Only notify about articles published in the last 24 hours.
-  // Google News can reindex old articles with today's pubDate — so we also
-  // reject anything whose real publishedAt is older than 24h, which filters
-  // out articles re-surfaced from weeks/months ago.
   const ONE_DAY = 24 * 60 * 60 * 1000
   const recentNew = allNew.filter((a) => {
     if (!a.publishedAt) return false

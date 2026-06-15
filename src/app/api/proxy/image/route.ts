@@ -12,6 +12,8 @@ const ALLOWED_DOMAINS = [
   'www.laverdaddeceuta.com',
   'www.ceutatv.com',
   'www.ceutaactualidad.com',
+  'www.ceutaldia.com',
+  'ceutaldia.com',
   'www.rtvce.es',
   'www.elpueblodeceuta.es',
   'img.asmedia.epimg.net',
