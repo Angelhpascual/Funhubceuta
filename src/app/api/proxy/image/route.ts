@@ -24,17 +24,29 @@ const ALLOWED_DOMAINS = [
   'onguesyapdtatsadsxmc.supabase.co',
 ]
 
-function imageResponse(body: ArrayBuffer | Buffer, contentType: string) {
+function imageResponse(
+  body: ArrayBuffer | Buffer,
+  contentType: string,
+  timings: { upstream: number; transform?: number; total: number }
+) {
   return new NextResponse(body instanceof ArrayBuffer ? body : new Uint8Array(body), {
     headers: {
       'Content-Type': contentType,
       'Cache-Control': 'public, max-age=604800, stale-while-revalidate=86400, immutable',
+      'Server-Timing': [
+        `origin;dur=${timings.upstream.toFixed(1)}`,
+        timings.transform !== undefined ? `transform;dur=${timings.transform.toFixed(1)}` : null,
+        `total;dur=${timings.total.toFixed(1)}`,
+      ]
+        .filter(Boolean)
+        .join(', '),
       Vary: 'Accept',
     },
   })
 }
 
 export async function GET(request: NextRequest) {
+  const startedAt = performance.now()
   const url = request.nextUrl.searchParams.get('url')
   if (!url) return NextResponse.json({ error: 'Missing url' }, { status: 400 })
   const width = parseInt(request.nextUrl.searchParams.get('w') ?? '', 10)
@@ -54,6 +66,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Domain not allowed' }, { status: 403 })
   }
 
+  const upstreamStartedAt = performance.now()
   const res = await fetch(url, {
     next: { revalidate: 604800 },
     headers: {
@@ -64,6 +77,7 @@ export async function GET(request: NextRequest) {
     },
     signal: AbortSignal.timeout(10000),
   })
+  const upstreamMs = performance.now() - upstreamStartedAt
 
   if (!res.ok) return NextResponse.json({ error: 'Failed to fetch image' }, { status: 502 })
 
@@ -74,6 +88,7 @@ export async function GET(request: NextRequest) {
 
   if (targetWidth && contentType.startsWith('image/') && !contentType.includes('svg')) {
     try {
+      const transformStartedAt = performance.now()
       const transformer = sharp(Buffer.from(buffer), { animated: false }).resize({
         width: targetWidth,
         withoutEnlargement: true,
@@ -81,20 +96,35 @@ export async function GET(request: NextRequest) {
 
       if (acceptsAvif) {
         const optimized = await transformer.avif({ quality: targetQuality }).toBuffer()
-        return imageResponse(optimized, 'image/avif')
+        return imageResponse(optimized, 'image/avif', {
+          upstream: upstreamMs,
+          transform: performance.now() - transformStartedAt,
+          total: performance.now() - startedAt,
+        })
       }
 
       if (acceptsWebp) {
         const optimized = await transformer.webp({ quality: targetQuality }).toBuffer()
-        return imageResponse(optimized, 'image/webp')
+        return imageResponse(optimized, 'image/webp', {
+          upstream: upstreamMs,
+          transform: performance.now() - transformStartedAt,
+          total: performance.now() - startedAt,
+        })
       }
 
       const optimized = await transformer.jpeg({ quality: targetQuality }).toBuffer()
-      return imageResponse(optimized, 'image/jpeg')
+      return imageResponse(optimized, 'image/jpeg', {
+        upstream: upstreamMs,
+        transform: performance.now() - transformStartedAt,
+        total: performance.now() - startedAt,
+      })
     } catch {
       // Fall back to the original response if sharp cannot decode a remote image.
     }
   }
 
-  return imageResponse(buffer, contentType)
+  return imageResponse(buffer, contentType, {
+    upstream: upstreamMs,
+    total: performance.now() - startedAt,
+  })
 }
