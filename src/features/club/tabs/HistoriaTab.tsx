@@ -4,49 +4,49 @@ const HISTORY = [
   {
     year: '1956',
     title: 'Fundación del Club',
-    desc: 'El 9 de julio de 1956 nace el Club Atlético de Ceuta, fruto de la fusión entre la S.D. Ceuta y los elementos españoles del Atlético de Tetuán. Arranca directamente en Segunda División.',
+    desc: 'El 9 de julio de 1956 nace el Club Atlético de Ceuta, fusión entre la S.D. Ceuta y el Atlético de Tetuán. En una ciudad donde conviven desde siempre cuatro culturas —cristiana, musulmana, judía e hindú— el fútbol se convierte desde el primer día en el lenguaje común que une a todos.',
     tone: 'key',
   },
   {
     year: '1960',
     title: 'Mejor clasificación histórica en 2ª',
-    desc: 'El club termina subcampeón de Segunda División en la temporada 1960–61 y disputa una promoción de ascenso a Primera División, cayendo ante el Elche CF.',
+    desc: 'Subcampeones de Segunda División en 1960–61, con una plantilla que refleja ya el mosaico humano ceutí. Disputan la promoción a Primera ante el Elche CF, quedándose a un paso del sueño.',
     tone: '',
   },
   {
     year: '1968',
-    title: 'Descenso y años en tercera',
-    desc: 'Tras once temporadas en segunda, el club baja y oscila durante décadas entre Tercera División y Segunda B, consolidándose como referente del fútbol ceutí.',
+    title: 'Décadas de resistencia',
+    desc: 'El club oscila entre Tercera y Segunda B durante décadas, pero el Murube nunca deja de llenarse. Cristianos, musulmanes, judíos e hindúes se funden en las gradas con una sola voz: la del fútbol caballa.',
     tone: '',
   },
   {
     year: '2013',
     title: 'Refundación como AD Ceuta FC',
-    desc: 'Tras la desaparición de la AD Ceuta por deudas en 2012, el club se reorganiza y adopta en 2013 el nombre Agrupación Deportiva Ceuta FC, heredando colores, escudo y afición.',
+    desc: 'Tras la disolución del club anterior por deudas en 2012, la ciudad entera —con toda su diversidad cultural— se vuelca para refundar el proyecto. Nace la AD Ceuta FC, heredera de colores, escudo y del espíritu plural que define a Ceuta.',
     tone: 'key',
   },
   {
     year: '2021',
     title: 'Ascenso a Segunda RFEF',
-    desc: 'En la final del play-off, un gol de Misfutt en el minuto 89 frena al Xerez CD y da a Ceuta el ascenso a Segunda RFEF (4ª categoría nacional).',
+    desc: 'Un gol de Misfutt en el minuto 89 frente al Xerez CD lleva a Ceuta a Segunda RFEF. La celebración recorre los barrios de toda la ciudad, donde cuatro culturas comparten la misma alegría.',
     tone: '',
   },
   {
     year: '2022',
-    title: 'Salto a Primera Federación',
-    desc: 'Un año después, el equipo vuelve a ganar el play-off —2–0 ante Navalcarnero— y sube a Primera Federación (3ª categoría). Temporada histórica en Copa del Rey: eliminan a Ibiza y al Elche antes de caer 5–0 ante el FC Barcelona.',
+    title: 'Salto a Primera Federación y noche ante el Barça',
+    desc: 'Play-off ganado ante Navalcarnero (2–0) y salto a la 3ª categoría nacional. En Copa del Rey eliminan a Ibiza y al Elche antes de medirse al FC Barcelona: una noche que paraliza a toda la ciudad, de la medina al barrio del Príncipe.',
     tone: '',
   },
   {
     year: '2025',
-    title: 'Ascenso a Segunda División',
-    desc: 'El 11 de mayo de 2025, Ceuta gana 1–2 en Fuenlabrada y regresa al fútbol profesional 57 años después. La ciudad celebra el mayor hito de su historia deportiva.',
+    title: 'Ascenso histórico a Segunda División',
+    desc: 'El 11 de mayo de 2025, victoria 1–2 en Fuenlabrada y regreso al fútbol profesional tras 57 años. Las calles de Ceuta se llenan: musulmanes, cristianos, judíos e hindúes celebran juntos el mayor logro deportivo de la ciudad.',
     tone: 'gold',
   },
   {
     year: '2026',
     title: 'Primera temporada en Segunda División',
-    desc: 'La AD Ceuta FC debuta en LaLiga Hypermotion y afronta su primer campeonato entre los profesionales, con el Estadio Alfonso Murube como fortín y la afición caballa volcada.',
+    desc: 'La AD Ceuta FC debuta en LaLiga Hypermotion como embajadora de una ciudad única en Europa. Un club que representa a cuatro culturas en el punto donde se encuentran dos continentes.',
     tone: 'key',
   },
 ]
@@ -89,7 +89,7 @@ function IdentityBlock() {
           <div className="hist-identity-eyebrow">Identidad</div>
           <div className="hist-identity-title">Caballas de corazón</div>
           <div className="hist-identity-body">
-            La afición de la AD Ceuta es conocida como <strong style={{ color: 'var(--black)' }}>los caballas</strong>, gentilicio que toma su nombre del pez emblema de la ciudad. El escudo luce los <strong style={{ color: 'var(--black)' }}>colores blanquinegros</strong> y los símbolos de la ciudad autónoma. Con raíces en <strong style={{ color: 'var(--black)' }}>1956</strong>, el club disputa sus partidos en el <strong style={{ color: 'var(--black)' }}>Estadio Alfonso Murube</strong> y en 2025 selló el mayor hito de su historia: el ascenso a <strong style={{ color: 'var(--black)' }}>Segunda División</strong> tras 57 años sin categoría profesional.
+            La AD Ceuta FC es el club de una ciudad única en Europa: <strong style={{ color: 'var(--black)' }}>cuatro culturas</strong> —cristiana, musulmana, judía e hindú— conviven en apenas 19 km². Sus aficionados, conocidos como <strong style={{ color: 'var(--black)' }}>los caballas</strong>, llenan el <strong style={{ color: 'var(--black)' }}>Estadio Alfonso Murube</strong> semana a semana con una sola voz, la misma desde 1956: orgullo de ciudad, orgullo de frontera.
           </div>
           <div className="hist-tags">
             {TAGS.map((t, i) => (
