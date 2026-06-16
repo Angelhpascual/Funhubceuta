@@ -67,7 +67,7 @@ async function fetchLiveMatch(): Promise<LiveMatch | null> {
 }
 
 // ── Send push to all subscribers ──────────────────────────────────────────
-async function sendPush(title: string, body: string, tag: string) {
+async function sendPush(title: string, body: string, tag: string, url = '/partidos') {
   webpush.setVapidDetails(
     'mailto:angelhpascual@gmail.com',
     process.env.VAPID_PUBLIC_KEY!,
@@ -80,7 +80,7 @@ async function sendPush(title: string, body: string, tag: string) {
 
   if (!subs.length) return 0
 
-  const payload = JSON.stringify({ title, body, tag, url: '/' })
+  const payload = JSON.stringify({ title, body, tag, url })
   let sent = 0
 
   await Promise.allSettled(
