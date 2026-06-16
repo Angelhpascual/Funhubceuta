@@ -6,6 +6,7 @@ import {
   getAllSubscriptions,
   deleteSubscription,
 } from '@/infrastructure/supabase/PushSubscriptionsRepository'
+import { MSG } from '../live/messages'
 
 async function getTodayMatch() {
   const res = await fetch(`${ESPN}/scoreboard`, { cache: 'no-store' })
@@ -56,12 +57,10 @@ async function sendMatchDayPush(match: Awaited<ReturnType<typeof getTodayMatch>>
 
   const ceutaIsHome = match.homeTeam.toLowerCase().includes('ceuta')
   const rival = ceutaIsHome ? match.awayTeam : match.homeTeam
-  const venue = ceutaIsHome ? `${match.venue}` : `${match.venue}`
-  const timeStr = match.kickoffTime ? ` a las ${match.kickoffTime}` : ''
+  const msg = MSG.matchDay(rival, match.kickoffTime, ceutaIsHome)
 
   const payload = JSON.stringify({
-    title: '📅 ¡Hoy jugamos, caballas!',
-    body: `AD Ceuta vs ${rival}${timeStr}. ${ceutaIsHome ? '🏠 En casa' : '✈️ Fuera'}. ¡A por los tres puntos! 🖤⚪`,
+    ...msg,
     tag: 'match-day',
     url: '/partidos',
   })
@@ -81,9 +80,6 @@ async function sendMatchDayPush(match: Awaited<ReturnType<typeof getTodayMatch>>
       }
     })
   )
-
-  // Avoid unused variable warning
-  void venue
 
   return sent
 }
