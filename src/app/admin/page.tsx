@@ -1,7 +1,7 @@
-import { redirect } from 'next/navigation'
 import { supabase } from '@/infrastructure/supabase/client'
 import { CURRENT_SEASON } from '@/lib/constants'
 import { BarChart, LineChart } from '@/components/admin/Charts'
+import { AdminActions } from '@/features/admin/AdminActions'
 
 function parseDevice(ua: string | null): { os: string; browser: string; icon: string } {
   if (!ua) return { os: 'Desconocido', browser: '—', icon: '❓' }
@@ -226,14 +226,7 @@ const s = {
   }),
 }
 
-export default async function AdminPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ secret?: string }>
-}) {
-  const { secret } = await searchParams
-  if (secret !== process.env.TEST_SECRET) redirect('/')
-
+export default async function AdminPage() {
   const stats = await getStats()
 
   // Notifications total
@@ -283,7 +276,9 @@ export default async function AdminPage({
   return (
     <div style={s.page}>
       <div style={s.eyebrow}>Panel de administración</div>
-      <div style={s.title}>AD Ceuta FC Info</div>
+      <div style={s.title}>AD Ceuta FC</div>
+
+      <AdminActions />
 
       {/* KPIs principales */}
       <div style={s.grid2}>
