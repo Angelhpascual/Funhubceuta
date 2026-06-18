@@ -144,6 +144,7 @@ function TransferCard({ t }: { t: Transfer }) {
 function EmptyState({ tab }: { tab: Tab }) {
   const msgs: Record<Tab, string> = {
     in: 'Sin fichajes confirmados todavía',
+    renew: 'Sin renovaciones confirmadas todavía',
     out: 'Sin salidas confirmadas todavía',
     rumor: 'Sin rumores por el momento',
   }
