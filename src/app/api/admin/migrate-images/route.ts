@@ -20,18 +20,23 @@ async function checkAuth(): Promise<boolean> {
   return session === deriveToken(password)
 }
 
-export async function POST() {
+export const maxDuration = 60
+
+export async function POST(request: Request) {
   if (!(await checkAuth())) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  // Fetch all news with external image_url (not already in Supabase Storage)
+  const body = await request.json().catch(() => ({}))
+  const batchSize = 10
+  const offset = (body.offset as number) ?? 0
+
   const { data: rows, error } = await supabase
     .from('news')
     .select('id, external_id, source, image_url')
     .not('image_url', 'is', null)
     .order('created_at', { ascending: false })
-    .limit(200)
+    .range(offset, offset + batchSize - 1)
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
@@ -39,19 +44,29 @@ export async function POST() {
 
   let migrated = 0
   let failed = 0
+  let skipped = 0
 
-  for (const row of pending) {
+  for (const row of rows ?? []) {
+    if (isStoredNewsImage(row.image_url)) { skipped++; continue }
     const filename = newsImageFilename(row.source, row.external_id)
     const storedUrl = await downloadAndUploadImage(row.image_url, filename)
     if (storedUrl) {
       await supabase.from('news').update({ image_url: storedUrl }).eq('id', row.id)
       migrated++
     } else {
-      // If download fails, null out the broken URL so it doesn't show a broken image
       await supabase.from('news').update({ image_url: null }).eq('id', row.id)
       failed++
     }
   }
 
-  return NextResponse.json({ ok: true, total: pending.length, migrated, failed })
+  const hasMore = (rows ?? []).length === batchSize && pending.length > 0
+  return NextResponse.json({
+    ok: true,
+    offset,
+    migrated,
+    failed,
+    skipped,
+    hasMore,
+    nextOffset: offset + batchSize,
+  })
 }

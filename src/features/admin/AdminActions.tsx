@@ -206,17 +206,31 @@ export function AdminActions() {
 
   async function triggerMigrateImages() {
     setMigrateStatus('loading')
+    let totalMigrated = 0
+    let totalFailed = 0
+    let offset = 0
     try {
-      const res = await fetch('/api/admin/migrate-images', { method: 'POST' })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error ?? 'Error')
-      setMigrateResult(`${data.migrated} migradas, ${data.failed} fallidas / ${data.total} total`)
+      while (true) {
+        const res = await fetch('/api/admin/migrate-images', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ offset }),
+        })
+        const data = await res.json()
+        if (!res.ok) throw new Error(data.error ?? 'Error')
+        totalMigrated += data.migrated
+        totalFailed += data.failed
+        setMigrateResult(`${totalMigrated} migradas, ${totalFailed} fallidas...`)
+        if (!data.hasMore) break
+        offset = data.nextOffset
+      }
+      setMigrateResult(`✓ ${totalMigrated} migradas, ${totalFailed} fallidas`)
       setMigrateStatus('ok')
     } catch (e) {
       setMigrateResult((e as Error).message)
       setMigrateStatus('error')
     }
-    setTimeout(() => setMigrateStatus('idle'), 8000)
+    setTimeout(() => setMigrateStatus('idle'), 10000)
   }
 
   async function handleLogout() {
