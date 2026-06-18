@@ -21,11 +21,13 @@ function useAction() {
       if (!res.ok) throw new Error(data.error ?? 'Error')
       const info = data.result?.sent != null
         ? `${data.result.sent} enviadas`
-        : data.result?.newArticles != null
-          ? `${data.result.newArticles} nuevas`
-          : data.result?.count != null
-            ? `${data.result.count} partidos`
-            : 'OK'
+        : data.result?.queued === true
+          ? 'Encolado ✓'
+          : data.result?.newArticles != null
+            ? `${data.result.newArticles} nuevas`
+            : data.result?.count != null
+              ? `${data.result.count} partidos`
+              : 'OK'
       setResults((r) => ({ ...r, [key]: info }))
       setStatus((s) => ({ ...s, [key]: 'ok' }))
     } catch (e) {

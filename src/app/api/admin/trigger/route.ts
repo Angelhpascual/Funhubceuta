@@ -14,28 +14,27 @@ async function checkAuth(): Promise<boolean> {
   return session === deriveToken(password)
 }
 
+// Enqueue via QStash so Vercel timeout doesn't cut the response
+async function enqueueViaQStash(path: string): Promise<{ queued: boolean }> {
+  const base = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://adceutainfo.vercel.app'
+  const token = process.env.QSTASH_TOKEN
+  if (!token) return { queued: false }
+
+  const res = await fetch(`https://qstash.upstash.io/v2/publish/${base}${path}`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: '{}',
+  })
+  return { queued: res.ok }
+}
+
 const ACTIONS: Record<string, () => Promise<Record<string, unknown>>> = {
-  news: async () => {
-    const base = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'
-    const res = await fetch(
-      `${base}/api/cron/news?secret=${process.env.TEST_SECRET}`,
-      { cache: 'no-store' }
-    )
-    return res.json()
-  },
-  matches: async () => {
-    const base = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'
-    const res = await fetch(
-      `${base}/api/cron/matches?secret=${process.env.TEST_SECRET}`,
-      { cache: 'no-store' }
-    )
-    return res.json()
-  },
-  'match-day': async () => {
-    const base = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'
-    const res = await fetch(`${base}/api/cron/match-day`, { cache: 'no-store' })
-    return res.json()
-  },
+  news: async () => enqueueViaQStash('/api/cron/news'),
+  matches: async () => enqueueViaQStash('/api/cron/matches'),
+  'match-day': async () => enqueueViaQStash('/api/cron/match-day'),
 }
 
 export async function POST(request: Request) {
