@@ -32,21 +32,42 @@ function Reliability({ value }: { value: 1 | 2 | 3 }) {
   )
 }
 
-function PlayerAvatar({ photoUrl, name }: { photoUrl: string | null; name: string }) {
+const CEUTA_CREST = '/escudo.png'
+
+function ClubCrest({ name, size = 28 }: { name: string | null; size?: number }) {
+  const [error, setError] = useState(false)
+  const isCeuta = !name || /ceuta/i.test(name)
+  const src = isCeuta ? CEUTA_CREST : null
+
+  return (
+    <div style={{
+      width: size, height: size, borderRadius: '50%', overflow: 'hidden',
+      background: 'var(--bone-2)', flexShrink: 0, position: 'relative',
+      border: '1.5px solid var(--border)', display: 'flex', alignItems: 'center',
+      justifyContent: 'center',
+    }}>
+      {src && !error ? (
+        <Image src={src} alt={name ?? 'Ceuta'} fill sizes={`${size}px`} className="object-contain" onError={() => setError(true)} unoptimized />
+      ) : (
+        <span style={{ fontSize: size * 0.42, fontWeight: 900, color: 'var(--muted)', fontFamily: 'var(--font-display)' }}>
+          {(name ?? 'C')[0].toUpperCase()}
+        </span>
+      )}
+    </div>
+  )
+}
+
+function PlayerPhoto({ photoUrl, name }: { photoUrl: string | null; name: string }) {
   const [error, setError] = useState(false)
 
   if (photoUrl && !error) {
     return (
-      <div style={{
-        width: 64, height: 64, borderRadius: '50%', overflow: 'hidden',
-        flexShrink: 0, border: '2px solid var(--border)', background: 'var(--bone)',
-        position: 'relative',
-      }}>
+      <div style={{ position: 'relative', width: '100%', height: '100%' }}>
         <Image
-          src={photoUrl}
+          src={`/api/proxy/image?url=${encodeURIComponent(photoUrl)}`}
           alt={name}
           fill
-          sizes="64px"
+          sizes="120px"
           className="object-cover object-top"
           onError={() => setError(true)}
           unoptimized
@@ -57,11 +78,11 @@ function PlayerAvatar({ photoUrl, name }: { photoUrl: string | null; name: strin
 
   return (
     <div style={{
-      width: 64, height: 64, borderRadius: '50%', flexShrink: 0,
-      background: 'var(--black)', display: 'flex', alignItems: 'center',
-      justifyContent: 'center', border: '2px solid var(--border)',
+      width: '100%', height: '100%',
+      background: 'linear-gradient(160deg, var(--black) 0%, #333 100%)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
     }}>
-      <span style={{ fontSize: 24, fontWeight: 900, color: 'var(--white)', fontFamily: 'var(--font-display)' }}>
+      <span style={{ fontSize: 42, fontWeight: 900, color: 'rgba(255,255,255,0.15)', fontFamily: 'var(--font-display)' }}>
         {name[0].toUpperCase()}
       </span>
     </div>
@@ -80,59 +101,99 @@ function TransferCard({ t }: { t: Transfer }) {
       ? { label: 'SALIDA', bg: 'var(--red)', color: 'var(--white)' }
       : isRenew
         ? { label: 'RENOVADO', bg: 'var(--gold)', color: 'var(--black)' }
-        : { label: 'RUMOR', bg: 'var(--bone-2)', color: 'var(--muted)' }
+        : { label: 'RUMOR', bg: 'rgba(0,0,0,0.12)', color: 'var(--muted)' }
 
-  const clubLine = isIn
-    ? t.clubFrom ? `← ${t.clubFrom}` : null
-    : isOut
-      ? t.clubTo ? `→ ${t.clubTo}` : null
-      : null
+  const fromClub = isIn ? t.clubFrom : (isRenew || isOut) ? 'AD Ceuta FC' : t.clubFrom
+  const toClub = isOut ? t.clubTo : (isIn || isRenew) ? 'AD Ceuta FC' : t.clubTo
 
   return (
     <div style={{
-      display: 'flex', gap: 14, alignItems: 'center',
-      padding: '14px 0',
-      borderBottom: '1px solid var(--border)',
+      background: 'var(--white)',
+      borderRadius: 16,
+      overflow: 'hidden',
+      marginBottom: 12,
+      boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
+      display: 'flex',
+      minHeight: 120,
     }}>
-      <PlayerAvatar photoUrl={t.photoUrl} name={t.name} />
-
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+      {/* Photo column */}
+      <div style={{
+        width: 100, flexShrink: 0,
+        background: 'var(--bone)',
+        position: 'relative',
+        overflow: 'hidden',
+      }}>
+        <PlayerPhoto photoUrl={t.photoUrl} name={t.name} />
+        {/* badge overlay */}
+        <div style={{
+          position: 'absolute', bottom: 0, left: 0, right: 0,
+          background: badge.bg,
+          padding: '3px 0',
+          textAlign: 'center',
+        }}>
           <span style={{
-            fontFamily: 'var(--font-display)', fontSize: 17, fontWeight: 800,
-            textTransform: 'uppercase', letterSpacing: '-0.01em', color: 'var(--black)',
-          }}>
-            {t.name}
-          </span>
-          <span style={{
-            background: badge.bg, color: badge.color,
-            fontSize: 9, fontWeight: 800, fontFamily: 'var(--font-display)',
-            textTransform: 'uppercase', letterSpacing: '0.1em',
-            padding: '2px 7px', borderRadius: 'var(--r-pill)',
+            fontSize: 8, fontWeight: 900, fontFamily: 'var(--font-display)',
+            textTransform: 'uppercase', letterSpacing: '0.12em',
+            color: badge.color,
           }}>
             {badge.label}
           </span>
         </div>
+      </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4, flexWrap: 'wrap' }}>
+      {/* Info column */}
+      <div style={{ flex: 1, padding: '12px 14px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+        <div>
+          <div style={{
+            fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 900,
+            textTransform: 'uppercase', letterSpacing: '-0.01em', color: 'var(--black)',
+            lineHeight: 1.1, marginBottom: 4,
+          }}>
+            {t.name}
+          </div>
           <span style={{
             background: 'var(--red)', color: 'var(--white)',
-            fontSize: 10, fontWeight: 700, fontFamily: 'var(--font-display)',
-            textTransform: 'uppercase', letterSpacing: '0.08em',
+            fontSize: 9, fontWeight: 800, fontFamily: 'var(--font-display)',
+            textTransform: 'uppercase', letterSpacing: '0.1em',
             padding: '2px 8px', borderRadius: 'var(--r-pill)',
           }}>
             {POSITIONS[t.position] ?? t.position}
           </span>
-          {clubLine && (
-            <span style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 500 }}>
-              {clubLine}
-            </span>
-          )}
         </div>
 
-        {isRumor && <Reliability value={t.reliability} />}
+        {/* Club flow */}
+        {(fromClub || toClub) && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10 }}>
+            {fromClub && (
+              <>
+                <ClubCrest name={fromClub} size={26} />
+                <span style={{ fontSize: 10, color: 'var(--muted)', fontWeight: 600, maxWidth: 70, lineHeight: 1.2 }}>
+                  {fromClub}
+                </span>
+              </>
+            )}
+            {fromClub && toClub && (
+              <span style={{ fontSize: 14, color: 'var(--border)', fontWeight: 300, margin: '0 2px' }}>→</span>
+            )}
+            {toClub && (
+              <>
+                <ClubCrest name={toClub} size={26} />
+                <span style={{ fontSize: 10, color: 'var(--muted)', fontWeight: 600, maxWidth: 70, lineHeight: 1.2 }}>
+                  {toClub}
+                </span>
+              </>
+            )}
+          </div>
+        )}
+
+        {isRumor && (
+          <div style={{ marginTop: 6 }}>
+            <Reliability value={t.reliability} />
+          </div>
+        )}
+
         {t.notes && (
-          <p style={{ fontSize: 12, color: 'var(--muted)', margin: '4px 0 0', lineHeight: 1.4 }}>
+          <p style={{ fontSize: 11, color: 'var(--muted)', margin: '6px 0 0', lineHeight: 1.4 }}>
             {t.notes}
           </p>
         )}
@@ -274,7 +335,7 @@ export default function MercadoPage() {
       </div>
 
       {/* List */}
-      <div style={{ padding: '0 16px' }}>
+      <div style={{ padding: '12px 16px 24px' }}>
         {loading ? (
           <div style={{
             padding: '40px 0', textAlign: 'center',
