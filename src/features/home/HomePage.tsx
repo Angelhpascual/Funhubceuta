@@ -399,7 +399,7 @@ export function HomePage({
                   rel="noopener noreferrer"
                   className="w-[220px] shrink-0 overflow-hidden rounded-[14px] border border-ceuta-border bg-white [scroll-snap-align:start]"
                 >
-                  {image && olderImagesReady ? (
+                  {image ? (
                     <div className="relative h-[110px] w-full shrink-0">
                       <Image
                         loader={loaderFor(image)}
