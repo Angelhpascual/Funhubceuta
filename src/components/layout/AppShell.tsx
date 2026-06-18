@@ -28,13 +28,12 @@ const NAV = [
     ),
   },
   {
-    id: '/partidos',
-    label: 'Partidos',
+    id: '/mercado',
+    label: 'Mercado',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="10" />
-        <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
-        <line x1="2" y1="12" x2="22" y2="12" />
+        <path d="M7 16V4m0 0L3 8m4-4l4 4" />
+        <path d="M17 8v12m0 0l4-4m-4 4l-4-4" />
       </svg>
     ),
   },
@@ -52,7 +51,7 @@ const NAV = [
   },
 ]
 
-const SSR_ROUTES = ['/clasificacion', '/partidos', '/club', '/noticias', '/alineacion']
+const SSR_ROUTES = ['/clasificacion', '/mercado', '/club', '/noticias', '/alineacion']
 
 // Topbar rendered on SSR routes AND on home in desktop-only mode
 function Topbar({ pathname, router }: { pathname: string; router: ReturnType<typeof useRouter> }) {
