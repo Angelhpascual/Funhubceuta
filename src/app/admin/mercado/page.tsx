@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import Image from 'next/image'
 import { AdminShell } from '@/features/admin/AdminShell'
 import type { Transfer, TransferType } from '@/infrastructure/supabase/TransfersRepository'
 
@@ -27,8 +28,10 @@ const EMPTY_FORM = {
 export default function AdminMercadoPage() {
   const [transfers, setTransfers] = useState<Transfer[]>([])
   const [form, setForm] = useState(EMPTY_FORM)
+  const [editingId, setEditingId] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [msg, setMsg] = useState('')
+  const formRef = useRef<HTMLFormElement>(null)
 
   async function load() {
     const res = await fetch('/api/admin/transfers')
@@ -38,24 +41,58 @@ export default function AdminMercadoPage() {
 
   useEffect(() => { load() }, [])
 
-  async function handleAdd(e: React.FormEvent) {
+  function startEdit(t: Transfer) {
+    setEditingId(t.id)
+    setForm({
+      name: t.name,
+      position: t.position,
+      type: t.type,
+      clubFrom: t.clubFrom ?? '',
+      clubTo: t.clubTo ?? '',
+      reliability: t.reliability,
+      photoUrl: t.photoUrl ?? '',
+      notes: t.notes ?? '',
+    })
+    formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
+  function cancelEdit() {
+    setEditingId(null)
+    setForm(EMPTY_FORM)
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setSaving(true)
     setMsg('')
-    const res = await fetch('/api/admin/transfers', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        ...form,
-        clubFrom: form.clubFrom || null,
-        clubTo: form.clubTo || null,
-        photoUrl: form.photoUrl || null,
-        notes: form.notes || null,
-      }),
-    })
+
+    const body = {
+      ...form,
+      clubFrom: form.clubFrom || null,
+      clubTo: form.clubTo || null,
+      photoUrl: form.photoUrl || null,
+      notes: form.notes || null,
+    }
+
+    let res: Response
+    if (editingId) {
+      res = await fetch('/api/admin/transfers', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: editingId, ...body }),
+      })
+    } else {
+      res = await fetch('/api/admin/transfers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+    }
+
     if (res.ok) {
       setForm(EMPTY_FORM)
-      setMsg('✓ Añadido')
+      setEditingId(null)
+      setMsg(editingId ? '✓ Actualizado' : '✓ Añadido')
       await load()
     } else {
       setMsg('Error al guardar')
@@ -114,8 +151,22 @@ export default function AdminMercadoPage() {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleAdd} style={C.card}>
-          <div style={secTitle}>Añadir movimiento</div>
+        <form ref={formRef} onSubmit={handleSubmit} style={{
+          ...C.card,
+          borderTop: editingId ? '3px solid var(--gold)' : '3px solid var(--black)',
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+            <div style={secTitle}>{editingId ? '✏️ Editando jugador' : 'Añadir movimiento'}</div>
+            {editingId && (
+              <button type="button" onClick={cancelEdit} style={{
+                background: 'none', border: '1px solid var(--border)', borderRadius: 8,
+                padding: '4px 12px', cursor: 'pointer', fontSize: 12,
+                color: 'var(--muted)', fontFamily: 'var(--font-display)', fontWeight: 700,
+              }}>
+                Cancelar
+              </button>
+            )}
+          </div>
 
           <div style={C.row}>
             <label style={C.label}>Nombre del jugador</label>
@@ -181,10 +232,28 @@ export default function AdminMercadoPage() {
           )}
 
           <div style={C.row}>
-            <label style={C.label}>URL foto (laliga.es, etc.)</label>
+            <label style={C.label}>URL foto</label>
             <input style={C.input} value={form.photoUrl}
               onChange={(e) => setForm({ ...form, photoUrl: e.target.value })}
               placeholder="https://..." type="url" />
+            {form.photoUrl && (
+              <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div style={{
+                  width: 56, height: 56, borderRadius: 8, overflow: 'hidden',
+                  background: 'var(--bone-2)', position: 'relative', flexShrink: 0,
+                }}>
+                  <Image
+                    src={`/api/proxy/image?url=${encodeURIComponent(form.photoUrl)}&w=120`}
+                    alt="preview"
+                    fill
+                    sizes="56px"
+                    className="object-cover object-top"
+                    unoptimized
+                  />
+                </div>
+                <span style={{ fontSize: 11, color: 'var(--muted)' }}>Vista previa</span>
+              </div>
+            )}
           </div>
 
           <div style={C.row}>
@@ -197,11 +266,12 @@ export default function AdminMercadoPage() {
           <button type="submit" disabled={saving}
             style={{
               width: '100%', padding: '13px 0', borderRadius: 12, border: 'none',
-              background: saving ? 'var(--bone-2)' : 'var(--black)', color: 'var(--white)',
+              background: saving ? 'var(--bone-2)' : editingId ? 'var(--gold)' : 'var(--black)',
+              color: editingId ? 'var(--black)' : 'var(--white)',
               fontFamily: 'var(--font-display)', fontSize: 14, fontWeight: 800,
               textTransform: 'uppercase', letterSpacing: '0.08em', cursor: saving ? 'default' : 'pointer',
             }}>
-            {saving ? 'Guardando...' : 'Añadir movimiento'}
+            {saving ? 'Guardando...' : editingId ? 'Guardar cambios' : 'Añadir movimiento'}
           </button>
 
           {msg && (
@@ -221,8 +291,25 @@ export default function AdminMercadoPage() {
         ) : (
           transfers.map((t) => (
             <div key={t.id} style={{
-              ...C.card, display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px',
+              ...C.card,
+              display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px',
+              outline: editingId === t.id ? '2px solid var(--gold)' : 'none',
             }}>
+              {t.photoUrl && (
+                <div style={{
+                  width: 44, height: 44, borderRadius: 8, overflow: 'hidden',
+                  background: 'var(--bone-2)', position: 'relative', flexShrink: 0,
+                }}>
+                  <Image
+                    src={`/api/proxy/image?url=${encodeURIComponent(t.photoUrl)}&w=88`}
+                    alt={t.name}
+                    fill
+                    sizes="44px"
+                    className="object-cover object-top"
+                    unoptimized
+                  />
+                </div>
+              )}
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 15, fontWeight: 800, textTransform: 'uppercase' }}>
                   {t.name}
@@ -243,15 +330,26 @@ export default function AdminMercadoPage() {
                   {t.type === 'rumor' && <span style={{ fontSize: 11 }}>{'🔥'.repeat(t.reliability)}</span>}
                 </div>
               </div>
-              <button onClick={() => handleDelete(t.id)}
-                style={{
-                  background: 'none', border: '1px solid var(--border)',
-                  borderRadius: 8, padding: '6px 12px', cursor: 'pointer',
-                  fontSize: 12, color: 'var(--muted)', fontFamily: 'var(--font-display)',
-                  fontWeight: 700,
-                }}>
-                Eliminar
-              </button>
+              <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+                <button onClick={() => startEdit(t)}
+                  style={{
+                    background: 'var(--bone)', border: '1px solid var(--border)',
+                    borderRadius: 8, padding: '6px 12px', cursor: 'pointer',
+                    fontSize: 12, color: 'var(--black)', fontFamily: 'var(--font-display)',
+                    fontWeight: 700,
+                  }}>
+                  Editar
+                </button>
+                <button onClick={() => handleDelete(t.id)}
+                  style={{
+                    background: 'none', border: '1px solid var(--border)',
+                    borderRadius: 8, padding: '6px 12px', cursor: 'pointer',
+                    fontSize: 12, color: 'var(--muted)', fontFamily: 'var(--font-display)',
+                    fontWeight: 700,
+                  }}>
+                  Eliminar
+                </button>
+              </div>
             </div>
           ))
         )}
