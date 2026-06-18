@@ -11,10 +11,11 @@ const POSITIONS: Record<string, string> = {
   DEL: 'Delantero',
 }
 
-type Tab = 'in' | 'out' | 'rumor'
+type Tab = 'in' | 'out' | 'renew' | 'rumor'
 
 const TABS: { id: Tab; label: string; emoji: string }[] = [
   { id: 'in', label: 'Fichados', emoji: '✅' },
+  { id: 'renew', label: 'Renovados', emoji: '🔄' },
   { id: 'out', label: 'Salidas', emoji: '🚪' },
   { id: 'rumor', label: 'Rumores', emoji: '🔥' },
 ]
@@ -71,16 +72,21 @@ function TransferCard({ t }: { t: Transfer }) {
   const isIn = t.type === 'in'
   const isOut = t.type === 'out'
   const isRumor = t.type === 'rumor'
+  const isRenew = t.type === 'renew'
 
   const badge = isIn
-    ? { label: 'OFICIAL', bg: 'var(--black)', color: 'var(--white)' }
+    ? { label: 'FICHAJE', bg: 'var(--black)', color: 'var(--white)' }
     : isOut
       ? { label: 'SALIDA', bg: 'var(--red)', color: 'var(--white)' }
-      : { label: 'RUMOR', bg: 'var(--bone-2)', color: 'var(--muted)' }
+      : isRenew
+        ? { label: 'RENOVADO', bg: 'var(--gold)', color: 'var(--black)' }
+        : { label: 'RUMOR', bg: 'var(--bone-2)', color: 'var(--muted)' }
 
   const clubLine = isIn
     ? t.clubFrom ? `← ${t.clubFrom}` : null
-    : t.clubTo ? `→ ${t.clubTo}` : null
+    : isOut
+      ? t.clubTo ? `→ ${t.clubTo}` : null
+      : null
 
   return (
     <div style={{
@@ -168,6 +174,7 @@ export default function MercadoPage() {
     in: transfers.filter((t) => t.type === 'in').length,
     out: transfers.filter((t) => t.type === 'out').length,
     rumor: transfers.filter((t) => t.type === 'rumor').length,
+    renew: transfers.filter((t) => t.type === 'renew').length,
   }
 
   const filtered = transfers.filter((t) => t.type === tab)
@@ -206,6 +213,7 @@ export default function MercadoPage() {
         <div style={{ display: 'flex', gap: 8 }}>
           {[
             { label: 'Fichados', count: counts.in, color: 'var(--white)' },
+            { label: 'Renovados', count: counts.renew, color: 'var(--gold)' },
             { label: 'Salidas', count: counts.out, color: 'var(--red)' },
             { label: 'Rumores', count: counts.rumor, color: '#888' },
           ].map((c) => (

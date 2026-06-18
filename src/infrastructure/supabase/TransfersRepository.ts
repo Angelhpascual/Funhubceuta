@@ -1,6 +1,6 @@
 import { supabase } from './client'
 
-export type TransferType = 'in' | 'out' | 'rumor'
+export type TransferType = 'in' | 'out' | 'rumor' | 'renew'
 
 export interface Transfer {
   id: string

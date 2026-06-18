@@ -5,11 +5,12 @@ import { AdminShell } from '@/features/admin/AdminShell'
 import type { Transfer, TransferType } from '@/infrastructure/supabase/TransfersRepository'
 
 const POSITIONS = ['POR', 'DEF', 'MED', 'DEL']
-const TYPE_LABELS: Record<TransferType, string> = { in: 'Fichaje', out: 'Salida', rumor: 'Rumor' }
+const TYPE_LABELS: Record<TransferType, string> = { in: 'Fichaje', out: 'Salida', rumor: 'Rumor', renew: 'Renovación' }
 const TYPE_COLORS: Record<TransferType, string> = {
   in: '#166534',
   out: 'var(--red)',
   rumor: 'var(--muted)',
+  renew: '#92700a',
 }
 
 const EMPTY_FORM = {
@@ -136,6 +137,7 @@ export default function AdminMercadoPage() {
               <select style={C.select} value={form.type}
                 onChange={(e) => setForm({ ...form, type: e.target.value as TransferType })}>
                 <option value="in">✅ Fichaje</option>
+                <option value="renew">🔄 Renovación</option>
                 <option value="out">🚪 Salida</option>
                 <option value="rumor">🔥 Rumor</option>
               </select>
