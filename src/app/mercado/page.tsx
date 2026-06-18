@@ -59,17 +59,27 @@ function ClubCrest({ name, size = 28 }: { name: string | null; size?: number }) 
 
 function PlayerPhoto({ photoUrl, name }: { photoUrl: string | null; name: string }) {
   const [error, setError] = useState(false)
+  const [loaded, setLoaded] = useState(false)
 
   if (photoUrl && !error) {
     return (
       <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+        {!loaded && (
+          <div style={{
+            position: 'absolute', inset: 0,
+            background: 'linear-gradient(90deg, #e8e8e8 25%, #f0f0f0 50%, #e8e8e8 75%)',
+            backgroundSize: '200% 100%',
+            animation: 'shimmer 1.2s infinite linear',
+          }} />
+        )}
         <Image
-          src={`/api/proxy/image?url=${encodeURIComponent(photoUrl)}`}
+          src={`/api/proxy/image?url=${encodeURIComponent(photoUrl)}&w=200`}
           alt={name}
           fill
-          sizes="120px"
+          sizes="100px"
           className="object-cover object-top"
           onError={() => setError(true)}
+          onLoad={() => setLoaded(true)}
           unoptimized
         />
       </div>
@@ -220,6 +230,13 @@ function EmptyState({ tab }: { tab: Tab }) {
   )
 }
 
+const shimmerStyle = `
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+`
+
 export default function MercadoPage() {
   const [transfers, setTransfers] = useState<Transfer[]>([])
   const [tab, setTab] = useState<Tab>('in')
@@ -243,6 +260,7 @@ export default function MercadoPage() {
 
   return (
     <div style={{ background: 'var(--bg)', minHeight: '100vh' }}>
+      <style>{shimmerStyle}</style>
       {/* Hero */}
       <div style={{
         background: 'var(--black)', padding: '32px 16px 28px',
