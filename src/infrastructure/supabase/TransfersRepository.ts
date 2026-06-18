@@ -1,4 +1,5 @@
 import { supabase } from './client'
+import { supabaseAdmin } from './adminClient'
 
 export type TransferType = 'in' | 'out' | 'rumor' | 'renew'
 
@@ -43,7 +44,7 @@ export async function getTransfers(): Promise<Transfer[]> {
 export async function createTransfer(
   input: Omit<Transfer, 'id' | 'createdAt'>
 ): Promise<Transfer | null> {
-  const { data, error } = await supabase
+  const { data, error } = await supabaseAdmin
     .from('transfers')
     .insert({
       name: input.name,
@@ -63,14 +64,14 @@ export async function createTransfer(
 }
 
 export async function deleteTransfer(id: string): Promise<void> {
-  await supabase.from('transfers').delete().eq('id', id)
+  await supabaseAdmin.from('transfers').delete().eq('id', id)
 }
 
 export async function updateTransfer(
   id: string,
   input: Partial<Omit<Transfer, 'id' | 'createdAt'>>
 ): Promise<void> {
-  await supabase.from('transfers').update({
+  await supabaseAdmin.from('transfers').update({
     name: input.name,
     position: input.position,
     type: input.type,
