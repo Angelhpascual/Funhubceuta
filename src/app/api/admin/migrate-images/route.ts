@@ -7,6 +7,7 @@ import {
   isStoredNewsImage,
   newsImageFilename,
 } from '@/infrastructure/storage/imageUploader'
+import { fetchOgImage } from '@/infrastructure/rss/fetchOgImage'
 
 function deriveToken(password: string): string {
   return createHash('sha256').update(password + 'funhub-admin-v1').digest('hex')
@@ -31,35 +32,42 @@ export async function POST(request: Request) {
   const batchSize = 10
   const offset = (body.offset as number) ?? 0
 
+  // Fetch articles without a stored image (null or external URL)
   const { data: rows, error } = await supabase
     .from('news')
-    .select('id, external_id, source, image_url')
-    .not('image_url', 'is', null)
+    .select('id, external_id, source, url, image_url')
     .order('created_at', { ascending: false })
     .range(offset, offset + batchSize - 1)
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-
-  const pending = (rows ?? []).filter((r) => !isStoredNewsImage(r.image_url))
 
   let migrated = 0
   let failed = 0
   let skipped = 0
 
   for (const row of rows ?? []) {
+    // Already in Supabase Storage — skip
     if (isStoredNewsImage(row.image_url)) { skipped++; continue }
+
+    // Determine source URL: use existing image_url or fetch OG from article URL
+    let sourceUrl: string | null = row.image_url ?? null
+    if (!sourceUrl && row.url) {
+      sourceUrl = await fetchOgImage(row.url)
+    }
+
+    if (!sourceUrl) { failed++; continue }
+
     const filename = newsImageFilename(row.source, row.external_id)
-    const storedUrl = await downloadAndUploadImage(row.image_url, filename)
+    const storedUrl = await downloadAndUploadImage(sourceUrl, filename)
     if (storedUrl) {
       await supabase.from('news').update({ image_url: storedUrl }).eq('id', row.id)
       migrated++
     } else {
-      await supabase.from('news').update({ image_url: null }).eq('id', row.id)
       failed++
     }
   }
 
-  const hasMore = (rows ?? []).length === batchSize && pending.length > 0
+  const hasMore = (rows ?? []).length === batchSize
   return NextResponse.json({
     ok: true,
     offset,
