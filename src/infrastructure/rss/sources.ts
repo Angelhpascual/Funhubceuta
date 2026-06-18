@@ -20,9 +20,11 @@ export const BASE_KEYWORDS = [
   'adceuta',
   'murube',
   'caballas',
+  'caballa', // singular — "combinado caballa"
   'el ceuta', // "el Ceuta confirma", "adiós al Ceuta"
   'del ceuta', // "jugador del Ceuta"
   'al ceuta', // "ficha al Ceuta"
+  'agrupacion deportiva ceuta', // normalized form
 ]
 
 // Extended base keywords for national football press.
@@ -36,29 +38,34 @@ const BASE_KEYWORDS_NATIONAL = [
 // Player full-name or unique identifiers — used as secondary match
 const SQUAD_KEYWORDS = [
   // Porteros
-  'pedro lópez',
+  'pedro lopez',
   'pery garcia',
+  'guille vallejo',
   'jose juan romero',
   // Defensas
-  'manu sánchez',
-  'carlos hernández',
-  'diego gonzález',
+  'manu sanchez',
+  'carlos hernandez',
+  'diego gonzalez',
+  'yago cantero',
   'redruello',
   'almenara',
-  'antonio josé sánchez',
+  'antonio jose sanchez',
   // Centrocampistas
   'youness lachhab',
   'aisar ahmed',
   'marino illescas',
   'bodiger',
-  'salvi sánchez',
+  'salvi sanchez',
   'adri rueda',
   'josema ceuta',
+  'schor',
   // Delanteros
   'zalazar',
   'bassinga',
-  'cristian rodríguez',
-  'koné ceuta',
+  'cristian rodriguez',
+  'kone ceuta',
+  'domenech ceuta',
+  'konrad ceuta',
   // Presidente y club
   'luhay hamido',
 ]

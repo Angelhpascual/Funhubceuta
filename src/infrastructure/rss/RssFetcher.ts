@@ -185,17 +185,21 @@ function isRelevant(item: Record<string, unknown>, source: RssSource): boolean {
   // Feed already scoped to the club — accept everything
   if (source.keywords.length === 0) return true
 
-  const text = [
-    item.title,
-    item.description,
-    item['content:encoded'],
-    item['media:keywords'],
-    item['category'],
-  ]
-    .filter(Boolean)
-    .map((v) => String(v).replace(/<[^>]+>/g, ' ')) // strip HTML tags
-    .join(' ')
-    .toLowerCase()
+  const normalize = (s: string) =>
+    s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+
+  const text = normalize(
+    [
+      item.title,
+      item.description,
+      item['content:encoded'],
+      item['media:keywords'],
+      item['category'],
+    ]
+      .filter(Boolean)
+      .map((v) => String(v).replace(/<[^>]+>/g, ' ')) // strip HTML tags
+      .join(' ')
+  )
 
   // Reject articles about other Ceuta clubs
   if (EXCLUDE_TERMS.some((t) => text.includes(t))) return false
@@ -207,10 +211,10 @@ function isRelevant(item: Record<string, unknown>, source: RssSource): boolean {
   // At least one BASE_KEYWORD must be present to avoid matching unrelated city news.
   // National press sources can provide broader baseKeywords via source.baseKeywords.
   const base = source.baseKeywords ?? BASE_KEYWORDS
-  const hasBase = base.some((kw) => text.includes(kw.toLowerCase()))
+  const hasBase = base.some((kw) => text.includes(normalize(kw)))
   if (!hasBase) return false
 
-  return source.keywords.some((kw) => text.includes(kw.toLowerCase()))
+  return source.keywords.some((kw) => text.includes(normalize(kw)))
 }
 
 function extractGuid(item: Record<string, unknown>): string {
