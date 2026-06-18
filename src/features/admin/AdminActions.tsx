@@ -201,6 +201,23 @@ export function AdminActions() {
   const router = useRouter()
   const { status, results, trigger } = useAction()
   const [logoutLoading, setLogoutLoading] = useState(false)
+  const [migrateStatus, setMigrateStatus] = useState<Status>('idle')
+  const [migrateResult, setMigrateResult] = useState('')
+
+  async function triggerMigrateImages() {
+    setMigrateStatus('loading')
+    try {
+      const res = await fetch('/api/admin/migrate-images', { method: 'POST' })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? 'Error')
+      setMigrateResult(`${data.migrated} migradas, ${data.failed} fallidas / ${data.total} total`)
+      setMigrateStatus('ok')
+    } catch (e) {
+      setMigrateResult((e as Error).message)
+      setMigrateStatus('error')
+    }
+    setTimeout(() => setMigrateStatus('idle'), 8000)
+  }
 
   async function handleLogout() {
     setLogoutLoading(true)
@@ -258,6 +275,21 @@ export function AdminActions() {
             status={status['match-day'] ?? 'idle'}
             result={results['match-day']}
             onClick={() => trigger('match-day', 'match-day')}
+          />
+        </div>
+      </div>
+
+      {/* Mantenimiento */}
+      <div className="admin-section">
+        <div className="admin-sec-title">Mantenimiento</div>
+        <div className="admin-grid">
+          <ActionBtn
+            emoji="🖼️"
+            label="Migrar fotos noticias"
+            color="red"
+            status={migrateStatus}
+            result={migrateResult}
+            onClick={triggerMigrateImages}
           />
         </div>
       </div>
