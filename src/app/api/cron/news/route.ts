@@ -3,6 +3,7 @@ import { Receiver } from '@upstash/qstash'
 import { RSS_SOURCES } from '@/infrastructure/rss/sources'
 import { fetchSource, ParsedArticle } from '@/infrastructure/rss/RssFetcher'
 import { fetchAdceutaOfficialNews } from '@/infrastructure/rss/adceutaFetcher'
+import { fetchCeutaDeportiva } from '@/infrastructure/rss/ceutadeportivaFetcher'
 import { fetchOgImage } from '@/infrastructure/rss/fetchOgImage'
 import { NewsSupabaseRepository } from '@/infrastructure/supabase/NewsSupabaseRepository'
 import { sendNewsNotification } from '@/infrastructure/push/sendNewsNotification'
@@ -20,6 +21,7 @@ const repo = new NewsSupabaseRepository()
 const SOURCE_PRIORITY: Record<string, number> = {
   oficial: 0,
   faro: 1,
+  ceutadeportiva: 2,
   elpueblo: 2,
   marca: 3,
   mundodeportivo: 4,
@@ -102,6 +104,11 @@ async function syncNews() {
       const articles = (await fetchAdceutaOfficialNews(15)).filter((a) => isRecent(a.publishedAt))
       const newArticles = await repo.upsertArticles(articles)
       return { source: 'oficial', count: articles.length, newArticles }
+    })(),
+    (async () => {
+      const articles = (await fetchCeutaDeportiva(15)).filter((a) => isRecent(a.publishedAt))
+      const newArticles = await repo.upsertArticles(articles)
+      return { source: 'ceutadeportiva', count: articles.length, newArticles }
     })(),
     ...RSS_SOURCES.filter((s) => s.id !== 'oficial').map(async (source) => {
       const articles = (await fetchSource(source)).filter((a) => isRecent(a.publishedAt))
