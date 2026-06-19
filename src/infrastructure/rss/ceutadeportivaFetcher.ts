@@ -8,8 +8,19 @@ const FOOTBALL_KEYWORDS = [
   'salida', 'jugador', 'entrenador', 'plantilla', 'mercado', 'segunda', 'laliga',
 ]
 
+// Exclude articles that are clearly about other sports despite matching football keywords
+const OTHER_SPORT_KEYWORDS = [
+  'waterpolo', 'water polo', 'natacion', 'natación', 'atletismo', 'baloncesto',
+  'basketball', 'balonmano', 'handbal', 'tenis', 'padel', 'pádel', 'ciclismo',
+  'boxeo', 'judo', 'karate', 'ajedrez', 'voleibol', 'rugby', 'hockey',
+  'cn caballa', 'club natacion', 'club náutico', 'triatlon', 'triatlón',
+  'alevines', 'juveniles', 'benjamin', 'benjamín', 'infantil',
+  'campeonato de españa de', 'liga nacional de',
+]
+
 function isFootball(title: string, url: string): boolean {
   const text = (title + ' ' + url).toLowerCase()
+  if (OTHER_SPORT_KEYWORDS.some((kw) => text.includes(kw))) return false
   return FOOTBALL_KEYWORDS.some((kw) => text.includes(kw))
 }
 
