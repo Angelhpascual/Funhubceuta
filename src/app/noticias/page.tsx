@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { NewsItem } from '@/domain/news/News'
-import Link from 'next/link'
 import Image from 'next/image'
 import { proxyImage } from '@/lib/proxyImage'
 
@@ -93,28 +92,7 @@ export default function NoticiasPage() {
               clipPath: 'polygon(60px 0, 100% 0, 100% 100%, 0 100%)',
             }}
           />
-          {/* back arrow */}
-          <Link
-            href="/"
-            className="mb-3 flex items-center gap-1.5 text-ceuta-muted no-underline"
-            style={{ width: 'fit-content' }}
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M19 12H5M12 5l-7 7 7 7" />
-            </svg>
-            <span className="font-display text-[11px] font-bold uppercase tracking-[0.14em]">
-              Volver
-            </span>
-          </Link>
+
           <div className="flex items-center gap-2 font-display text-[11px] font-bold uppercase tracking-[0.16em] text-ceuta-red">
             <div className="h-0.5 w-[18px] bg-ceuta-red" />
             AD Ceuta FC · Actualidad

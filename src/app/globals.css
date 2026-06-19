@@ -227,13 +227,23 @@ img {
 .nav-item svg {
   width: 20px;
   height: 20px;
+  flex-shrink: 0;
 }
 .nav-label {
   font-family: var(--font-display);
-  font-size: 9.5px;
+  font-size: 9px;
   font-weight: 700;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  padding: 0 1px;
+}
+@media (max-width: 380px) {
+  .nav-label { font-size: 7.5px; letter-spacing: 0; }
+  .nav-item svg { width: 18px; height: 18px; }
 }
 
 /* ════════ HERO ════════ */
