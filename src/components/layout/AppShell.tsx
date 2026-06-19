@@ -4,26 +4,12 @@ import { usePathname, useRouter } from 'next/navigation'
 
 const NAV = [
   {
-    id: '/',
-    label: 'Inicio',
+    id: '/noticias',
+    label: 'Noticias',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-        <polyline points="9 22 9 12 15 12 15 22" />
-      </svg>
-    ),
-  },
-  {
-    id: '/clasificacion',
-    label: 'Clasificación',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <line x1="8" y1="6" x2="21" y2="6" />
-        <line x1="8" y1="12" x2="21" y2="12" />
-        <line x1="8" y1="18" x2="21" y2="18" />
-        <line x1="3" y1="6" x2="3.01" y2="6" />
-        <line x1="3" y1="12" x2="3.01" y2="12" />
-        <line x1="3" y1="18" x2="3.01" y2="18" />
+        <path d="M4 22h16a2 2 0 002-2V4a2 2 0 00-2-2H8a2 2 0 00-2 2v16a2 2 0 01-2 2zm0 0a2 2 0 01-2-2v-9c0-1.1.9-2 2-2h2" />
+        <path d="M18 14h-8M15 18h-5M10 6h8v4h-8z" />
       </svg>
     ),
   },
@@ -34,6 +20,31 @@ const NAV = [
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M7 16V4m0 0L3 8m4-4l4 4" />
         <path d="M17 8v12m0 0l4-4m-4 4l-4-4" />
+      </svg>
+    ),
+  },
+  {
+    id: '/partidos',
+    label: 'Partidos',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
+        <path d="M2 12h20" />
+      </svg>
+    ),
+  },
+  {
+    id: '/clasificacion',
+    label: 'Tabla',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="8" y1="6" x2="21" y2="6" />
+        <line x1="8" y1="12" x2="21" y2="12" />
+        <line x1="8" y1="18" x2="21" y2="18" />
+        <line x1="3" y1="6" x2="3.01" y2="6" />
+        <line x1="3" y1="12" x2="3.01" y2="12" />
+        <line x1="3" y1="18" x2="3.01" y2="18" />
       </svg>
     ),
   },
@@ -51,7 +62,7 @@ const NAV = [
   },
 ]
 
-const SSR_ROUTES = ['/clasificacion', '/mercado', '/club', '/noticias', '/alineacion']
+const SSR_ROUTES = ['/clasificacion', '/mercado', '/club', '/noticias', '/alineacion', '/partidos']
 
 // Topbar rendered on SSR routes AND on home in desktop-only mode
 function Topbar({ pathname, router }: { pathname: string; router: ReturnType<typeof useRouter> }) {
