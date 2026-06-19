@@ -13,6 +13,12 @@ const TYPE_COLORS: Record<TransferType, string> = {
   rumor: 'var(--muted)',
   renew: '#92700a',
 }
+const TABS: { id: TransferType; label: string; color: string }[] = [
+  { id: 'renew', label: 'Renovados', color: '#166534' },
+  { id: 'in',    label: 'Fichados',  color: '#166534' },
+  { id: 'out',   label: 'Salidas',   color: 'var(--red)' },
+  { id: 'rumor', label: 'Rumores',   color: 'var(--muted)' },
+]
 
 const EMPTY_FORM = {
   name: '',
@@ -31,6 +37,7 @@ export default function AdminMercadoPage() {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [msg, setMsg] = useState('')
+  const [activeTab, setActiveTab] = useState<TransferType>('renew')
   const formRef = useRef<HTMLFormElement>(null)
 
   async function load() {
@@ -43,6 +50,7 @@ export default function AdminMercadoPage() {
 
   function startEdit(t: Transfer) {
     setEditingId(t.id)
+    setActiveTab(t.type)
     setForm({
       name: t.name,
       position: t.position,
@@ -282,14 +290,43 @@ export default function AdminMercadoPage() {
           )}
         </form>
 
+        {/* Tabs */}
+        <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
+          {TABS.map((tab) => {
+            const count = transfers.filter(t => t.type === tab.id).length
+            const active = activeTab === tab.id
+            return (
+              <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{
+                padding: '8px 16px', borderRadius: 10, border: 'none', cursor: 'pointer',
+                background: active ? tab.color : 'var(--bone)',
+                color: active ? 'var(--white)' : 'var(--muted)',
+                fontFamily: 'var(--font-display)', fontSize: 12, fontWeight: 800,
+                textTransform: 'uppercase', letterSpacing: '0.08em',
+                display: 'flex', alignItems: 'center', gap: 6,
+              }}>
+                {tab.label}
+                <span style={{
+                  background: active ? 'rgba(255,255,255,0.25)' : 'var(--bone-2)',
+                  color: active ? 'var(--white)' : 'var(--black)',
+                  borderRadius: 'var(--r-pill)', padding: '1px 7px', fontSize: 11, fontWeight: 900,
+                }}>
+                  {count}
+                </span>
+              </button>
+            )
+          })}
+        </div>
+
         {/* List */}
-        <div style={secTitle}>Movimientos registrados ({transfers.length})</div>
-        {transfers.length === 0 ? (
+        <div style={secTitle}>
+          {TYPE_LABELS[activeTab]} ({transfers.filter(t => t.type === activeTab).length})
+        </div>
+        {transfers.filter(t => t.type === activeTab).length === 0 && (
           <div style={{ textAlign: 'center', padding: '32px 0', color: 'var(--muted)', fontSize: 13 }}>
-            Sin movimientos aún
+            Sin movimientos en esta categoría
           </div>
-        ) : (
-          transfers.map((t) => (
+        )}
+        {transfers.filter(t => t.type === activeTab).map((t) => (
             <div key={t.id} style={{
               ...C.card,
               display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px',
@@ -352,7 +389,7 @@ export default function AdminMercadoPage() {
               </div>
             </div>
           ))
-        )}
+        }
       </div>
     </AdminShell>
   )
