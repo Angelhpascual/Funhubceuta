@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server'
+
+export const maxDuration = 60
 import { Receiver } from '@upstash/qstash'
 import { RSS_SOURCES } from '@/infrastructure/rss/sources'
 import { fetchSource, ParsedArticle } from '@/infrastructure/rss/RssFetcher'
@@ -106,7 +108,7 @@ async function syncNews() {
       return { source: 'oficial', count: articles.length, newArticles }
     })(),
     (async () => {
-      const articles = (await fetchCeutaDeportiva(15)).filter((a) => isRecent(a.publishedAt))
+      const articles = (await fetchCeutaDeportiva(8)).filter((a) => isRecent(a.publishedAt))
       const newArticles = await repo.upsertArticles(articles)
       return { source: 'ceutadeportiva', count: articles.length, newArticles }
     })(),
@@ -143,7 +145,7 @@ async function syncNews() {
     await Promise.all(allNew.filter((a) => a.imageUrl).map((a) => storeArticleImage(a)))
   ).filter(Boolean).length
 
-  const backfilledImages = await backfillLatestRemoteImages(20)
+  const backfilledImages = 0 // moved to dedicated /api/cron/backfill-images
 
   // Only notify about articles published in the last 24 hours.
   const ONE_DAY = 24 * 60 * 60 * 1000
