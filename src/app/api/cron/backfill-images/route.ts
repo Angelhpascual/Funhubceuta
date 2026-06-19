@@ -8,25 +8,23 @@ export const maxDuration = 60
 const repo = new NewsSupabaseRepository()
 
 async function run() {
-  const rows = await repo.getLatestRowsWithImages(30)
+  // Fetch articles that still have external image URLs (not yet on Supabase Storage)
+  const rows = await repo.getRowsWithExternalImages(15)
   let optimized = 0
 
   await Promise.all(
-    rows
-      .filter((row) => !isStoredNewsImage(row.imageUrl))
-      .slice(0, 8)
-      .map(async (row) => {
-        const storedUrl = await downloadAndUploadImage(
-          row.imageUrl,
-          newsImageFilename(row.source, row.externalId)
-        )
-        if (!storedUrl) return
-        await repo.updateImageUrlById(row.id, storedUrl)
-        optimized++
-      })
+    rows.map(async (row) => {
+      const storedUrl = await downloadAndUploadImage(
+        row.imageUrl,
+        newsImageFilename(row.source, row.externalId ?? row.id)
+      )
+      if (!storedUrl) return
+      await repo.updateImageUrlById(row.id, storedUrl)
+      optimized++
+    })
   )
 
-  return { optimized }
+  return { optimized, pending: Math.max(0, rows.length - optimized) }
 }
 
 export async function POST(request: Request) {
