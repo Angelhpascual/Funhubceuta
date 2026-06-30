@@ -68,6 +68,26 @@ export class NewsSupabaseRepository {
       }))
   }
 
+  // Returns articles with external (non-Supabase) image URLs, newest first
+  async getRowsWithExternalImages(limit = 20): Promise<NewsImageBackfillRow[]> {
+    const { data, error } = await supabase
+      .from('news')
+      .select('id, external_id, source, image_url')
+      .not('image_url', 'is', null)
+      .not('image_url', 'ilike', '%supabase.co%')
+      .order('published_at', { ascending: false })
+      .limit(limit)
+
+    if (error || !data) return []
+
+    return data.map((row) => ({
+      id: row.id,
+      externalId: row.external_id,
+      source: row.source,
+      imageUrl: row.image_url,
+    }))
+  }
+
   async getLatest(limit = 10, offset = 0): Promise<NewsItem[]> {
     const { data, error } = await supabase
       .from('news')
