@@ -339,45 +339,21 @@ export default function MercadoClient({ transfers }: { transfers: Transfer[] }) 
       `}</style>
 
       {/* Hero */}
-      <div style={{
-        position: 'relative', background: 'var(--black)',
-        color: '#fff', padding: '24px 18px 64px', overflow: 'hidden',
-      }}>
-        <div style={{
-          position: 'absolute', top: -30, right: -50,
-          width: 200, height: 200,
-          background: 'repeating-linear-gradient(-45deg,#fff 0 14px,#000 14px 28px)',
-          clipPath: 'polygon(70px 0,100% 0,100% 100%,0 100%)',
-          opacity: 0.07, transform: 'rotate(8deg)', pointerEvents: 'none',
-        }} />
-
-        <div style={{
-          fontFamily: 'var(--font-display)', fontSize: 11, fontWeight: 700,
-          letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--red)',
-          display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10,
-        }}>
-          <span style={{ width: 18, height: 2, background: 'var(--red)', display: 'inline-block' }} />
+      <div className="page-hero-full relative mt-2 overflow-hidden bg-ceuta-black px-[18px] pb-[52px] pt-[22px] text-white">
+        <div
+          className="pointer-events-none absolute bottom-0 right-[-40px] top-0 w-[180px]"
+          style={{
+            background: 'repeating-linear-gradient(-45deg, white 0 14px, #0A0A0A 14px 28px)',
+            clipPath: 'polygon(60px 0, 100% 0, 100% 100%, 0 100%)',
+          }}
+        />
+        <div className="flex items-center gap-2 font-display text-[11px] font-bold uppercase tracking-[0.16em] text-ceuta-red">
+          <div className="h-0.5 w-[18px] bg-ceuta-red" />
           Temporada 2025–26
         </div>
-
-        <div style={{
-          fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 40,
-          lineHeight: 0.92, letterSpacing: '-0.01em', textTransform: 'uppercase',
-          position: 'relative', zIndex: 1,
-        }}>
+        <div className="mt-2 font-display text-[38px] font-black uppercase leading-[0.95]">
           MERCADO DE<br />
-          <span style={{ color: 'var(--gold)' }}>FICHAJES</span>
-        </div>
-
-        <div style={{
-          fontFamily: 'var(--font-body)', fontSize: 12.5, color: 'rgba(255,255,255,0.6)',
-          marginTop: 10, display: 'flex', alignItems: 'center', gap: 7,
-        }}>
-          <span style={{
-            width: 7, height: 7, borderRadius: '50%', background: GREEN,
-            boxShadow: `0 0 0 3px rgba(30,127,71,0.25)`, display: 'inline-block', flexShrink: 0,
-          }} />
-          Ventana de verano · Pretemporada 2025–26
+          <em className="not-italic text-ceuta-gold">FICHAJES</em>
         </div>
       </div>
 
