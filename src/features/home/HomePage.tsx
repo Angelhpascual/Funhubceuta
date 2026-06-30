@@ -141,7 +141,8 @@ export function HomePage({
   onOpenHimno?: () => void
 }) {
   const [news, setNews] = useState<NewsItem[]>([])
-  const [loading, setLoading] = useState(true)
+  const [newsFetched, setNewsFetched] = useState(false)
+  const [featuredImageReady, setFeaturedImageReady] = useState(false)
   const onReadyRef = useRef(onReady)
   const imagePerfEnabledRef = useRef(false)
   const mountedAtRef = useRef(0)
@@ -186,8 +187,7 @@ export function HomePage({
       })
       .catch(() => {})
       .finally(() => {
-        setLoading(false)
-        onReadyRef.current?.()
+        setNewsFetched(true)
       })
   }, [])
 
@@ -216,6 +216,13 @@ export function HomePage({
 
   const featured = news[0]
   const featuredImage = proxyImage(featured?.imageUrl)
+
+  // loading = true until news arrived AND (featured image loaded OR there's no image)
+  const loading = !newsFetched || (!!featuredImage && !featuredImageReady)
+
+  useEffect(() => {
+    if (!loading) onReadyRef.current?.()
+  }, [loading])
   const recent = news.slice(1, 5)
   const older = news.slice(5)
   const [olderRef, olderImagesReady] = useNearViewport<HTMLDivElement>()
@@ -242,7 +249,10 @@ export function HomePage({
               unoptimized={isStoredNewsImage(featuredImage)}
               className="object-cover"
               style={{ objectPosition: 'center 20%' }}
-              onLoad={(event) => reportFeaturedImageLoad(event.currentTarget)}
+              onLoad={(event) => {
+                reportFeaturedImageLoad(event.currentTarget)
+                setFeaturedImageReady(true)
+              }}
             />
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
