@@ -36,9 +36,26 @@ export default function AdminMercadoPage() {
   const [form, setForm] = useState(EMPTY_FORM)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
+  const [uploading, setUploading] = useState(false)
   const [msg, setMsg] = useState('')
   const [activeTab, setActiveTab] = useState<TransferType>('renew')
   const formRef = useRef<HTMLFormElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    const fd = new FormData()
+    fd.append('file', file)
+    fd.append('name', form.name || 'player')
+    const res = await fetch('/api/admin/upload-photo', { method: 'POST', body: fd })
+    const data = await res.json()
+    if (data.url) setForm((f) => ({ ...f, photoUrl: data.url }))
+    else setMsg('Error subiendo foto')
+    setUploading(false)
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
 
   async function load() {
     const res = await fetch('/api/admin/transfers')
@@ -240,18 +257,42 @@ export default function AdminMercadoPage() {
           )}
 
           <div style={C.row}>
-            <label style={C.label}>URL foto</label>
-            <input style={C.input} value={form.photoUrl}
+            <label style={C.label}>Foto del jugador</label>
+            {/* Upload button */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              style={{ display: 'none' }}
+              onChange={handlePhotoUpload}
+            />
+            <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+              <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploading}
+                style={{
+                  flex: 1, padding: '10px 0', borderRadius: 10, border: '1.5px dashed var(--border)',
+                  background: 'var(--bone)', cursor: uploading ? 'default' : 'pointer',
+                  fontFamily: 'var(--font-display)', fontSize: 12, fontWeight: 700,
+                  color: uploading ? 'var(--muted)' : 'var(--black)',
+                  textTransform: 'uppercase', letterSpacing: '0.06em',
+                }}>
+                {uploading ? 'Subiendo...' : '📁 Subir desde dispositivo'}
+              </button>
+            </div>
+            {/* Manual URL fallback */}
+            <input style={{ ...C.input, fontSize: 12 }} value={form.photoUrl}
               onChange={(e) => setForm({ ...form, photoUrl: e.target.value })}
-              placeholder="https://..." type="url" />
+              placeholder="O pega una URL directamente..." type="url" />
             {form.photoUrl && (
               <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 10 }}>
                 <div style={{
                   width: 56, height: 56, borderRadius: 8, overflow: 'hidden',
                   background: 'var(--bone-2)', position: 'relative', flexShrink: 0,
                 }}>
+                  {/* Serve Supabase URLs directly; proxy external ones */}
                   <Image
-                    src={`/api/proxy/image?url=${encodeURIComponent(form.photoUrl)}&w=120`}
+                    src={form.photoUrl.includes('supabase.co')
+                      ? form.photoUrl
+                      : `/api/proxy/image?url=${encodeURIComponent(form.photoUrl)}&w=120`}
                     alt="preview"
                     fill
                     sizes="56px"
@@ -259,7 +300,9 @@ export default function AdminMercadoPage() {
                     unoptimized
                   />
                 </div>
-                <span style={{ fontSize: 11, color: 'var(--muted)' }}>Vista previa</span>
+                <span style={{ fontSize: 11, color: 'var(--muted)' }}>
+                  {form.photoUrl.includes('supabase.co') ? '✅ Guardada en Supabase' : 'Vista previa'}
+                </span>
               </div>
             )}
           </div>
