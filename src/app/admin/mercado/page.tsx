@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { AdminShell } from '@/features/admin/AdminShell'
 import type { Transfer, TransferType } from '@/infrastructure/supabase/TransfersRepository'
 
-const POSITIONS = ['POR', 'DEF', 'MED', 'DEL']
+const POSITIONS = ['POR', 'DEF', 'MED', 'DEL', 'ENT']
 const TYPE_LABELS: Record<TransferType, string> = { in: 'Fichaje', out: 'Salida', rumor: 'Rumor', renew: 'Renovación' }
 const TYPE_COLORS: Record<TransferType, string> = {
   in: '#166534',
