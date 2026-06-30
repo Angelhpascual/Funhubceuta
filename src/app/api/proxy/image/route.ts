@@ -26,6 +26,8 @@ const ALLOWED_DOMAINS = [
   'upload.wikimedia.org',
   'doragonsports.com',
   'onguesyapdtatsadsxmc.supabase.co',
+  'ceutadeportiva.com',
+  'www.ceutadeportiva.com',
 ]
 
 function imageResponse(
