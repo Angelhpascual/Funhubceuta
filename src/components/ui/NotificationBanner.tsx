@@ -115,7 +115,7 @@ export function NotificationBanner() {
 
         @media (min-width: 768px) {
           .notif-banner {
-            margin: 24px 0 0;
+            margin: 24px 12px 0;
             padding: 16px 24px;
             border-radius: 12px;
             gap: 16px;

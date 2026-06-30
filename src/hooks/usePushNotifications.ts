@@ -63,6 +63,10 @@ export function usePushNotifications() {
       return { ok: true }
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
+      // Brave blocks push subscriptions when "Use Google services for push messaging" is off
+      if (msg.toLowerCase().includes('push service') || msg.toLowerCase().includes('registration failed')) {
+        return { ok: false, error: 'Tu navegador bloqueó el servicio de notificaciones. En Brave: Configuración → Privacidad → activa "Use Google services for push messaging"' }
+      }
       return { ok: false, error: msg }
     }
   }
