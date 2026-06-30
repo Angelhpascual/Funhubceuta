@@ -8,7 +8,7 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
   const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/')
   const raw = atob(base64)
-  return Uint8Array.from([...raw].map((c) => c.charCodeAt(0)))
+  return new Uint8Array([...raw].map((c) => c.charCodeAt(0)))
 }
 
 export function usePushNotifications() {
@@ -47,7 +47,8 @@ export function usePushNotifications() {
 
       const sub = await reg.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: vapidKey,
+        // Safari/iOS requires ArrayBuffer, not a plain base64 string
+        applicationServerKey: urlBase64ToUint8Array(vapidKey).buffer as ArrayBuffer,
       })
 
       const res = await fetch('/api/push/subscribe', {
