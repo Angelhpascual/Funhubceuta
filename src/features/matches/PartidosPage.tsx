@@ -50,14 +50,39 @@ export function PartidosPage({ upcoming = [], results = [], logos = {} }: Props)
 
   return (
     <div className="page">
-      <div className="sec-header" style={{ paddingTop: 20 }}>
-        <div>
-          <div className="sec-title-small">Temporada 2025–26</div>
-          <div className="sec-title">Partidos</div>
+      {/* ── HERO ── */}
+      <div className="relative mt-2 overflow-hidden bg-ceuta-black px-[18px] pb-[28px] pt-[22px] text-white">
+        <div
+          className="pointer-events-none absolute bottom-0 right-[-40px] top-0 w-[180px]"
+          style={{
+            background: 'repeating-linear-gradient(-45deg, white 0 14px, #0A0A0A 14px 28px)',
+            clipPath: 'polygon(60px 0, 100% 0, 100% 100%, 0 100%)',
+            opacity: 0.07,
+          }}
+        />
+        <div className="flex items-center gap-2 font-display text-[11px] font-bold uppercase tracking-[0.16em] text-ceuta-red">
+          <div className="h-0.5 w-[18px] bg-ceuta-red" />
+          Temporada 2025–26 · Liga Hypermotion
+        </div>
+        <div className="mt-2 font-display text-[38px] font-black uppercase leading-[0.95]">
+          PARTIDOS <em className="not-italic text-ceuta-gold">Y</em>
+          <br />
+          <em className="not-italic text-ceuta-gold">RESULTADOS</em>
+        </div>
+        <div className="mt-3 flex items-center gap-2 font-body text-[12.5px] text-white/60">
+          <span
+            style={{
+              width: 7, height: 7, borderRadius: '50%',
+              background: 'var(--gold)',
+              boxShadow: '0 0 0 3px rgba(212,175,55,0.25)',
+              display: 'inline-block', flexShrink: 0,
+            }}
+          />
+          Calendario completo · Grupo 2
         </div>
       </div>
 
-      <div className="chips" style={{ marginBottom: 8 }}>
+      <div className="chips" style={{ marginTop: 16, marginBottom: 8 }}>
         {[
           { id: 'proximos', l: 'Próximos' },
           { id: 'resultados', l: 'Resultados' },
