@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter } from 'next/navigation'
 
-const NAV = [
+const NAV_MOBILE = [
   {
     id: '/',
     label: 'Inicio',
@@ -14,16 +14,13 @@ const NAV = [
     ),
   },
   {
-    id: '/clasificacion',
-    label: 'Clasificación',
+    id: '/mercado',
+    label: 'Mercado',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <line x1="8" y1="6" x2="21" y2="6" />
-        <line x1="8" y1="12" x2="21" y2="12" />
-        <line x1="8" y1="18" x2="21" y2="18" />
-        <line x1="3" y1="6" x2="3.01" y2="6" />
-        <line x1="3" y1="12" x2="3.01" y2="12" />
-        <line x1="3" y1="18" x2="3.01" y2="18" />
+        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+        <line x1="3" y1="6" x2="21" y2="6" />
+        <path d="M16 10a4 4 0 01-8 0" />
       </svg>
     ),
   },
@@ -52,7 +49,68 @@ const NAV = [
   },
 ]
 
-const SSR_ROUTES = ['/clasificacion', '/partidos', '/club', '/noticias', '/alineacion']
+const NAV_DESKTOP = [
+  {
+    id: '/',
+    label: 'Inicio',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+        <polyline points="9 22 9 12 15 12 15 22" />
+      </svg>
+    ),
+  },
+  {
+    id: '/clasificacion',
+    label: 'Clasificación',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="8" y1="6" x2="21" y2="6" />
+        <line x1="8" y1="12" x2="21" y2="12" />
+        <line x1="8" y1="18" x2="21" y2="18" />
+        <line x1="3" y1="6" x2="3.01" y2="6" />
+        <line x1="3" y1="12" x2="3.01" y2="12" />
+        <line x1="3" y1="18" x2="3.01" y2="18" />
+      </svg>
+    ),
+  },
+  {
+    id: '/mercado',
+    label: 'Mercado',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+        <line x1="3" y1="6" x2="21" y2="6" />
+        <path d="M16 10a4 4 0 01-8 0" />
+      </svg>
+    ),
+  },
+  {
+    id: '/partidos',
+    label: 'Partidos',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
+        <line x1="2" y1="12" x2="22" y2="12" />
+      </svg>
+    ),
+  },
+  {
+    id: '/club',
+    label: 'Club',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+        <circle cx="9" cy="7" r="4" />
+        <path d="M23 21v-2a4 4 0 00-3-3.87" />
+        <path d="M16 3.13a4 4 0 010 7.75" />
+      </svg>
+    ),
+  },
+]
+
+const SSR_ROUTES = ['/clasificacion', '/partidos', '/club', '/noticias', '/alineacion', '/mercado']
 
 // Topbar rendered on SSR routes AND on home in desktop-only mode
 function Topbar({ pathname, router }: { pathname: string; router: ReturnType<typeof useRouter> }) {
@@ -64,7 +122,7 @@ function Topbar({ pathname, router }: { pathname: string; router: ReturnType<typ
         <span className="topbar-title desktop-only">AD CEUTA <b>INFO</b></span>
       </div>
       <nav className="top-nav desktop-only">
-        {NAV.map((n) => (
+        {NAV_DESKTOP.map((n) => (
           <button
             key={n.id}
             className={`top-nav-item ${pathname === n.id ? 'active' : ''}`}
@@ -106,7 +164,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       {/* Bottom nav: mobile only */}
       <div className="bottom-nav">
-        {NAV.map((n) => (
+        {NAV_MOBILE.map((n) => (
           <button
             key={n.id}
             className={`nav-item ${pathname === n.id ? 'active' : ''}`}
