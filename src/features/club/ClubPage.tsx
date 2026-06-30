@@ -59,7 +59,7 @@ export function ClubPage({
         </div>
       </div>
 
-      <div className="chips mb-3">
+      <div className="chips mt-4 mb-3">
         {TABS.map((t) => (
           <button
             key={t.id}
