@@ -8,7 +8,7 @@ const FOOTBALL_KEYWORDS = [
   'salida', 'jugador', 'entrenador', 'plantilla', 'mercado', 'segunda', 'laliga',
 ]
 
-// Exclude articles that are clearly about other sports despite matching football keywords
+// Exclude articles that are clearly about other sports or non-club content
 const OTHER_SPORT_KEYWORDS = [
   'waterpolo', 'water polo', 'natacion', 'natación', 'atletismo', 'baloncesto',
   'basketball', 'balonmano', 'handbal', 'tenis', 'padel', 'pádel', 'ciclismo',
@@ -16,10 +16,16 @@ const OTHER_SPORT_KEYWORDS = [
   'cn caballa', 'club natacion', 'club náutico', 'triatlon', 'triatlón',
   'alevines', 'juveniles', 'benjamin', 'benjamín', 'infantil',
   'campeonato de españa de', 'liga nacional de',
+  // Non-football city/institution content
+  'icd', 'instituto ceutí de deportes', 'instituto ceuti', 'leyendas del deporte',
+  'exposición', 'exposicion', 'inauguración', 'inauguracion', 'escuela deportiva',
+  'deporte escolar', 'deporte base', 'deporte femenino ceuta',
 ]
 
 export function isFootball(title: string, url: string): boolean {
-  const text = (title + ' ' + url).toLowerCase()
+  // Only evaluate the slug part of the URL, not the domain (which always contains "ceuta")
+  const slug = url.replace(/^https?:\/\/[^/]+/, '')
+  const text = (title + ' ' + slug).toLowerCase()
   if (OTHER_SPORT_KEYWORDS.some((kw) => text.includes(kw))) return false
   return FOOTBALL_KEYWORDS.some((kw) => text.includes(kw))
 }
