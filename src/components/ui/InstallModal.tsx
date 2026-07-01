@@ -244,7 +244,7 @@ export function InstallModal() {
             {[
               {
                 icon: (
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="size-5 text-ceuta-red">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 20, height: 20, color: 'var(--red)' }}>
                     <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
                   </svg>
                 ),
@@ -252,7 +252,7 @@ export function InstallModal() {
               },
               {
                 icon: (
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="size-5 text-ceuta-red">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 20, height: 20, color: 'var(--red)' }}>
                     <path d="M4 4h16v12H4z"/><path d="M8 20h8"/><path d="M12 16v4"/>
                   </svg>
                 ),
@@ -260,7 +260,7 @@ export function InstallModal() {
               },
               {
                 icon: (
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="size-5 text-ceuta-red">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 20, height: 20, color: 'var(--red)' }}>
                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
                   </svg>
                 ),
@@ -268,7 +268,7 @@ export function InstallModal() {
               },
             ].map(({ icon, text }) => (
               <div key={text} className="flex items-center gap-3">
-                <div className="flex size-9 shrink-0 items-center justify-center rounded-[10px] bg-ceuta-red/15">{icon}</div>
+                <div style={{ width: 36, height: 36, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 10, backgroundColor: 'rgba(218,26,34,0.12)' }}>{icon}</div>
                 <span className="font-display text-[13px] font-bold uppercase tracking-[0.06em] text-white/80">{text}</span>
               </div>
             ))}
