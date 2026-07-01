@@ -19,7 +19,7 @@ const TEAMS: Array<{ id: string; name: string }> = [
   { id: '98', name: 'Las Palmas' },
   { id: '17534', name: 'Leganés' },
   { id: '84', name: 'Mallorca' },
-  { id: '131858', name: 'RC Celta Fortuna' },
+  { id: '172', name: 'RC Celta Fortuna' }, // filial usa escudo del Celta de Vigo; ESPN no tiene logo propio (ID 131858 → 404)
   { id: '92', name: 'Real Oviedo' },
   { id: '20983', name: 'Real Sociedad II' },
   { id: '95', name: 'Real Valladolid' },
