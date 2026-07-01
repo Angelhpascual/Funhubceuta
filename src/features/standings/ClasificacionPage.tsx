@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { StandingEntry } from '@/domain/standings/Standings'
 import { findLogo as findLogoUtil } from '@/lib/findLogo'
 import { FormPill } from '@/components/ui/FormPill'
@@ -59,11 +60,74 @@ function SkeletonRow({ i }: { i: number }) {
 
 interface Props {
   entries?: StandingEntry[]
+  previousEntries?: StandingEntry[]
   form?: string[]
   logos?: Record<string, string>
 }
 
-export function ClasificacionPage({ entries = [], form = [], logos = {} }: Props) {
+function StandingsTable({ entries, logos }: { entries: StandingEntry[]; logos: Record<string, string> }) {
+  const total = entries.length
+  function findLogo(name: string): string | null {
+    return findLogoUtil(logos, name)
+  }
+  return (
+    <div className="mt-2 bg-white">
+      <div
+        className="grid items-center gap-1 border-b-2 border-ceuta-black px-[14px] pb-2"
+        style={{ gridTemplateColumns: '32px 1fr repeat(4, 28px) 34px' }}
+      >
+        {['#', 'Equipo', 'PJ', 'DG', 'GF', 'GC', 'PTS'].map((h, i) => (
+          <div
+            key={h}
+            className={`font-display text-[10px] font-bold uppercase tracking-[0.1em] ${i === 0 || i > 1 ? 'text-center' : 'text-left'} ${h === 'PTS' ? 'text-ceuta-black' : 'text-ceuta-muted'}`}
+          >
+            {h}
+          </div>
+        ))}
+      </div>
+      {entries.map((t) => {
+        const zone = getZone(t.position, total)
+        const mine = isCeuta(t)
+        const logo = findLogo(t.teamName)
+        return (
+          <div
+            key={t.id ?? t.externalId}
+            className={`relative grid items-center gap-1 border-b border-ceuta-border px-[14px] py-[11px] active:bg-ceuta-bg-soft ${mine ? 'bg-gradient-to-r from-ceuta-red-soft to-transparent' : ''}`}
+            style={{ gridTemplateColumns: '32px 1fr repeat(4, 28px) 34px' }}
+          >
+            {zone !== 'none' && (
+              <div className={`absolute left-0 top-1/2 h-[22px] w-[3px] -translate-y-1/2 rounded-r-sm ${mine ? 'w-[4px] bg-ceuta-red' : ZONE_BAR[zone]}`} />
+            )}
+            <div className={`text-center font-display text-[16px] font-black ${mine ? 'text-ceuta-red' : ZONE_POS[zone]}`}>
+              {t.position}
+            </div>
+            <div className="flex min-w-0 items-center gap-2">
+              {logo ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={logo} alt={t.teamName} className="size-[22px] shrink-0 object-contain" />
+              ) : (
+                <div className={`flex size-6 shrink-0 items-center justify-center rounded-full font-display text-[8px] font-black ${mine ? 'bg-ceuta-red text-white' : 'bg-ceuta-bg-soft text-ceuta-muted'}`}>
+                  {t.teamName.slice(0, 3).toUpperCase()}
+                </div>
+              )}
+              <div className={`truncate font-display text-[14px] font-bold uppercase tracking-[0.02em] ${mine ? 'text-ceuta-red-dark' : 'text-ceuta-black'}`}>
+                {t.teamName}
+              </div>
+            </div>
+            <div className="text-center font-display text-[13px] font-semibold text-ceuta-black">{t.played}</div>
+            <div className="text-center font-display text-[13px] font-semibold text-ceuta-black">{t.goalDifference > 0 ? `+${t.goalDifference}` : t.goalDifference}</div>
+            <div className="text-center font-display text-[13px] font-semibold text-ceuta-black">{t.goalsFor}</div>
+            <div className="text-center font-display text-[13px] font-semibold text-ceuta-black">{t.goalsAgainst}</div>
+            <div className={`text-center font-display text-[16px] font-black ${mine ? 'text-ceuta-red' : 'text-ceuta-black'}`}>{t.points}</div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+export function ClasificacionPage({ entries = [], previousEntries = [], form = [], logos = {} }: Props) {
+  const [tab, setTab] = useState('actual')
   const me = entries.find(isCeuta)
   const total = entries.length
 
@@ -85,7 +149,7 @@ export function ClasificacionPage({ entries = [], form = [], logos = {} }: Props
         />
         <div className="flex items-center gap-2 font-display text-[11px] font-bold uppercase tracking-[0.16em] text-ceuta-red">
           <div className="h-0.5 w-[18px] bg-ceuta-red" />
-          Temporada 2025–26 · Jornada {me?.played ?? '—'}
+          {tab === 'actual' ? `Temporada 2026–27 · Jornada ${me?.played ?? '—'}` : 'Temporada 2025–26 · Final'}
         </div>
         <div className="mt-2 font-display text-[38px] font-black uppercase leading-[0.95]">
           CLASIFI<em className="not-italic text-ceuta-gold">CACIÓN</em>
@@ -94,6 +158,59 @@ export function ClasificacionPage({ entries = [], form = [], logos = {} }: Props
         </div>
       </div>
 
+      {/* ── TABS ── */}
+      <div className="chips mt-4 mb-2">
+        {[
+          { id: 'actual', l: 'Temporada actual' },
+          { id: 'anterior', l: 'Temp. 25/26' },
+        ].map((t) => (
+          <button
+            key={t.id}
+            className={`chip ${tab === t.id ? 'active' : ''}`}
+            onClick={() => setTab(t.id)}
+          >
+            {t.l}
+          </button>
+        ))}
+      </div>
+
+      {tab === 'anterior' && (
+        <>
+          {previousEntries.length === 0 ? (
+            <p className="px-4 py-5 font-display text-[13px] uppercase tracking-[0.06em] text-ceuta-muted">
+              No hay datos de la temporada anterior
+            </p>
+          ) : (
+            <>
+              <div className="px-3 pb-1 pt-3">
+                <div className="font-display text-[18px] font-black uppercase tracking-[0.04em] text-ceuta-black">
+                  Tabla completa
+                </div>
+              </div>
+              <StandingsTable entries={previousEntries} logos={logos} />
+              <div className="mt-4 bg-ceuta-bg-soft p-4">
+                <div className="mb-2.5 font-display text-[11px] font-bold uppercase tracking-[0.14em] text-ceuta-muted">
+                  Zonas de la tabla
+                </div>
+                {[
+                  { bar: 'bg-ceuta-gold', text: 'Ascenso directo · 1.º–2.º' },
+                  { bar: 'bg-ceuta-red', text: 'Play-off ascenso · 3.º–6.º' },
+                  { bar: 'bg-ceuta-black', text: 'Descenso · 19.º–22.º' },
+                ].map(({ bar, text }) => (
+                  <div key={text} className="flex items-center gap-2.5 py-1">
+                    <div className={`h-4 w-1 shrink-0 rounded-sm ${bar}`} />
+                    <div className="font-display text-[12px] font-semibold text-ceuta-black">{text}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="h-4" />
+            </>
+          )}
+        </>
+      )}
+
+      {tab === 'actual' && (
+        <>
       {/* ── CARD CEUTA ── */}
       {me && (
         <div className="relative z-[2] -mt-7 mx-3 rounded-[14px] border-2 border-ceuta-black bg-white p-[18px] shadow-[6px_6px_0_#D62027]">
@@ -163,91 +280,7 @@ export function ClasificacionPage({ entries = [], form = [], logos = {} }: Props
       </div>
 
       {/* ── TABLE ── */}
-      <div className="mt-2 bg-white">
-        {/* head */}
-        <div
-          className="grid items-center gap-1 border-b-2 border-ceuta-black px-[14px] pb-2"
-          style={{ gridTemplateColumns: '32px 1fr repeat(4, 28px) 34px' }}
-        >
-          {['#', 'Equipo', 'PJ', 'DG', 'GF', 'GC', 'PTS'].map((h, i) => (
-            <div
-              key={h}
-              className={`font-display text-[10px] font-bold uppercase tracking-[0.1em] ${i === 0 || i > 1 ? 'text-center' : 'text-left'} ${h === 'PTS' ? 'text-ceuta-black' : 'text-ceuta-muted'}`}
-            >
-              {h}
-            </div>
-          ))}
-        </div>
-
-        {entries.map((t) => {
-          const zone = getZone(t.position, total)
-          const mine = isCeuta(t)
-          const logo = findLogo(t.teamName)
-          return (
-            <div
-              key={t.id ?? t.externalId}
-              className={`relative grid items-center gap-1 border-b border-ceuta-border px-[14px] py-[11px] active:bg-ceuta-bg-soft ${mine ? 'bg-gradient-to-r from-ceuta-red-soft to-transparent' : ''}`}
-              style={{ gridTemplateColumns: '32px 1fr repeat(4, 28px) 34px' }}
-            >
-              {/* zone bar */}
-              {zone !== 'none' && (
-                <div
-                  className={`absolute left-0 top-1/2 h-[22px] w-[3px] -translate-y-1/2 rounded-r-sm ${mine ? 'w-[4px] bg-ceuta-red' : ZONE_BAR[zone]}`}
-                />
-              )}
-
-              {/* position */}
-              <div
-                className={`text-center font-display text-[16px] font-black ${mine ? 'text-ceuta-red' : ZONE_POS[zone]}`}
-              >
-                {t.position}
-              </div>
-
-              {/* name */}
-              <div className="flex min-w-0 items-center gap-2">
-                {logo ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={logo}
-                    alt={t.teamName}
-                    className="size-[22px] shrink-0 object-contain"
-                  />
-                ) : (
-                  <div
-                    className={`flex size-6 shrink-0 items-center justify-center rounded-full font-display text-[8px] font-black ${mine ? 'bg-ceuta-red text-white' : 'bg-ceuta-bg-soft text-ceuta-muted'}`}
-                  >
-                    {t.teamName.slice(0, 3).toUpperCase()}
-                  </div>
-                )}
-                <div
-                  className={`truncate font-display text-[14px] font-bold uppercase tracking-[0.02em] ${mine ? 'text-ceuta-red-dark' : 'text-ceuta-black'}`}
-                >
-                  {t.teamName}
-                </div>
-              </div>
-
-              {/* stats */}
-              <div className="text-center font-display text-[13px] font-semibold text-ceuta-black">
-                {t.played}
-              </div>
-              <div className="text-center font-display text-[13px] font-semibold text-ceuta-black">
-                {t.goalDifference > 0 ? `+${t.goalDifference}` : t.goalDifference}
-              </div>
-              <div className="text-center font-display text-[13px] font-semibold text-ceuta-black">
-                {t.goalsFor}
-              </div>
-              <div className="text-center font-display text-[13px] font-semibold text-ceuta-black">
-                {t.goalsAgainst}
-              </div>
-              <div
-                className={`text-center font-display text-[16px] font-black ${mine ? 'text-ceuta-red' : 'text-ceuta-black'}`}
-              >
-                {t.points}
-              </div>
-            </div>
-          )
-        })}
-      </div>
+      <StandingsTable entries={entries} logos={logos} />
 
       {/* ── LEGEND ── */}
       <div className="mt-4 bg-ceuta-bg-soft p-4">
@@ -267,6 +300,8 @@ export function ClasificacionPage({ entries = [], form = [], logos = {} }: Props
       </div>
 
       <div className="h-4" />
+        </>
+      )}
     </div>
   )
 }
