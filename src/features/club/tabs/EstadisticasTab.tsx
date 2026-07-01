@@ -94,7 +94,7 @@ export function EstadisticasTab({
   const [season, setSeason] = useState<'2526' | '2627'>('2526')
 
   const activeCeuta = season === '2526' ? ceutaPrevious : null
-  const activeLeaders = season === '2526' ? previousLeaders : null
+  const activeLeaders = season === '2526' ? leaders : null
   const activeForm = season === '2526' ? form : []
 
   const goalDiff = activeCeuta
