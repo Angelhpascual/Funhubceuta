@@ -242,12 +242,33 @@ export function InstallModal() {
           {/* Feature list */}
           <div className="mb-6 flex flex-col gap-3">
             {[
-              { icon: '⏱', text: 'Goles y resultado en vivo' },
-              { icon: '📰', text: 'Noticias y mercado al instante' },
-              { icon: '📋', text: 'Plantilla, fichajes y clasificación' },
+              {
+                icon: (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="size-5 text-ceuta-red">
+                    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                  </svg>
+                ),
+                text: 'Goles y resultado en vivo',
+              },
+              {
+                icon: (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="size-5 text-ceuta-red">
+                    <path d="M4 4h16v12H4z"/><path d="M8 20h8"/><path d="M12 16v4"/>
+                  </svg>
+                ),
+                text: 'Noticias y mercado al instante',
+              },
+              {
+                icon: (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="size-5 text-ceuta-red">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                  </svg>
+                ),
+                text: 'Plantilla, fichajes y clasificación',
+              },
             ].map(({ icon, text }) => (
               <div key={text} className="flex items-center gap-3">
-                <div className="flex size-8 shrink-0 items-center justify-center rounded-[8px] bg-ceuta-red/20 text-[16px]">{icon}</div>
+                <div className="flex size-9 shrink-0 items-center justify-center rounded-[10px] bg-ceuta-red/15">{icon}</div>
                 <span className="font-display text-[13px] font-bold uppercase tracking-[0.06em] text-white/80">{text}</span>
               </div>
             ))}
