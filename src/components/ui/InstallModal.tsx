@@ -183,7 +183,7 @@ export function InstallModal() {
 
               <button
                 onClick={snooze}
-                className="mt-5 w-full py-1 font-body text-[11px] text-white/20 hover:text-white/40 transition-colors"
+                className="mt-5 w-full py-1 font-body text-[11px] text-white/35 hover:text-white/60 transition-colors"
               >
                 Ahora no
               </button>
