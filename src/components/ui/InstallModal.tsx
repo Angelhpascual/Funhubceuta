@@ -41,9 +41,11 @@ export function InstallModal() {
   const touchStartY = useRef(0)
 
   useEffect(() => {
-    const forceShow = new URLSearchParams(window.location.search).get('install') === '1'
+    const params = new URLSearchParams(window.location.search)
+    const forceShow = params.get('install') === '1'
+    const forcePlatform = params.get('platform') as Platform | null
     const show = shouldShow()
-    const p = detectPlatform()
+    const p = forcePlatform ?? detectPlatform()
     console.log('[InstallModal]', { forceShow, show, p, standalone: isStandalone(), ua: navigator.userAgent.slice(0, 80) })
     if (!show) return
     if (p === 'other' && !forceShow) return
@@ -210,40 +212,54 @@ export function InstallModal() {
             <div>
               <div className="mb-3 flex items-center justify-between">
                 <span className="font-display text-[13px] font-black uppercase tracking-[0.08em] text-white">
-                  Añádela a tu móvil
+                  Instálala en Chrome
                 </span>
                 <span className="rounded-full bg-white/10 px-2.5 py-1 font-display text-[10px] font-bold uppercase tracking-[0.08em] text-white/50">
-                  1 toque
+                  {deferredPrompt ? '1 toque' : '2 pasos'}
                 </span>
               </div>
 
-              <button
-                onClick={handleAndroidInstall}
-                disabled={installing || !deferredPrompt}
-                className="flex w-full items-center justify-center gap-2 rounded-[14px] bg-ceuta-red py-4 font-display text-[15px] font-black uppercase tracking-[0.08em] text-white shadow-[0_4px_20px_rgba(218,26,34,0.4)] disabled:opacity-60"
-              >
-                {installing ? (
-                  '...'
-                ) : (
-                  <>
-                    <span className="text-[18px]">⬇</span>
-                    Añadir a pantalla de inicio
-                  </>
-                )}
-              </button>
-
-              {!deferredPrompt && (
-                <div className="mt-3 rounded-[10px] bg-white/8 p-3">
-                  <p className="font-body text-[12px] leading-[1.45] text-white/60">
-                    Si no aparece el botón: pulsa{' '}
-                    <strong className="text-white">⋮</strong> en Chrome →{' '}
-                    <strong className="text-white">Añadir a pantalla de inicio</strong>
-                  </p>
+              {deferredPrompt ? (
+                <button
+                  onClick={handleAndroidInstall}
+                  disabled={installing}
+                  className="flex w-full items-center justify-center gap-2 rounded-[14px] bg-ceuta-red py-4 font-display text-[15px] font-black uppercase tracking-[0.08em] text-white shadow-[0_4px_20px_rgba(218,26,34,0.4)] disabled:opacity-60"
+                >
+                  {installing ? '...' : (
+                    <>
+                      <span className="text-[18px]">⬇</span>
+                      Añadir a pantalla de inicio
+                    </>
+                  )}
+                </button>
+              ) : (
+                <div className="flex flex-col gap-3 rounded-[16px] bg-white/8 p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-ceuta-red font-display text-[11px] font-black text-white">
+                      1
+                    </div>
+                    <p className="font-body text-[14px] leading-[1.45] text-white/80">
+                      Pulsa{' '}
+                      <span className="inline-flex items-center gap-1 rounded-[4px] bg-white/15 px-1.5 py-0.5">
+                        <span className="font-display text-[13px] font-bold text-white">⋮</span>
+                      </span>{' '}
+                      arriba a la derecha en Chrome
+                    </p>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-ceuta-red font-display text-[11px] font-black text-white">
+                      2
+                    </div>
+                    <p className="font-body text-[14px] leading-[1.45] text-white/80">
+                      Elige{' '}
+                      <strong className="text-white">«Añadir a pantalla de inicio»</strong>
+                    </p>
+                  </div>
                 </div>
               )}
 
-              <p className="mt-3 text-center font-body text-[12px] text-white/40">
-                Se instala en segundos. No ocupa espacio ni necesita la Play Store.
+              <p className="mt-4 text-center font-body text-[12px] text-white/40">
+                Sin Play Store. No ocupa espacio.
               </p>
             </div>
           )}
