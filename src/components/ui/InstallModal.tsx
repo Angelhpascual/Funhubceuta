@@ -3,13 +3,13 @@
 import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 
-type Platform = 'ios' | 'android' | 'other'
+type Platform = 'ios' | 'android' | 'desktop'
 
 function detectPlatform(): Platform {
   const ua = navigator.userAgent
   if (/iphone|ipad|ipod/i.test(ua)) return 'ios'
   if (/android/i.test(ua)) return 'android'
-  return 'other'
+  return 'desktop'
 }
 
 function isStandalone(): boolean {
@@ -35,7 +35,7 @@ interface BeforeInstallPromptEvent extends Event {
 
 export function InstallModal() {
   const [visible, setVisible] = useState(false)
-  const [platform, setPlatform] = useState<Platform>('other')
+  const [platform, setPlatform] = useState<Platform>('desktop')
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
   const [installing, setInstalling] = useState(false)
   const touchStartY = useRef(0)
@@ -48,8 +48,7 @@ export function InstallModal() {
     const p = forcePlatform ?? detectPlatform()
     console.log('[InstallModal]', { forceShow, show, p, standalone: isStandalone(), ua: navigator.userAgent.slice(0, 80) })
     if (!show) return
-    if (p === 'other' && !forceShow) return
-    setPlatform(p === 'other' ? 'android' : p)
+    setPlatform(p)
     setVisible(true)
 
     const handler = (e: Event) => {
@@ -162,7 +161,7 @@ export function InstallModal() {
           <div className="mb-5 h-px bg-white/10" />
 
           {/* Platform-specific instructions */}
-          {platform === 'ios' ? (
+          {platform === 'ios' && (
             <div>
               <div className="mb-3 flex items-center justify-between">
                 <span className="font-display text-[13px] font-black uppercase tracking-[0.08em] text-white">
@@ -172,12 +171,9 @@ export function InstallModal() {
                   2 pasos
                 </span>
               </div>
-
               <div className="flex flex-col gap-3 rounded-[16px] bg-white/8 p-4">
                 <div className="flex items-start gap-3">
-                  <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-ceuta-red font-display text-[11px] font-black text-white">
-                    1
-                  </div>
+                  <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-ceuta-red font-display text-[11px] font-black text-white">1</div>
                   <p className="font-body text-[14px] leading-[1.45] text-white/80">
                     Pulsa{' '}
                     <span className="inline-flex items-center gap-1 rounded-[4px] bg-white/15 px-1.5 py-0.5">
@@ -191,24 +187,20 @@ export function InstallModal() {
                   </p>
                 </div>
                 <div className="flex items-start gap-3">
-                  <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-ceuta-red font-display text-[11px] font-black text-white">
-                    2
-                  </div>
+                  <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-ceuta-red font-display text-[11px] font-black text-white">2</div>
                   <p className="font-body text-[14px] leading-[1.45] text-white/80">
-                    Elige{' '}
-                    <strong className="text-white">«Añadir a pantalla de inicio»</strong>
+                    Elige <strong className="text-white">«Añadir a pantalla de inicio»</strong>
                   </p>
                 </div>
               </div>
-
               <div className="mt-4 flex flex-col items-center gap-1 text-ceuta-red">
-                <span className="font-display text-[11px] font-bold uppercase tracking-[0.1em]">
-                  Búscalo aquí abajo
-                </span>
+                <span className="font-display text-[11px] font-bold uppercase tracking-[0.1em]">Búscalo aquí abajo</span>
                 <span className="text-[18px]">↓</span>
               </div>
             </div>
-          ) : (
+          )}
+
+          {platform === 'android' && (
             <div>
               <div className="mb-3 flex items-center justify-between">
                 <span className="font-display text-[13px] font-black uppercase tracking-[0.08em] text-white">
@@ -218,49 +210,69 @@ export function InstallModal() {
                   {deferredPrompt ? '1 toque' : '2 pasos'}
                 </span>
               </div>
-
               {deferredPrompt ? (
                 <button
                   onClick={handleAndroidInstall}
                   disabled={installing}
                   className="flex w-full items-center justify-center gap-2 rounded-[14px] bg-ceuta-red py-4 font-display text-[15px] font-black uppercase tracking-[0.08em] text-white shadow-[0_4px_20px_rgba(218,26,34,0.4)] disabled:opacity-60"
                 >
-                  {installing ? '...' : (
-                    <>
-                      <span className="text-[18px]">⬇</span>
-                      Añadir a pantalla de inicio
-                    </>
-                  )}
+                  {installing ? '...' : <><span className="text-[18px]">⬇</span> Añadir a pantalla de inicio</>}
                 </button>
               ) : (
                 <div className="flex flex-col gap-3 rounded-[16px] bg-white/8 p-4">
                   <div className="flex items-start gap-3">
-                    <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-ceuta-red font-display text-[11px] font-black text-white">
-                      1
-                    </div>
+                    <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-ceuta-red font-display text-[11px] font-black text-white">1</div>
                     <p className="font-body text-[14px] leading-[1.45] text-white/80">
-                      Pulsa{' '}
-                      <span className="inline-flex items-center gap-1 rounded-[4px] bg-white/15 px-1.5 py-0.5">
-                        <span className="font-display text-[13px] font-bold text-white">⋮</span>
-                      </span>{' '}
-                      arriba a la derecha en Chrome
+                      Pulsa <span className="inline-flex items-center rounded-[4px] bg-white/15 px-1.5 py-0.5 font-display text-[13px] font-bold text-white">⋮</span> arriba a la derecha en Chrome
                     </p>
                   </div>
                   <div className="flex items-start gap-3">
-                    <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-ceuta-red font-display text-[11px] font-black text-white">
-                      2
-                    </div>
+                    <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-ceuta-red font-display text-[11px] font-black text-white">2</div>
                     <p className="font-body text-[14px] leading-[1.45] text-white/80">
-                      Elige{' '}
-                      <strong className="text-white">«Añadir a pantalla de inicio»</strong>
+                      Elige <strong className="text-white">«Añadir a pantalla de inicio»</strong>
                     </p>
                   </div>
                 </div>
               )}
+              <p className="mt-4 text-center font-body text-[12px] text-white/40">Sin Play Store. No ocupa espacio.</p>
+            </div>
+          )}
 
-              <p className="mt-4 text-center font-body text-[12px] text-white/40">
-                Sin Play Store. No ocupa espacio.
-              </p>
+          {platform === 'desktop' && (
+            <div>
+              <div className="mb-3 flex items-center justify-between">
+                <span className="font-display text-[13px] font-black uppercase tracking-[0.08em] text-white">
+                  Instálala en tu ordenador
+                </span>
+                <span className="rounded-full bg-white/10 px-2.5 py-1 font-display text-[10px] font-bold uppercase tracking-[0.08em] text-white/50">
+                  {deferredPrompt ? '1 clic' : '2 pasos'}
+                </span>
+              </div>
+              {deferredPrompt ? (
+                <button
+                  onClick={handleAndroidInstall}
+                  disabled={installing}
+                  className="flex w-full items-center justify-center gap-2 rounded-[14px] bg-ceuta-red py-4 font-display text-[15px] font-black uppercase tracking-[0.08em] text-white shadow-[0_4px_20px_rgba(218,26,34,0.4)] disabled:opacity-60"
+                >
+                  {installing ? '...' : <><span className="text-[18px]">⬇</span> Instalar app</>}
+                </button>
+              ) : (
+                <div className="flex flex-col gap-3 rounded-[16px] bg-white/8 p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-ceuta-red font-display text-[11px] font-black text-white">1</div>
+                    <p className="font-body text-[14px] leading-[1.45] text-white/80">
+                      Busca el icono <span className="inline-flex items-center rounded-[4px] bg-white/15 px-1.5 py-0.5 font-display text-[11px] font-bold text-white">⊕</span> en la barra de direcciones del navegador
+                    </p>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-ceuta-red font-display text-[11px] font-black text-white">2</div>
+                    <p className="font-body text-[14px] leading-[1.45] text-white/80">
+                      Haz clic en <strong className="text-white">«Instalar»</strong>
+                    </p>
+                  </div>
+                </div>
+              )}
+              <p className="mt-4 text-center font-body text-[12px] text-white/40">Funciona sin conexión. Acceso directo desde el escritorio.</p>
             </div>
           )}
 
