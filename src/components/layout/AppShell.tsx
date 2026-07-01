@@ -162,6 +162,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   if (!isSSRRoute) {
     return (
       <>
+        <InstallModal />
         {/* Desktop-only topbar overlay for home and other non-SSR pages */}
         <div className="desktop-topbar-overlay">
           <Topbar pathname={pathname} router={router} />

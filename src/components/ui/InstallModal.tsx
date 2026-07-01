@@ -21,6 +21,7 @@ function isStandalone(): boolean {
 
 function shouldShow(): boolean {
   if (typeof window === 'undefined') return false
+  if (new URLSearchParams(window.location.search).get('install') === '1') return true
   if (isStandalone()) return false
   const snoozed = localStorage.getItem('install_snoozed')
   if (snoozed && Date.now() < parseInt(snoozed)) return false
@@ -39,10 +40,13 @@ export function InstallModal() {
   const [installing, setInstalling] = useState(false)
 
   useEffect(() => {
-    if (!shouldShow()) return
+    const forceShow = new URLSearchParams(window.location.search).get('install') === '1'
+    const show = shouldShow()
     const p = detectPlatform()
-    if (p === 'other') return // desktop, no mostrar
-    setPlatform(p)
+    console.log('[InstallModal]', { forceShow, show, p, standalone: isStandalone(), ua: navigator.userAgent.slice(0, 80) })
+    if (!show) return
+    if (p === 'other' && !forceShow) return
+    setPlatform(p === 'other' ? 'android' : p)
     setVisible(true)
 
     const handler = (e: Event) => {

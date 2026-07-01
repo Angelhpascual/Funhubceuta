@@ -97,12 +97,14 @@ body {
   justify-content: center;
   align-items: flex-start;
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 #app-root {
   width: 100%;
   max-width: 430px;
-  min-height: 100vh;
+  height: 100vh;
+  height: 100dvh;
   background: var(--bg);
   position: relative;
   overflow: hidden;
@@ -177,18 +179,15 @@ img {
   overflow-y: auto;
   overflow-x: clip;
   margin-top: var(--top-h);
-  padding-bottom: calc(var(--nav-h) + 16px);
+  padding-bottom: 16px;
   background: var(--bg);
 }
 
 /* ════════ BOTTOM NAV ════════ */
 .bottom-nav {
-  position: fixed;
+  position: sticky;
   bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
   width: 100%;
-  max-width: 430px;
   height: var(--nav-h);
   background: var(--white);
   border-top: 1px solid var(--border);
@@ -196,6 +195,7 @@ img {
   align-items: stretch;
   z-index: 100;
   box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.04);
+  flex-shrink: 0;
 }
 .nav-item {
   flex: 1;
