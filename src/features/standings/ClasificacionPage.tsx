@@ -215,21 +215,6 @@ export function ClasificacionPage({ entries = [], previousEntries = [], form = [
 
       {tab === 'anterior' && (
         <>
-          {/* ── TABS ── */}
-          <div className="chips mt-4 mb-2">
-            {[
-              { id: 'actual', l: 'Temporada actual' },
-              { id: 'anterior', l: 'Temp. 25/26' },
-            ].map((t) => (
-              <button
-                key={t.id}
-                className={`chip ${tab === t.id ? 'active' : ''}`}
-                onClick={() => setTab(t.id)}
-              >
-                {t.l}
-              </button>
-            ))}
-          </div>
           {previousEntries.length === 0 ? (
             <p className="px-4 py-5 font-display text-[13px] uppercase tracking-[0.06em] text-ceuta-muted">
               No hay datos de la temporada anterior
@@ -237,7 +222,22 @@ export function ClasificacionPage({ entries = [], previousEntries = [], form = [
           ) : (
             <>
               {prevMe && <CeutaCard entry={prevMe} total={prevTotal} />}
-              <div className="px-3 pb-1 pt-5">
+              {/* ── TABS ── */}
+              <div className="chips mt-4 mb-2">
+                {[
+                  { id: 'actual', l: 'Temporada actual' },
+                  { id: 'anterior', l: 'Temp. 25/26' },
+                ].map((t) => (
+                  <button
+                    key={t.id}
+                    className={`chip ${tab === t.id ? 'active' : ''}`}
+                    onClick={() => setTab(t.id)}
+                  >
+                    {t.l}
+                  </button>
+                ))}
+              </div>
+              <div className="px-3 pb-1 pt-3">
                 <div className="font-display text-[18px] font-black uppercase tracking-[0.04em] text-ceuta-black">
                   Tabla completa
                 </div>
