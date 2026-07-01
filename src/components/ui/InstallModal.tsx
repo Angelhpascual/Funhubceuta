@@ -111,15 +111,15 @@ export function InstallModal() {
       <p className="mt-3 font-body text-[14px] leading-[1.5] text-white/60">
         Todo sobre nuestra AD Ceuta. <strong className="text-white">Tú te enteras primero.</strong>
       </p>
-      <div className="mt-5 flex flex-col gap-3">
+      <div className="mt-4 flex flex-col gap-2.5">
         {[
           { icon: '⚽', text: 'Goles y resultado en vivo' },
           { icon: '🔔', text: 'Noticias y mercado al instante' },
           { icon: '🏆', text: 'Plantilla, fichajes y clasificación' },
         ].map(({ icon, text }) => (
           <div key={text} className="flex items-center gap-3">
-            <div style={{ width: 40, height: 40, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 10, backgroundColor: 'rgba(255,255,255,0.08)', fontSize: 22 }}>{icon}</div>
-            <span className="font-display text-[13px] font-bold uppercase tracking-[0.06em] text-white/80">{text}</span>
+            <div className="flex size-9 shrink-0 items-center justify-center rounded-[8px] bg-white/[0.08] text-[18px]">{icon}</div>
+            <span className="font-display text-[12px] font-bold uppercase tracking-[0.06em] text-white/80">{text}</span>
           </div>
         ))}
       </div>
@@ -131,7 +131,7 @@ export function InstallModal() {
       <>
         <div className="fixed inset-0 z-[200] cursor-pointer bg-black/70" onClick={dismiss} />
         <div
-          className="fixed left-1/2 top-1/2 z-[201] w-full max-w-[760px] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[28px] bg-ceuta-black shadow-2xl"
+          className="fixed left-1/2 top-1/2 z-[201] w-full max-w-[680px] -translate-x-1/2 -translate-y-1/2 rounded-[28px] bg-ceuta-black shadow-2xl max-h-[90vh] overflow-y-auto"
           onClick={e => e.stopPropagation()}
         >
           {/* Close button */}
