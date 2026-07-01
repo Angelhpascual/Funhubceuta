@@ -180,7 +180,7 @@ export function InstallModal() {
 
               <button
                 onClick={snooze}
-                className="mt-6 w-full py-2 font-display text-[13px] font-bold uppercase tracking-[0.08em] text-white underline underline-offset-2 hover:text-white/70 transition-colors"
+                className="mt-6 w-full py-2 font-display text-[13px] font-bold uppercase tracking-[0.08em] text-white/60 underline underline-offset-2 hover:text-white transition-colors"
               >
                 Ahora no
               </button>
@@ -319,7 +319,7 @@ export function InstallModal() {
           {/* Dismiss */}
           <button
             onClick={snooze}
-            className="mt-4 w-full py-1 font-body text-[11px] text-white/20 hover:text-white/40 transition-colors"
+            className="mt-4 w-full py-1 font-display text-[11px] uppercase tracking-[0.08em] text-white/60 underline underline-offset-2 hover:text-white transition-colors"
           >
             Ahora no
           </button>
