@@ -127,24 +127,25 @@ function StandingsTable({ entries, logos }: { entries: StandingEntry[]; logos: R
 }
 
 function CeutaCard({ entry, form, total }: { entry: StandingEntry; form?: string[]; total: number }) {
+  const empty = entry.played === 0
   return (
     <div className="relative z-[2] -mt-7 mx-3 rounded-[14px] border-2 border-ceuta-black bg-white p-[18px] shadow-[6px_6px_0_#D62027]">
       <div className="flex items-center gap-3">
         <div className="font-display text-[56px] font-black leading-[0.85] tracking-[-0.02em] text-ceuta-black">
-          {entry.position}
-          <sup className="text-[18px] text-ceuta-red ml-0.5 align-super">º</sup>
+          {empty ? '–' : entry.position}
+          {!empty && <sup className="text-[18px] text-ceuta-red ml-0.5 align-super">º</sup>}
         </div>
         <div className="flex-1">
           <div className="font-display text-[18px] font-black uppercase tracking-[0.02em] text-ceuta-black">
             AD Ceuta FC
           </div>
           <div className="mt-0.5 font-display text-[11px] font-semibold uppercase tracking-[0.1em] text-ceuta-muted">
-            {getZoneLabel(entry.position, total)}
+            {empty ? 'Temporada no iniciada' : getZoneLabel(entry.position, total)}
           </div>
         </div>
         <div className="text-right">
           <div className="font-display text-[32px] font-black leading-[0.9] text-ceuta-red">
-            {entry.points}
+            {empty ? '–' : entry.points}
           </div>
           <div className="mt-0.5 font-display text-[10px] font-bold uppercase tracking-[0.14em] text-ceuta-muted">
             Puntos
@@ -158,12 +159,15 @@ function CeutaCard({ entry, form, total }: { entry: StandingEntry; form?: string
           { v: entry.drawn, l: 'PE' },
           { v: entry.lost, l: 'PP' },
           { v: entry.goalDifference > 0 ? `+${entry.goalDifference}` : entry.goalDifference, l: 'DG' },
-        ].map(({ v, l }) => (
+        ].map(({ v, l }) => {
+          const empty = entry.played === 0
+          return (
           <div key={l} className="flex flex-col items-center gap-0.5">
-            <div className="font-display text-[16px] font-black text-ceuta-black">{v}</div>
+            <div className="font-display text-[16px] font-black text-ceuta-black">{empty ? '–' : v}</div>
             <div className="font-display text-[9.5px] font-bold uppercase tracking-[0.1em] text-ceuta-muted">{l}</div>
           </div>
-        ))}
+        )
+        })}
       </div>
       {form && form.length > 0 && (
         <div className="mt-3 flex items-center gap-2">
