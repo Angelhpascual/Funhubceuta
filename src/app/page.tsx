@@ -7,7 +7,7 @@ import { HomePage } from '@/features/home/HomePage'
 import { HimnoPage } from '@/features/himno/HimnoPage'
 import { LoadingScreen } from '@/components/ui/LoadingScreen'
 
-type NavId = 'inicio' | 'clasificacion' | 'partidos' | 'club'
+type NavId = 'inicio' | 'mercado' | 'clasificacion' | 'partidos' | 'club'
 type Modal = 'himno' | null
 
 const navItems: { id: NavId; label: string; icon: React.ReactNode }[] = [
@@ -25,6 +25,24 @@ const navItems: { id: NavId; label: string; icon: React.ReactNode }[] = [
       >
         <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
         <polyline points="9 22 9 12 15 12 15 22" />
+      </svg>
+    ),
+  },
+  {
+    id: 'mercado',
+    label: 'Mercado',
+    icon: (
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+        <line x1="3" y1="6" x2="21" y2="6" />
+        <path d="M16 10a4 4 0 01-8 0" />
       </svg>
     ),
   },
@@ -88,7 +106,7 @@ const navItems: { id: NavId; label: string; icon: React.ReactNode }[] = [
   },
 ]
 
-const SSR_NAV: NavId[] = ['clasificacion', 'partidos', 'club']
+const SSR_NAV: NavId[] = ['mercado', 'clasificacion', 'partidos', 'club']
 
 function AppInner() {
   const router = useRouter()
