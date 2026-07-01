@@ -113,12 +113,12 @@ export function InstallModal() {
       </p>
       <div className="mt-5 flex flex-col gap-3">
         {[
-          { icon: '⏱', text: 'Goles y resultado en vivo' },
-          { icon: '📰', text: 'Noticias y mercado al instante' },
-          { icon: '📋', text: 'Plantilla, fichajes y clasificación' },
+          { icon: '⚽', text: 'Goles y resultado en vivo' },
+          { icon: '🔔', text: 'Noticias y mercado al instante' },
+          { icon: '🏆', text: 'Plantilla, fichajes y clasificación' },
         ].map(({ icon, text }) => (
           <div key={text} className="flex items-center gap-3">
-            <div className="flex size-8 shrink-0 items-center justify-center rounded-[8px] bg-ceuta-red/20 text-[16px]">{icon}</div>
+            <div style={{ width: 40, height: 40, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 10, backgroundColor: 'rgba(255,255,255,0.08)', fontSize: 22 }}>{icon}</div>
             <span className="font-display text-[13px] font-bold uppercase tracking-[0.06em] text-white/80">{text}</span>
           </div>
         ))}
