@@ -149,7 +149,7 @@ export function InstallModal() {
             </div>
 
             {/* Right — install + divider */}
-            <div className="flex flex-col justify-between border-l border-white/10 p-8 pl-8">
+            <div className="flex flex-col justify-center border-l border-white/10 p-8">
               <div className="mb-4 flex items-center justify-between">
                 <span className="font-display text-[13px] font-black uppercase tracking-[0.08em] text-white">
                   Instálala ahora
@@ -180,7 +180,7 @@ export function InstallModal() {
 
               <button
                 onClick={snooze}
-                className="mt-auto pt-6 w-full py-2 font-display text-[13px] font-bold uppercase tracking-[0.08em] text-white underline underline-offset-2 hover:text-white/70 transition-colors"
+                className="mt-6 w-full py-2 font-display text-[13px] font-bold uppercase tracking-[0.08em] text-white underline underline-offset-2 hover:text-white/70 transition-colors"
               >
                 Ahora no
               </button>
