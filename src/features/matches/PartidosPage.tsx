@@ -70,7 +70,7 @@ export function PartidosPage({ upcoming = [], results = [], logos = {} }: Props)
         </div>
       </div>
 
-      <div className="chips mb-2">
+      <div className="chips mt-4 mb-2">
         {[
           { id: 'proximos', l: 'Próximos' },
           { id: 'resultados', l: 'Resultados' },
