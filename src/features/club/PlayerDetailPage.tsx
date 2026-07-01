@@ -79,7 +79,6 @@ export function PlayerDetailPage({ player, stats }: Props) {
 
   return (
     <div id="app-root">
-      <div className="page">
         {/* ── TOP BAR ── */}
         <div className="pd-topbar">
           <Link href="/club?tab=plantilla" className="pd-back-btn">
@@ -97,6 +96,7 @@ export function PlayerDetailPage({ player, stats }: Props) {
           </Link>
         </div>
 
+        <div className="scroll-area">
         {/* ── HERO ── */}
         <div className="pd-hero">
           <div className="pd-hero-bignum">{player.dorsal ?? ''}</div>
@@ -263,7 +263,7 @@ export function PlayerDetailPage({ player, stats }: Props) {
             </>
           )}
         </div>
-      </div>
+        </div>
     </div>
   )
 }

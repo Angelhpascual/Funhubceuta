@@ -1800,6 +1800,10 @@ img {
 
 /* ════════ PLAYER DETAIL PAGE ════════ */
 
+.pd-topbar ~ .scroll-area {
+  margin-top: 0;
+}
+
 /* Top bar (dark, sticky) */
 .pd-topbar {
   position: sticky;
