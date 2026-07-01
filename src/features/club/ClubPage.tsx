@@ -20,6 +20,7 @@ interface Props {
   previousGrouped?: Group[]
   previousTotal?: number
   ceuta?: StandingEntry | null
+  ceutaPrevious?: StandingEntry | null
   form?: string[]
   leaders?: LeadersMap | null
   previousLeaders?: LeadersMap | null
@@ -31,6 +32,7 @@ export function ClubPage({
   previousGrouped = [],
   previousTotal = 0,
   ceuta = null,
+  ceutaPrevious = null,
   form = [],
   leaders = null,
   previousLeaders = null,
@@ -77,7 +79,7 @@ export function ClubPage({
         ))}
       </div>
 
-      {tab === 'stats' && <EstadisticasTab ceuta={ceuta} form={form} leaders={leaders} previousLeaders={previousLeaders} />}
+      {tab === 'stats' && <EstadisticasTab ceuta={ceuta} ceutaPrevious={ceutaPrevious} form={form} leaders={leaders} previousLeaders={previousLeaders} />}
       {tab === 'plantilla' && <PlantillaTab grouped={grouped} total={total} previousGrouped={previousGrouped} previousTotal={previousTotal} loading={false} />}
       {tab === 'historia' && <HistoriaTab />}
 

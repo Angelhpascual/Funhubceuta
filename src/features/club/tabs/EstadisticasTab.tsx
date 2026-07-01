@@ -80,48 +80,79 @@ const STAT_TILES = [
 
 export function EstadisticasTab({
   ceuta,
+  ceutaPrevious,
   form,
   leaders,
   previousLeaders,
 }: {
   ceuta: StandingEntry | null
+  ceutaPrevious?: StandingEntry | null
   form: string[]
   leaders: LeadersMap | null
   previousLeaders?: LeadersMap | null
 }) {
-  const [season, setSeason] = useState<'current' | 'previous'>('current')
-  const activeLeaders = season === 'current' ? leaders : previousLeaders
+  const [season, setSeason] = useState<'2526' | '2627'>('2526')
 
-  const goalDiff = ceuta
-    ? ceuta.goalDifference > 0
-      ? `+${ceuta.goalDifference}`
-      : ceuta.goalDifference
+  const activeCeuta = season === '2526' ? ceutaPrevious : null
+  const activeLeaders = season === '2526' ? previousLeaders : null
+  const activeForm = season === '2526' ? form : []
+
+  const goalDiff = activeCeuta
+    ? activeCeuta.goalDifference > 0
+      ? `+${activeCeuta.goalDifference}`
+      : activeCeuta.goalDifference
     : '—'
 
   const tileValues: Record<string, unknown> = {
-    played: ceuta?.played,
-    won: ceuta?.won,
-    drawn: ceuta?.drawn,
-    lost: ceuta?.lost,
-    goalsFor: ceuta?.goalsFor,
-    goalsAgainst: ceuta?.goalsAgainst,
+    played: activeCeuta?.played,
+    won: activeCeuta?.won,
+    drawn: activeCeuta?.drawn,
+    lost: activeCeuta?.lost,
+    goalsFor: activeCeuta?.goalsFor,
+    goalsAgainst: activeCeuta?.goalsAgainst,
     goalDiff,
+  }
+
+  if (season === '2627') {
+    return (
+      <>
+        <div className="chips mb-2 mt-1 px-3">
+          <button className="chip" onClick={() => setSeason('2526')}>Temp. 25/26</button>
+          <button className="chip active" onClick={() => setSeason('2627')}>Temp. 26/27</button>
+        </div>
+        <div className="flex flex-col items-center gap-3 px-3 py-12">
+          <span className="text-3xl">🔜</span>
+          <p className="font-display text-[13px] font-bold uppercase tracking-widest text-ceuta-muted text-center">
+            Sin datos por el momento
+          </p>
+          <p className="font-body text-[12px] text-ceuta-muted text-center">
+            La temporada 26/27 aún no ha comenzado
+          </p>
+        </div>
+      </>
+    )
   }
 
   return (
     <>
+      {/* ── SEASON SELECTOR ── */}
+      <div className="chips mb-2 mt-1 px-3">
+        <button className="chip active" onClick={() => setSeason('2526')}>Temp. 25/26</button>
+        <button className="chip" onClick={() => setSeason('2627')}>Temp. 26/27</button>
+      </div>
+
       <div className="mb-2 grid grid-cols-2 gap-2 px-3">
         <Tile className="min-h-[110px] bg-ceuta-red">
           <TileValue className="text-[54px] text-white">
-            {ceuta?.position ?? '—'}
+            {activeCeuta?.position ?? '—'}
             <span className="align-super text-[22px]">º</span>
           </TileValue>
           <TileLabel className="text-white/75">
-            {ceuta ? getZoneLabel(ceuta.position) : 'Clasificación'}
+            {activeCeuta ? getZoneLabel(activeCeuta.position) : 'Clasificación'}
           </TileLabel>
         </Tile>
         <Tile className="min-h-[110px] bg-ceuta-black">
-          <TileValue className="text-[54px] text-white">{ceuta?.points ?? '—'}</TileValue>
+          <TileValue className="text-[54px] text-white">{activeCeuta?.points ?? '—'}</TileValue>
           <TileLabel className="text-white/75">Puntos</TileLabel>
         </Tile>
       </div>
@@ -136,9 +167,9 @@ export function EstadisticasTab({
           </Tile>
         ))}
         <Tile>
-          {form.length > 0 && (ceuta?.played ?? 0) > 0 ? (
+          {activeForm.length > 0 && (activeCeuta?.played ?? 0) > 0 ? (
             <div className="flex flex-wrap gap-1">
-              {form.slice(-5).map((f, i) => (
+              {activeForm.slice(-5).map((f, i) => (
                 <div key={i} className={`form-pill ${f}`}>{f}</div>
               ))}
             </div>
@@ -147,16 +178,6 @@ export function EstadisticasTab({
           )}
           <TileLabel className="text-ceuta-muted">Últimos 5</TileLabel>
         </Tile>
-      </div>
-
-      {/* ── SEASON SELECTOR ── */}
-      <div className="chips mb-2 mt-4 px-3">
-        <button className={`chip ${season === 'current' ? 'active' : ''}`} onClick={() => setSeason('current')}>
-          Temp. 26/27
-        </button>
-        <button className={`chip ${season === 'previous' ? 'active' : ''}`} onClick={() => setSeason('previous')}>
-          Temp. 25/26
-        </button>
       </div>
 
       {activeLeaders ? (
