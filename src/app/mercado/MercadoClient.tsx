@@ -10,27 +10,12 @@ const POSITIONS: Record<string, string> = {
 
 type Tab = 'in' | 'out' | 'renew' | 'rumor'
 
-// Tailwind classes per tab — must be complete strings for Tailwind to include them
-const TAB_CLS = {
-  renew: { bar: 'bg-[#1E7F47]', activeBg: 'bg-[#1E7F47]', activeBorder: 'border-[#1E7F47]', activeText: 'text-white', activeSubtext: 'text-white/80', routeIcon: 'bg-[#1E7F47] text-white' },
-  in:    { bar: 'bg-ceuta-red',  activeBg: 'bg-ceuta-red',  activeBorder: 'border-ceuta-red',  activeText: 'text-white', activeSubtext: 'text-white/80', routeIcon: 'bg-ceuta-red text-white' },
-  out:   { bar: 'bg-ceuta-black',activeBg: 'bg-ceuta-black',activeBorder: 'border-ceuta-black',activeText: 'text-white', activeSubtext: 'text-white/80', routeIcon: 'bg-ceuta-black text-white' },
-  rumor: { bar: 'bg-ceuta-gold', activeBg: 'bg-ceuta-gold', activeBorder: 'border-ceuta-gold', activeText: 'text-black', activeSubtext: 'text-black/60',  routeIcon: 'bg-ceuta-gold text-black' },
-}
-
 const TABS: { id: Tab; label: string }[] = [
   { id: 'renew', label: 'Renovados' },
   { id: 'in',    label: 'Fichados'  },
   { id: 'out',   label: 'Salidas'   },
   { id: 'rumor', label: 'Rumores'   },
 ]
-
-const BADGE_CLS: Record<Tab, string> = {
-  renew: 'bg-[#E4F3EA] text-[#1E7F47]',
-  in:    'bg-ceuta-black text-white',
-  out:   'bg-ceuta-red-soft text-ceuta-red',
-  rumor: 'bg-ceuta-bg-mid text-ceuta-muted',
-}
 
 const BADGE_LABEL: Record<Tab, string> = {
   renew: 'Renovado',
@@ -39,28 +24,13 @@ const BADGE_LABEL: Record<Tab, string> = {
   rumor: 'Rumor',
 }
 
-const POSITION_CLS: Record<Tab, string> = {
-  renew: 'bg-[#1E7F47] text-white',
-  in:    'bg-ceuta-red text-white',
-  out:   'bg-ceuta-black text-white',
-  rumor: 'bg-ceuta-gold text-black',
-}
-
 const REL_TEXT: Record<number, string> = { 3: 'Muy fiable', 2: 'Posible', 1: 'Especulación' }
-const REL_CLS:  Record<number, string> = { 3: 'text-ceuta-red', 2: 'text-[#c9a200]', 1: 'text-ceuta-muted' }
 
 const ROUTE_LABEL: Record<Tab, string> = {
   in:    'Procede de',
   out:   'Destino',
   renew: 'Renueva hasta',
   rumor: 'Suena desde',
-}
-
-const RING_CLS: Record<Tab, string> = {
-  in:    'ring-2 ring-ceuta-red',
-  renew: 'ring-2 ring-[#1E7F47]',
-  out:   'ring-2 ring-ceuta-border',
-  rumor: 'ring-2 ring-ceuta-border',
 }
 
 function isExitRumor(t: Transfer): boolean {
@@ -91,9 +61,13 @@ function PlayerPhoto({ photoUrl, name, type }: { photoUrl: string | null; name: 
   const [error, setError] = useState(false)
   const [loaded, setLoaded] = useState(false)
   const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
+  const ringCls =
+    type === 'in'    ? 'ring-2 ring-ceuta-red'    :
+    type === 'renew' ? 'ring-2 ring-[#1E7F47]'    :
+                       'ring-2 ring-ceuta-border'
 
   return (
-    <div className={`relative size-[58px] shrink-0 overflow-hidden rounded-full bg-ceuta-bg-soft ${RING_CLS[type]}`}>
+    <div className={`relative size-[58px] shrink-0 overflow-hidden rounded-full bg-ceuta-bg-soft ${ringCls}`}>
       {photoUrl && !error ? (
         <>
           {!loaded && (
@@ -118,10 +92,13 @@ function PlayerPhoto({ photoUrl, name, type }: { photoUrl: string | null; name: 
 }
 
 function TransferCard({ t, type, idx }: { t: Transfer; type: Tab; idx: number }) {
-  const cls = TAB_CLS[type]
   const exitRumor = type === 'rumor' && isExitRumor(t)
 
-  const badgeCls   = exitRumor ? 'bg-ceuta-bg-mid text-ceuta-muted' : BADGE_CLS[type]
+  const badgeCls = exitRumor ? 'bg-ceuta-bg-mid text-ceuta-muted' :
+    type === 'renew' ? 'bg-[#E4F3EA] text-[#1E7F47]'  :
+    type === 'in'    ? 'bg-ceuta-black text-white'      :
+    type === 'out'   ? 'bg-ceuta-red-soft text-ceuta-red' :
+                       'bg-ceuta-bg-mid text-ceuta-muted'
   const badgeLabel = exitRumor ? 'Posible salida' : BADGE_LABEL[type]
 
   const routeClub = type === 'in'
@@ -141,7 +118,12 @@ function TransferCard({ t, type, idx }: { t: Transfer; type: Tab; idx: number })
       style={{ animationDelay: `${idx * 0.04}s` }}
     >
       {/* left colour bar */}
-      <div className={`absolute bottom-0 left-0 top-0 w-1 ${cls.bar}`} />
+      <div className={`absolute bottom-0 left-0 top-0 w-1 ${
+        type === 'renew' ? 'bg-[#1E7F47]'  :
+        type === 'in'    ? 'bg-ceuta-red'   :
+        type === 'out'   ? 'bg-ceuta-black' :
+                           'bg-ceuta-gold'
+      }`} />
 
       <div className="pb-[13px] pl-[19px] pr-[15px] pt-[14px]">
         {/* top row */}
@@ -153,7 +135,12 @@ function TransferCard({ t, type, idx }: { t: Transfer; type: Tab; idx: number })
               {t.name}
             </div>
             <div className="mt-[7px] flex flex-wrap items-center gap-[7px]">
-              <span className={`rounded-[4px] px-2 py-[3px] font-display text-[10px] font-bold uppercase tracking-[0.08em] ${POSITION_CLS[type]}`}>
+              <span className={`rounded-[4px] px-2 py-[3px] font-display text-[10px] font-bold uppercase tracking-[0.08em] ${
+                type === 'renew' ? 'bg-[#1E7F47] text-white'  :
+                type === 'in'    ? 'bg-ceuta-red text-white'   :
+                type === 'out'   ? 'bg-ceuta-black text-white' :
+                                   'bg-ceuta-gold text-black'
+              }`}>
                 {POSITIONS[t.position] ?? t.position}
               </span>
             </div>
@@ -169,7 +156,12 @@ function TransferCard({ t, type, idx }: { t: Transfer; type: Tab; idx: number })
         {/* route box */}
         {showRoute && (
           <div className="mt-[13px] flex items-center gap-[10px] rounded-[8px] bg-ceuta-bg-soft px-3 py-[10px]">
-            <div className={`flex size-[26px] shrink-0 items-center justify-center rounded-full ${cls.routeIcon}`}>
+            <div className={`flex size-[26px] shrink-0 items-center justify-center rounded-full ${
+              type === 'renew' ? 'bg-[#1E7F47] text-white'  :
+              type === 'in'    ? 'bg-ceuta-red text-white'   :
+              type === 'out'   ? 'bg-ceuta-black text-white' :
+                                 'bg-ceuta-gold text-black'
+            }`}>
               {(type === 'out' || exitRumor) ? <ArrowOut /> : type === 'renew' ? <RenewIcon /> : <ArrowIn />}
             </div>
             <div className="min-w-0 flex-1">
@@ -192,7 +184,11 @@ function TransferCard({ t, type, idx }: { t: Transfer; type: Tab; idx: number })
             <div className="flex gap-1">
               {[1, 2, 3].map(i => <FlameIcon key={i} on={i <= t.reliability} />)}
             </div>
-            <span className={`ml-auto font-display text-[11px] font-bold uppercase tracking-[0.06em] ${REL_CLS[t.reliability] ?? 'text-ceuta-muted'}`}>
+            <span className={`ml-auto font-display text-[11px] font-bold uppercase tracking-[0.06em] ${
+              t.reliability === 3 ? 'text-ceuta-red'   :
+              t.reliability === 2 ? 'text-[#c9a200]'   :
+                                    'text-ceuta-muted'
+            }`}>
               {REL_TEXT[t.reliability] ?? ''}
             </span>
           </div>
@@ -301,18 +297,30 @@ export default function MercadoClient({ transfers }: { transfers: Transfer[] }) 
       <div className="relative z-[3] -mt-11 grid grid-cols-4 gap-1.5 px-3">
         {TABS.map(t => {
           const active = tab === t.id
-          const cls = TAB_CLS[t.id]
+          const barCls =
+            t.id === 'renew' ? 'bg-[#1E7F47]' :
+            t.id === 'in'    ? 'bg-ceuta-red'  :
+            t.id === 'out'   ? 'bg-ceuta-black' :
+                               'bg-ceuta-gold'
+          const activeCls =
+            t.id === 'renew' ? 'bg-[#1E7F47] border-[#1E7F47]' :
+            t.id === 'in'    ? 'bg-ceuta-red border-ceuta-red'   :
+            t.id === 'out'   ? 'bg-ceuta-black border-ceuta-black' :
+                               'bg-ceuta-gold border-ceuta-gold'
+          const countCls  = active ? (t.id === 'rumor' ? 'text-black' : 'text-white') : 'text-ceuta-black'
+          const labelCls  = active ? (t.id === 'rumor' ? 'text-black/60' : 'text-white/80') : 'text-ceuta-muted'
+
           return (
             <button
               key={t.id}
               onClick={() => setTab(t.id)}
-              className={`relative overflow-hidden rounded-[14px] px-1.5 pb-[11px] pt-[13px] text-center shadow-[0_6px_18px_rgba(0,0,0,0.08)] transition-colors ${active ? `${cls.activeBg} border-[1.5px] ${cls.activeBorder}` : 'border border-ceuta-border bg-white'}`}
+              className={`relative overflow-hidden rounded-[14px] border-[1.5px] px-1.5 pb-[11px] pt-[13px] text-center shadow-[0_6px_18px_rgba(0,0,0,0.08)] transition-colors ${active ? activeCls : 'border-ceuta-border bg-white'}`}
             >
-              {!active && <div className={`absolute left-0 right-0 top-0 h-1 ${cls.bar}`} />}
-              <div className={`font-display text-[30px] font-black leading-[0.9] ${active ? cls.activeText : 'text-ceuta-black'}`}>
+              {!active && <div className={`absolute left-0 right-0 top-0 h-1 ${barCls}`} />}
+              <div className={`font-display text-[30px] font-black leading-[0.9] ${countCls}`}>
                 {counts[t.id]}
               </div>
-              <div className={`mt-[5px] font-display text-[9px] font-bold uppercase tracking-[0.08em] ${active ? cls.activeSubtext : 'text-ceuta-muted'}`}>
+              <div className={`mt-[5px] font-display text-[9px] font-bold uppercase tracking-[0.08em] ${labelCls}`}>
                 {t.label}
               </div>
             </button>
