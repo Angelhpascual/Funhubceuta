@@ -298,18 +298,24 @@ export function LiveMatchCard() {
               <div className="mb-1.5 font-display text-[12px] font-black tracking-[0.16em] text-ceuta-muted">
                 VS
               </div>
-              <div className="font-display text-[22px] font-black leading-none tracking-[0.04em]">
-                {new Date(match.startDate)
-                  .toLocaleDateString('es-ES', { weekday: 'short', timeZone: 'UTC' })
-                  .toUpperCase()
-                  .replace('.', '')}
-                <br />
-                {new Date(match.startDate).toLocaleTimeString('es-ES', {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  timeZone: 'Europe/Madrid',
-                })}
-              </div>
+              {(() => {
+                // Prefer DB date (nextMatch) over ESPN startDate which can be corrupt
+                const dateStr = nextMatch
+                  ? `${nextMatch.date}T${nextMatch.time}:00`
+                  : match.startDate
+                const d = new Date(dateStr)
+                return (
+                  <div className="font-display text-[22px] font-black leading-none tracking-[0.04em]">
+                    {d.toLocaleDateString('es-ES', { weekday: 'short', timeZone: 'UTC' }).toUpperCase().replace('.', '')}
+                    <br />
+                    {d.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', timeZone: 'UTC' })}
+                    <br />
+                    <span className="text-[16px] text-white/60">
+                      {nextMatch?.time ?? d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' })}
+                    </span>
+                  </div>
+                )
+              })()}
             </>
           )}
         </div>
