@@ -169,7 +169,7 @@ function TransferCard({ t, type, idx }: { t: Transfer; type: Tab; idx: number })
                 {routeLabel}
               </div>
               <div className="mt-[1px] truncate font-display text-[15px] font-bold uppercase leading-[1.05] tracking-[0.02em] text-ceuta-black">
-                {type === 'renew' ? 'AD Ceuta FC' : routeClub}
+                {type === 'renew' ? (t.clubTo ?? 'AD Ceuta FC') : routeClub}
               </div>
             </div>
           </div>
