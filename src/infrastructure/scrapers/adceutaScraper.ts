@@ -36,11 +36,28 @@ function parseScore(raw: unknown): number {
   return 0
 }
 
-async function fetchSchedule() {
-  const res = await fetch(`${ESPN}/teams/${CEUTA_ID}/schedule`, { next: { revalidate: 0 } })
-  if (!res.ok) return []
-  const data = await res.json()
-  return (data.events ?? []) as Record<string, unknown>[]
+async function fetchSchedule(): Promise<Record<string, unknown>[]> {
+  // Try team endpoint first (faster, scoped)
+  const teamRes = await fetch(`${ESPN}/teams/${CEUTA_ID}/schedule`, { next: { revalidate: 0 } })
+  if (teamRes.ok) {
+    const data = await teamRes.json()
+    const events = (data.events ?? []) as Record<string, unknown>[]
+    if (events.length > 0) return events
+  }
+
+  // Fallback: full scoreboard filtered to Ceuta (covers seasons where ESPN team endpoint lags)
+  const scoreRes = await fetch(
+    `https://site.api.espn.com/apis/site/v2/sports/soccer/esp.2/scoreboard?dates=20260801-20270630&limit=500`,
+    { next: { revalidate: 0 } }
+  )
+  if (!scoreRes.ok) return []
+  const scoreData = await scoreRes.json()
+  const all = (scoreData.events ?? []) as Record<string, unknown>[]
+  return all.filter((e) => {
+    const comps = (e.competitions as Record<string, unknown>[])?.[0]
+    const competitors = (comps?.competitors ?? []) as Record<string, unknown>[]
+    return competitors.some((c) => (c.team as Record<string, unknown>)?.id === CEUTA_ID)
+  })
 }
 
 export async function scrapeNextMatches(): Promise<ScrapedMatch[]> {
