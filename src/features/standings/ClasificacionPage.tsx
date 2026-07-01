@@ -169,7 +169,7 @@ function CeutaCard({ entry, form, total }: { entry: StandingEntry; form?: string
         )
         })}
       </div>
-      {form && form.length > 0 && (
+      {form && form.length > 0 && entry.played > 0 && (
         <div className="mt-3 flex items-center gap-2">
           <span className="font-display text-[10px] font-bold uppercase tracking-[0.14em] text-ceuta-muted">
             Últimos 5

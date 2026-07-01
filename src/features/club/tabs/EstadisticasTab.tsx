@@ -135,18 +135,18 @@ export function EstadisticasTab({
             <TileLabel className="text-ceuta-muted">{label}</TileLabel>
           </Tile>
         ))}
-        {form.length > 0 && (
-          <Tile>
+        <Tile>
+          {form.length > 0 && (ceuta?.played ?? 0) > 0 ? (
             <div className="flex flex-wrap gap-1">
               {form.slice(-5).map((f, i) => (
-                <div key={i} className={`form-pill ${f}`}>
-                  {f}
-                </div>
+                <div key={i} className={`form-pill ${f}`}>{f}</div>
               ))}
             </div>
-            <TileLabel className="text-ceuta-muted">Últimos 5</TileLabel>
-          </Tile>
-        )}
+          ) : (
+            <TileValue className="text-[42px] text-ceuta-black">–</TileValue>
+          )}
+          <TileLabel className="text-ceuta-muted">Últimos 5</TileLabel>
+        </Tile>
       </div>
 
       {/* ── SEASON SELECTOR ── */}
