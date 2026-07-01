@@ -4,34 +4,24 @@ import { useState } from 'react'
 import Image from 'next/image'
 import type { Transfer } from '@/infrastructure/supabase/TransfersRepository'
 
-const GREEN = '#1E7F47'
-const GREEN_SOFT = '#E4F3EA'
-
 const POSITIONS: Record<string, string> = {
   POR: 'Portero', DEF: 'Defensa', MED: 'Centrocampista', DEL: 'Delantero',
 }
 
 type Tab = 'in' | 'out' | 'renew' | 'rumor'
 
-const TABS: { id: Tab; label: string; color: string; textColor: string }[] = [
-  { id: 'renew', label: 'Renovados', color: GREEN,           textColor: '#fff' },
-  { id: 'in',    label: 'Fichados',  color: 'var(--red)',    textColor: '#fff' },
-  { id: 'out',   label: 'Salidas',   color: 'var(--black)',  textColor: '#fff' },
-  { id: 'rumor', label: 'Rumores',   color: 'var(--gold)',   textColor: '#000' },
+const TABS: { id: Tab; label: string }[] = [
+  { id: 'renew', label: 'Renovados' },
+  { id: 'in',    label: 'Fichados'  },
+  { id: 'out',   label: 'Salidas'   },
+  { id: 'rumor', label: 'Rumores'   },
 ]
 
-const TAB_CONFIG: Record<Tab, { color: string; textColor: string; accentBg: string }> = {
-  renew: { color: GREEN,          textColor: '#fff', accentBg: GREEN_SOFT },
-  in:    { color: 'var(--red)',   textColor: '#fff', accentBg: 'var(--red-soft, #FFE9EA)' },
-  out:   { color: 'var(--black)', textColor: '#fff', accentBg: 'var(--bone-2, #ECEAE4)' },
-  rumor: { color: 'var(--gold)',  textColor: '#000', accentBg: 'var(--gold-soft, #FFF6CC)' },
-}
-
-const BADGE: Record<Tab, { label: string; bg: string; color: string }> = {
-  renew: { label: 'Renovado', bg: GREEN_SOFT,        color: GREEN },
-  in:    { label: 'Oficial',  bg: 'var(--black)',     color: '#fff' },
-  out:   { label: 'Salida',   bg: 'var(--red-soft, #FFE9EA)', color: 'var(--red)' },
-  rumor: { label: 'Rumor',    bg: 'var(--bone-2, #ECEAE4)', color: 'var(--muted)' },
+const BADGE_LABEL: Record<Tab, string> = {
+  renew: 'Renovado',
+  in:    'Oficial',
+  out:   'Salida',
+  rumor: 'Rumor',
 }
 
 const REL_TEXT: Record<number, string> = { 3: 'Muy fiable', 2: 'Posible', 1: 'Especulación' }
@@ -61,33 +51,27 @@ function CheckIcon() {
 }
 function FlameIcon({ on }: { on: boolean }) {
   return (
-    <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" style={{ color: on ? 'var(--red)' : 'var(--border)' }}>
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" className={on ? 'text-ceuta-red' : 'text-ceuta-border'}>
       <path d="M12 2c0 4-4 5-4 9a4 4 0 008 0c0-1.2-.5-2-1-2.8.3 1.4-.3 2.3-1 2.3.6-2.3-1-3.5-1-5.5 0-1.5 0-3-1-5z"/>
     </svg>
   )
 }
 
-function PlayerPhoto({ photoUrl, name, ring }: { photoUrl: string | null; name: string; ring: string }) {
+function PlayerPhoto({ photoUrl, name, type }: { photoUrl: string | null; name: string; type: Tab }) {
   const [error, setError] = useState(false)
   const [loaded, setLoaded] = useState(false)
   const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
+  const ringCls =
+    type === 'in'    ? 'ring-2 ring-ceuta-red'    :
+    type === 'renew' ? 'ring-2 ring-[#1E7F47]'    :
+                       'ring-2 ring-ceuta-border'
 
   return (
-    <div style={{
-      width: 58, height: 58, borderRadius: '50%', flexShrink: 0,
-      overflow: 'hidden', position: 'relative',
-      background: 'var(--bone)',
-      boxShadow: `0 0 0 2.5px ${ring}`,
-    }}>
+    <div className={`relative size-[58px] shrink-0 overflow-hidden rounded-full bg-ceuta-bg-soft ${ringCls}`}>
       {photoUrl && !error ? (
         <>
           {!loaded && (
-            <div style={{
-              position: 'absolute', inset: 0, borderRadius: '50%',
-              background: 'linear-gradient(90deg,#eee 25%,#f5f5f5 50%,#eee 75%)',
-              backgroundSize: '200% 100%',
-              animation: 'shimmer 1.2s infinite linear',
-            }} />
+            <div className="absolute inset-0 animate-pulse rounded-full bg-ceuta-bg-mid" />
           )}
           <Image
             src={photoUrl.includes('supabase.co') ? photoUrl : `/api/proxy/image?url=${encodeURIComponent(photoUrl)}&w=120`}
@@ -99,14 +83,8 @@ function PlayerPhoto({ photoUrl, name, ring }: { photoUrl: string | null; name: 
           />
         </>
       ) : (
-        <div style={{
-          width: '100%', height: '100%',
-          background: 'var(--black)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}>
-          <span style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 900, color: 'rgba(255,255,255,0.3)' }}>
-            {initials}
-          </span>
+        <div className="flex size-full items-center justify-center bg-ceuta-black">
+          <span className="font-display text-[20px] font-black text-white/30">{initials}</span>
         </div>
       )}
     </div>
@@ -114,136 +92,111 @@ function PlayerPhoto({ photoUrl, name, ring }: { photoUrl: string | null; name: 
 }
 
 function TransferCard({ t, type, idx }: { t: Transfer; type: Tab; idx: number }) {
-  const cfg = TAB_CONFIG[type]
   const exitRumor = type === 'rumor' && isExitRumor(t)
-  const badge = exitRumor
-    ? { label: 'Posible salida', bg: 'var(--bone-2, #ECEAE4)', color: 'var(--muted)' }
-    : BADGE[type]
+
+  const badgeCls = exitRumor ? 'bg-ceuta-bg-mid text-ceuta-muted' :
+    type === 'renew' ? 'bg-[#E4F3EA] text-[#1E7F47]'  :
+    type === 'in'    ? 'bg-ceuta-black text-white'      :
+    type === 'out'   ? 'bg-ceuta-red-soft text-ceuta-red' :
+                       'bg-ceuta-bg-mid text-ceuta-muted'
+  const badgeLabel = exitRumor ? 'Posible salida' : BADGE_LABEL[type]
+
   const routeClub = type === 'in'
     ? t.clubFrom
     : type === 'out'
       ? t.clubTo
       : type === 'renew'
         ? 'AD Ceuta FC'
-        : exitRumor
-          ? (t.clubTo ?? 'Por determinar')
-          : (t.clubFrom ?? null)
+        : exitRumor ? (t.clubTo ?? 'Por determinar') : (t.clubFrom ?? null)
+
   const routeLabel = exitRumor ? 'Posible destino' : ROUTE_LABEL[type]
-  const ring = type === 'in' ? 'var(--red)' : type === 'renew' ? GREEN : 'var(--border)'
+  const showRoute  = !!(routeClub || type === 'renew')
 
   return (
-    <div style={{
-      background: 'var(--white)',
-      border: type === 'rumor' ? '1.5px dashed var(--border)' : '1px solid var(--border)',
-      borderRadius: 14,
-      position: 'relative', overflow: 'hidden',
-      animationDelay: `${idx * 0.04}s`,
-    }}>
-      <div style={{
-        position: 'absolute', left: 0, top: 0, bottom: 0, width: 4,
-        background: cfg.color,
-      }} />
+    <div
+      className={`relative overflow-hidden rounded-[14px] bg-white ${type === 'rumor' ? 'border-[1.5px] border-dashed border-ceuta-border' : 'border border-ceuta-border'}`}
+      style={{ animationDelay: `${idx * 0.04}s` }}
+    >
+      {/* left colour bar */}
+      <div className={`absolute bottom-0 left-0 top-0 w-1 ${
+        type === 'renew' ? 'bg-[#1E7F47]'  :
+        type === 'in'    ? 'bg-ceuta-red'   :
+        type === 'out'   ? 'bg-ceuta-black' :
+                           'bg-ceuta-gold'
+      }`} />
 
-      <div style={{ padding: '14px 15px 13px 19px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 13 }}>
-          <PlayerPhoto photoUrl={t.photoUrl} name={t.name} ring={ring} />
+      <div className="pb-[13px] pl-[19px] pr-[15px] pt-[14px]">
+        {/* top row */}
+        <div className="flex items-center gap-3">
+          <PlayerPhoto photoUrl={t.photoUrl} name={t.name} type={type} />
 
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{
-              fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 19,
-              lineHeight: 1, letterSpacing: '0.01em', textTransform: 'uppercase',
-              color: 'var(--black)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-            }}>
+          <div className="min-w-0 flex-1">
+            <div className="truncate font-display text-[19px] font-extrabold uppercase leading-none tracking-[0.01em] text-ceuta-black">
               {t.name}
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 7, flexWrap: 'wrap' }}>
-              <span style={{
-                fontFamily: 'var(--font-display)', fontSize: 10, fontWeight: 700,
-                letterSpacing: '0.08em', textTransform: 'uppercase',
-                color: type === 'rumor' ? '#000' : '#fff',
-                background: cfg.color,
-                padding: '3px 8px', borderRadius: 4,
-              }}>
+            <div className="mt-[7px] flex flex-wrap items-center gap-[7px]">
+              <span className={`rounded-[4px] px-2 py-[3px] font-display text-[10px] font-bold uppercase tracking-[0.08em] ${
+                type === 'renew' ? 'bg-[#1E7F47] text-white'  :
+                type === 'in'    ? 'bg-ceuta-red text-white'   :
+                type === 'out'   ? 'bg-ceuta-black text-white' :
+                                   'bg-ceuta-gold text-black'
+              }`}>
                 {POSITIONS[t.position] ?? t.position}
               </span>
             </div>
           </div>
 
-          <span style={{
-            fontFamily: 'var(--font-display)', fontSize: 10, fontWeight: 800,
-            letterSpacing: '0.1em', textTransform: 'uppercase',
-            padding: '5px 9px', borderRadius: 5, flexShrink: 0, alignSelf: 'flex-start',
-            display: 'flex', alignItems: 'center', gap: 4,
-            background: badge.bg, color: badge.color,
-          }}>
-            {type === 'in' && <CheckIcon />}
+          <span className={`flex shrink-0 items-center gap-1 self-start rounded-[5px] px-[9px] py-[5px] font-display text-[10px] font-extrabold uppercase tracking-[0.1em] ${badgeCls}`}>
+            {type === 'in'    && <CheckIcon />}
             {type === 'renew' && <RenewIcon />}
-            {badge.label}
+            {badgeLabel}
           </span>
         </div>
 
-        {(routeClub || type === 'renew') && (
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 10,
-            marginTop: 13, padding: '10px 12px',
-            background: 'var(--bone)', borderRadius: 8,
-          }}>
-            <div style={{
-              width: 26, height: 26, borderRadius: '50%', flexShrink: 0,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              background: cfg.color,
-              color: type === 'rumor' ? '#000' : '#fff',
-            }}>
+        {/* route box */}
+        {showRoute && (
+          <div className="mt-[13px] flex items-center gap-[10px] rounded-[8px] bg-ceuta-bg-soft px-3 py-[10px]">
+            <div className={`flex size-[26px] shrink-0 items-center justify-center rounded-full ${
+              type === 'renew' ? 'bg-[#1E7F47] text-white'  :
+              type === 'in'    ? 'bg-ceuta-red text-white'   :
+              type === 'out'   ? 'bg-ceuta-black text-white' :
+                                 'bg-ceuta-gold text-black'
+            }`}>
               {(type === 'out' || exitRumor) ? <ArrowOut /> : type === 'renew' ? <RenewIcon /> : <ArrowIn />}
             </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{
-                fontFamily: 'var(--font-display)', fontSize: 9.5, fontWeight: 700,
-                letterSpacing: '0.13em', textTransform: 'uppercase', color: 'var(--muted)',
-              }}>
+            <div className="min-w-0 flex-1">
+              <div className="font-display text-[9.5px] font-bold uppercase tracking-[0.13em] text-ceuta-muted">
                 {routeLabel}
               </div>
-              <div style={{
-                fontFamily: 'var(--font-display)', fontSize: 15, fontWeight: 700,
-                letterSpacing: '0.02em', textTransform: 'uppercase', color: 'var(--black)',
-                lineHeight: 1.05, marginTop: 1,
-                whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-              }}>
+              <div className="mt-[1px] truncate font-display text-[15px] font-bold uppercase leading-[1.05] tracking-[0.02em] text-ceuta-black">
                 {type === 'renew' ? 'AD Ceuta FC' : routeClub}
               </div>
             </div>
           </div>
         )}
 
+        {/* reliability (rumors) */}
         {type === 'rumor' && (
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 9,
-            marginTop: 13, paddingTop: 12, borderTop: '1px dashed var(--border)',
-          }}>
-            <span style={{
-              fontFamily: 'var(--font-display)', fontSize: 9.5, fontWeight: 700,
-              letterSpacing: '0.13em', textTransform: 'uppercase', color: 'var(--muted)',
-            }}>
+          <div className="mt-[13px] flex items-center gap-[9px] border-t border-dashed border-ceuta-border pt-3">
+            <span className="font-display text-[9.5px] font-bold uppercase tracking-[0.13em] text-ceuta-muted">
               Fiabilidad
             </span>
-            <div style={{ display: 'flex', gap: 4 }}>
+            <div className="flex gap-1">
               {[1, 2, 3].map(i => <FlameIcon key={i} on={i <= t.reliability} />)}
             </div>
-            <span style={{
-              fontFamily: 'var(--font-display)', fontSize: 11, fontWeight: 700,
-              letterSpacing: '0.06em', textTransform: 'uppercase', marginLeft: 'auto',
-              color: t.reliability === 3 ? 'var(--red)' : t.reliability === 2 ? '#c9a200' : 'var(--muted)',
-            }}>
+            <span className={`ml-auto font-display text-[11px] font-bold uppercase tracking-[0.06em] ${
+              t.reliability === 3 ? 'text-ceuta-red'   :
+              t.reliability === 2 ? 'text-[#c9a200]'   :
+                                    'text-ceuta-muted'
+            }`}>
               {REL_TEXT[t.reliability] ?? ''}
             </span>
           </div>
         )}
 
+        {/* notes */}
         {t.notes && (
-          <p style={{
-            fontSize: 12, color: 'var(--muted)', margin: '10px 0 0', lineHeight: 1.45,
-            fontFamily: 'var(--font-body)',
-          }}>
+          <p className="mt-[10px] font-body text-[12px] leading-[1.45] text-ceuta-muted">
             {t.notes}
           </p>
         )}
@@ -254,31 +207,25 @@ function TransferCard({ t, type, idx }: { t: Transfer; type: Tab; idx: number })
 
 function RumorDivider({ label }: { label: string }) {
   return (
-    <div style={{
-      display: 'flex', alignItems: 'center', gap: 10,
-      padding: '18px 4px 10px',
-    }}>
-      <div style={{ width: 18, height: 2, background: 'var(--red)', flexShrink: 0 }} />
-      <span style={{
-        fontFamily: 'var(--font-display)', fontSize: 11, fontWeight: 700,
-        letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--red)',
-      }}>
+    <div className="flex items-center gap-[10px] pb-[10px] pt-[18px]">
+      <div className="h-0.5 w-[18px] shrink-0 bg-ceuta-red" />
+      <span className="font-display text-[11px] font-bold uppercase tracking-[0.16em] text-ceuta-red">
         {label}
       </span>
-      <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
+      <div className="h-px flex-1 bg-ceuta-border" />
     </div>
   )
 }
 
 function RumorList({ transfers }: { transfers: Transfer[] }) {
   const arrivals = transfers.filter(t => !isExitRumor(t))
-  const exits = transfers.filter(t => isExitRumor(t))
+  const exits    = transfers.filter(t => isExitRumor(t))
   return (
-    <div style={{ paddingBottom: 24 }}>
+    <div className="pb-6">
       {arrivals.length > 0 && (
         <>
           <RumorDivider label="En el radar" />
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 10 }}>
+          <div className="grid gap-[10px] [grid-template-columns:repeat(auto-fill,minmax(320px,1fr))]">
             {arrivals.map((t, i) => <TransferCard key={t.id} t={t} type="rumor" idx={i} />)}
           </div>
         </>
@@ -286,7 +233,7 @@ function RumorList({ transfers }: { transfers: Transfer[] }) {
       {exits.length > 0 && (
         <>
           <RumorDivider label="Posibles salidas" />
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 10 }}>
+          <div className="grid gap-[10px] [grid-template-columns:repeat(auto-fill,minmax(320px,1fr))]">
             {exits.map((t, i) => <TransferCard key={t.id} t={t} type="rumor" idx={i} />)}
           </div>
         </>
@@ -303,11 +250,7 @@ function EmptyState({ tab }: { tab: Tab }) {
     rumor: 'Sin rumores por el momento',
   }
   return (
-    <div style={{
-      padding: '48px 0', textAlign: 'center',
-      fontFamily: 'var(--font-display)', fontSize: 13, fontWeight: 700,
-      textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--muted)',
-    }}>
+    <div className="py-12 text-center font-display text-[13px] font-bold uppercase tracking-[0.1em] text-ceuta-muted">
       {msgs[tab]}
     </div>
   )
@@ -326,96 +269,58 @@ export default function MercadoClient({ transfers }: { transfers: Transfer[] }) 
   const filtered = transfers.filter(t => t.type === tab)
   const headTitle: Record<Tab, string> = {
     renew: 'Renovaciones', in: 'Altas confirmadas',
-    out: 'Bajas y salidas', rumor: 'En el radar',
+    out:   'Bajas y salidas', rumor: 'En el radar',
   }
 
   return (
-    <div style={{ background: 'var(--bg)', minHeight: '100vh' }}>
-      <style>{`
-        @keyframes shimmer {
-          0% { background-position: 200% 0; }
-          100% { background-position: -200% 0; }
-        }
-      `}</style>
-
+    <div className="min-h-screen bg-ceuta-bg">
       {/* Hero */}
-      <div style={{
-        position: 'relative', background: 'var(--black)',
-        color: '#fff', padding: '24px 18px 64px', overflow: 'hidden',
-      }}>
-        <div style={{
-          position: 'absolute', top: -30, right: -50,
-          width: 200, height: 200,
-          background: 'repeating-linear-gradient(-45deg,#fff 0 14px,#000 14px 28px)',
-          clipPath: 'polygon(70px 0,100% 0,100% 100%,0 100%)',
-          opacity: 0.07, transform: 'rotate(8deg)', pointerEvents: 'none',
-        }} />
-
-        <div style={{
-          fontFamily: 'var(--font-display)', fontSize: 11, fontWeight: 700,
-          letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--red)',
-          display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10,
-        }}>
-          <span style={{ width: 18, height: 2, background: 'var(--red)', display: 'inline-block' }} />
+      <div className="page-hero-full relative mt-2 overflow-hidden bg-ceuta-black px-[18px] pb-[52px] pt-[22px] text-white">
+        <div
+          className="pointer-events-none absolute bottom-0 right-[-40px] top-0 w-[180px]"
+          style={{
+            background: 'repeating-linear-gradient(-45deg, white 0 14px, #0A0A0A 14px 28px)',
+            clipPath: 'polygon(60px 0, 100% 0, 100% 100%, 0 100%)',
+          }}
+        />
+        <div className="flex items-center gap-2 font-display text-[11px] font-bold uppercase tracking-[0.16em] text-ceuta-red">
+          <div className="h-0.5 w-[18px] bg-ceuta-red" />
           Temporada 2025–26
         </div>
-
-        <div style={{
-          fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 40,
-          lineHeight: 0.92, letterSpacing: '-0.01em', textTransform: 'uppercase',
-          position: 'relative', zIndex: 1,
-        }}>
+        <div className="mt-2 font-display text-[38px] font-black uppercase leading-[0.95]">
           MERCADO DE<br />
-          <span style={{ color: 'var(--gold)' }}>FICHAJES</span>
-        </div>
-
-        <div style={{
-          fontFamily: 'var(--font-body)', fontSize: 12.5, color: 'rgba(255,255,255,0.6)',
-          marginTop: 10, display: 'flex', alignItems: 'center', gap: 7,
-        }}>
-          <span style={{
-            width: 7, height: 7, borderRadius: '50%', background: GREEN,
-            boxShadow: `0 0 0 3px rgba(30,127,71,0.25)`, display: 'inline-block', flexShrink: 0,
-          }} />
-          Ventana de verano · Pretemporada 2025–26
+          <em className="not-italic text-ceuta-gold">FICHAJES</em>
         </div>
       </div>
 
-      {/* Counter pills / tabs overlapping hero */}
-      <div style={{
-        display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 6,
-        margin: '-44px 12px 0', position: 'relative', zIndex: 3,
-      }}>
+      {/* Counter pills overlapping hero */}
+      <div className="relative z-[3] -mt-11 grid grid-cols-4 gap-1.5 px-3">
         {TABS.map(t => {
           const active = tab === t.id
+          const barCls =
+            t.id === 'renew' ? 'bg-[#1E7F47]' :
+            t.id === 'in'    ? 'bg-ceuta-red'  :
+            t.id === 'out'   ? 'bg-ceuta-black' :
+                               'bg-ceuta-gold'
+          const activeCls =
+            t.id === 'renew' ? 'bg-[#1E7F47] border-[#1E7F47]' :
+            t.id === 'in'    ? 'bg-ceuta-red border-ceuta-red'   :
+            t.id === 'out'   ? 'bg-ceuta-black border-ceuta-black' :
+                               'bg-ceuta-gold border-ceuta-gold'
+          const countCls  = active ? (t.id === 'rumor' ? 'text-black' : 'text-white') : 'text-ceuta-black'
+          const labelCls  = active ? (t.id === 'rumor' ? 'text-black/60' : 'text-white/80') : 'text-ceuta-muted'
+
           return (
-            <button key={t.id} onClick={() => setTab(t.id)} style={{
-              background: active ? t.color : 'var(--white)',
-              border: `1.5px solid ${active ? t.color : 'var(--border)'}`,
-              borderRadius: 14, padding: '13px 6px 11px', textAlign: 'center',
-              boxShadow: '0 6px 18px rgba(0,0,0,0.08)', cursor: 'pointer',
-              position: 'relative', overflow: 'hidden',
-            }}>
-              {!active && (
-                <div style={{
-                  position: 'absolute', left: 0, right: 0, top: 0, height: 4,
-                  background: t.color,
-                }} />
-              )}
-              <div style={{
-                fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 30,
-                lineHeight: 0.9,
-                color: active ? t.textColor : 'var(--black)',
-              }}>
+            <button
+              key={t.id}
+              onClick={() => setTab(t.id)}
+              className={`relative overflow-hidden rounded-[14px] border-[1.5px] px-1.5 pb-[11px] pt-[13px] text-center shadow-[0_6px_18px_rgba(0,0,0,0.08)] transition-colors ${active ? activeCls : 'border-ceuta-border bg-white'}`}
+            >
+              {!active && <div className={`absolute left-0 right-0 top-0 h-1 ${barCls}`} />}
+              <div className={`font-display text-[30px] font-black leading-[0.9] ${countCls}`}>
                 {counts[t.id]}
               </div>
-              <div style={{
-                fontFamily: 'var(--font-display)', fontSize: 9, fontWeight: 700,
-                letterSpacing: '0.08em', textTransform: 'uppercase', marginTop: 5,
-                color: active
-                  ? (t.id === 'rumor' ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.8)')
-                  : 'var(--muted)',
-              }}>
+              <div className={`mt-[5px] font-display text-[9px] font-bold uppercase tracking-[0.08em] ${labelCls}`}>
                 {t.label}
               </div>
             </button>
@@ -424,18 +329,13 @@ export default function MercadoClient({ transfers }: { transfers: Transfer[] }) 
       </div>
 
       {/* List */}
-      <div style={{ padding: '0 12px' }}>
+      <div className="px-3">
         {filtered.length > 0 && (
-          <div style={{
-            padding: '14px 4px 8px', display: 'flex', alignItems: 'baseline', justifyContent: 'space-between',
-          }}>
-            <span style={{
-              fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 16,
-              letterSpacing: '0.02em', textTransform: 'uppercase', color: 'var(--black)',
-            }}>
+          <div className="flex items-baseline justify-between px-1 pb-2 pt-[14px]">
+            <span className="font-display text-[16px] font-extrabold uppercase tracking-[0.02em] text-ceuta-black">
               {headTitle[tab]}
             </span>
-            <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--muted)' }}>
+            <span className="font-body text-[12px] text-ceuta-muted">
               {filtered.length} movimientos
             </span>
           </div>
@@ -446,11 +346,7 @@ export default function MercadoClient({ transfers }: { transfers: Transfer[] }) 
         ) : tab === 'rumor' ? (
           <RumorList transfers={filtered} />
         ) : (
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-            gap: 10, paddingBottom: 24,
-          }}>
+          <div className="grid gap-[10px] pb-6 [grid-template-columns:repeat(auto-fill,minmax(320px,1fr))]">
             {filtered.map((t, i) => (
               <TransferCard key={t.id} t={t} type={tab} idx={i} />
             ))}

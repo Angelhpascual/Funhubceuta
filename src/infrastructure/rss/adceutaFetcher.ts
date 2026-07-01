@@ -1,19 +1,6 @@
 import { ParsedArticle } from './RssFetcher'
 import { downloadAndUploadImage } from '@/infrastructure/storage/imageUploader'
-
-function decodeEntities(str: string): string {
-  return str
-    .replace(/&#8211;/g, '–')
-    .replace(/&#8212;/g, '—')
-    .replace(/&#8216;/g, "'")
-    .replace(/&#8217;/g, "'")
-    .replace(/&#8220;/g, '"')
-    .replace(/&#8221;/g, '"')
-    .replace(/&amp;/g, '&')
-    .replace(/&quot;/g, '"')
-    .replace(/&#\d+;/g, '')
-    .replace(/&[a-z]+;/gi, '')
-}
+import { decodeEntities } from '@/lib/decodeEntities'
 
 interface WPPost {
   id: number
