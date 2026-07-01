@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react'
 
 const WORDS = ['ORGULLO', 'CABALLA']
 
-export function LoadingScreen() {
+export function LoadingScreen({ fadeOut, onFadeOutDone }: { fadeOut?: boolean; onFadeOutDone?: () => void }) {
   const boxRef = useRef<HTMLSpanElement>(null)
   const word0 = useRef<HTMLSpanElement>(null)
   const word1 = useRef<HTMLSpanElement>(null)
@@ -39,6 +39,12 @@ export function LoadingScreen() {
     return () => clearInterval(interval)
   }, [])
 
+  useEffect(() => {
+    if (!fadeOut) return
+    const t = setTimeout(() => onFadeOutDone?.(), 600)
+    return () => clearTimeout(t)
+  }, [fadeOut])
+
   return (
     <div
       style={{
@@ -51,7 +57,9 @@ export function LoadingScreen() {
         justifyContent: 'center',
         gap: 32,
         zIndex: 999,
-        animation: 'loadingFadeOut 0s 8s forwards',
+        transition: 'opacity 0.5s ease',
+        opacity: fadeOut ? 0 : 1,
+        pointerEvents: fadeOut ? 'none' : 'auto',
       }}
     >
       {/* Escudo + spinner */}
@@ -130,9 +138,6 @@ export function LoadingScreen() {
           0%   { stroke-dashoffset: 310; }
           50%  { stroke-dashoffset: 80; }
           100% { stroke-dashoffset: 310; }
-        }
-        @keyframes loadingFadeOut {
-          to { opacity: 0; pointer-events: none; visibility: hidden; }
         }
       `}</style>
     </div>

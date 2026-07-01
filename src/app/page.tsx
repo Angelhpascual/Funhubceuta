@@ -112,6 +112,7 @@ function AppInner() {
   const router = useRouter()
   const [modal, setModal] = useState<Modal>(null)
   const [ready, setReady] = useState(false)
+  const [loaderVisible, setLoaderVisible] = useState(true)
 
   // Safari bfcache: when restored from cache, force a full reload so React re-initialises
   useEffect(() => {
@@ -128,7 +129,7 @@ function AppInner() {
 
   return (
     <div id="app-root" className="home-shell">
-      {!ready && <LoadingScreen />}
+      {loaderVisible && <LoadingScreen fadeOut={ready} onFadeOutDone={() => setLoaderVisible(false)} />}
 
       {/* Modal views — slide over the main content */}
       {modal === 'himno' && (

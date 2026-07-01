@@ -144,6 +144,7 @@ export function HomePage({
   const [newsFetched, setNewsFetched] = useState(false)
   const [featuredImageReady, setFeaturedImageReady] = useState(false)
   const [timedOut, setTimedOut] = useState(false)
+  const [minTimePassed, setMinTimePassed] = useState(false)
   const onReadyRef = useRef(onReady)
   const imagePerfEnabledRef = useRef(false)
   const mountedAtRef = useRef(0)
@@ -153,6 +154,12 @@ export function HomePage({
   useEffect(() => {
     onReadyRef.current = onReady
   }, [onReady])
+
+  // Minimum time to show loader so TrueFocus animation gets at least 3 full cycles
+  useEffect(() => {
+    const t = setTimeout(() => setMinTimePassed(true), 3600)
+    return () => clearTimeout(t)
+  }, [])
 
   // Safety timeout — never stay on loading screen more than 8s
   useEffect(() => {
@@ -224,8 +231,8 @@ export function HomePage({
   const featured = news[0]
   const featuredImage = proxyImage(featured?.imageUrl)
 
-  // loading = true until news arrived AND (featured image loaded OR there's no image)
-  const loading = !timedOut && (!newsFetched || (!!featuredImage && !featuredImageReady))
+  // loading = true until min time passed AND news arrived AND (featured image loaded OR there's no image)
+  const loading = !timedOut && (!minTimePassed || !newsFetched || (!!featuredImage && !featuredImageReady))
 
   useEffect(() => {
     if (!loading) onReadyRef.current?.()
