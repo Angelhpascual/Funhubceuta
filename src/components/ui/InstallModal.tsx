@@ -180,8 +180,7 @@ export function InstallModal() {
 
               <button
                 onClick={snooze}
-                className="mt-6 w-full py-2 font-display text-[13px] font-bold uppercase tracking-[0.08em] underline underline-offset-2 transition-colors"
-                style={{ color: 'rgba(255,255,255,0.6)' }}
+                className="mt-6 w-full py-2 font-display text-[13px] font-bold uppercase tracking-[0.08em] text-white opacity-60 underline underline-offset-2 hover:opacity-100 transition-opacity"
               >
                 Ahora no
               </button>
