@@ -1,4 +1,44 @@
+'use client'
+
+import { useEffect, useRef } from 'react'
+
+const WORDS = ['ORGULLO', 'CABALLA']
+
 export function LoadingScreen() {
+  const boxRef = useRef<HTMLSpanElement>(null)
+  const word0 = useRef<HTMLSpanElement>(null)
+  const word1 = useRef<HTMLSpanElement>(null)
+  const words = [word0, word1]
+
+  useEffect(() => {
+    const box = boxRef.current
+    if (!box) return
+
+    let idx = 0
+
+    function moveTo(i: number) {
+      const el = words[i].current
+      if (!el || !box) return
+      const rect = el.getBoundingClientRect()
+      const parentRect = el.offsetParent?.getBoundingClientRect() ?? rect
+      box.style.width = rect.width + 8 + 'px'
+      box.style.height = rect.height + 4 + 'px'
+      box.style.left = rect.left - parentRect.left - 4 + 'px'
+      box.style.top = rect.top - parentRect.top - 2 + 'px'
+      words.forEach((w, j) => {
+        if (w.current) w.current.style.filter = j === i ? 'blur(0)' : 'blur(3px)'
+      })
+    }
+
+    moveTo(0)
+    const interval = setInterval(() => {
+      idx = (idx + 1) % WORDS.length
+      moveTo(idx)
+    }, 1200)
+
+    return () => clearInterval(interval)
+  }, [])
+
   return (
     <div
       style={{
@@ -6,23 +46,23 @@ export function LoadingScreen() {
         inset: 0,
         background: 'var(--white)',
         display: 'flex',
+        flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
+        gap: 32,
         zIndex: 999,
         animation: 'loadingFadeOut 0s 8s forwards',
       }}
     >
+      {/* Escudo + spinner */}
       <div style={{ position: 'relative', width: 120, height: 120 }}>
-        {/* Circular spinner */}
         <svg
           width="120"
           height="120"
           viewBox="0 0 120 120"
           style={{ position: 'absolute', inset: 0, animation: 'spin 1.4s linear infinite' }}
         >
-          {/* Track */}
           <circle cx="60" cy="60" r="52" fill="none" stroke="var(--bg-mid)" strokeWidth="4" />
-          {/* Progress arc */}
           <circle
             cx="60"
             cy="60"
@@ -36,8 +76,6 @@ export function LoadingScreen() {
             style={{ transformOrigin: '60px 60px', animation: 'arc 1.4s ease-in-out infinite' }}
           />
         </svg>
-
-        {/* Escudo centrado */}
         <div
           style={{
             position: 'absolute',
@@ -48,12 +86,39 @@ export function LoadingScreen() {
           }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/escudo.png"
-            alt="AD Ceuta"
-            style={{ width: 68, height: 68, objectFit: 'contain' }}
-          />
+          <img src="/escudo.png" alt="AD Ceuta" style={{ width: 68, height: 68, objectFit: 'contain' }} />
         </div>
+      </div>
+
+      {/* TrueFocus words */}
+      <div style={{ position: 'relative', display: 'flex', gap: 16, alignItems: 'center' }}>
+        <span
+          ref={boxRef}
+          style={{
+            position: 'absolute',
+            border: '2px solid var(--red)',
+            borderRadius: 6,
+            boxShadow: '0 0 8px var(--red)',
+            transition: 'all 0.45s cubic-bezier(0.25,0.46,0.45,0.94)',
+            pointerEvents: 'none',
+          }}
+        />
+        {WORDS.map((word, i) => (
+          <span
+            key={word}
+            ref={words[i]}
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: 22,
+              fontWeight: 900,
+              letterSpacing: '0.12em',
+              color: 'var(--black)',
+              transition: 'filter 0.45s ease',
+            }}
+          >
+            {word}
+          </span>
+        ))}
       </div>
 
       <style>{`
