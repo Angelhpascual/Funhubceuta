@@ -156,6 +156,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
 
+  if (pathname.startsWith('/admin')) return <>{children}</>
+
   const isSSRRoute = SSR_ROUTES.some((r) => pathname === r || pathname.startsWith(r + '/'))
 
   // Home page has its own mobile shell; on desktop we inject a topbar above it via CSS

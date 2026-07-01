@@ -2,7 +2,6 @@ import { supabase } from '@/infrastructure/supabase/client'
 import { CURRENT_SEASON } from '@/lib/constants'
 import { BarChart, LineChart } from '@/components/admin/Charts'
 import { AdminActions } from '@/features/admin/AdminActions'
-import { AdminShell } from '@/features/admin/AdminShell'
 
 function parseDevice(ua: string | null): { os: string; browser: string; icon: string } {
   if (!ua) return { os: 'Desconocido', browser: '—', icon: '❓' }
@@ -275,7 +274,6 @@ export default async function AdminPage() {
     stats.cronLogs.length > 0 ? Math.round((cronSuccess / stats.cronLogs.length) * 100) : 100
 
   return (
-    <AdminShell>
     <div style={s.page}>
       <div style={s.eyebrow}>Panel de administración</div>
       <div style={s.title}>AD Ceuta FC</div>
@@ -571,6 +569,5 @@ export default async function AdminPage() {
         )}
       </div>
     </div>
-    </AdminShell>
   )
 }
