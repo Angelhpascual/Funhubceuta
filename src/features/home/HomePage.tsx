@@ -143,6 +143,7 @@ export function HomePage({
   const [news, setNews] = useState<NewsItem[]>([])
   const [newsFetched, setNewsFetched] = useState(false)
   const [featuredImageReady, setFeaturedImageReady] = useState(false)
+  const [timedOut, setTimedOut] = useState(false)
   const onReadyRef = useRef(onReady)
   const imagePerfEnabledRef = useRef(false)
   const mountedAtRef = useRef(0)
@@ -152,6 +153,12 @@ export function HomePage({
   useEffect(() => {
     onReadyRef.current = onReady
   }, [onReady])
+
+  // Safety timeout — never stay on loading screen more than 4s
+  useEffect(() => {
+    const t = setTimeout(() => setTimedOut(true), 4000)
+    return () => clearTimeout(t)
+  }, [])
 
   useEffect(() => {
     mountedAtRef.current = performance.now()
@@ -218,7 +225,7 @@ export function HomePage({
   const featuredImage = proxyImage(featured?.imageUrl)
 
   // loading = true until news arrived AND (featured image loaded OR there's no image)
-  const loading = !newsFetched || (!!featuredImage && !featuredImageReady)
+  const loading = !timedOut && (!newsFetched || (!!featuredImage && !featuredImageReady))
 
   useEffect(() => {
     if (!loading) onReadyRef.current?.()

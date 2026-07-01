@@ -59,6 +59,10 @@ export function InstallModal() {
   }, [])
 
   function dismiss() {
+    setVisible(false)
+  }
+
+  function snooze() {
     localStorage.setItem('install_snoozed', String(Date.now() + 7 * 24 * 60 * 60 * 1000))
     setVisible(false)
   }
@@ -246,7 +250,7 @@ export function InstallModal() {
 
           {/* Dismiss */}
           <button
-            onClick={dismiss}
+            onClick={snooze}
             className="mt-5 w-full py-2 font-display text-[11px] font-bold uppercase tracking-[0.12em] text-white/30"
           >
             Ahora no
