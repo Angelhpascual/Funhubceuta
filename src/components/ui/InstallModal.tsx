@@ -114,10 +114,10 @@ export function InstallModal() {
             <Image src="/icon-192.png" alt="FunHub Ceuta" width={44} height={44} className="rounded-[10px]" unoptimized />
             <div>
               <div className="font-display text-[11px] font-bold uppercase tracking-[0.18em] text-ceuta-red">
-                La app del ceutí
+                La app Caballa
               </div>
               <div className="font-display text-[13px] font-bold uppercase tracking-[0.06em] text-white/70">
-                FunHub · AD Ceuta FC
+                AD CEUTA INFO
               </div>
             </div>
           </div>
@@ -142,8 +142,8 @@ export function InstallModal() {
           <div className="mb-6 flex flex-col gap-3">
             {[
               { icon: '⏱', text: 'Goles y resultado en vivo' },
-              { icon: '📋', text: 'Fichajes y mercado al instante' },
-              { icon: '📅', text: 'Día de partido, sin perdértelo' },
+              { icon: '📰', text: 'Noticias y mercado al instante' },
+              { icon: '📋', text: 'Plantilla, fichajes y clasificación' },
             ].map(({ icon, text }) => (
               <div key={text} className="flex items-center gap-3">
                 <div className="flex size-8 shrink-0 items-center justify-center rounded-[8px] bg-ceuta-red/20 text-[16px]">
@@ -199,11 +199,11 @@ export function InstallModal() {
                 </div>
               </div>
 
-              <div className="mt-4 flex items-center justify-center gap-2 text-ceuta-red">
+              <div className="mt-4 flex flex-col items-center gap-1 text-ceuta-red">
                 <span className="font-display text-[11px] font-bold uppercase tracking-[0.1em]">
                   Búscalo aquí abajo
                 </span>
-                <span className="text-[14px]">↓</span>
+                <span className="text-[18px]">↓</span>
               </div>
             </div>
           ) : (
