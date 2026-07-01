@@ -130,7 +130,7 @@ export function InstallModal() {
   if (platform === 'desktop') {
     return (
       <>
-        <div className="fixed inset-0 z-[200] bg-black/70" />
+        <div className="fixed inset-0 z-[200] cursor-pointer bg-black/70" onClick={dismiss} />
         <div
           className="fixed left-1/2 top-1/2 z-[201] w-full max-w-[760px] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[28px] bg-ceuta-black shadow-2xl"
           onClick={e => e.stopPropagation()}
@@ -197,7 +197,7 @@ export function InstallModal() {
   return (
     <>
       {/* Backdrop — z-[200] to sit above topbar (z-100) */}
-      <div className="fixed inset-0 z-[200] bg-black/60" />
+      <div className="fixed inset-0 z-[200] cursor-pointer bg-black/60" onClick={dismiss} onTouchEnd={dismiss} />
 
       {/* Modal — bottom sheet mobile */}
       <div
