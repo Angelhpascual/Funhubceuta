@@ -45,7 +45,8 @@ function TeamCrest({ name, logos }: { name: string; logos: Record<string, string
     return (
       <div className="flex size-[52px] items-center justify-center rounded-full bg-white">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={logo} alt={name} className="size-9 object-contain" />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={logo} alt={name} className="size-9 object-contain" fetchPriority="high" />
       </div>
     )
   }
@@ -183,6 +184,13 @@ export function LiveMatchCard() {
           const map: Record<string, string> = {}
           for (const t of d.teams) if (t.logoUrl) map[t.name] = t.logoUrl
           setLogos(map)
+          // Preload next match logos so they appear instantly
+          if (nextMatch) {
+            for (const teamName of [nextMatch.homeTeam, nextMatch.awayTeam]) {
+              const url = map[teamName] ?? Object.entries(map).find(([k]) => k.toLowerCase().includes(teamName.toLowerCase().slice(0, 5)))?.[1]
+              if (url) { const img = new Image(); img.src = url }
+            }
+          }
         }
       })
       .catch(() => {})
@@ -239,7 +247,7 @@ export function LiveMatchCard() {
               <br />
               {new Date(dateStr).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', timeZone: 'UTC' })}
               <br />
-              <span className="text-[16px] text-white/60">{nextMatch.time || 'Por confirmar'}</span>
+              <span className="text-[16px] text-white/60">Por confirmar</span>
             </div>
           </div>
           <div className="flex flex-col items-center gap-2">
@@ -311,7 +319,7 @@ export function LiveMatchCard() {
                     {d.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', timeZone: 'UTC' })}
                     <br />
                     <span className="text-[16px] text-white/60">
-                      {nextMatch?.time || 'Por confirmar'}
+                      Por confirmar
                     </span>
                   </div>
                 )

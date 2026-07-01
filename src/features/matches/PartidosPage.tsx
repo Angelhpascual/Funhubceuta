@@ -186,7 +186,7 @@ export function PartidosPage({ upcoming = [], results = [], previousSeason = [],
                 <div className="fixt-head">
                   <div className="fixt-comp">Liga Hypermotion</div>
                   <div className="fixt-date">
-                    {m.weekday} · {m.time || 'Por confirmar'}
+                    {m.weekday} · Por confirmar
                   </div>
                 </div>
                 <div className="fixt-teams items-center">
