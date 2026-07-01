@@ -2,7 +2,7 @@ import { PartidosPage } from '@/features/matches/PartidosPage'
 import { supabase } from '@/infrastructure/supabase/client'
 import { deduplicateMatches } from '@/app/api/matches/deduplicateMatches'
 import { fetchTeamLogos } from '@/lib/serverFetches'
-import { CURRENT_SEASON } from '@/lib/constants'
+import { CURRENT_SEASON, PREVIOUS_SEASON } from '@/lib/constants'
 
 export const revalidate = 300
 
@@ -31,8 +31,30 @@ async function fetchMatches() {
   return { upcoming, results }
 }
 
-export default async function PartidosServerPage() {
-  const [{ upcoming, results }, logos] = await Promise.all([fetchMatches(), fetchTeamLogos()])
+async function fetchPreviousSeason() {
+  const { data } = await supabase
+    .from('matches')
+    .select('*')
+    .eq('season', PREVIOUS_SEASON)
+    .order('date', { ascending: false })
 
-  return <PartidosPage upcoming={upcoming} results={results} logos={logos} />
+  const deduped = deduplicateMatches(data ?? [])
+  return deduped.sort((a, b) => b.date.localeCompare(a.date))
+}
+
+export default async function PartidosServerPage() {
+  const [{ upcoming, results }, previousSeason, logos] = await Promise.all([
+    fetchMatches(),
+    fetchPreviousSeason(),
+    fetchTeamLogos(),
+  ])
+
+  return (
+    <PartidosPage
+      upcoming={upcoming}
+      results={results}
+      previousSeason={previousSeason}
+      logos={logos}
+    />
+  )
 }
