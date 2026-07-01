@@ -273,7 +273,7 @@ export default function MercadoClient({ transfers }: { transfers: Transfer[] }) 
   }
 
   return (
-    <div className="min-h-screen bg-ceuta-bg">
+    <div className="page min-h-screen bg-ceuta-bg">
       {/* Hero */}
       <div className="page-hero-full relative mt-2 overflow-hidden bg-ceuta-black px-[18px] pb-[52px] pt-[22px] text-white">
         <div
