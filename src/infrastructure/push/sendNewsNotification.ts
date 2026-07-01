@@ -1,5 +1,6 @@
 import webpush from 'web-push'
 import { ParsedArticle } from '@/infrastructure/rss/RssFetcher'
+import { decodeEntities } from '@/lib/decodeEntities'
 import {
   getAllSubscriptions,
   deleteSubscription,
@@ -48,7 +49,7 @@ export async function sendNewsNotification(
   const sourceLabel = SOURCE_LABELS[article.source] ?? 'Noticias'
   const payload = JSON.stringify({
     title: '🔴 Noticias',
-    body: `${sourceLabel} · ${article.title}`,
+    body: `${sourceLabel} · ${decodeEntities(article.title)}`,
     tag: `news-${article.externalId}`,
     url: article.url,
     icon: '/icon-512.png',
