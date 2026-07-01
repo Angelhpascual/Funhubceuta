@@ -3,7 +3,7 @@ import { ClubPage } from '@/features/club/ClubPage'
 import { StandingsService } from '@/domain/standings/StandingsService'
 import { StandingsSupabaseRepository } from '@/infrastructure/supabase/StandingsSupabaseRepository'
 import { supabase } from '@/infrastructure/supabase/client'
-import { CURRENT_SEASON, PREVIOUS_SEASON } from '@/lib/constants'
+import { CURRENT_SEASON, PREVIOUS_SEASON, STANDINGS_CURRENT_SEASON } from '@/lib/constants'
 import type { LeadersMap } from '@/features/club/clubTypes'
 import { fetchCeutaForm } from '@/lib/serverFetches'
 
@@ -58,7 +58,7 @@ async function fetchSquadBySeason(season: string) {
 
 async function fetchCeuta() {
   const service = new StandingsService(new StandingsSupabaseRepository())
-  const standings = await service.getStandings(CURRENT_SEASON)
+  const standings = await service.getStandings(STANDINGS_CURRENT_SEASON)
   return standings?.entries?.find((e) => e.teamName.toLowerCase().includes('ceuta')) ?? null
 }
 
