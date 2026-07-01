@@ -83,6 +83,116 @@ export function InstallModal() {
 
   if (!visible) return null
 
+  // Shared install button
+  const InstallButton = ({ label }: { label: string }) => (
+    <button
+      onClick={handleAndroidInstall}
+      disabled={installing}
+      style={{ backgroundColor: 'var(--red)', boxShadow: '0 4px 20px rgba(218,26,34,0.4)' }}
+      className="flex w-full items-center justify-center gap-2 rounded-[14px] py-4 font-display text-[15px] font-black uppercase tracking-[0.08em] text-white disabled:opacity-60"
+    >
+      <span>{installing ? '...' : label}</span>
+    </button>
+  )
+
+  // Shared copy column
+  const CopyColumn = () => (
+    <div>
+      <div className="mb-5 flex items-center gap-3">
+        <Image src="/icon-192.png" alt="AD Ceuta Info" width={44} height={44} className="rounded-[10px]" unoptimized />
+        <div>
+          <div className="font-display text-[11px] font-bold uppercase tracking-[0.18em] text-ceuta-red">La app Caballa</div>
+          <div className="font-display text-[13px] font-bold uppercase tracking-[0.06em] text-white/70">AD CEUTA INFO</div>
+        </div>
+      </div>
+      <div className="font-display text-[44px] font-black uppercase leading-[0.92] tracking-[-0.01em] text-white">
+        CADA GOL.<br />EN TU <em className="not-italic text-ceuta-red">BOLSILLO.</em>
+      </div>
+      <p className="mt-3 font-body text-[14px] leading-[1.5] text-white/60">
+        Todo sobre nuestra AD Ceuta. <strong className="text-white">Tú te enteras primero.</strong>
+      </p>
+      <div className="mt-5 flex flex-col gap-3">
+        {[
+          { icon: '⏱', text: 'Goles y resultado en vivo' },
+          { icon: '📰', text: 'Noticias y mercado al instante' },
+          { icon: '📋', text: 'Plantilla, fichajes y clasificación' },
+        ].map(({ icon, text }) => (
+          <div key={text} className="flex items-center gap-3">
+            <div className="flex size-8 shrink-0 items-center justify-center rounded-[8px] bg-ceuta-red/20 text-[16px]">{icon}</div>
+            <span className="font-display text-[13px] font-bold uppercase tracking-[0.06em] text-white/80">{text}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+
+  if (platform === 'desktop') {
+    return (
+      <>
+        <div className="fixed inset-0 z-[200] cursor-pointer bg-black/70" onClick={dismiss} />
+        <div
+          className="fixed left-1/2 top-1/2 z-[201] w-full max-w-[760px] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[28px] bg-ceuta-black shadow-2xl"
+          onClick={e => e.stopPropagation()}
+        >
+          {/* Close button */}
+          <button
+            onClick={snooze}
+            className="absolute right-5 top-5 flex size-8 items-center justify-center rounded-full bg-white/10 font-body text-[16px] text-white/50 hover:bg-white/20"
+          >
+            ✕
+          </button>
+
+          <div className="grid grid-cols-2">
+            {/* Left — copy */}
+            <div className="p-10 pr-6">
+              <CopyColumn />
+            </div>
+
+            {/* Right — install + divider */}
+            <div className="flex flex-col justify-center border-l border-white/10 p-10 pl-8">
+              <div className="mb-4 flex items-center justify-between">
+                <span className="font-display text-[13px] font-black uppercase tracking-[0.08em] text-white">
+                  Instálala ahora
+                </span>
+                <span className="rounded-full bg-white/10 px-2.5 py-1 font-display text-[10px] font-bold uppercase tracking-[0.08em] text-white/50">
+                  {deferredPrompt ? '1 clic' : '2 pasos'}
+                </span>
+              </div>
+
+              {deferredPrompt ? (
+                <InstallButton label="⬇ Instalar app" />
+              ) : (
+                <div className="flex flex-col gap-4 rounded-[16px] bg-white/8 p-5">
+                  <div className="flex items-start gap-3">
+                    <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-ceuta-red font-display text-[11px] font-black text-white">1</div>
+                    <p className="font-body text-[14px] leading-[1.45] text-white/80">
+                      Busca el icono <span className="inline-flex items-center rounded-[4px] bg-white/15 px-1.5 py-0.5 font-display text-[11px] font-bold text-white">⊕</span> en la barra de direcciones
+                    </p>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-ceuta-red font-display text-[11px] font-black text-white">2</div>
+                    <p className="font-body text-[14px] leading-[1.45] text-white/80">
+                      Haz clic en <strong className="text-white">«Instalar»</strong>
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              <p className="mt-5 font-body text-[12px] text-white/40">Funciona sin conexión. Acceso directo desde el escritorio.</p>
+
+              <button
+                onClick={snooze}
+                className="mt-6 w-full py-2 font-display text-[11px] font-bold uppercase tracking-[0.12em] text-white/30 hover:text-white/50"
+              >
+                Ahora no
+              </button>
+            </div>
+          </div>
+        </div>
+      </>
+    )
+  }
+
   return (
     <>
       {/* Backdrop — z-[200] to sit above topbar (z-100) */}
@@ -92,9 +202,9 @@ export function InstallModal() {
         onTouchEnd={dismiss}
       />
 
-      {/* Modal — bottom sheet (centered on desktop) */}
+      {/* Modal — bottom sheet mobile */}
       <div
-        className="fixed bottom-0 left-1/2 z-[201] w-full max-w-[480px] -translate-x-1/2 max-h-[92dvh] overflow-y-auto rounded-t-[24px] bg-ceuta-black md:bottom-8 md:rounded-[24px]"
+        className="fixed bottom-0 left-0 right-0 z-[201] max-h-[92dvh] overflow-y-auto rounded-t-[24px] bg-ceuta-black"
         onClick={e => e.stopPropagation()}
         onTouchStart={e => { touchStartY.current = e.touches[0].clientY }}
         onTouchEnd={e => {
@@ -112,30 +222,20 @@ export function InstallModal() {
         <div className="px-5 pt-3 pb-8">
           {/* Header */}
           <div className="mb-5 flex items-center gap-3">
-            <Image src="/icon-192.png" alt="FunHub Ceuta" width={44} height={44} className="rounded-[10px]" unoptimized />
+            <Image src="/icon-192.png" alt="AD Ceuta Info" width={44} height={44} className="rounded-[10px]" unoptimized />
             <div>
-              <div className="font-display text-[11px] font-bold uppercase tracking-[0.18em] text-ceuta-red">
-                La app Caballa
-              </div>
-              <div className="font-display text-[13px] font-bold uppercase tracking-[0.06em] text-white/70">
-                AD CEUTA INFO
-              </div>
+              <div className="font-display text-[11px] font-bold uppercase tracking-[0.18em] text-ceuta-red">La app Caballa</div>
+              <div className="font-display text-[13px] font-bold uppercase tracking-[0.06em] text-white/70">AD CEUTA INFO</div>
             </div>
           </div>
 
           {/* Hero copy */}
           <div className="mb-5">
-            <div
-              className="font-display text-[44px] font-black uppercase leading-[0.92] tracking-[-0.01em] text-white"
-            >
-              CADA GOL.
-              <br />
-              EN TU{' '}
-              <em className="not-italic text-ceuta-red">BOLSILLO.</em>
+            <div className="font-display text-[44px] font-black uppercase leading-[0.92] tracking-[-0.01em] text-white">
+              CADA GOL.<br />EN TU <em className="not-italic text-ceuta-red">BOLSILLO.</em>
             </div>
             <p className="mt-3 font-body text-[14px] leading-[1.5] text-white/60">
-              Todo sobre nuestra AD Ceuta.{' '}
-              <strong className="text-white">Tú te enteras primero.</strong>
+              Todo sobre nuestra AD Ceuta. <strong className="text-white">Tú te enteras primero.</strong>
             </p>
           </div>
 
@@ -147,12 +247,8 @@ export function InstallModal() {
               { icon: '📋', text: 'Plantilla, fichajes y clasificación' },
             ].map(({ icon, text }) => (
               <div key={text} className="flex items-center gap-3">
-                <div className="flex size-8 shrink-0 items-center justify-center rounded-[8px] bg-ceuta-red/20 text-[16px]">
-                  {icon}
-                </div>
-                <span className="font-display text-[13px] font-bold uppercase tracking-[0.06em] text-white/80">
-                  {text}
-                </span>
+                <div className="flex size-8 shrink-0 items-center justify-center rounded-[8px] bg-ceuta-red/20 text-[16px]">{icon}</div>
+                <span className="font-display text-[13px] font-bold uppercase tracking-[0.06em] text-white/80">{text}</span>
               </div>
             ))}
           </div>
@@ -164,12 +260,8 @@ export function InstallModal() {
           {platform === 'ios' && (
             <div>
               <div className="mb-3 flex items-center justify-between">
-                <span className="font-display text-[13px] font-black uppercase tracking-[0.08em] text-white">
-                  Instálala en Safari
-                </span>
-                <span className="rounded-full bg-white/10 px-2.5 py-1 font-display text-[10px] font-bold uppercase tracking-[0.08em] text-white/50">
-                  2 pasos
-                </span>
+                <span className="font-display text-[13px] font-black uppercase tracking-[0.08em] text-white">Instálala en Safari</span>
+                <span className="rounded-full bg-white/10 px-2.5 py-1 font-display text-[10px] font-bold uppercase tracking-[0.08em] text-white/50">2 pasos</span>
               </div>
               <div className="flex flex-col gap-3 rounded-[16px] bg-white/8 p-4">
                 <div className="flex items-start gap-3">
@@ -203,22 +295,13 @@ export function InstallModal() {
           {platform === 'android' && (
             <div>
               <div className="mb-3 flex items-center justify-between">
-                <span className="font-display text-[13px] font-black uppercase tracking-[0.08em] text-white">
-                  Instálala en Chrome
-                </span>
+                <span className="font-display text-[13px] font-black uppercase tracking-[0.08em] text-white">Instálala en Chrome</span>
                 <span className="rounded-full bg-white/10 px-2.5 py-1 font-display text-[10px] font-bold uppercase tracking-[0.08em] text-white/50">
                   {deferredPrompt ? '1 toque' : '2 pasos'}
                 </span>
               </div>
               {deferredPrompt ? (
-                <button
-                  onClick={handleAndroidInstall}
-                  disabled={installing}
-                  style={{ backgroundColor: 'var(--red)', boxShadow: '0 4px 20px rgba(218,26,34,0.4)' }}
-                  className="flex w-full items-center justify-center gap-2 rounded-[14px] py-4 font-display text-[15px] font-black uppercase tracking-[0.08em] text-white disabled:opacity-60"
-                >
-                  <span>{installing ? '...' : '⬇ Añadir a pantalla de inicio'}</span>
-                </button>
+                <InstallButton label="⬇ Añadir a pantalla de inicio" />
               ) : (
                 <div className="flex flex-col gap-3 rounded-[16px] bg-white/8 p-4">
                   <div className="flex items-start gap-3">
@@ -236,45 +319,6 @@ export function InstallModal() {
                 </div>
               )}
               <p className="mt-4 text-center font-body text-[12px] text-white/40">Sin Play Store. No ocupa espacio.</p>
-            </div>
-          )}
-
-          {platform === 'desktop' && (
-            <div>
-              <div className="mb-3 flex items-center justify-between">
-                <span className="font-display text-[13px] font-black uppercase tracking-[0.08em] text-white">
-                  Instálala en tu ordenador
-                </span>
-                <span className="rounded-full bg-white/10 px-2.5 py-1 font-display text-[10px] font-bold uppercase tracking-[0.08em] text-white/50">
-                  {deferredPrompt ? '1 clic' : '2 pasos'}
-                </span>
-              </div>
-              {deferredPrompt ? (
-                <button
-                  onClick={handleAndroidInstall}
-                  disabled={installing}
-                  style={{ backgroundColor: 'var(--red)', boxShadow: '0 4px 20px rgba(218,26,34,0.4)' }}
-                  className="flex w-full items-center justify-center gap-2 rounded-[14px] py-4 font-display text-[15px] font-black uppercase tracking-[0.08em] text-white disabled:opacity-60"
-                >
-                  <span>{installing ? '...' : '⬇ Instalar app'}</span>
-                </button>
-              ) : (
-                <div className="flex flex-col gap-3 rounded-[16px] bg-white/8 p-4">
-                  <div className="flex items-start gap-3">
-                    <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-ceuta-red font-display text-[11px] font-black text-white">1</div>
-                    <p className="font-body text-[14px] leading-[1.45] text-white/80">
-                      Busca el icono <span className="inline-flex items-center rounded-[4px] bg-white/15 px-1.5 py-0.5 font-display text-[11px] font-bold text-white">⊕</span> en la barra de direcciones del navegador
-                    </p>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-ceuta-red font-display text-[11px] font-black text-white">2</div>
-                    <p className="font-body text-[14px] leading-[1.45] text-white/80">
-                      Haz clic en <strong className="text-white">«Instalar»</strong>
-                    </p>
-                  </div>
-                </div>
-              )}
-              <p className="mt-4 text-center font-body text-[12px] text-white/40">Funciona sin conexión. Acceso directo desde el escritorio.</p>
             </div>
           )}
 
