@@ -21,7 +21,6 @@ function isStandalone(): boolean {
 
 function shouldShow(): boolean {
   if (typeof window === 'undefined') return false
-  if (window.location.hostname === 'localhost') return false
   if (new URLSearchParams(window.location.search).get('install') === '1') return true
   if (isStandalone()) return false
   const snoozed = localStorage.getItem('install_snoozed')
