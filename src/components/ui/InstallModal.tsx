@@ -79,14 +79,14 @@ export function InstallModal() {
 
   return (
     <>
-      {/* Backdrop */}
+      {/* Backdrop — cursor:pointer needed for iOS Safari to fire onClick */}
       <div
-        className="fixed inset-0 z-[100] bg-black/60"
+        className="fixed inset-0 z-[100] bg-black/60 cursor-pointer"
         onClick={dismiss}
       />
 
       {/* Modal — bottom sheet */}
-      <div className="fixed bottom-0 left-0 right-0 z-[101] max-h-[92dvh] overflow-y-auto rounded-t-[24px] bg-ceuta-black">
+      <div className="fixed bottom-0 left-0 right-0 z-[101] max-h-[92dvh] overflow-y-auto rounded-t-[24px] bg-ceuta-black" onClick={e => e.stopPropagation()}>
         {/* Drag handle */}
         <div className="flex justify-center pt-3 pb-1">
           <div className="h-1 w-10 rounded-full bg-white/20" />
