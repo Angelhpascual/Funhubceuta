@@ -1,6 +1,7 @@
 'use client'
 
 import { usePathname, useRouter } from 'next/navigation'
+import { InstallModal } from '@/components/ui/InstallModal'
 
 const NAV_MOBILE = [
   {
@@ -172,6 +173,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div id="app-root">
+      <InstallModal />
       <Topbar pathname={pathname} router={router} />
 
       <div className="scroll-area">{children}</div>
