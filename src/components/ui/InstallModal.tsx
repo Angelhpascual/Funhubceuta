@@ -243,25 +243,39 @@ export function InstallModal() {
           <div className="mb-6 flex flex-col gap-3">
             {[
               {
+                // Soccer ball — circle + pentagon + 5 lines
                 icon: (
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 20, height: 20, color: 'var(--red)' }}>
-                    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                  <svg viewBox="0 0 24 24" style={{ width: 22, height: 22, color: 'var(--red)' }} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polygon points="12,8 14.5,10 13.5,13 10.5,13 9.5,10" fill="none"/>
+                    <line x1="12" y1="2" x2="12" y2="8"/>
+                    <line x1="20.5" y1="6.5" x2="14.5" y2="10"/>
+                    <line x1="17.5" y1="19" x2="13.5" y2="13"/>
+                    <line x1="6.5" y1="19" x2="10.5" y2="13"/>
+                    <line x1="3.5" y1="6.5" x2="9.5" y2="10"/>
                   </svg>
                 ),
                 text: 'Goles y resultado en vivo',
               },
               {
+                // Bell
                 icon: (
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 20, height: 20, color: 'var(--red)' }}>
-                    <path d="M4 4h16v12H4z"/><path d="M8 20h8"/><path d="M12 16v4"/>
+                  <svg viewBox="0 0 24 24" style={{ width: 22, height: 22, color: 'var(--red)' }} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
                   </svg>
                 ),
                 text: 'Noticias y mercado al instante',
               },
               {
+                // Trophy
                 icon: (
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 20, height: 20, color: 'var(--red)' }}>
-                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                  <svg viewBox="0 0 24 24" style={{ width: 22, height: 22, color: 'var(--red)' }} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M6 9H3V4h3"/>
+                    <path d="M18 9h3V4h-3"/>
+                    <path d="M6 4h12v7a6 6 0 0 1-12 0V4z"/>
+                    <path d="M9 21h6"/>
+                    <path d="M12 17v4"/>
                   </svg>
                 ),
                 text: 'Plantilla, fichajes y clasificación',
