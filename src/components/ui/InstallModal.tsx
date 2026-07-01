@@ -21,6 +21,7 @@ function isStandalone(): boolean {
 
 function shouldShow(): boolean {
   if (typeof window === 'undefined') return false
+  if (window.location.hostname === 'localhost') return false
   if (new URLSearchParams(window.location.search).get('install') === '1') return true
   if (isStandalone()) return false
   const snoozed = localStorage.getItem('install_snoozed')
@@ -129,7 +130,7 @@ export function InstallModal() {
   if (platform === 'desktop') {
     return (
       <>
-        <div className="fixed inset-0 z-[200] cursor-pointer bg-black/70" onClick={dismiss} />
+        <div className="fixed inset-0 z-[200] bg-black/70" />
         <div
           className="fixed left-1/2 top-1/2 z-[201] w-full max-w-[760px] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[28px] bg-ceuta-black shadow-2xl"
           onClick={e => e.stopPropagation()}
@@ -182,7 +183,7 @@ export function InstallModal() {
 
               <button
                 onClick={snooze}
-                className="mt-6 w-full py-2 font-display text-[11px] font-bold uppercase tracking-[0.12em] text-white/30 hover:text-white/50"
+                className="mt-5 w-full py-1 font-body text-[11px] text-white/20 hover:text-white/40 transition-colors"
               >
                 Ahora no
               </button>
@@ -196,11 +197,7 @@ export function InstallModal() {
   return (
     <>
       {/* Backdrop — z-[200] to sit above topbar (z-100) */}
-      <div
-        className="fixed inset-0 z-[200] bg-black/60 cursor-pointer"
-        onClick={dismiss}
-        onTouchEnd={dismiss}
-      />
+      <div className="fixed inset-0 z-[200] bg-black/60" />
 
       {/* Modal — bottom sheet mobile */}
       <div
@@ -325,7 +322,7 @@ export function InstallModal() {
           {/* Dismiss */}
           <button
             onClick={snooze}
-            className="mt-5 w-full py-2 font-display text-[11px] font-bold uppercase tracking-[0.12em] text-white/30"
+            className="mt-4 w-full py-1 font-body text-[11px] text-white/20 hover:text-white/40 transition-colors"
           >
             Ahora no
           </button>

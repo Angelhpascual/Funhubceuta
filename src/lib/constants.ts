@@ -1,6 +1,6 @@
 // Season & competition
-export const CURRENT_SEASON = '2026-2027'
-export const PREVIOUS_SEASON = '2025-2026'
+export const CURRENT_SEASON = '2025-2026'
+export const PREVIOUS_SEASON = '2024-2025'
 export const COMPETITION = 'Liga Hypermotion'
 
 // ESPN API
