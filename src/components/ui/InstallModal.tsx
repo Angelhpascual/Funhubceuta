@@ -92,9 +92,9 @@ export function InstallModal() {
         onTouchEnd={dismiss}
       />
 
-      {/* Modal — bottom sheet */}
+      {/* Modal — bottom sheet (centered on desktop) */}
       <div
-        className="fixed bottom-0 left-0 right-0 z-[201] max-h-[92dvh] overflow-y-auto rounded-t-[24px] bg-ceuta-black"
+        className="fixed bottom-0 left-1/2 z-[201] w-full max-w-[480px] -translate-x-1/2 max-h-[92dvh] overflow-y-auto rounded-t-[24px] bg-ceuta-black md:bottom-8 md:rounded-[24px]"
         onClick={e => e.stopPropagation()}
         onTouchStart={e => { touchStartY.current = e.touches[0].clientY }}
         onTouchEnd={e => {
@@ -214,9 +214,10 @@ export function InstallModal() {
                 <button
                   onClick={handleAndroidInstall}
                   disabled={installing}
-                  className="flex w-full items-center justify-center gap-2 rounded-[14px] bg-ceuta-red py-4 font-display text-[15px] font-black uppercase tracking-[0.08em] text-white shadow-[0_4px_20px_rgba(218,26,34,0.4)] disabled:opacity-60"
+                  style={{ backgroundColor: 'var(--red)', boxShadow: '0 4px 20px rgba(218,26,34,0.4)' }}
+                  className="flex w-full items-center justify-center gap-2 rounded-[14px] py-4 font-display text-[15px] font-black uppercase tracking-[0.08em] text-white disabled:opacity-60"
                 >
-                  {installing ? '...' : <><span className="text-[18px]">⬇</span> Añadir a pantalla de inicio</>}
+                  <span>{installing ? '...' : '⬇ Añadir a pantalla de inicio'}</span>
                 </button>
               ) : (
                 <div className="flex flex-col gap-3 rounded-[16px] bg-white/8 p-4">
@@ -252,9 +253,10 @@ export function InstallModal() {
                 <button
                   onClick={handleAndroidInstall}
                   disabled={installing}
-                  className="flex w-full items-center justify-center gap-2 rounded-[14px] bg-ceuta-red py-4 font-display text-[15px] font-black uppercase tracking-[0.08em] text-white shadow-[0_4px_20px_rgba(218,26,34,0.4)] disabled:opacity-60"
+                  style={{ backgroundColor: 'var(--red)', boxShadow: '0 4px 20px rgba(218,26,34,0.4)' }}
+                  className="flex w-full items-center justify-center gap-2 rounded-[14px] py-4 font-display text-[15px] font-black uppercase tracking-[0.08em] text-white disabled:opacity-60"
                 >
-                  {installing ? '...' : <><span className="text-[18px]">⬇</span> Instalar app</>}
+                  <span>{installing ? '...' : '⬇ Instalar app'}</span>
                 </button>
               ) : (
                 <div className="flex flex-col gap-3 rounded-[16px] bg-white/8 p-4">
