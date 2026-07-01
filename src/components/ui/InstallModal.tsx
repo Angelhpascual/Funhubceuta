@@ -178,13 +178,17 @@ export function InstallModal() {
                 </div>
               )}
 
-              <button
-                onClick={snooze}
-                className="mt-6 w-full py-2 font-display text-[13px] font-bold uppercase tracking-[0.08em] text-white opacity-60 underline underline-offset-2 hover:opacity-100 transition-opacity"
-              >
-                Ahora no
-              </button>
             </div>
+          </div>
+
+          {/* Ahora no — fuera del grid, fondo negro propio */}
+          <div className="border-t border-white/10 bg-ceuta-black px-8 py-4 text-center">
+            <button
+              onClick={snooze}
+              className="font-display text-[12px] font-bold uppercase tracking-[0.1em] text-white underline underline-offset-2 opacity-60 hover:opacity-100 transition-opacity"
+            >
+              Ahora no
+            </button>
           </div>
         </div>
       </>
