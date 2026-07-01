@@ -208,71 +208,6 @@ export function HistoriaTab() {
         @media (min-width: 768px) {
           .hist-root { padding: 0 0 40px; }
         }
-        .hist-hero {
-          position: relative;
-          background: var(--black);
-          color: var(--white);
-          border-radius: 14px;
-          overflow: hidden;
-          margin: 16px 0 0;
-          padding: 30px 20px 26px;
-          min-height: 200px;
-          display: flex;
-          flex-direction: column;
-          justify-content: flex-end;
-        }
-        .hist-hero-stripes {
-          position: absolute;
-          top: 0; right: -30px; bottom: 0;
-          width: 230px;
-          background: repeating-linear-gradient(-45deg, var(--white) 0 12px, var(--black) 12px 24px);
-          clip-path: polygon(70px 0, 100% 0, 100% 100%, 0 100%);
-          opacity: 0.07;
-          pointer-events: none;
-        }
-        .hist-hero-ghost {
-          position: absolute;
-          top: -6px; right: 14px;
-          font-family: var(--font-display);
-          font-weight: 900;
-          font-size: 120px;
-          line-height: 0.8;
-          color: rgba(255,255,255,0.05);
-          pointer-events: none;
-          letter-spacing: -0.02em;
-        }
-        .hist-hero-eyebrow {
-          font-family: var(--font-display);
-          font-size: 11px;
-          font-weight: 700;
-          letter-spacing: 0.16em;
-          text-transform: uppercase;
-          color: var(--red);
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          position: relative;
-        }
-        .hist-hero-eyebrow svg {
-          flex-shrink: 0;
-        }
-        .hist-hero-title {
-          font-family: var(--font-display);
-          font-weight: 900;
-          font-size: 40px;
-          line-height: 0.95;
-          letter-spacing: -0.01em;
-          text-transform: uppercase;
-          margin-top: 10px;
-          position: relative;
-        }
-        .hist-hero-sub {
-          margin-top: 12px;
-          font-size: 14px;
-          line-height: 1.5;
-          color: rgba(255,255,255,0.72);
-          position: relative;
-        }
 
         .hist-label {
           padding: 14px 0 8px;
@@ -493,22 +428,6 @@ export function HistoriaTab() {
 
         /* ── DESKTOP overrides ── */
         @media (min-width: 768px) {
-          .hist-hero {
-            padding: 56px 48px 52px;
-            min-height: 280px;
-            margin-top: 16px;
-          }
-          .hist-hero-stripes {
-            right: -60px;
-            width: 520px;
-            background: repeating-linear-gradient(-45deg, var(--white) 0 16px, var(--black) 16px 32px);
-            clip-path: polygon(140px 0, 100% 0, 100% 100%, 0 100%);
-          }
-          .hist-hero-ghost { font-size: 210px; right: 44px; }
-          .hist-hero-eyebrow { font-size: 12.5px; gap: 10px; }
-          .hist-hero-title { font-size: clamp(38px, 5vw, 74px); margin-top: 12px; max-width: 660px; }
-          .hist-hero-sub { font-size: 16px; max-width: 540px; margin-top: 16px; }
-
           .hist-label { padding: 24px 0 12px; }
 
           .hist-tl-year { font-size: 26px; }
@@ -559,23 +478,7 @@ export function HistoriaTab() {
       `}</style>
 
       <div className="hist-root">
-        {/* ── HERO ── */}
-        <div className="hist-hero">
-          <div className="hist-hero-stripes" />
-          <div className="hist-hero-ghost">1956</div>
-          <div className="hist-hero-eyebrow">
-            <Flag size={14} strokeWidth={2.6} />
-            Orgullo caballa
-          </div>
-          <div className="hist-hero-title">
-            70 años de <em style={{ fontStyle: 'normal', color: 'var(--gold)' }}>fútbol</em> en Ceuta
-          </div>
-          <div className="hist-hero-sub">
-            Del primer balón que rodó frente al Estrecho al debut en el fútbol profesional. Esta es la historia de la AD Ceuta.
-          </div>
-        </div>
-
-        {/* ── IDENTIDAD (justo después del hero) ── */}
+        {/* ── IDENTIDAD ── */}
         <IdentityBlock />
 
         {/* ── LAYOUT: timeline + sidebar ── */}

@@ -40,22 +40,28 @@ export function ClubPage({
   return (
     <div className="page">
       {/* ── HERO ── */}
-      <div className="page-hero-full relative mt-2 overflow-hidden bg-ceuta-black px-[18px] pb-[52px] pt-[22px] text-white">
+      <div className="page-hero-full relative mt-2 flex min-h-[200px] flex-col justify-end overflow-hidden bg-ceuta-black px-[18px] pb-[40px] pt-[22px] text-white">
+        {/* diagonal stripes */}
         <div
-          className="pointer-events-none absolute bottom-0 right-[-40px] top-0 w-[180px]"
+          className="pointer-events-none absolute bottom-0 right-[-30px] top-0 w-[230px] opacity-[0.07]"
           style={{
-            background: 'repeating-linear-gradient(-45deg, white 0 14px, #0A0A0A 14px 28px)',
-            clipPath: 'polygon(60px 0, 100% 0, 100% 100%, 0 100%)',
+            background: 'repeating-linear-gradient(-45deg, white 0 12px, #0E0E0E 12px 24px)',
+            clipPath: 'polygon(70px 0, 100% 0, 100% 100%, 0 100%)',
           }}
         />
-        <div className="flex items-center gap-2 font-display text-[11px] font-bold uppercase tracking-[0.16em] text-ceuta-red">
-          <div className="h-0.5 w-[18px] bg-ceuta-red" />
-          Temporada 2025–26
+        {/* ghost year */}
+        <div className="pointer-events-none absolute right-[14px] top-[-6px] font-display text-[120px] font-black leading-[0.8] tracking-[-0.02em] text-white/[0.05]">
+          1956
         </div>
-        <div className="mt-2 font-display text-[38px] font-black uppercase leading-[0.95]">
-          AD CEUTA <em className="not-italic text-ceuta-gold">FC</em>
-          <br />
-          <span className="text-[28px]">EL CLUB</span>
+        <div className="relative flex items-center gap-2 font-display text-[11px] font-bold uppercase tracking-[0.16em] text-ceuta-red">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+          Orgullo caballa
+        </div>
+        <div className="relative mt-[10px] font-display text-[40px] font-black uppercase leading-[0.95]">
+          70 años de <em className="not-italic text-ceuta-gold">fútbol</em> en Ceuta
+        </div>
+        <div className="relative mt-3 text-[14px] leading-[1.5] text-white/70">
+          Del primer balón que rodó frente al Estrecho al debut en el fútbol profesional.
         </div>
       </div>
 
