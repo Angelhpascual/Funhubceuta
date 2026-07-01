@@ -1222,6 +1222,9 @@ img {
 .chips::-webkit-scrollbar {
   display: none;
 }
+.chips.chips-center {
+  justify-content: center;
+}
 .chip {
   flex-shrink: 0;
   padding: 6px 14px;

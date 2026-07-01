@@ -116,7 +116,7 @@ export function EstadisticasTab({
   if (season === '2627') {
     return (
       <>
-        <div className="chips mb-2 mt-1 px-3">
+        <div className="chips chips-center mb-2 mt-1 px-3">
           <button className="chip" onClick={() => setSeason('2526')}>Temp. 25/26</button>
           <button className="chip active" onClick={() => setSeason('2627')}>Temp. 26/27</button>
         </div>
@@ -136,7 +136,7 @@ export function EstadisticasTab({
   return (
     <>
       {/* ── SEASON SELECTOR ── */}
-      <div className="chips mb-2 mt-1 px-3">
+      <div className="chips chips-center mb-2 mt-1 px-3">
         <button className="chip active" onClick={() => setSeason('2526')}>Temp. 25/26</button>
         <button className="chip" onClick={() => setSeason('2627')}>Temp. 26/27</button>
       </div>

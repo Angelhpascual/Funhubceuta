@@ -222,7 +222,7 @@ export function PlantillaTab({
   return (
     <>
       {/* ── SEASON SELECTOR ── */}
-      <div className="chips mb-3 mt-1">
+      <div className="chips chips-center mb-3 mt-1">
         <button className={`chip ${season === '2526' ? 'active' : ''}`} onClick={() => setSeason('2526')}>
           Temp. 25/26
         </button>
