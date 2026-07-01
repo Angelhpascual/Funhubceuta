@@ -158,24 +158,23 @@ export function ClasificacionPage({ entries = [], previousEntries = [], form = [
         </div>
       </div>
 
-      {/* ── TABS ── */}
-      <div className="chips mt-4 mb-2">
-        {[
-          { id: 'actual', l: 'Temporada actual' },
-          { id: 'anterior', l: 'Temp. 25/26' },
-        ].map((t) => (
-          <button
-            key={t.id}
-            className={`chip ${tab === t.id ? 'active' : ''}`}
-            onClick={() => setTab(t.id)}
-          >
-            {t.l}
-          </button>
-        ))}
-      </div>
-
       {tab === 'anterior' && (
         <>
+          {/* ── TABS ── */}
+          <div className="chips mt-4 mb-2">
+            {[
+              { id: 'actual', l: 'Temporada actual' },
+              { id: 'anterior', l: 'Temp. 25/26' },
+            ].map((t) => (
+              <button
+                key={t.id}
+                className={`chip ${tab === t.id ? 'active' : ''}`}
+                onClick={() => setTab(t.id)}
+              >
+                {t.l}
+              </button>
+            ))}
+          </div>
           {previousEntries.length === 0 ? (
             <p className="px-4 py-5 font-display text-[13px] uppercase tracking-[0.06em] text-ceuta-muted">
               No hay datos de la temporada anterior
@@ -211,8 +210,8 @@ export function ClasificacionPage({ entries = [], previousEntries = [], form = [
 
       {tab === 'actual' && (
         <>
-      {/* ── CARD CEUTA ── */}
-      {me && (
+          {/* ── CARD CEUTA ── */}
+          {me && (
         <div className="relative z-[2] -mt-7 mx-3 rounded-[14px] border-2 border-ceuta-black bg-white p-[18px] shadow-[6px_6px_0_#D62027]">
           <div className="flex items-center gap-3">
             {/* position */}
@@ -272,12 +271,28 @@ export function ClasificacionPage({ entries = [], previousEntries = [], form = [
         </div>
       )}
 
-      {/* ── SECTION HEADER ── */}
-      <div className="px-3 pb-1 pt-5">
-        <div className="font-display text-[18px] font-black uppercase tracking-[0.04em] text-ceuta-black">
-          Tabla completa
-        </div>
-      </div>
+          {/* ── TABS ── */}
+          <div className="chips mt-4 mb-2">
+            {[
+              { id: 'actual', l: 'Temporada actual' },
+              { id: 'anterior', l: 'Temp. 25/26' },
+            ].map((t) => (
+              <button
+                key={t.id}
+                className={`chip ${tab === t.id ? 'active' : ''}`}
+                onClick={() => setTab(t.id)}
+              >
+                {t.l}
+              </button>
+            ))}
+          </div>
+
+          {/* ── SECTION HEADER ── */}
+          <div className="px-3 pb-1 pt-3">
+            <div className="font-display text-[18px] font-black uppercase tracking-[0.04em] text-ceuta-black">
+              Tabla completa
+            </div>
+          </div>
 
       {/* ── TABLE ── */}
       <StandingsTable entries={entries} logos={logos} />
