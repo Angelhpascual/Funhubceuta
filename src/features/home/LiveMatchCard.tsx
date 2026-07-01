@@ -200,21 +200,19 @@ export function LiveMatchCard() {
       return (
         <MatchCardShell>
           <Competition />
-          <div className="relative z-[1] mt-5 flex flex-col items-center gap-3 text-center">
-            <div className="font-display text-[42px] leading-none">🏆</div>
-            <div className="font-display text-[22px] font-black uppercase leading-[1.05] tracking-[0.02em] text-white">
-              ¡Permanencia
-              <br />
-              <em className="not-italic text-ceuta-gold">conseguida!</em>
+          <div className="relative z-[1] mt-5 grid grid-cols-[1fr_auto_1fr] items-center gap-2.5">
+            <div className="flex flex-col items-center gap-2">
+              <div className="size-[52px] animate-pulse rounded-full bg-white/10" />
+              <div className="h-3 w-16 animate-pulse rounded bg-white/10" />
             </div>
-            <div className="font-display text-[12px] font-semibold uppercase tracking-[0.1em] text-white/70">
-              El AD Ceuta FC estará otra vez en la
-              <br />
-              <span className="text-white">Liga Hypermotion 2026–27</span>
+            <div className="text-center">
+              <div className="font-display text-[12px] font-black tracking-[0.16em] text-ceuta-muted">VS</div>
+              <div className="mt-2 h-6 w-14 animate-pulse rounded bg-white/10 mx-auto" />
             </div>
-          </div>
-          <div className="mt-5 border-t border-white/10 pt-4 text-center font-display text-[11px] font-semibold uppercase tracking-[0.12em] text-white/40">
-            Nos vemos la próxima temporada 💪
+            <div className="flex flex-col items-center gap-2">
+              <div className="size-[52px] animate-pulse rounded-full bg-white/10" />
+              <div className="h-3 w-16 animate-pulse rounded bg-white/10" />
+            </div>
           </div>
         </MatchCardShell>
       )
@@ -239,7 +237,9 @@ export function LiveMatchCard() {
                 .toUpperCase()
                 .replace('.', '')}
               <br />
-              {nextMatch.time}
+              {new Date(dateStr).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', timeZone: 'UTC' })}
+              <br />
+              <span className="text-[16px] text-white/60">{nextMatch.time}</span>
             </div>
           </div>
           <div className="flex flex-col items-center gap-2">
@@ -298,18 +298,24 @@ export function LiveMatchCard() {
               <div className="mb-1.5 font-display text-[12px] font-black tracking-[0.16em] text-ceuta-muted">
                 VS
               </div>
-              <div className="font-display text-[22px] font-black leading-none tracking-[0.04em]">
-                {new Date(match.startDate)
-                  .toLocaleDateString('es-ES', { weekday: 'short', timeZone: 'UTC' })
-                  .toUpperCase()
-                  .replace('.', '')}
-                <br />
-                {new Date(match.startDate).toLocaleTimeString('es-ES', {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  timeZone: 'Europe/Madrid',
-                })}
-              </div>
+              {(() => {
+                // Prefer DB date (nextMatch) over ESPN startDate which can be corrupt
+                const dateStr = nextMatch
+                  ? `${nextMatch.date}T${nextMatch.time}:00`
+                  : match.startDate
+                const d = new Date(dateStr)
+                return (
+                  <div className="font-display text-[22px] font-black leading-none tracking-[0.04em]">
+                    {d.toLocaleDateString('es-ES', { weekday: 'short', timeZone: 'UTC' }).toUpperCase().replace('.', '')}
+                    <br />
+                    {d.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', timeZone: 'UTC' })}
+                    <br />
+                    <span className="text-[16px] text-white/60">
+                      {nextMatch?.time ?? d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' })}
+                    </span>
+                  </div>
+                )
+              })()}
             </>
           )}
         </div>
@@ -327,13 +333,20 @@ export function LiveMatchCard() {
         <span className="font-display text-[11px] font-semibold uppercase tracking-[0.1em] text-white/50">
           {match.venue || 'Liga Hypermotion'}
         </span>
-        {match.espnId && (
-          <LineupButton
-            eventId={match.espnId}
-            match={`${match.homeTeam} vs ${match.awayTeam}`}
-            score={(isLive || isFinished) ? `${match.homeScore}-${match.awayScore}` : undefined}
-          />
-        )}
+        {match.espnId && (() => {
+          const kickoff = nextMatch
+            ? new Date(`${nextMatch.date}T${nextMatch.time}:00`)
+            : new Date(match.startDate)
+          const minutesUntil = (kickoff.getTime() - Date.now()) / 60_000
+          const showLineup = isLive || isFinished || minutesUntil <= 20
+          return showLineup ? (
+            <LineupButton
+              eventId={match.espnId}
+              match={`${match.homeTeam} vs ${match.awayTeam}`}
+              score={(isLive || isFinished) ? `${match.homeScore}-${match.awayScore}` : undefined}
+            />
+          ) : null
+        })()}
       </div>
     </MatchCardShell>
   )

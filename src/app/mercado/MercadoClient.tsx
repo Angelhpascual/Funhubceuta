@@ -285,7 +285,7 @@ export default function MercadoClient({ transfers }: { transfers: Transfer[] }) 
         />
         <div className="flex items-center gap-2 font-display text-[11px] font-bold uppercase tracking-[0.16em] text-ceuta-red">
           <div className="h-0.5 w-[18px] bg-ceuta-red" />
-          Temporada 2025–26
+          Temporada 2026–27
         </div>
         <div className="mt-2 font-display text-[38px] font-black uppercase leading-[0.95]">
           MERCADO DE<br />
@@ -297,30 +297,38 @@ export default function MercadoClient({ transfers }: { transfers: Transfer[] }) 
       <div className="relative z-[3] -mt-11 grid grid-cols-4 gap-1.5 px-3">
         {TABS.map(t => {
           const active = tab === t.id
-          const barCls =
-            t.id === 'renew' ? 'bg-[#1E7F47]' :
-            t.id === 'in'    ? 'bg-ceuta-red'  :
-            t.id === 'out'   ? 'bg-ceuta-black' :
-                               'bg-ceuta-gold'
-          const activeCls =
-            t.id === 'renew' ? 'bg-[#1E7F47] border-[#1E7F47]' :
-            t.id === 'in'    ? 'bg-ceuta-red border-ceuta-red'   :
-            t.id === 'out'   ? 'bg-ceuta-black border-ceuta-black' :
-                               'bg-ceuta-gold border-ceuta-gold'
-          const countCls  = active ? (t.id === 'rumor' ? 'text-black' : 'text-white') : 'text-ceuta-black'
-          const labelCls  = active ? (t.id === 'rumor' ? 'text-black/60' : 'text-white/80') : 'text-ceuta-muted'
+          const COLOR: Record<string, string> = {
+            renew: '#1E7F47',
+            in:    'var(--red)',
+            out:   'var(--black)',
+            rumor: 'var(--gold)',
+          }
+          const color = COLOR[t.id]
+          const isLight = t.id === 'rumor'
 
           return (
             <button
               key={t.id}
               onClick={() => setTab(t.id)}
-              className={`relative overflow-hidden rounded-[14px] border-[1.5px] px-1.5 pb-[11px] pt-[13px] text-center shadow-[0_6px_18px_rgba(0,0,0,0.08)] transition-colors ${active ? activeCls : 'border-ceuta-border bg-white'}`}
+              className="relative overflow-hidden rounded-[14px] border-[1.5px] px-1.5 pb-[11px] pt-[13px] text-center shadow-[0_6px_18px_rgba(0,0,0,0.08)] transition-colors"
+              style={active
+                ? { backgroundColor: color, borderColor: color }
+                : { backgroundColor: '#fff', borderColor: 'var(--border)' }
+              }
             >
-              {!active && <div className={`absolute left-0 right-0 top-0 h-1 ${barCls}`} />}
-              <div className={`font-display text-[30px] font-black leading-[0.9] ${countCls}`}>
+              {!active && (
+                <div className="absolute left-0 right-0 top-0 h-1" style={{ backgroundColor: color }} />
+              )}
+              <div
+                className="font-display text-[30px] font-black leading-[0.9]"
+                style={{ color: active ? (isLight ? '#000' : '#fff') : 'var(--black)' }}
+              >
                 {counts[t.id]}
               </div>
-              <div className={`mt-[5px] font-display text-[9px] font-bold uppercase tracking-[0.08em] ${labelCls}`}>
+              <div
+                className="mt-[5px] font-display text-[9px] font-bold uppercase tracking-[0.08em]"
+                style={{ color: active ? (isLight ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.8)') : 'var(--muted)' }}
+              >
                 {t.label}
               </div>
             </button>

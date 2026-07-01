@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import { StandingEntry } from '@/domain/standings/Standings'
 import { Tile, TileValue, TileLabel } from '../components/ClubTiles'
 import type { Leader, LeadersMap } from '../clubTypes'
@@ -82,11 +82,16 @@ export function EstadisticasTab({
   ceuta,
   form,
   leaders,
+  previousLeaders,
 }: {
   ceuta: StandingEntry | null
   form: string[]
   leaders: LeadersMap | null
+  previousLeaders?: LeadersMap | null
 }) {
+  const [season, setSeason] = useState<'current' | 'previous'>('current')
+  const activeLeaders = season === 'current' ? leaders : previousLeaders
+
   const goalDiff = ceuta
     ? ceuta.goalDifference > 0
       ? `+${ceuta.goalDifference}`
@@ -130,32 +135,33 @@ export function EstadisticasTab({
             <TileLabel className="text-ceuta-muted">{label}</TileLabel>
           </Tile>
         ))}
-        {form.length > 0 && (
-          <Tile>
+        <Tile>
+          {form.length > 0 && (ceuta?.played ?? 0) > 0 ? (
             <div className="flex flex-wrap gap-1">
               {form.slice(-5).map((f, i) => (
-                <div key={i} className={`form-pill ${f}`}>
-                  {f}
-                </div>
+                <div key={i} className={`form-pill ${f}`}>{f}</div>
               ))}
             </div>
-            <TileLabel className="text-ceuta-muted">Últimos 5</TileLabel>
-          </Tile>
-        )}
+          ) : (
+            <TileValue className="text-[42px] text-ceuta-black">–</TileValue>
+          )}
+          <TileLabel className="text-ceuta-muted">Últimos 5</TileLabel>
+        </Tile>
       </div>
 
-      {leaders ? (
-        [
-          'appearances',
-          'goals',
-          'assists',
-          'shots',
-          'shots_on_target',
-          'saves',
-          'yellow_cards',
-          'red_cards',
-        ]
-          .map((key) => leaders[key])
+      {/* ── SEASON SELECTOR ── */}
+      <div className="chips mb-2 mt-4 px-3">
+        <button className={`chip ${season === 'current' ? 'active' : ''}`} onClick={() => setSeason('current')}>
+          Temp. 26/27
+        </button>
+        <button className={`chip ${season === 'previous' ? 'active' : ''}`} onClick={() => setSeason('previous')}>
+          Temp. 25/26
+        </button>
+      </div>
+
+      {activeLeaders ? (
+        ['appearances', 'goals', 'assists', 'shots', 'shots_on_target', 'saves', 'yellow_cards', 'red_cards']
+          .map((key) => activeLeaders[key])
           .filter(Boolean)
           .map((cat) => (
             <StatLeaderSection

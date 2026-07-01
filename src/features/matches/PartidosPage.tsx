@@ -28,10 +28,80 @@ function resultBadge(r: string | null) {
 interface Props {
   upcoming?: MatchRow[]
   results?: MatchRow[]
+  previousSeason?: MatchRow[]
   logos?: Record<string, string>
 }
 
-export function PartidosPage({ upcoming = [], results = [], logos = {} }: Props) {
+function ResultCard({ r, logos }: { r: MatchRow; logos: Record<string, string> }) {
+  function findLogo(name: string): string | null {
+    return findLogoUtil(logos, name)
+  }
+  const { day, mon } = formatMatchDate(r.date)
+  const ceutaHome = r.home_team.toLowerCase().includes('ceuta')
+  const cls = r.result === 'W' ? 'win' : r.result === 'L' ? 'lose' : 'draw'
+  const homeScoreCls = ceutaHome
+    ? r.result === 'W' ? 'win' : r.result === 'L' ? 'lose' : ''
+    : r.result === 'L' ? 'win' : r.result === 'W' ? 'lose' : ''
+  const awayScoreCls = !ceutaHome
+    ? r.result === 'W' ? 'win' : r.result === 'L' ? 'lose' : ''
+    : r.result === 'L' ? 'win' : r.result === 'W' ? 'lose' : ''
+
+  return (
+    <div className={`result-card ${cls}`}>
+      <div className="result-card-row">
+        <div className="result-date-col">
+          <div className="result-day">{day}</div>
+          <div className="result-mon">{mon}</div>
+        </div>
+        <div className="result-teams-col">
+          <div className="result-team-row">
+            {findLogo(r.home_team) ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={findLogo(r.home_team)!} alt="" className="size-[18px] shrink-0 object-contain" />
+            ) : (
+              <div className="size-[18px] shrink-0" />
+            )}
+            <div className={`result-team-name ${ceutaHome ? 'bold' : ''}`}>
+              {shortTeamName(r.home_team)}
+            </div>
+            <div className={`result-score ${homeScoreCls}`}>{r.home_score}</div>
+          </div>
+          <div className="result-team-row">
+            {findLogo(r.away_team) ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={findLogo(r.away_team)!} alt="" className="size-[18px] shrink-0 object-contain" />
+            ) : (
+              <div className="size-[18px] shrink-0" />
+            )}
+            <div className={`result-team-name ${!ceutaHome ? 'bold' : ''}`}>
+              {shortTeamName(r.away_team)}
+            </div>
+            <div className={`result-score ${awayScoreCls}`}>{r.away_score}</div>
+          </div>
+        </div>
+        <div className="flex flex-col items-end gap-1.5">
+          {resultBadge(r.result)}
+          {r.espn_event_id && (
+            <Link
+              href={`/alineacion?eventId=${r.espn_event_id}&match=${encodeURIComponent(`${shortTeamName(r.home_team)} vs ${shortTeamName(r.away_team)}`)}&score=${r.home_score}-${r.away_score}`}
+              className="flex items-center gap-1.5 rounded-[6px] border-[1.5px] border-ceuta-black bg-ceuta-black px-2 py-1 no-underline"
+            >
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+                <path d="M3 9h18M3 15h18M9 3v18" />
+              </svg>
+              <span className="whitespace-nowrap font-display text-[9px] font-black uppercase tracking-[0.08em] text-white">
+                Alineación
+              </span>
+            </Link>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export function PartidosPage({ upcoming = [], results = [], previousSeason = [], logos = {} }: Props) {
   const [tab, setTab] = useState('proximos')
 
   useEffect(() => {
@@ -48,6 +118,17 @@ export function PartidosPage({ upcoming = [], results = [], logos = {} }: Props)
     return findLogoUtil(logos, name)
   }
 
+  // Group previousSeason matches by month label
+  const prevByMonth: { label: string; matches: MatchRow[] }[] = []
+  for (const m of previousSeason) {
+    const label = new Date(m.date)
+      .toLocaleString('es-ES', { month: 'long', year: 'numeric', timeZone: 'UTC' })
+      .replace(/^\w/, (c) => c.toUpperCase())
+    const existing = prevByMonth.find((g) => g.label === label)
+    if (existing) existing.matches.push(m)
+    else prevByMonth.push({ label, matches: [m] })
+  }
+
   return (
     <div className="page">
       {/* ── HERO ── */}
@@ -61,7 +142,7 @@ export function PartidosPage({ upcoming = [], results = [], logos = {} }: Props)
         />
         <div className="flex items-center gap-2 font-display text-[11px] font-bold uppercase tracking-[0.16em] text-ceuta-red">
           <div className="h-0.5 w-[18px] bg-ceuta-red" />
-          Temporada 2025–26 · Liga Hypermotion
+          Temporada 2026–27 · Liga Hypermotion
         </div>
         <div className="mt-2 font-display text-[38px] font-black uppercase leading-[0.95]">
           PARTIDOS <em className="not-italic text-ceuta-gold">Y</em>
@@ -70,10 +151,11 @@ export function PartidosPage({ upcoming = [], results = [], logos = {} }: Props)
         </div>
       </div>
 
-      <div className="chips mb-2">
+      <div className="chips mt-4 mb-2">
         {[
           { id: 'proximos', l: 'Próximos' },
           { id: 'resultados', l: 'Resultados' },
+          { id: 'temporada-anterior', l: 'Temp. 25/26' },
         ].map((t) => (
           <button
             key={t.id}
@@ -111,11 +193,7 @@ export function PartidosPage({ upcoming = [], results = [], logos = {} }: Props)
                   <div className="flex items-center gap-2">
                     {findLogo(m.home_team) ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={findLogo(m.home_team)!}
-                        alt=""
-                        className="size-7 object-contain"
-                      />
+                      <img src={findLogo(m.home_team)!} alt="" className="size-7 object-contain" />
                     ) : (
                       <div className="size-7 rounded-full bg-ceuta-bg-mid" />
                     )}
@@ -130,11 +208,7 @@ export function PartidosPage({ upcoming = [], results = [], logos = {} }: Props)
                     </div>
                     {findLogo(m.away_team) ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={findLogo(m.away_team)!}
-                        alt=""
-                        className="size-7 object-contain"
-                      />
+                      <img src={findLogo(m.away_team)!} alt="" className="size-7 object-contain" />
                     ) : (
                       <div className="size-7 rounded-full bg-ceuta-bg-mid" />
                     )}
@@ -169,87 +243,31 @@ export function PartidosPage({ upcoming = [], results = [], logos = {} }: Props)
       {tab === 'resultados' && (
         <>
           <div className="month-label">Últimos partidos</div>
-          {results.map((r, i) => {
-            const { day, mon } = formatMatchDate(r.date)
-            const ceutaHome = r.home_team.toLowerCase().includes('ceuta')
-            const cls = r.result === 'W' ? 'win' : r.result === 'L' ? 'lose' : 'draw'
-            const homeScoreCls = ceutaHome
-              ? r.result === 'W' ? 'win' : r.result === 'L' ? 'lose' : ''
-              : r.result === 'L' ? 'win' : r.result === 'W' ? 'lose' : ''
-            const awayScoreCls = !ceutaHome
-              ? r.result === 'W' ? 'win' : r.result === 'L' ? 'lose' : ''
-              : r.result === 'L' ? 'win' : r.result === 'W' ? 'lose' : ''
-            return (
-              <div key={i} className={`result-card ${cls}`}>
-                <div className="result-card-row">
-                  <div className="result-date-col">
-                    <div className="result-day">{day}</div>
-                    <div className="result-mon">{mon}</div>
-                  </div>
-                  <div className="result-teams-col">
-                    <div className="result-team-row">
-                      {findLogo(r.home_team) ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={findLogo(r.home_team)!}
-                          alt=""
-                          className="size-[18px] shrink-0 object-contain"
-                        />
-                      ) : (
-                        <div className="size-[18px] shrink-0" />
-                      )}
-                      <div className={`result-team-name ${ceutaHome ? 'bold' : ''}`}>
-                        {shortTeamName(r.home_team)}
-                      </div>
-                      <div className={`result-score ${homeScoreCls}`}>{r.home_score}</div>
-                    </div>
-                    <div className="result-team-row">
-                      {findLogo(r.away_team) ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={findLogo(r.away_team)!}
-                          alt=""
-                          className="size-[18px] shrink-0 object-contain"
-                        />
-                      ) : (
-                        <div className="size-[18px] shrink-0" />
-                      )}
-                      <div className={`result-team-name ${!ceutaHome ? 'bold' : ''}`}>
-                        {shortTeamName(r.away_team)}
-                      </div>
-                      <div className={`result-score ${awayScoreCls}`}>{r.away_score}</div>
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-end gap-1.5">
-                    {resultBadge(r.result)}
-                    {r.espn_event_id && (
-                      <Link
-                        href={`/alineacion?eventId=${r.espn_event_id}&match=${encodeURIComponent(`${shortTeamName(r.home_team)} vs ${shortTeamName(r.away_team)}`)}&score=${r.home_score}-${r.away_score}`}
-                        className="flex items-center gap-1.5 rounded-[6px] border-[1.5px] border-ceuta-black bg-ceuta-black px-2 py-1 no-underline"
-                      >
-                        <svg
-                          width="10"
-                          height="10"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="white"
-                          strokeWidth="2.2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <rect x="3" y="3" width="18" height="18" rx="2" />
-                          <path d="M3 9h18M3 15h18M9 3v18" />
-                        </svg>
-                        <span className="whitespace-nowrap font-display text-[9px] font-black uppercase tracking-[0.08em] text-white">
-                          Alineación
-                        </span>
-                      </Link>
-                    )}
-                  </div>
-                </div>
+          {results.map((r, i) => (
+            <ResultCard key={i} r={r} logos={logos} />
+          ))}
+        </>
+      )}
+
+      {tab === 'temporada-anterior' && (
+        <>
+          <div className="px-4 py-3 font-display text-[11px] font-bold uppercase tracking-[0.14em] text-ceuta-muted">
+            Temporada 2025–26 · Liga Hypermotion
+          </div>
+          {previousSeason.length === 0 ? (
+            <p className="px-4 py-5 font-display text-[13px] uppercase tracking-[0.06em] text-ceuta-muted">
+              No hay datos de la temporada anterior
+            </p>
+          ) : (
+            prevByMonth.map((group) => (
+              <div key={group.label}>
+                <div className="month-label">{group.label}</div>
+                {group.matches.map((r, i) => (
+                  <ResultCard key={i} r={r} logos={logos} />
+                ))}
               </div>
-            )
-          })}
+            ))
+          )}
         </>
       )}
     </div>

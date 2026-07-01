@@ -207,19 +207,37 @@ function CollapsibleGroup({
 export function PlantillaTab({
   grouped,
   total,
+  previousGrouped = [],
+  previousTotal = 0,
   loading,
 }: {
   grouped: Group[]
   total: number
+  previousGrouped?: Group[]
+  previousTotal?: number
   loading: boolean
 }) {
+  const [season, setSeason] = useState<'current' | 'previous'>('current')
+  const activeGrouped = season === 'current' ? grouped : previousGrouped
+  const activeTotal = season === 'current' ? total : previousTotal
+
   return (
     <>
+      {/* ── SEASON SELECTOR ── */}
+      <div className="chips mb-3 mt-1">
+        <button className={`chip ${season === 'current' ? 'active' : ''}`} onClick={() => setSeason('current')}>
+          Temp. 26/27
+        </button>
+        <button className={`chip ${season === 'previous' ? 'active' : ''}`} onClick={() => setSeason('previous')}>
+          Temp. 25/26
+        </button>
+      </div>
+
       <div className="px-3 mb-1">
         <CollapsibleStaff />
       </div>
       <p className="px-3 pb-1.5 font-display text-[10px] uppercase tracking-widest text-ceuta-muted">
-        Jugadores · {total} · toca para expandir
+        Jugadores · {activeTotal} · toca para expandir
       </p>
       {loading ? (
         <p className="py-8 text-center font-display text-[11px] uppercase tracking-widest text-ceuta-muted">
@@ -227,7 +245,7 @@ export function PlantillaTab({
         </p>
       ) : (
         <div className="flex flex-col gap-1 px-3">
-          {grouped.map((g, i) => (
+          {activeGrouped.map((g, i) => (
             <CollapsibleGroup
               key={g.group}
               group={g.group}

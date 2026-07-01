@@ -36,11 +36,58 @@ function parseScore(raw: unknown): number {
   return 0
 }
 
-async function fetchSchedule() {
-  const res = await fetch(`${ESPN}/teams/${CEUTA_ID}/schedule`, { next: { revalidate: 0 } })
-  if (!res.ok) return []
-  const data = await res.json()
-  return (data.events ?? []) as Record<string, unknown>[]
+async function fetchSchedule(): Promise<Record<string, unknown>[]> {
+  // Try team endpoint first (faster, scoped)
+  const teamRes = await fetch(`${ESPN}/teams/${CEUTA_ID}/schedule`, { next: { revalidate: 0 } })
+  if (teamRes.ok) {
+    const data = await teamRes.json()
+    const events = (data.events ?? []) as Record<string, unknown>[]
+    if (events.length > 0) return events
+  }
+
+  // Fallback: full scoreboard filtered to Ceuta (covers seasons where ESPN team endpoint lags)
+  const scoreRes = await fetch(
+    `https://site.api.espn.com/apis/site/v2/sports/soccer/esp.2/scoreboard?dates=20260801-20270630&limit=500`,
+    { next: { revalidate: 0 } }
+  )
+  if (!scoreRes.ok) return []
+  const scoreData = await scoreRes.json()
+  const all = (scoreData.events ?? []) as Record<string, unknown>[]
+  return all.filter((e) => {
+    const comps = (e.competitions as Record<string, unknown>[])?.[0]
+    const competitors = (comps?.competitors ?? []) as Record<string, unknown>[]
+    return competitors.some((c) => (c.team as Record<string, unknown>)?.id === CEUTA_ID)
+  })
+}
+
+function mapEventToMatch(e: Record<string, unknown>): ScrapedMatch {
+  const comp = (e.competitions as Record<string, unknown>[])[0]
+  const competitors = comp.competitors as Record<string, unknown>[]
+  const home = competitors.find((c) => c.homeAway === 'home')!
+  const away = competitors.find((c) => c.homeAway === 'away')!
+  const dateStr = (e.date as string).slice(0, 10)
+  const dateObj = new Date(e.date as string)
+  return {
+    homeTeam: (home.team as Record<string, unknown>).displayName as string,
+    awayTeam: (away.team as Record<string, unknown>).displayName as string,
+    date: dateStr,
+    time: dateObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' }),
+    weekday: WEEKDAYS_ES[dateObj.getDay()],
+    isHome: ((home.team as Record<string, unknown>).id as string) === CEUTA_ID,
+    ticketsUrl: null,
+    espnEventId: String(e.id ?? ''),
+  }
+}
+
+export async function scrapeAllScheduled(): Promise<ScrapedMatch[]> {
+  const events = await fetchSchedule()
+  return events
+    .filter((e) => {
+      const comp = (e.competitions as Record<string, unknown>[])?.[0]
+      const state = (comp?.status as Record<string, unknown>)?.type as Record<string, unknown>
+      return (state?.state as string) === 'pre'
+    })
+    .map(mapEventToMatch)
 }
 
 export async function scrapeNextMatches(): Promise<ScrapedMatch[]> {
@@ -54,28 +101,7 @@ export async function scrapeNextMatches(): Promise<ScrapedMatch[]> {
       return (state?.state as string) === 'pre' && (e.date as string)?.slice(0, 10) >= today
     })
     .slice(0, 10)
-    .map((e) => {
-      const comp = (e.competitions as Record<string, unknown>[])[0]
-      const competitors = comp.competitors as Record<string, unknown>[]
-      const home = competitors.find((c) => c.homeAway === 'home')!
-      const away = competitors.find((c) => c.homeAway === 'away')!
-      const dateStr = (e.date as string).slice(0, 10)
-      const dateObj = new Date(e.date as string)
-      return {
-        homeTeam: (home.team as Record<string, unknown>).displayName as string,
-        awayTeam: (away.team as Record<string, unknown>).displayName as string,
-        date: dateStr,
-        time: dateObj.toLocaleTimeString('es-ES', {
-          hour: '2-digit',
-          minute: '2-digit',
-          timeZone: 'Europe/Madrid',
-        }),
-        weekday: WEEKDAYS_ES[dateObj.getDay()],
-        isHome: ((home.team as Record<string, unknown>).id as string) === CEUTA_ID,
-        ticketsUrl: null,
-        espnEventId: String(e.id ?? ''),
-      }
-    })
+    .map(mapEventToMatch)
 }
 
 export async function scrapeNextMatch(): Promise<ScrapedMatch | null> {

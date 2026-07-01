@@ -17,17 +17,23 @@ const TABS = [
 interface Props {
   grouped?: Group[]
   total?: number
+  previousGrouped?: Group[]
+  previousTotal?: number
   ceuta?: StandingEntry | null
   form?: string[]
   leaders?: LeadersMap | null
+  previousLeaders?: LeadersMap | null
 }
 
 export function ClubPage({
   grouped = [],
   total = 0,
+  previousGrouped = [],
+  previousTotal = 0,
   ceuta = null,
   form = [],
   leaders = null,
+  previousLeaders = null,
 }: Props) {
   const searchParams = useSearchParams()
   const [tab, setTab] = useState(() => searchParams.get('tab') ?? 'stats')
@@ -71,8 +77,8 @@ export function ClubPage({
         ))}
       </div>
 
-      {tab === 'stats' && <EstadisticasTab ceuta={ceuta} form={form} leaders={leaders} />}
-      {tab === 'plantilla' && <PlantillaTab grouped={grouped} total={total} loading={false} />}
+      {tab === 'stats' && <EstadisticasTab ceuta={ceuta} form={form} leaders={leaders} previousLeaders={previousLeaders} />}
+      {tab === 'plantilla' && <PlantillaTab grouped={grouped} total={total} previousGrouped={previousGrouped} previousTotal={previousTotal} loading={false} />}
       {tab === 'historia' && <HistoriaTab />}
 
       <div className="h-2" />
