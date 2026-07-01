@@ -3,7 +3,7 @@ import { ClubPage } from '@/features/club/ClubPage'
 import { StandingsService } from '@/domain/standings/StandingsService'
 import { StandingsSupabaseRepository } from '@/infrastructure/supabase/StandingsSupabaseRepository'
 import { supabase } from '@/infrastructure/supabase/client'
-import { CURRENT_SEASON } from '@/lib/constants'
+import { CURRENT_SEASON, PREVIOUS_SEASON } from '@/lib/constants'
 import type { LeadersMap } from '@/features/club/clubTypes'
 import { fetchCeutaForm } from '@/lib/serverFetches'
 
@@ -34,14 +34,15 @@ function sigWords(name: string): string[] {
     .filter((w) => w.length > 3 && /^[a-z]+$/.test(w))
 }
 
-async function fetchSquad() {
+const GROUP_ORDER = ['Porteros', 'Defensas', 'Centrocampistas', 'Delanteros']
+
+async function fetchSquadBySeason(season: string) {
   const { data } = await supabase
     .from('squad')
     .select('*')
-    .eq('season', CURRENT_SEASON)
+    .eq('season', season)
     .order('dorsal', { ascending: true })
 
-  const GROUP_ORDER = ['Porteros', 'Defensas', 'Centrocampistas', 'Delanteros']
   const byGroup: Record<string, typeof data> = {}
   for (const p of data ?? []) {
     const g = p.position_group ?? 'Otros'
@@ -61,15 +62,13 @@ async function fetchCeuta() {
   return standings?.entries?.find((e) => e.teamName.toLowerCase().includes('ceuta')) ?? null
 }
 
-async function fetchLeaders(): Promise<LeadersMap | null> {
+async function fetchLeadersBySeason(season: string): Promise<LeadersMap | null> {
   const [{ data }, { data: squadData }] = await Promise.all([
     supabase
       .from('player_stats')
-      .select(
-        'name, photo_url, appearances, goals, assists, shots, shots_on_target, saves, yellow_cards, red_cards'
-      )
-      .eq('season', CURRENT_SEASON),
-    supabase.from('squad').select('name, photo_url'),
+      .select('name, photo_url, appearances, goals, assists, shots, shots_on_target, saves, yellow_cards, red_cards')
+      .eq('season', season),
+    supabase.from('squad').select('name, photo_url').eq('season', season),
   ])
   if (!data) return null
 
@@ -95,10 +94,7 @@ async function fetchLeaders(): Promise<LeadersMap | null> {
   for (const cat of CATEGORIES) {
     const sorted = data
       .filter((p) => (p[cat.key as keyof typeof p] as number) >= cat.min)
-      .sort(
-        (a, b) =>
-          (b[cat.key as keyof typeof b] as number) - (a[cat.key as keyof typeof a] as number)
-      )
+      .sort((a, b) => (b[cat.key as keyof typeof b] as number) - (a[cat.key as keyof typeof a] as number))
       .slice(0, 5)
     if (!sorted.length) continue
     leaders[cat.key] = {
@@ -115,16 +111,34 @@ async function fetchLeaders(): Promise<LeadersMap | null> {
 }
 
 export default async function ClubServerPage() {
-  const [{ grouped, total }, ceuta, form, leaders] = await Promise.all([
-    fetchSquad(),
+  const [
+    { grouped, total },
+    { grouped: previousGrouped, total: previousTotal },
+    ceuta,
+    form,
+    leaders,
+    previousLeaders,
+  ] = await Promise.all([
+    fetchSquadBySeason(CURRENT_SEASON),
+    fetchSquadBySeason(PREVIOUS_SEASON),
     fetchCeuta(),
     fetchCeutaForm(),
-    fetchLeaders(),
+    fetchLeadersBySeason(CURRENT_SEASON),
+    fetchLeadersBySeason(PREVIOUS_SEASON),
   ])
 
   return (
     <Suspense>
-      <ClubPage grouped={grouped} total={total} ceuta={ceuta} form={form} leaders={leaders} />
+      <ClubPage
+        grouped={grouped}
+        total={total}
+        previousGrouped={previousGrouped}
+        previousTotal={previousTotal}
+        ceuta={ceuta}
+        form={form}
+        leaders={leaders}
+        previousLeaders={previousLeaders}
+      />
     </Suspense>
   )
 }
