@@ -226,10 +226,10 @@ export function PlantillaTab({
       {/* ── SEASON SELECTOR ── */}
       <div className="chips mb-3 mt-1">
         <button className={`chip ${season === 'current' ? 'active' : ''}`} onClick={() => setSeason('current')}>
-          Temp. 26/27
+          Temp. 25/26
         </button>
         <button className={`chip ${season === 'previous' ? 'active' : ''}`} onClick={() => setSeason('previous')}>
-          Temp. 25/26
+          Temp. 24/25
         </button>
       </div>
 
