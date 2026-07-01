@@ -160,7 +160,10 @@ export function InstallModal() {
               </div>
 
               {deferredPrompt ? (
-                <InstallButton label="⬇ Instalar app" />
+                <>
+                  <InstallButton label="⬇ Instalar app" />
+                  <p onClick={snooze} className="mt-4 cursor-pointer text-center font-display text-[12px] font-bold uppercase tracking-[0.1em] text-white underline">Ahora no</p>
+                </>
               ) : (
                 <div className="flex flex-col gap-4 rounded-[16px] bg-white/8 p-5">
                   <div className="flex items-start gap-3">
@@ -181,15 +184,6 @@ export function InstallModal() {
             </div>
           </div>
 
-          {/* Ahora no — fuera del grid, fondo negro propio */}
-          <div className="border-t border-white/10 bg-ceuta-black px-8 py-4 text-center">
-            <button
-              onClick={snooze}
-              className="font-display text-[12px] font-bold uppercase tracking-[0.1em] text-white underline underline-offset-2 opacity-60 hover:opacity-100 transition-opacity"
-            >
-              Ahora no
-            </button>
-          </div>
         </div>
       </>
     )
