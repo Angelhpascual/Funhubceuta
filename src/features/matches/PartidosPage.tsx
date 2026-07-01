@@ -61,7 +61,7 @@ export function PartidosPage({ upcoming = [], results = [], logos = {} }: Props)
         />
         <div className="flex items-center gap-2 font-display text-[11px] font-bold uppercase tracking-[0.16em] text-ceuta-red">
           <div className="h-0.5 w-[18px] bg-ceuta-red" />
-          Temporada 2025–26 · Liga Hypermotion
+          Temporada 2026–27 · Liga Hypermotion
         </div>
         <div className="mt-2 font-display text-[38px] font-black uppercase leading-[0.95]">
           PARTIDOS <em className="not-italic text-ceuta-gold">Y</em>

@@ -285,7 +285,7 @@ export default function MercadoClient({ transfers }: { transfers: Transfer[] }) 
         />
         <div className="flex items-center gap-2 font-display text-[11px] font-bold uppercase tracking-[0.16em] text-ceuta-red">
           <div className="h-0.5 w-[18px] bg-ceuta-red" />
-          Temporada 2025–26
+          Temporada 2026–27
         </div>
         <div className="mt-2 font-display text-[38px] font-black uppercase leading-[0.95]">
           MERCADO DE<br />
