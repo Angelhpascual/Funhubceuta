@@ -239,7 +239,9 @@ export function LiveMatchCard() {
                 .toUpperCase()
                 .replace('.', '')}
               <br />
-              {nextMatch.time}
+              {new Date(dateStr).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', timeZone: 'UTC' })}
+              <br />
+              <span className="text-[16px] text-white/60">{nextMatch.time}</span>
             </div>
           </div>
           <div className="flex flex-col items-center gap-2">
