@@ -245,7 +245,7 @@ export function InstallModal() {
               {
                 // Soccer ball — circle + pentagon + 5 lines
                 icon: (
-                  <svg viewBox="0 0 24 24" style={{ width: 22, height: 22, color: 'var(--red)' }} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <svg viewBox="0 0 24 24" style={{ width: 24, height: 24, color: 'var(--red)' }} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="12" cy="12" r="10"/>
                     <polygon points="12,8 14.5,10 13.5,13 10.5,13 9.5,10" fill="none"/>
                     <line x1="12" y1="2" x2="12" y2="8"/>
@@ -260,7 +260,7 @@ export function InstallModal() {
               {
                 // Bell
                 icon: (
-                  <svg viewBox="0 0 24 24" style={{ width: 22, height: 22, color: 'var(--red)' }} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg viewBox="0 0 24 24" style={{ width: 24, height: 24, color: 'var(--red)' }} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
                     <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
                   </svg>
@@ -270,7 +270,7 @@ export function InstallModal() {
               {
                 // Trophy
                 icon: (
-                  <svg viewBox="0 0 24 24" style={{ width: 22, height: 22, color: 'var(--red)' }} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg viewBox="0 0 24 24" style={{ width: 24, height: 24, color: 'var(--red)' }} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M6 9H3V4h3"/>
                     <path d="M18 9h3V4h-3"/>
                     <path d="M6 4h12v7a6 6 0 0 1-12 0V4z"/>
@@ -282,7 +282,7 @@ export function InstallModal() {
               },
             ].map(({ icon, text }) => (
               <div key={text} className="flex items-center gap-3">
-                <div style={{ width: 36, height: 36, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 10, backgroundColor: 'rgba(218,26,34,0.12)' }}>{icon}</div>
+                <div style={{ width: 40, height: 40, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 10, backgroundColor: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)' }}>{icon}</div>
                 <span className="font-display text-[13px] font-bold uppercase tracking-[0.06em] text-white/80">{text}</span>
               </div>
             ))}
