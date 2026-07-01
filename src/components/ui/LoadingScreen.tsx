@@ -9,6 +9,7 @@ export function LoadingScreen() {
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 999,
+        animation: 'loadingFadeOut 0s 4s forwards',
       }}
     >
       <div style={{ position: 'relative', width: 120, height: 120 }}>
@@ -64,6 +65,9 @@ export function LoadingScreen() {
           0%   { stroke-dashoffset: 310; }
           50%  { stroke-dashoffset: 80; }
           100% { stroke-dashoffset: 310; }
+        }
+        @keyframes loadingFadeOut {
+          to { opacity: 0; pointer-events: none; visibility: hidden; }
         }
       `}</style>
     </div>

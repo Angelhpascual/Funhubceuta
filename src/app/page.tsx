@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Suspense } from 'react'
 import { useRouter } from 'next/navigation'
 import { HomePage } from '@/features/home/HomePage'
@@ -112,6 +112,15 @@ function AppInner() {
   const router = useRouter()
   const [modal, setModal] = useState<Modal>(null)
   const [ready, setReady] = useState(false)
+
+  // Safari bfcache: when restored from cache, force a full reload so React re-initialises
+  useEffect(() => {
+    const handlePageShow = (e: PageTransitionEvent) => {
+      if (e.persisted) window.location.reload()
+    }
+    window.addEventListener('pageshow', handlePageShow)
+    return () => window.removeEventListener('pageshow', handlePageShow)
+  }, [])
 
   function handleNav(id: NavId) {
     if (SSR_NAV.includes(id)) router.push(`/${id}`)
