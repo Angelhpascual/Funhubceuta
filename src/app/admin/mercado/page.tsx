@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
-import { AdminShell } from '@/features/admin/AdminShell'
 import type { Transfer, TransferType } from '@/infrastructure/supabase/TransfersRepository'
 
 const POSITIONS = ['POR', 'DEF', 'MED', 'DEL', 'ENT']
@@ -169,8 +168,7 @@ export default function AdminMercadoPage() {
   }
 
   return (
-    <AdminShell>
-      <div style={{ fontFamily: 'var(--font-display)' }}>
+    <div style={{ fontFamily: 'var(--font-display)' }}>
         <div style={{ fontSize: 22, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '-0.01em', marginBottom: 20 }}>
           Mercado de Fichajes
         </div>
@@ -433,7 +431,6 @@ export default function AdminMercadoPage() {
             </div>
           ))
         }
-      </div>
-    </AdminShell>
+    </div>
   )
 }
