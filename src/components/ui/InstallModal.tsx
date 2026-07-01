@@ -79,10 +79,11 @@ export function InstallModal() {
 
   return (
     <>
-      {/* Backdrop — cursor:pointer needed for iOS Safari to fire onClick */}
+      {/* Backdrop — onTouchEnd needed for iOS Safari (onClick unreliable on divs) */}
       <div
         className="fixed inset-0 z-[100] bg-black/60 cursor-pointer"
         onClick={dismiss}
+        onTouchEnd={dismiss}
       />
 
       {/* Modal — bottom sheet */}
@@ -162,9 +163,13 @@ export function InstallModal() {
                     1
                   </div>
                   <p className="font-body text-[14px] leading-[1.45] text-white/80">
-                    Pulsa el icono{' '}
-                    <span className="inline-block rounded-[4px] bg-white/15 px-1.5 py-0.5 font-display text-[12px] font-bold text-white">
-                      ⎋ Compartir
+                    Pulsa{' '}
+                    <span className="inline-flex items-center gap-1 rounded-[4px] bg-white/15 px-1.5 py-0.5">
+                      <svg width="13" height="13" viewBox="0 0 50 50" fill="white" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M25 3 L15 13 L17.5 15.5 L23.5 9.5 L23.5 34 L26.5 34 L26.5 9.5 L32.5 15.5 L35 13 Z"/>
+                        <path d="M10 20 L10 44 L40 44 L40 20 L34 20 L34 23 L37 23 L37 41 L13 41 L13 23 L16 23 L16 20 Z"/>
+                      </svg>
+                      <span className="font-display text-[11px] font-bold text-white">Compartir</span>
                     </span>{' '}
                     abajo en Safari
                   </p>
