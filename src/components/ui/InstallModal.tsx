@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 
 type Platform = 'ios' | 'android' | 'other'
@@ -38,6 +38,7 @@ export function InstallModal() {
   const [platform, setPlatform] = useState<Platform>('other')
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
   const [installing, setInstalling] = useState(false)
+  const touchStartY = useRef(0)
 
   useEffect(() => {
     const forceShow = new URLSearchParams(window.location.search).get('install') === '1'
@@ -79,15 +80,24 @@ export function InstallModal() {
 
   return (
     <>
-      {/* Backdrop — onTouchEnd needed for iOS Safari (onClick unreliable on divs) */}
+      {/* Backdrop — z-[200] to sit above topbar (z-100) */}
       <div
-        className="fixed inset-0 z-[100] bg-black/60 cursor-pointer"
+        className="fixed inset-0 z-[200] bg-black/60 cursor-pointer"
         onClick={dismiss}
         onTouchEnd={dismiss}
       />
 
       {/* Modal — bottom sheet */}
-      <div className="fixed bottom-0 left-0 right-0 z-[101] max-h-[92dvh] overflow-y-auto rounded-t-[24px] bg-ceuta-black" onClick={e => e.stopPropagation()}>
+      <div
+        className="fixed bottom-0 left-0 right-0 z-[201] max-h-[92dvh] overflow-y-auto rounded-t-[24px] bg-ceuta-black"
+        onClick={e => e.stopPropagation()}
+        onTouchStart={e => { touchStartY.current = e.touches[0].clientY }}
+        onTouchEnd={e => {
+          e.stopPropagation()
+          const delta = e.changedTouches[0].clientY - touchStartY.current
+          if (delta > 60) dismiss()
+        }}
+      >
         {/* Drag handle */}
         <div className="flex justify-center pt-3 pb-1">
           <div className="h-1 w-10 rounded-full bg-white/20" />
