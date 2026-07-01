@@ -217,43 +217,55 @@ export function PlantillaTab({
   previousTotal?: number
   loading: boolean
 }) {
-  const [season, setSeason] = useState<'current' | 'previous'>('current')
-  const activeGrouped = season === 'current' ? grouped : previousGrouped
-  const activeTotal = season === 'current' ? total : previousTotal
+  const [season, setSeason] = useState<'2526' | '2627'>('2526')
 
   return (
     <>
       {/* ── SEASON SELECTOR ── */}
       <div className="chips mb-3 mt-1">
-        <button className={`chip ${season === 'current' ? 'active' : ''}`} onClick={() => setSeason('current')}>
+        <button className={`chip ${season === '2526' ? 'active' : ''}`} onClick={() => setSeason('2526')}>
           Temp. 25/26
         </button>
-        <button className={`chip ${season === 'previous' ? 'active' : ''}`} onClick={() => setSeason('previous')}>
-          Temp. 24/25
+        <button className={`chip ${season === '2627' ? 'active' : ''}`} onClick={() => setSeason('2627')}>
+          Temp. 26/27
         </button>
       </div>
 
-      <div className="px-3 mb-1">
-        <CollapsibleStaff />
-      </div>
-      <p className="px-3 pb-1.5 font-display text-[10px] uppercase tracking-widest text-ceuta-muted">
-        Jugadores · {activeTotal} · toca para expandir
-      </p>
-      {loading ? (
-        <p className="py-8 text-center font-display text-[11px] uppercase tracking-widest text-ceuta-muted">
-          Cargando plantilla…
-        </p>
-      ) : (
-        <div className="flex flex-col gap-1 px-3">
-          {activeGrouped.map((g, i) => (
-            <CollapsibleGroup
-              key={g.group}
-              group={g.group}
-              players={g.players}
-              defaultOpen={i === 0}
-            />
-          ))}
+      {season === '2627' ? (
+        <div className="flex flex-col items-center gap-3 px-3 py-12">
+          <span className="text-3xl">🔜</span>
+          <p className="font-display text-[13px] font-bold uppercase tracking-widest text-ceuta-muted text-center">
+            Plantilla por determinar
+          </p>
+          <p className="font-body text-[12px] text-ceuta-muted text-center">
+            La plantilla 26/27 se anunciará próximamente
+          </p>
         </div>
+      ) : (
+        <>
+          <div className="px-3 mb-1">
+            <CollapsibleStaff />
+          </div>
+          <p className="px-3 pb-1.5 font-display text-[10px] uppercase tracking-widest text-ceuta-muted">
+            Jugadores · {total} · toca para expandir
+          </p>
+          {loading ? (
+            <p className="py-8 text-center font-display text-[11px] uppercase tracking-widest text-ceuta-muted">
+              Cargando plantilla…
+            </p>
+          ) : (
+            <div className="flex flex-col gap-1 px-3">
+              {grouped.map((g, i) => (
+                <CollapsibleGroup
+                  key={g.group}
+                  group={g.group}
+                  players={g.players}
+                  defaultOpen={i === 0}
+                />
+              ))}
+            </div>
+          )}
+        </>
       )}
     </>
   )
