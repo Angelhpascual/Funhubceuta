@@ -1,5 +1,6 @@
 import { supabase } from '@/infrastructure/supabase/client'
 import { TeamsSupabaseRepository } from '@/infrastructure/supabase/TeamsSupabaseRepository'
+import { PREVIOUS_SEASON } from '@/lib/constants'
 
 export async function fetchCeutaForm(): Promise<string[]> {
   const { data } = await supabase
@@ -21,8 +22,13 @@ export async function fetchCeutaForm(): Promise<string[]> {
 
 export async function fetchTeamLogos(): Promise<Record<string, string>> {
   const repo = new TeamsSupabaseRepository()
-  const teams = await repo.getAllTeams()
+  const [current, previous] = await Promise.all([
+    repo.getAllTeams(),
+    repo.getAllTeams(PREVIOUS_SEASON),
+  ])
   const map: Record<string, string> = {}
-  for (const t of teams) if (t.logoUrl) map[t.name] = t.logoUrl
+  // Previous season first so current season overrides on name collision
+  for (const t of previous) if (t.logoUrl) map[t.name] = t.logoUrl
+  for (const t of current) if (t.logoUrl) map[t.name] = t.logoUrl
   return map
 }
