@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { ESPN_SCOREBOARD, ESPN_SUMMARY } from '@/lib/constants'
 import { getConfig } from '@/infrastructure/supabase/AppConfigRepository'
+import { supabase } from '@/infrastructure/supabase/client'
 
 // Cache 60s — multiple users share the same ESPN response
 export const revalidate = 0
@@ -76,9 +77,29 @@ export async function GET() {
   const clockDisplay = (status?.displayClock as string) ?? ''
   const statusDesc = statusType?.description as string
 
+  // Guard: cross-check with DB match date. ESPN occasionally seeds upcoming fixtures
+  // with corrupt state ('in', clock '1''). A match can only be live if the DB says
+  // it's within a ±4h window of its real kickoff time.
+  let guardedState = state
+  if (state === 'in') {
+    const espnId = String(ceutaEvent.id ?? '')
+    const { data: dbMatch } = await supabase
+      .from('matches')
+      .select('date')
+      .eq('espn_event_id', espnId)
+      .maybeSingle()
+    if (dbMatch?.date) {
+      const kickoff = new Date(dbMatch.date)
+      const now = new Date()
+      const diffHours = (now.getTime() - kickoff.getTime()) / 3_600_000
+      // Only trust 'in' state if kickoff was between 0 and 4 hours ago
+      if (diffHours < 0 || diffHours > 4) guardedState = 'pre'
+    }
+  }
+
   // Fetch play-by-play events only during/after match
   let liveEvents: LiveEvent[] = []
-  if (state === 'in' || state === 'post') {
+  if (guardedState === 'in' || guardedState === 'post') {
     const summary = await fetchEspn(`${ESPN_SUMMARY}?event=${ceutaEvent.id}`)
     const plays: unknown[] = summary?.plays ?? []
 
@@ -116,9 +137,9 @@ export async function GET() {
 
   const match: LiveMatch = {
     espnId: ceutaEvent.id as string,
-    state: (state as 'pre' | 'in' | 'post') ?? 'pre',
+    state: (guardedState as 'pre' | 'in' | 'post') ?? 'pre',
     status: statusDesc ?? '',
-    clock: state === 'in' ? clockDisplay || '' : '',
+    clock: guardedState === 'in' ? clockDisplay || '' : '',
     homeTeam: (homeTeamData?.displayName as string) ?? '',
     awayTeam: (awayTeamData?.displayName as string) ?? '',
     homeScore: parseInt((home?.score as string) ?? '0'),
@@ -129,7 +150,7 @@ export async function GET() {
   }
 
   // Don't show a finished match that ended more than 3 hours ago
-  if (state === 'post') {
+  if (guardedState === 'post') {
     const matchDate = new Date(ceutaEvent.date as string)
     const hoursSinceMatch = (Date.now() - matchDate.getTime()) / 3_600_000
     if (hoursSinceMatch > 3) return NextResponse.json({ match: null })
