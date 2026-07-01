@@ -154,9 +154,9 @@ export function HomePage({
     onReadyRef.current = onReady
   }, [onReady])
 
-  // Safety timeout — never stay on loading screen more than 4s
+  // Safety timeout — never stay on loading screen more than 8s
   useEffect(() => {
-    const t = setTimeout(() => setTimedOut(true), 4000)
+    const t = setTimeout(() => setTimedOut(true), 8000)
     return () => clearTimeout(t)
   }, [])
 

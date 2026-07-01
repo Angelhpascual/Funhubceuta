@@ -9,7 +9,7 @@ export function LoadingScreen() {
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 999,
-        animation: 'loadingFadeOut 0s 4s forwards',
+        animation: 'loadingFadeOut 0s 8s forwards',
       }}
     >
       <div style={{ position: 'relative', width: 120, height: 120 }}>
