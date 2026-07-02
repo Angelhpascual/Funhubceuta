@@ -20,6 +20,8 @@ const OTHER_SPORT_KEYWORDS = [
   'icd', 'instituto ceutí de deportes', 'instituto ceuti', 'leyendas del deporte',
   'exposición', 'exposicion', 'inauguración', 'inauguracion', 'escuela deportiva',
   'deporte escolar', 'deporte base', 'deporte femenino ceuta',
+  // Eventos de ciudad / carreras populares
+  'vuelta al hacho', 'hacho', 'carrera popular', 'marcha popular', 'trail',
 ]
 
 export function isFootball(title: string, url: string): boolean {
