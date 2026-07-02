@@ -166,6 +166,11 @@ export function AdminActions() {
             status={syncMatches} result={syncMatchesResult}
             onClick={() => triggerSync(setSyncMatches, setSyncMatchesResult, 'matches', (r: unknown) => `${(r as { count?: number })?.count ?? 0} partidos`)}
           />
+          <SyncBtn
+            emoji="🛡️" label="Sync escudos 26/27"
+            status={syncNews} result=""
+            onClick={() => triggerSync(setSyncNews, setSyncNewsResult, 'sync-logos', (r: unknown) => `${(r as { total?: number })?.total ?? 0} escudos`)}
+          />
         </div>
       </div>
 

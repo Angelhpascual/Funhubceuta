@@ -31,10 +31,34 @@ async function enqueueViaQStash(path: string): Promise<{ queued: boolean }> {
   return { queued: res.ok }
 }
 
+const TEAMS_26_27 = [
+  { id: '2737', name: 'Albacete' }, { id: '6832', name: 'Almería' },
+  { id: '12597', name: 'Burgos' }, { id: '11487', name: 'CD Sabadell' },
+  { id: '4438', name: 'Castellón' }, { id: '5404', name: 'Ceuta' },
+  { id: '3842', name: 'Cádiz' }, { id: '8447', name: 'Córdoba' },
+  { id: '3752', name: 'Eibar' }, { id: '7320', name: 'Eldense' },
+  { id: '20179', name: 'FC Andorra' }, { id: '9812', name: 'Girona' },
+  { id: '3747', name: 'Granada' }, { id: '98', name: 'Las Palmas' },
+  { id: '17534', name: 'Leganés' }, { id: '84', name: 'Mallorca' },
+  { id: '85', name: 'RC Celta Fortuna' }, { id: '92', name: 'Real Oviedo' },
+  { id: '20983', name: 'Real Sociedad II' }, { id: '95', name: 'Real Valladolid' },
+  { id: '3788', name: 'Sporting Gijón' }, { id: '245', name: 'Tenerife' },
+]
+
 const ACTIONS: Record<string, () => Promise<Record<string, unknown>>> = {
   news: async () => enqueueViaQStash('/api/cron/news'),
   matches: async () => enqueueViaQStash('/api/cron/matches'),
   'match-day': async () => enqueueViaQStash('/api/cron/match-day'),
+  'sync-logos': async () => {
+    const { supabase } = await import('@/infrastructure/supabase/client')
+    const rows = TEAMS_26_27.map(({ id, name }) => ({
+      name,
+      logo_url: `https://a.espncdn.com/i/teamlogos/soccer/500/${id}.png`,
+      season: '2026-2027',
+    }))
+    const { error } = await supabase.from('teams').upsert(rows, { onConflict: 'name,season', ignoreDuplicates: false })
+    return { ok: !error, total: rows.length, error: error?.message ?? null }
+  },
 }
 
 export async function POST(request: Request) {
