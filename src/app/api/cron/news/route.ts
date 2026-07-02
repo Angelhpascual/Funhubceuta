@@ -181,20 +181,12 @@ async function syncNews() {
       return overlap / minSize >= 0.4
     })
 
-    if (alreadySent) {
-      notifStats = null
-    } else {
-      notifStats = await sendNewsNotification(toNotify).catch(() => null)
-    }
-    if (notifStats) {
-      await logNotification({
-        articleTitle: toNotify.title,
-        articleSource: toNotify.source,
-        articleUrl: toNotify.url,
-        recipients: notifStats.recipients,
-        sentOk: notifStats.sentOk,
-        sentFail: notifStats.sentFail,
-      })
+    if (!alreadySent) {
+      // Queue for manual approval instead of auto-sending
+      await supabase
+        .from('news')
+        .update({ notify_queued: true })
+        .eq('id', toNotify.id)
     }
   }
 
@@ -215,11 +207,11 @@ async function syncNews() {
     optimizedNewImages,
     backfilledImages,
     subscribers: subscribers ?? 0,
-    notified: toNotify?.title ?? null,
+    queued: toNotify?.title ?? null,
     summary,
   })
 
-  return { summary, notified: toNotify?.title ?? null }
+  return { summary, queued: toNotify?.title ?? null }
 }
 
 export async function POST(request: Request) {
