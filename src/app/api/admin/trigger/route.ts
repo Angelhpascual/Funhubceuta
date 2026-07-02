@@ -49,6 +49,7 @@ const ACTIONS: Record<string, () => Promise<Record<string, unknown>>> = {
   news: async () => enqueueViaQStash('/api/cron/news'),
   matches: async () => enqueueViaQStash('/api/cron/matches'),
   'match-day': async () => enqueueViaQStash('/api/cron/match-day'),
+  'backfill-images': async () => enqueueViaQStash('/api/cron/backfill-images'),
   'sync-logos': async () => {
     const { supabase } = await import('@/infrastructure/supabase/client')
     const rows = TEAMS_26_27.map(({ id, name }) => ({

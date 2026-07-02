@@ -36,6 +36,8 @@ export function AdminActions() {
   const [syncNewsResult, setSyncNewsResult] = useState('')
   const [syncMatches, setSyncMatches] = useState<Status>('idle')
   const [syncMatchesResult, setSyncMatchesResult] = useState('')
+  const [syncImages, setSyncImages] = useState<Status>('idle')
+  const [syncImagesResult, setSyncImagesResult] = useState('')
 
   const [customTitle, setCustomTitle] = useState('')
   const [customBody, setCustomBody] = useState('')
@@ -170,6 +172,11 @@ export function AdminActions() {
             emoji="🛡️" label="Sync escudos 26/27"
             status={syncNews} result=""
             onClick={() => triggerSync(setSyncNews, setSyncNewsResult, 'sync-logos', (r: unknown) => `${(r as { total?: number })?.total ?? 0} escudos`)}
+          />
+          <SyncBtn
+            emoji="🖼️" label="Sync fotos"
+            status={syncImages} result={syncImagesResult}
+            onClick={() => triggerSync(setSyncImages, setSyncImagesResult, 'backfill-images', () => 'En cola')}
           />
         </div>
       </div>
