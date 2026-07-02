@@ -55,6 +55,22 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, ...result })
   }
 
+  // Simulate admin queue alert
+  if (action === 'test-admin-alert') {
+    const { supabaseAdmin } = await import('@/infrastructure/supabase/adminClient')
+    const { count } = await supabaseAdmin
+      .from('news')
+      .select('*', { count: 'exact', head: true })
+      .eq('notify_queued', true)
+      .then((r) => ({ count: r.count ?? 0 }))
+    const { notifyAdmin } = await import('@/infrastructure/push/notifyAdmin')
+    await notifyAdmin(
+      '📬 Noticias pendientes',
+      `${count} noticia${count !== 1 ? 's' : ''} esperando tu aprobación`
+    )
+    return NextResponse.json({ ok: true, queued: count })
+  }
+
   const handler = ACTIONS[action]
   if (!handler) {
     return NextResponse.json({ error: `Unknown action: ${action}` }, { status: 400 })

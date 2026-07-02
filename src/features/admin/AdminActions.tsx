@@ -209,6 +209,16 @@ export function AdminActions() {
         </div>
       </div>
 
+      {/* Test alerta admin */}
+      <div>
+        <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-ceuta-muted mb-2">Prueba</p>
+        <SyncBtn
+          emoji="🧪" label="Simular alerta de cola"
+          status={syncNews} result={syncNewsResult}
+          onClick={() => triggerSync(setSyncNews, setSyncNewsResult, 'test-admin-alert', (r: unknown) => `${(r as { queued?: number })?.queued ?? 0} pendientes`)}
+        />
+      </div>
+
       {/* Registrar dispositivo admin */}
       <div>
         <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-ceuta-muted mb-2">Este dispositivo</p>
