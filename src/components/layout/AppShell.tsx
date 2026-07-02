@@ -1,6 +1,7 @@
 'use client'
 
 import { usePathname, useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 import { InstallModal } from '@/components/ui/InstallModal'
 
 const NAV_MOBILE = [
@@ -152,9 +153,25 @@ function Topbar({ pathname, router }: { pathname: string; router: ReturnType<typ
   )
 }
 
+function removeHtmlLoader() {
+  const el = document.getElementById('html-loader')
+  if (!el) return
+  el.classList.add('hide')
+  setTimeout(() => el.remove(), 350)
+}
+
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
+
+  // SSR routes: remove loader immediately on hydration (page is ready)
+  useEffect(() => {
+    if (pathname.startsWith('/admin')) return
+    const isSSR = SSR_ROUTES.some((r) => pathname === r || pathname.startsWith(r + '/'))
+    if (isSSR) removeHtmlLoader()
+    // Home: LoadingScreen handles it — but clean up if user navigates back to home
+    // while loader still exists (edge case)
+  }, [pathname])
 
   if (pathname.startsWith('/admin')) return <>{children}</>
 

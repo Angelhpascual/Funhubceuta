@@ -41,6 +41,10 @@ export default function RootLayout({
   return (
     <html lang="es" className={`${barlow.variable} ${barlowCondensed.variable} h-full`}>
       <body className="min-h-full">
+        {/* Pure HTML/CSS splash — covers everything before React hydrates */}
+        <div id="html-loader" aria-hidden="true">
+          <img src="/escudo.png" alt="" width={68} height={68} />
+        </div>
         <AppShell>{children}</AppShell>
         <Analytics />
         <SpeedInsights />
