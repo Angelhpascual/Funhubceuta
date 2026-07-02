@@ -41,9 +41,22 @@ export default function RootLayout({
   return (
     <html lang="es" className={`${barlow.variable} ${barlowCondensed.variable} h-full`}>
       <body className="min-h-full">
-        {/* Pure HTML/CSS splash — covers everything before React hydrates */}
-        <div id="html-loader" aria-hidden="true">
-          <img src="/escudo.png" alt="" width={68} height={68} />
+        {/* Pure HTML splash — inline styles so it works before any CSS loads */}
+        <div
+          id="html-loader"
+          aria-hidden="true"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: '#fff',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+            transition: 'opacity 0.3s ease',
+          }}
+        >
+          <img src="/escudo.png" alt="" width={72} height={72} style={{ objectFit: 'contain' }} />
         </div>
         <AppShell>{children}</AppShell>
         <Analytics />
