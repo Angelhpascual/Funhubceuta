@@ -48,16 +48,11 @@ export async function POST(request: Request) {
     payload?: { title: string; body: string; tag: string; url: string }
   }
 
-  // Custom push notification
+  // Custom push notification — call internally to avoid cross-origin issues
   if (action === 'push' && payload) {
-    const base = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'
-    const res = await fetch(`${base}/api/push/send`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-      cache: 'no-store',
-    })
-    return NextResponse.json(await res.json())
+    const { sendPush } = await import('@/infrastructure/push/sendPush')
+    const result = await sendPush(payload)
+    return NextResponse.json({ ok: true, ...result })
   }
 
   const handler = ACTIONS[action]
