@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '@/infrastructure/supabase/client'
-import { CURRENT_SEASON } from '@/lib/constants'
+import { STANDINGS_CURRENT_SEASON } from '@/lib/constants'
 
 const TEAMS: Array<{ id: string; name: string }> = [
   { id: '2737', name: 'Albacete' },
@@ -36,7 +36,7 @@ export async function GET(request: Request) {
   const rows = TEAMS.map(({ id, name }) => ({
     name,
     logo_url: `https://a.espncdn.com/i/teamlogos/soccer/500/${id}.png`,
-    season: CURRENT_SEASON,
+    season: STANDINGS_CURRENT_SEASON,
   }))
 
   const { error } = await supabase
