@@ -90,8 +90,26 @@ export function AdminActions() {
       return
     }
     const reg = await navigator.serviceWorker.ready
-    const sub = await reg.pushManager.getSubscription()
-    if (!sub) { setDeviceStatus('error'); return }
+    let sub = await reg.pushManager.getSubscription()
+
+    // Si no hay suscripción activa, crearla ahora
+    if (!sub) {
+      const permission = await Notification.requestPermission()
+      if (permission !== 'granted') { setDeviceStatus('error'); return }
+      const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
+      if (!vapidKey) { setDeviceStatus('error'); return }
+      sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: vapidKey,
+      })
+      // Registrar la suscripción en Supabase
+      await fetch('/api/push/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(sub.toJSON()),
+      })
+    }
+
     const res = await fetch('/api/admin/register-device', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
