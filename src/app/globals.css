@@ -779,7 +779,7 @@ img {
   border-radius: 4px;
 }
 .form-pill.W {
-  background: var(--red);
+  background: #16a34a;
 }
 .form-pill.D {
   background: var(--muted);
@@ -1497,7 +1497,7 @@ img {
   transform: scale(0.99);
 }
 .result-card.win {
-  border-left: 4px solid var(--red);
+  border-left: 4px solid #16a34a;
 }
 .result-card.lose {
   border-left: 4px solid var(--black);
@@ -1562,7 +1562,7 @@ img {
   text-align: right;
 }
 .result-score.win {
-  color: var(--red);
+  color: #16a34a;
 }
 .result-score.lose {
   color: var(--muted);

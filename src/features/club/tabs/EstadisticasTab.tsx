@@ -169,9 +169,10 @@ export function EstadisticasTab({
         <Tile>
           {activeForm.length > 0 && (activeCeuta?.played ?? 0) > 0 ? (
             <div className="flex flex-wrap gap-1">
-              {activeForm.slice(-5).map((f, i) => (
-                <div key={i} className={`form-pill ${f}`}>{f}</div>
-              ))}
+              {activeForm.slice(-5).map((f, i) => {
+                const label = f === 'W' ? 'V' : f === 'L' ? 'D' : 'E'
+                return <div key={i} className={`form-pill ${f}`}>{label}</div>
+              })}
             </div>
           ) : (
             <TileValue className="text-[42px] text-ceuta-black">–</TileValue>
