@@ -7,10 +7,12 @@ const WORDS = ['ORGULLO', 'CABALLA']
 export function LoadingScreen({ fadeOut, onFadeOutDone }: { fadeOut?: boolean; onFadeOutDone?: () => void }) {
   const boxRef = useRef<HTMLSpanElement>(null)
 
-  // Remove the HTML pre-loader once our React loader is ready
+  // Hide the HTML pre-loader once our React loader is ready (don't remove — React owns the node)
   useEffect(() => {
     const el = document.getElementById('html-loader')
-    if (el) el.remove()
+    if (!el) return
+    el.style.opacity = '0'
+    el.style.pointerEvents = 'none'
   }, [])
   const word0 = useRef<HTMLSpanElement>(null)
   const word1 = useRef<HTMLSpanElement>(null)

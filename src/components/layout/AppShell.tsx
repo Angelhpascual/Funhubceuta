@@ -156,8 +156,9 @@ function Topbar({ pathname, router }: { pathname: string; router: ReturnType<typ
 function removeHtmlLoader() {
   const el = document.getElementById('html-loader')
   if (!el) return
-  el.classList.add('hide')
-  setTimeout(() => el.remove(), 350)
+  el.style.opacity = '0'
+  el.style.pointerEvents = 'none'
+  el.style.transition = 'opacity 0.3s ease'
 }
 
 export function AppShell({ children }: { children: React.ReactNode }) {
