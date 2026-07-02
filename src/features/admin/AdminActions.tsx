@@ -82,6 +82,25 @@ export function AdminActions() {
     setTimeout(() => setCustomStatus('idle'), 5000)
   }
 
+  const [deviceStatus, setDeviceStatus] = useState<'idle' | 'ok' | 'error' | 'unsupported'>('idle')
+
+  async function registerDevice() {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+      setDeviceStatus('unsupported')
+      return
+    }
+    const reg = await navigator.serviceWorker.ready
+    const sub = await reg.pushManager.getSubscription()
+    if (!sub) { setDeviceStatus('error'); return }
+    const res = await fetch('/api/admin/register-device', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ endpoint: sub.endpoint }),
+    })
+    setDeviceStatus(res.ok ? 'ok' : 'error')
+    setTimeout(() => setDeviceStatus('idle'), 4000)
+  }
+
   async function handleLogout() {
     setLogoutLoading(true)
     await fetch('/api/admin/logout', { method: 'POST' })
@@ -145,6 +164,23 @@ export function AdminActions() {
             </span>
           </button>
         </div>
+      </div>
+
+      {/* Registrar dispositivo admin */}
+      <div>
+        <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-ceuta-muted mb-2">Este dispositivo</p>
+        <button
+          onClick={registerDevice}
+          className={`admin-btn ${deviceStatus === 'ok' ? 'admin-btn-ok' : deviceStatus === 'error' ? 'admin-btn-error' : 'admin-btn-dark'} w-full`}
+        >
+          <span className="admin-btn-emoji">📲</span>
+          <span className="admin-btn-label">
+            {deviceStatus === 'ok' ? '✓ Dispositivo registrado' :
+             deviceStatus === 'error' ? '✗ Error — ¿notificaciones activadas?' :
+             deviceStatus === 'unsupported' ? 'No compatible' :
+             'Recibir alertas de cola en este dispositivo'}
+          </span>
+        </button>
       </div>
 
       {/* Logout */}
