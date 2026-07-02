@@ -82,41 +82,62 @@ export function AdminActions() {
     setTimeout(() => setCustomStatus('idle'), 5000)
   }
 
-  const [deviceStatus, setDeviceStatus] = useState<'idle' | 'ok' | 'error' | 'unsupported'>('idle')
+  const [deviceStatus, setDeviceStatus] = useState<'idle' | 'loading' | 'ok' | 'error' | 'unsupported'>('idle')
+  const [deviceMsg, setDeviceMsg] = useState('')
 
   async function registerDevice() {
-    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-      setDeviceStatus('unsupported')
-      return
-    }
-    const reg = await navigator.serviceWorker.ready
-    let sub = await reg.pushManager.getSubscription()
+    setDeviceStatus('loading')
+    setDeviceMsg('')
+    try {
+      if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+        setDeviceStatus('unsupported')
+        setDeviceMsg('Push no disponible en este navegador')
+        return
+      }
+      const reg = await navigator.serviceWorker.ready
+      let sub = await reg.pushManager.getSubscription()
 
-    // Si no hay suscripción activa, crearla ahora
-    if (!sub) {
-      const permission = await Notification.requestPermission()
-      if (permission !== 'granted') { setDeviceStatus('error'); return }
-      const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
-      if (!vapidKey) { setDeviceStatus('error'); return }
-      sub = await reg.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: vapidKey,
-      })
-      // Registrar la suscripción en Supabase
-      await fetch('/api/push/subscribe', {
+      if (!sub) {
+        const permission = await Notification.requestPermission()
+        if (permission !== 'granted') {
+          setDeviceStatus('error')
+          setDeviceMsg('Permiso de notificaciones denegado')
+          return
+        }
+        const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
+        if (!vapidKey) {
+          setDeviceStatus('error')
+          setDeviceMsg('Falta VAPID key')
+          return
+        }
+        sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: vapidKey,
+        })
+        await fetch('/api/push/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(sub.toJSON()),
+        })
+      }
+
+      const res = await fetch('/api/admin/register-device', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(sub.toJSON()),
+        body: JSON.stringify({ endpoint: sub.endpoint }),
       })
+      if (res.ok) {
+        setDeviceStatus('ok')
+        setDeviceMsg('Dispositivo registrado')
+      } else {
+        setDeviceStatus('error')
+        setDeviceMsg('Error al registrar')
+      }
+    } catch (e) {
+      setDeviceStatus('error')
+      setDeviceMsg((e as Error).message ?? 'Error desconocido')
     }
-
-    const res = await fetch('/api/admin/register-device', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ endpoint: sub.endpoint }),
-    })
-    setDeviceStatus(res.ok ? 'ok' : 'error')
-    setTimeout(() => setDeviceStatus('idle'), 4000)
+    setTimeout(() => setDeviceStatus('idle'), 5000)
   }
 
   async function handleLogout() {
@@ -189,13 +210,14 @@ export function AdminActions() {
         <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-ceuta-muted mb-2">Este dispositivo</p>
         <button
           onClick={registerDevice}
-          className={`admin-btn ${deviceStatus === 'ok' ? 'admin-btn-ok' : deviceStatus === 'error' ? 'admin-btn-error' : 'admin-btn-dark'} w-full`}
+          disabled={deviceStatus === 'loading'}
+          className={`admin-btn ${deviceStatus === 'ok' ? 'admin-btn-ok' : deviceStatus === 'error' || deviceStatus === 'unsupported' ? 'admin-btn-error' : 'admin-btn-dark'} w-full`}
         >
           <span className="admin-btn-emoji">📲</span>
           <span className="admin-btn-label">
-            {deviceStatus === 'ok' ? '✓ Dispositivo registrado' :
-             deviceStatus === 'error' ? '✗ Error — ¿notificaciones activadas?' :
-             deviceStatus === 'unsupported' ? 'No compatible' :
+            {deviceStatus === 'loading' ? '⏳ Registrando...' :
+             deviceStatus === 'ok' ? `✓ ${deviceMsg}` :
+             deviceStatus === 'error' || deviceStatus === 'unsupported' ? `✗ ${deviceMsg}` :
              'Recibir alertas de cola en este dispositivo'}
           </span>
         </button>
