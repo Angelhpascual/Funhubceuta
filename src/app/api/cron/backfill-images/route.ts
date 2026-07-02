@@ -9,7 +9,7 @@ const repo = new NewsSupabaseRepository()
 
 async function run() {
   // Fetch articles that still have external image URLs (not yet on Supabase Storage)
-  const rows = await repo.getRowsWithExternalImages(15)
+  const rows = await repo.getRowsWithExternalImages(30)
   let optimized = 0
 
   await Promise.all(
