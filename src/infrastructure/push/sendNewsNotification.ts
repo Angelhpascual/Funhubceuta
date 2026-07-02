@@ -51,7 +51,7 @@ export async function sendNewsNotification(
     title: '🔴 Noticias',
     body: `${sourceLabel} · ${decodeEntities(article.title)}`,
     tag: `news-${article.externalId}`,
-    url: article.url,
+    url: '/',
     icon: '/icon-512.png',
   })
 
