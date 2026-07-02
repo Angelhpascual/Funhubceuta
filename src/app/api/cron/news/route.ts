@@ -9,6 +9,7 @@ import { fetchCeutaDeportiva } from '@/infrastructure/rss/ceutadeportivaFetcher'
 import { fetchOgImage } from '@/infrastructure/rss/fetchOgImage'
 import { NewsSupabaseRepository } from '@/infrastructure/supabase/NewsSupabaseRepository'
 import { sendNewsNotification } from '@/infrastructure/push/sendNewsNotification'
+import { notifyAdmin } from '@/infrastructure/push/notifyAdmin'
 import { logCron, logNotification } from '@/infrastructure/supabase/logCron'
 import { supabase } from '@/infrastructure/supabase/client'
 import {
@@ -182,11 +183,8 @@ async function syncNews() {
     })
 
     if (!alreadySent) {
-      // Queue for manual approval instead of auto-sending
-      await supabase
-        .from('news')
-        .update({ notify_queued: true })
-        .eq('id', toNotify.id)
+      await supabase.from('news').update({ notify_queued: true }).eq('external_id', toNotify.externalId)
+      await notifyAdmin('📬 Noticia pendiente', toNotify.title).catch(() => null)
     }
   }
 
