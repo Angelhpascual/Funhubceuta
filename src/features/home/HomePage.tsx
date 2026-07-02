@@ -36,6 +36,7 @@ const SOURCES: Record<string, { label: string; domain: string }> = {
   elgoldigital: { label: 'El Gol Digital', domain: 'elgoldigital.com' },
   fondosegunda: { label: 'Fondo Segunda', domain: 'fondosegunda.com' },
   transfermarkt: { label: 'Transfermarkt', domain: 'transfermarkt.es' },
+  ceutadeportiva: { label: 'Ceuta Deportiva', domain: 'ceutadeportiva.com' },
   prensa: { label: 'Prensa', domain: 'google.com' },
 }
 
