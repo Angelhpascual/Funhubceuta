@@ -11,6 +11,7 @@ interface MatchRow {
   date: string
   time: string
   weekday: string
+  matchday: number | null
   is_home: boolean
   home_score: number | null
   away_score: number | null
@@ -186,7 +187,7 @@ export function PartidosPage({ upcoming = [], results = [], previousSeason = [],
                 <div className="fixt-head">
                   <div className="fixt-comp">Liga Hypermotion</div>
                   <div className="fixt-date">
-                    {m.weekday} · Por confirmar
+                    {m.matchday ? `Jornada ${m.matchday}` : 'Por confirmar'}
                   </div>
                 </div>
                 <div className="fixt-teams items-center">
