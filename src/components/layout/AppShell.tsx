@@ -165,13 +165,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
 
-  // SSR routes: remove loader immediately on hydration (page is ready)
+  // SSR routes + admin: remove loader immediately on hydration (page is ready)
   useEffect(() => {
-    if (pathname.startsWith('/admin')) return
     const isSSR = SSR_ROUTES.some((r) => pathname === r || pathname.startsWith(r + '/'))
-    if (isSSR) removeHtmlLoader()
-    // Home: LoadingScreen handles it — but clean up if user navigates back to home
-    // while loader still exists (edge case)
+    if (isSSR || pathname.startsWith('/admin')) removeHtmlLoader()
+    // Home: LoadingScreen handles it
   }, [pathname])
 
   if (pathname.startsWith('/admin')) return <>{children}</>
