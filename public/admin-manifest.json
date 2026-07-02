@@ -3,7 +3,7 @@
   "short_name": "Ceuta Admin",
   "description": "Panel de administración AD Ceuta FC Info",
   "start_url": "/admin",
-  "scope": "/admin",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#000000",

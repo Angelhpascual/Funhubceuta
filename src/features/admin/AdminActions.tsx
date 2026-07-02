@@ -94,7 +94,10 @@ export function AdminActions() {
         setDeviceMsg('Push no disponible en este navegador')
         return
       }
-      const reg = await navigator.serviceWorker.ready
+      const reg = await Promise.race([
+        navigator.serviceWorker.ready,
+        new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Service worker timeout')), 5000)),
+      ])
       let sub = await reg.pushManager.getSubscription()
 
       if (!sub) {
