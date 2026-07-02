@@ -61,6 +61,36 @@ describe('isFootball', () => {
     expect(isFootball('Turismo y gastronomía en la región', 'https://example.com/2026/06/turismo')).toBe(false)
   })
 
+  // ICD / institution exclusions
+  it('rejects an ICD article', () => {
+    expect(isFootball('El ICD presenta el plan deportivo anual', 'https://ceutadeportiva.com/2026/06/icd-plan')).toBe(false)
+  })
+
+  it('rejects an inauguración article', () => {
+    expect(isFootball('Inauguración de las nuevas instalaciones deportivas', 'https://ceutadeportiva.com/2026/06/inauguracion')).toBe(false)
+  })
+
+  it('rejects deporte escolar article', () => {
+    expect(isFootball('Ceuta apuesta por el deporte escolar este curso', 'https://ceutadeportiva.com/2026/06/deporte-escolar')).toBe(false)
+  })
+
+  // Popular races / city events
+  it('rejects vuelta al hacho article', () => {
+    expect(isFootball('La XV Vuelta al Hacho, pendiente de la niebla', 'https://ceutadeportiva.com/2026/06/vuelta-hacho')).toBe(false)
+  })
+
+  it('rejects hacho in title', () => {
+    expect(isFootball('El Hacho acoge una nueva carrera popular', 'https://ceutadeportiva.com/2026/06/hacho-carrera')).toBe(false)
+  })
+
+  it('rejects trail article', () => {
+    expect(isFootball('Ceuta celebra su primer trail mountain race', 'https://ceutadeportiva.com/2026/06/trail-ceuta')).toBe(false)
+  })
+
+  it('rejects carrera popular article', () => {
+    expect(isFootball('Gran participación en la carrera popular de Ceuta', 'https://ceutadeportiva.com/2026/06/carrera-popular')).toBe(false)
+  })
+
   // Case insensitivity
   it('is case-insensitive for keywords', () => {
     expect(isFootball('WATERPOLO en Ceuta', 'https://ceutadeportiva.com/2026/06/waterpolo')).toBe(false)
