@@ -6,6 +6,7 @@ interface WPPost {
   id: number
   link: string
   date: string
+  date_gmt: string
   title: { rendered: string }
   excerpt: { rendered: string }
   _embedded?: {
@@ -14,7 +15,7 @@ interface WPPost {
 }
 
 export async function fetchAdceutaOfficialNews(limit = 15): Promise<ParsedArticle[]> {
-  const res = await fetch(`https://adceutafc.com/wp-json/wp/v2/posts?per_page=${limit}&_embed=1`, {
+  const res = await fetch(`https://adceutafc.com/wp-json/wp/v2/posts?per_page=${limit}&_embed=1&_fields=id,link,date,date_gmt,title,excerpt,_embedded`, {
     headers: { 'User-Agent': 'FunHubCeuta/1.0' },
     next: { revalidate: 0 },
   })
@@ -45,7 +46,7 @@ export async function fetchAdceutaOfficialNews(limit = 15): Promise<ParsedArticl
         url: post.link,
         imageUrl,
         source: 'oficial',
-        publishedAt: new Date(post.date).toISOString(),
+        publishedAt: new Date(post.date_gmt + 'Z').toISOString(),
       }
     })
   )
