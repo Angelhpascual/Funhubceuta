@@ -29,7 +29,7 @@ export async function GET() {
     .from('news')
     .select('id, title, source, image_url, published_at, url')
     .eq('notify_queued', true)
-    .order('published_at', { ascending: false })
+    .order('created_at', { ascending: false })
     .limit(20)
 
   return NextResponse.json({ items: data ?? [] })

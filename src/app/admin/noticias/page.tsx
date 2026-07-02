@@ -5,7 +5,7 @@ async function getNews() {
   const { data } = await supabase
     .from('news')
     .select('id, title, source, published_at, image_url, url')
-    .order('published_at', { ascending: false })
+    .order('created_at', { ascending: false })
     .limit(100)
   return data ?? []
 }

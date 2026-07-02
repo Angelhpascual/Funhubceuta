@@ -53,7 +53,7 @@ export class NewsSupabaseRepository {
       .from('news')
       .select('id, external_id, source, image_url')
       .not('image_url', 'is', null)
-      .order('published_at', { ascending: false })
+      .order('created_at', { ascending: false })
       .limit(limit)
 
     if (error || !data) return []
@@ -75,7 +75,7 @@ export class NewsSupabaseRepository {
       .select('id, external_id, source, image_url')
       .not('image_url', 'is', null)
       .not('image_url', 'ilike', '%supabase.co%')
-      .order('published_at', { ascending: false })
+      .order('created_at', { ascending: false })
       .limit(limit)
 
     if (error || !data) return []
@@ -92,7 +92,7 @@ export class NewsSupabaseRepository {
     const { data, error } = await supabase
       .from('news')
       .select('*')
-      .order('published_at', { ascending: false })
+      .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1)
 
     if (error || !data) return []
