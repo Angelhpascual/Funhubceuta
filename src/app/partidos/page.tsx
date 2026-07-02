@@ -2,7 +2,7 @@ import { PartidosPage } from '@/features/matches/PartidosPage'
 import { supabase } from '@/infrastructure/supabase/client'
 import { deduplicateMatches } from '@/app/api/matches/deduplicateMatches'
 import { fetchTeamLogos } from '@/lib/serverFetches'
-import { CURRENT_SEASON, PREVIOUS_SEASON } from '@/lib/constants'
+import { STANDINGS_CURRENT_SEASON, STANDINGS_PREVIOUS_SEASON } from '@/lib/constants'
 
 export const revalidate = 300
 
@@ -10,7 +10,7 @@ async function fetchMatches() {
   const { data } = await supabase
     .from('matches')
     .select('*')
-    .eq('season', CURRENT_SEASON)
+    .eq('season', STANDINGS_CURRENT_SEASON)
     .order('date', { ascending: false })
     .limit(60)
 
@@ -35,7 +35,7 @@ async function fetchPreviousSeason() {
   const { data } = await supabase
     .from('matches')
     .select('*')
-    .eq('season', PREVIOUS_SEASON)
+    .eq('season', STANDINGS_PREVIOUS_SEASON)
     .order('date', { ascending: false })
 
   const deduped = deduplicateMatches(data ?? [])
