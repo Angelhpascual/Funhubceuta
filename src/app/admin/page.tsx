@@ -1,5 +1,6 @@
 import { supabase } from '@/infrastructure/supabase/client'
 import { AdminActions } from '@/features/admin/AdminActions'
+import { NotifQueue } from '@/features/admin/NotifQueue'
 
 function parseDevice(ua: string | null): { os: string; browser: string; icon: string } {
   if (!ua) return { os: 'Desconocido', browser: '—', icon: '❓' }
@@ -193,6 +194,9 @@ export default async function AdminPage() {
           )
         })}
       </Card>
+
+      {/* Cola de notificaciones pendientes */}
+      <NotifQueue />
 
       {/* Acciones */}
       <AdminActions />
