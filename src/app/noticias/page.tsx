@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { NewsItem } from '@/domain/news/News'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -50,12 +50,18 @@ function timeAgo(dateStr: string | null): string {
   return `Hace ${days} días`
 }
 
+const PULL_THRESHOLD = 70
+
 export default function NoticiasPage() {
   const [news, setNews] = useState<NewsItem[]>([])
   const [offset, setOffset] = useState(0)
   const [loading, setLoading] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
   const [hasMore, setHasMore] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
+  const [pullY, setPullY] = useState(0)
+  const touchStartY = useRef(0)
+  const pulling = useRef(false)
 
   const fetchNews = useCallback(async (currentOffset: number, append: boolean) => {
     const res = await fetch(`/api/news?limit=${PAGE_SIZE}&offset=${currentOffset}`)
@@ -72,6 +78,38 @@ export default function NoticiasPage() {
     fetchNews(0, false).finally(() => setLoading(false))
   }, [fetchNews])
 
+  const refresh = useCallback(async () => {
+    if (refreshing) return
+    setRefreshing(true)
+    await fetchNews(0, false)
+    setOffset(0)
+    setRefreshing(false)
+  }, [refreshing, fetchNews])
+
+  const onTouchStart = useCallback((e: React.TouchEvent) => {
+    if (window.scrollY === 0) {
+      touchStartY.current = e.touches[0].clientY
+      pulling.current = true
+    }
+  }, [])
+
+  const onTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!pulling.current) return
+    const dy = e.touches[0].clientY - touchStartY.current
+    if (dy > 0 && window.scrollY === 0) {
+      setPullY(Math.min(dy * 0.4, PULL_THRESHOLD))
+    } else {
+      pulling.current = false
+      setPullY(0)
+    }
+  }, [])
+
+  const onTouchEnd = useCallback(() => {
+    if (pullY >= PULL_THRESHOLD) refresh()
+    pulling.current = false
+    setPullY(0)
+  }, [pullY, refresh])
+
   const loadMore = async () => {
     const next = offset + PAGE_SIZE
     setLoadingMore(true)
@@ -80,8 +118,24 @@ export default function NoticiasPage() {
     setLoadingMore(false)
   }
 
+  const pullProgress = Math.min(pullY / PULL_THRESHOLD, 1)
+
   return (
-    <div id="app-root">
+    <div id="app-root" onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
+      {/* Pull-to-refresh indicator */}
+      <div
+        className="flex items-center justify-center overflow-hidden transition-all duration-200"
+        style={{ height: refreshing ? 44 : pullY > 0 ? pullY : 0 }}
+      >
+        <svg
+          width="20" height="20" viewBox="0 0 24 24" fill="none"
+          stroke="var(--red)" strokeWidth="2.5" strokeLinecap="round"
+          className={refreshing ? 'animate-spin' : ''}
+          style={{ opacity: refreshing ? 1 : pullProgress, transform: `rotate(${pullProgress * 180}deg)` }}
+        >
+          <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+        </svg>
+      </div>
       <div className="page">
         {/* ── HERO ── */}
         <div className="relative mt-2 overflow-hidden bg-ceuta-black px-[18px] pb-[52px] pt-[22px] text-white">
@@ -250,3 +304,4 @@ export default function NoticiasPage() {
     </div>
   )
 }
+
