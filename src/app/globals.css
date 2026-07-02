@@ -1580,8 +1580,9 @@ img {
   text-align: center;
 }
 .badge-w {
-  background: var(--red);
-  color: var(--white);
+  background: var(--white);
+  color: var(--black);
+  border: 1.5px solid var(--black);
 }
 .badge-d {
   background: var(--bg-mid);
