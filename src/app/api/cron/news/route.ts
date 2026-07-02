@@ -63,18 +63,18 @@ function isRecent(publishedAt: string | null): boolean {
   return Date.now() - new Date(publishedAt).getTime() < MAX_ARTICLE_AGE_MS
 }
 
-async function storeArticleImage(article: ParsedArticle): Promise<boolean> {
-  if (!article.imageUrl || isStoredNewsImage(article.imageUrl)) return false
+async function storeArticleImage(article: ParsedArticle): Promise<{ ok: boolean; failed: boolean }> {
+  if (!article.imageUrl || isStoredNewsImage(article.imageUrl)) return { ok: false, failed: false }
 
   const storedUrl = await downloadAndUploadImage(
     article.imageUrl,
     newsImageFilename(article.source, article.externalId)
   )
 
-  if (!storedUrl) return false
+  if (!storedUrl) return { ok: false, failed: true }
   article.imageUrl = storedUrl
   await repo.updateImageUrl(article.externalId, storedUrl)
-  return true
+  return { ok: true, failed: false }
 }
 
 async function backfillLatestRemoteImages(limit = 20): Promise<number> {
@@ -142,9 +142,15 @@ async function syncNews() {
       })
   )
 
-  const optimizedNewImages = (
-    await Promise.all(allNew.filter((a) => a.imageUrl).map((a) => storeArticleImage(a)))
-  ).filter(Boolean).length
+  const articlesWithImages = allNew.filter((a) => a.imageUrl)
+  const imageStoreResults = await Promise.all(
+    articlesWithImages.map(async (a) => ({ title: a.title, url: a.url, ...(await storeArticleImage(a)) }))
+  )
+  const optimizedNewImages = imageStoreResults.filter((r) => r.ok).length
+  const imageErrors = imageStoreResults
+    .filter((r) => r.failed)
+    .map((r) => ({ title: r.title, url: r.url }))
+  const noImageArticles = allNew.filter((a) => !a.imageUrl).length
 
   const backfilledImages = 0 // moved to dedicated /api/cron/backfill-images
 
@@ -204,6 +210,8 @@ async function syncNews() {
     newArticles,
     optimizedNewImages,
     backfilledImages,
+    imageErrors: imageErrors.length > 0 ? imageErrors : undefined,
+    noImageArticles: noImageArticles > 0 ? noImageArticles : undefined,
     subscribers: subscribers ?? 0,
     queued: toNotify?.title ?? null,
     summary,

@@ -1,6 +1,7 @@
 import { supabase } from '@/infrastructure/supabase/client'
 import { AdminActions } from '@/features/admin/AdminActions'
 import { NotifQueue } from '@/features/admin/NotifQueue'
+import { ActivityTimeline } from '@/features/admin/ActivityTimeline'
 
 function parseDevice(ua: string | null): { os: string; browser: string; icon: string } {
   if (!ua) return { os: 'Desconocido', browser: '—', icon: '❓' }
@@ -197,6 +198,12 @@ export default async function AdminPage() {
 
       {/* Cola de notificaciones pendientes */}
       <NotifQueue />
+
+      {/* Línea de tiempo de actividad */}
+      <div>
+        <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-ceuta-muted mb-3">Actividad reciente</p>
+        <ActivityTimeline />
+      </div>
 
       {/* Acciones */}
       <AdminActions />
