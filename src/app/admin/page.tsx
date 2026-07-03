@@ -200,10 +200,7 @@ export default async function AdminPage() {
       <NotifQueue />
 
       {/* Línea de tiempo de actividad */}
-      <div>
-        <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-ceuta-muted mb-3">Actividad reciente</p>
-        <ActivityTimeline />
-      </div>
+      <ActivityTimeline />
 
       {/* Acciones */}
       <AdminActions />

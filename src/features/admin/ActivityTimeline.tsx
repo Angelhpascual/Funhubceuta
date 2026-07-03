@@ -55,6 +55,7 @@ export function ActivityTimeline() {
   const [logs, setLogs] = useState<LogEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [expanded, setExpanded] = useState<number | null>(null)
+  const [collapsed, setCollapsed] = useState(false)
 
   const fetchLogs = useCallback(async () => {
     const res = await fetch('/api/admin/activity')
@@ -78,8 +79,50 @@ export function ActivityTimeline() {
     return <div className="text-[11px] text-ceuta-muted uppercase tracking-widest px-1 py-4">Sin actividad registrada</div>
   }
 
+  const errors = logs.filter((l) => l.status !== 'success' || (l.details.imageErrors as unknown[])?.length)
+  const lastLog = logs[0]
+
   return (
-    <div className="relative">
+    <div>
+      {/* Header colapsable */}
+      <button
+        onClick={() => setCollapsed((c) => !c)}
+        className="w-full flex items-center justify-between mb-3 group"
+      >
+        <div className="flex items-center gap-2">
+          <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-ceuta-muted">Actividad reciente</p>
+          {errors.length > 0 && (
+            <span className="text-[9px] font-bold text-ceuta-red bg-red-50 px-1.5 py-0.5 rounded-full">
+              {errors.length} error{errors.length > 1 ? 'es' : ''}
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          {collapsed && lastLog && (
+            <span className="text-[10px] text-ceuta-muted">{timeAgo(lastLog.created_at)}</span>
+          )}
+          <span className="text-[10px] text-ceuta-muted group-hover:text-ceuta-black transition-colors">
+            {collapsed ? '▼ Ver' : '▲ Ocultar'}
+          </span>
+        </div>
+      </button>
+
+      {collapsed && (
+        <div className="flex gap-1 flex-wrap mb-1">
+          {logs.slice(0, 6).map((log) => {
+            const meta = CRON_META[log.cron_type] ?? { icon: '⚙️' }
+            const ok = log.status === 'success'
+            return (
+              <div key={log.id} className={`flex items-center gap-1 text-[10px] px-2 py-1 rounded-full border ${ok ? 'border-ceuta-border text-ceuta-muted' : 'border-red-200 text-ceuta-red bg-red-50'}`}>
+                <span>{meta.icon}</span>
+                <span>{timeAgo(log.created_at)}</span>
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+    {!collapsed && <div className="relative">
       <div className="absolute left-[19px] top-0 bottom-0 w-[2px] bg-ceuta-border" />
 
       <div className="space-y-1">
@@ -178,6 +221,7 @@ export function ActivityTimeline() {
           )
         })}
       </div>
+    </div>}
     </div>
   )
 }
