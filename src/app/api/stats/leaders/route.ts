@@ -9,11 +9,12 @@ export async function GET() {
       .select('value, updated_at')
       .eq('key', 'ceuta_leaders')
       .single()
-    if (!data?.value) return NextResponse.json({ leaders: null })
+    const headers = { 'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400' }
+    if (!data?.value) return NextResponse.json({ leaders: null }, { headers })
     return NextResponse.json({
       leaders: JSON.parse(data.value),
       updatedAt: data.updated_at,
-    })
+    }, { headers })
   } catch (err) {
     return apiError(err)
   }

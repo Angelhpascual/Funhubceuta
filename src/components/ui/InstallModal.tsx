@@ -46,7 +46,6 @@ export function InstallModal() {
     const forcePlatform = params.get('platform') as Platform | null
     const show = shouldShow()
     const p = forcePlatform ?? detectPlatform()
-    console.log('[InstallModal]', { forceShow, show, p, standalone: isStandalone(), ua: navigator.userAgent.slice(0, 80) })
     if (!show) return
     setPlatform(p)
     setVisible(true)
