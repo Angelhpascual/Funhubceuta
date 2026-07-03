@@ -1,59 +1,26 @@
 import { PartidosPage } from '@/features/matches/PartidosPage'
-import { supabase } from '@/infrastructure/supabase/client'
-import { deduplicateMatches } from '@/app/api/matches/deduplicateMatches'
+import { MatchesSupabaseRepository } from '@/infrastructure/supabase/MatchesSupabaseRepository'
 import { fetchTeamLogos } from '@/lib/serverFetches'
 import { STANDINGS_CURRENT_SEASON, STANDINGS_PREVIOUS_SEASON } from '@/lib/constants'
 
 export const revalidate = 300
 
-async function fetchMatches() {
-  const { data } = await supabase
-    .from('matches')
-    .select('*')
-    .eq('season', STANDINGS_CURRENT_SEASON)
-    .order('date', { ascending: false })
-    .limit(60)
-
-  const deduped = deduplicateMatches(data ?? [])
-  const today = new Date().toISOString().split('T')[0]
-
-  const upcoming = deduped
-    .filter((r) => r.status === 'scheduled' && String(r.date).slice(0, 10) >= today)
-    .sort((a, b) => a.date.localeCompare(b.date))
-
-  const results = deduped
-    .filter(
-      (r) =>
-        r.status === 'finished' || (r.status === 'scheduled' && String(r.date).slice(0, 10) < today)
-    )
-    .sort((a, b) => b.date.localeCompare(a.date))
-
-  return { upcoming, results }
-}
-
-async function fetchPreviousSeason() {
-  const { data } = await supabase
-    .from('matches')
-    .select('*')
-    .eq('season', STANDINGS_PREVIOUS_SEASON)
-    .order('date', { ascending: false })
-
-  const deduped = deduplicateMatches(data ?? [])
-  return deduped.sort((a, b) => b.date.localeCompare(a.date))
-}
+const repo = new MatchesSupabaseRepository()
 
 export default async function PartidosServerPage() {
   const [{ upcoming, results }, previousSeason, logos] = await Promise.all([
-    fetchMatches(),
-    fetchPreviousSeason(),
+    repo.fetchSeasonMatches(STANDINGS_CURRENT_SEASON),
+    repo.fetchBySeason(STANDINGS_PREVIOUS_SEASON, 200),
     fetchTeamLogos(),
   ])
+
+  const previous = previousSeason.sort((a, b) => b.date.localeCompare(a.date))
 
   return (
     <PartidosPage
       upcoming={upcoming}
       results={results}
-      previousSeason={previousSeason}
+      previousSeason={previous}
       logos={logos}
     />
   )

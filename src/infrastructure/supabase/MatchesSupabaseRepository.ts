@@ -1,6 +1,7 @@
 import { supabase } from './client'
 import { ScrapedMatch } from '@/infrastructure/scrapers/adceutaScraper'
 import { CURRENT_SEASON, COMPETITION } from '@/lib/constants'
+import { deduplicateMatches } from '@/app/api/matches/deduplicateMatches'
 
 export class MatchesSupabaseRepository {
   async upsertMatches(matches: ScrapedMatch[]): Promise<void> {
@@ -27,6 +28,28 @@ export class MatchesSupabaseRepository {
     )
 
     if (error) throw new Error(`Failed to upsert matches: ${error.message}`)
+  }
+
+  async fetchBySeason(season: string, limit = 60) {
+    const { data } = await supabase
+      .from('matches')
+      .select('*')
+      .eq('season', season)
+      .order('date', { ascending: false })
+      .limit(limit)
+    return deduplicateMatches(data ?? [])
+  }
+
+  async fetchSeasonMatches(season: string) {
+    const matches = await this.fetchBySeason(season)
+    const today = new Date().toISOString().split('T')[0]
+    const upcoming = matches
+      .filter((r) => r.status === 'scheduled' && String(r.date).slice(0, 10) >= today)
+      .sort((a, b) => a.date.localeCompare(b.date))
+    const results = matches
+      .filter((r) => r.status === 'finished' || (r.status === 'scheduled' && String(r.date).slice(0, 10) < today))
+      .sort((a, b) => b.date.localeCompare(a.date))
+    return { upcoming, results }
   }
 
   async getNextMatch(): Promise<ScrapedMatch | null> {
