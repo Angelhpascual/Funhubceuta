@@ -80,3 +80,12 @@ export async function getAdminStats(): Promise<AdminStats> {
     deviceCount,
   }
 }
+
+export async function getRecentCronLogs(limit = 30) {
+  const { data } = await supabase
+    .from('cron_logs')
+    .select('id, created_at, cron_type, status, duration_ms, details')
+    .order('created_at', { ascending: false })
+    .limit(limit)
+  return data ?? []
+}
