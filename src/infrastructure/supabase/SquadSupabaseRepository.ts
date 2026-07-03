@@ -1,5 +1,6 @@
 import { supabase } from './client'
 import type { Player, Group } from '@/features/club/clubTypes'
+import type { ScrapedPlayer } from '@/infrastructure/scrapers/squadScraper'
 
 const GROUP_ORDER = ['Porteros', 'Defensas', 'Centrocampistas', 'Delanteros']
 
@@ -48,6 +49,44 @@ export async function fetchPlayerById(id: string, season: string) {
     .eq('season', season)
     .single()
   return data ?? null
+}
+
+export async function upsertSquad(players: ScrapedPlayer[], season: string): Promise<void> {
+  const { error } = await supabase.from('squad').upsert(
+    players.map((p) => ({
+      dorsal: p.dorsal,
+      name: p.name,
+      position: p.position,
+      position_group: p.positionGroup,
+      nationality: p.nationality,
+      height: p.height,
+      weight: p.weight,
+      birth_date: p.birthDate,
+      photo_url: p.photoUrl,
+      season,
+    })),
+    { onConflict: 'name,season', ignoreDuplicates: false }
+  )
+  if (error) throw new Error(`Failed to upsert squad: ${error.message}`)
+}
+
+export async function fetchSquadNames(season: string): Promise<{ id: string; name: string }[]> {
+  const { data } = await supabase
+    .from('squad')
+    .select('id, name')
+    .eq('season', season)
+  return data ?? []
+}
+
+export async function updateCareerHistory(
+  id: string,
+  career: unknown[],
+  espnId: string
+): Promise<void> {
+  await supabase
+    .from('squad')
+    .update({ career_history: career, espn_id: espnId })
+    .eq('id', id)
 }
 
 export async function fetchPhotosByDorsal(season: string): Promise<Record<string, string>> {

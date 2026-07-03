@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { fetchPhotosByDorsal } from '@/infrastructure/supabase/SquadSupabaseRepository'
 import { parseLineupEvents } from '../parseLineupEvents'
 import { ESPN_BASE as ESPN, ESPN_CEUTA_ID as CEUTA_ID, CURRENT_SEASON } from '@/lib/constants'
+import { apiError } from '@/lib/apiError'
 import type { LineupPlayer, MatchEvent, MatchLineup } from '@/domain/match/Lineup'
 
 export type { LineupPlayer, MatchEvent, MatchLineup }
@@ -50,6 +51,7 @@ function mapPlayer(p: Record<string, unknown>): LineupPlayer {
 }
 
 export async function GET(request: Request) {
+  try {
   const { searchParams } = new URL(request.url)
   const eventId = searchParams.get('eventId')
 
@@ -121,4 +123,7 @@ export async function GET(request: Request) {
   }
 
   return NextResponse.json(lineup)
+  } catch (err) {
+    return apiError(err)
+  }
 }
