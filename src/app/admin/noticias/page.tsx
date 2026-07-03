@@ -1,4 +1,5 @@
 import { supabase } from '@/infrastructure/supabase/client'
+import { SOURCE_LABELS } from '@/lib/constants'
 import { NoticiasClient } from './NoticiasClient'
 
 async function getNews() {
@@ -10,16 +11,6 @@ async function getNews() {
   return data ?? []
 }
 
-const SOURCE_LABELS: Record<string, string> = {
-  oficial: 'AD Ceuta FC',
-  faro: 'El Faro',
-  elpueblo: 'El Pueblo',
-  marca: 'Marca',
-  mundodeportivo: 'Mundo Dep.',
-  '20minutos': '20 Min.',
-  elmundo: 'El Mundo',
-  ceutadeportiva: 'Ceuta Dep.',
-}
 
 export default async function NoticiasAdminPage() {
   const news = await getNews()

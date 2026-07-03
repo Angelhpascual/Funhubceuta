@@ -4,35 +4,8 @@ import { useState } from 'react'
 import { AdminActions } from './AdminActions'
 import { NotifQueue } from './NotifQueue'
 import { ActivityTimeline } from './ActivityTimeline'
-
-const SOURCE_LABELS: Record<string, string> = {
-  oficial: 'AD Ceuta FC', faro: 'El Faro', elpueblo: 'El Pueblo',
-  ceutadeportiva: 'Ceuta Dep.', marca: 'Marca', mundodeportivo: 'Mundo Dep.',
-  '20minutos': '20 Min.', elmundo: 'El Mundo', as: 'AS', sport: 'Sport',
-}
-
-function fmt(iso: string | null) {
-  if (!iso) return '—'
-  return new Date(iso).toLocaleString('es-ES', {
-    day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit',
-    timeZone: 'Europe/Madrid',
-  })
-}
-
-function timeAgo(iso: string | null) {
-  if (!iso) return 'Nunca'
-  const diff = Date.now() - new Date(iso).getTime()
-  const m = Math.floor(diff / 60000)
-  if (m < 60) return `Hace ${m}m`
-  const h = Math.floor(m / 60)
-  if (h < 24) return `Hace ${h}h`
-  return `Hace ${Math.floor(h / 24)}d`
-}
-
-function fmtDuration(ms: number | null) {
-  if (!ms) return ''
-  return ms < 1000 ? `${ms}ms` : `${(ms / 1000).toFixed(1)}s`
-}
+import { SOURCE_LABELS } from '@/lib/constants'
+import { timeAgo, fmtDate, fmtDuration } from '@/lib/formatters'
 
 type RunLog = {
   id: number; created_at: string; status: string; duration_ms: number; cron_type?: string
@@ -163,7 +136,7 @@ export function AdminDashboard({ stats }: { stats: AdminStats }) {
               <tbody>
                 {stats.newsRuns.map((run: RunLog) => (
                   <tr key={run.id} className="border-t border-ceuta-border">
-                    <td className="py-2 text-[11px] text-ceuta-muted whitespace-nowrap">{fmt(run.created_at)}</td>
+                    <td className="py-2 text-[11px] text-ceuta-muted whitespace-nowrap">{fmtDate(run.created_at)}</td>
                     <td className="py-2 text-[12px] text-right text-ceuta-black font-bold">
                       {run.status === 'success' ? run.details?.articlesFound ?? '—' : <span className="text-ceuta-red">✗</span>}
                     </td>
@@ -225,7 +198,7 @@ export function AdminDashboard({ stats }: { stats: AdminStats }) {
                         <div className="text-[9px] text-ceuta-muted">{n.sent_ok}/{n.recipients}</div>
                       </div>
                     </div>
-                    <div className="text-[10px] text-ceuta-muted mt-1">{fmt(n.created_at)}</div>
+                    <div className="text-[10px] text-ceuta-muted mt-1">{fmtDate(n.created_at)}</div>
                   </div>
                 )
               })}
@@ -282,7 +255,7 @@ export function AdminDashboard({ stats }: { stats: AdminStats }) {
                       <div className="text-[10px] text-ceuta-muted">{sub.device.browser}</div>
                     </div>
                   </div>
-                  <span className="text-[10px] text-ceuta-muted">{fmt(sub.createdAt)}</span>
+                  <span className="text-[10px] text-ceuta-muted">{fmtDate(sub.createdAt)}</span>
                 </div>
               ))}
             </div>

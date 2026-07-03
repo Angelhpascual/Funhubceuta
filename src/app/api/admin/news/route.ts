@@ -1,13 +1,9 @@
 import { NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
 import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
+import { checkAdminAuth, unauthorizedResponse } from '@/infrastructure/admin/auth'
 
 export async function DELETE(req: Request) {
-  const cookieStore = await cookies()
-  const token = cookieStore.get('admin_token')?.value
-  if (token !== process.env.ADMIN_SECRET) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-  }
+  if (!(await checkAdminAuth())) return unauthorizedResponse()
 
   const { id } = await req.json()
   if (!id) return NextResponse.json({ error: 'ID requerido' }, { status: 400 })

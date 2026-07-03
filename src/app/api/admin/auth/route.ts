@@ -1,9 +1,5 @@
 import { NextResponse } from 'next/server'
-import { createHash } from 'crypto'
-
-function deriveToken(password: string): string {
-  return createHash('sha256').update(password + 'funhub-admin-v1').digest('hex')
-}
+import { deriveToken } from '@/infrastructure/admin/auth'
 
 export async function POST(request: Request) {
   const { password } = await request.json()

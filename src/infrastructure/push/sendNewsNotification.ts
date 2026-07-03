@@ -1,4 +1,5 @@
 import webpush from 'web-push'
+import { SOURCE_LABELS } from '@/lib/constants'
 import { ParsedArticle } from '@/infrastructure/rss/RssFetcher'
 import { decodeEntities } from '@/lib/decodeEntities'
 import {
@@ -6,33 +7,6 @@ import {
   deleteSubscription,
 } from '@/infrastructure/supabase/PushSubscriptionsRepository'
 
-const SOURCE_LABELS: Record<string, string> = {
-  oficial: 'AD Ceuta FC',
-  faro: 'El Faro de Ceuta',
-  elpueblo: 'El Pueblo de Ceuta',
-  marca: 'Marca',
-  mundodeportivo: 'Mundo Deportivo',
-  '20minutos': '20 Minutos',
-  sport: 'Sport',
-  as: 'AS',
-  confidencial: 'El Confidencial',
-  abc: 'ABC',
-  lavanguardia: 'La Vanguardia',
-  cope: 'COPE',
-  ser: 'Cadena SER',
-  ceutatv: 'Ceuta Televisión',
-  rtvc: 'RTV Ceuta',
-  laverdad: 'La Verdad de Ceuta',
-  ceutaactualidad: 'Ceuta Actualidad',
-  onefootball: 'OneFootball',
-  ceutaaldia: 'Ceuta al Día',
-  elpais: 'El País',
-  rtve: 'RTVE',
-  goal: 'Goal.com',
-  elgoldigital: 'El Gol Digital',
-  fondosegunda: 'Fondo Segunda',
-  transfermarkt: 'Transfermarkt',
-}
 
 export async function sendNewsNotification(
   article: ParsedArticle
