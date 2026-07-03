@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { fmtDate } from '@/lib/formatters'
 
 type NewsItem = {
   id: string
@@ -9,15 +10,6 @@ type NewsItem = {
   published_at: string | null
   image_url: string | null
   url: string | null
-}
-
-function fmt(iso: string | null) {
-  if (!iso) return '—'
-  return new Date(iso).toLocaleString('es-ES', {
-    day: '2-digit', month: '2-digit', year: '2-digit',
-    hour: '2-digit', minute: '2-digit',
-    timeZone: 'Europe/Madrid',
-  })
 }
 
 const SOURCE_COLORS: Record<string, string> = {
@@ -134,7 +126,7 @@ export function NoticiasClient({
                 <span className={`text-[9px] font-bold uppercase tracking-[0.08em] px-2 py-0.5 rounded-full ${SOURCE_COLORS[n.source] ?? 'bg-ceuta-bg-mid text-ceuta-muted'}`}>
                   {sourceLabels[n.source] ?? n.source}
                 </span>
-                <span className="text-[10px] text-ceuta-muted">{fmt(n.published_at)}</span>
+                <span className="text-[10px] text-ceuta-muted">{fmtDate(n.published_at)}</span>
               </div>
               <p className="text-[13px] font-semibold text-ceuta-black leading-tight line-clamp-2 mb-0">
                 {n.url ? (

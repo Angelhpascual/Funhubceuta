@@ -1,3 +1,35 @@
+// News source labels — single source of truth used across admin, notifications, and UI
+export const SOURCE_LABELS: Record<string, string> = {
+  oficial: 'AD Ceuta FC',
+  faro: 'El Faro de Ceuta',
+  elpueblo: 'El Pueblo de Ceuta',
+  ceutadeportiva: 'Ceuta Deportiva',
+  marca: 'Marca',
+  mundodeportivo: 'Mundo Deportivo',
+  '20minutos': '20 Minutos',
+  elmundo: 'El Mundo',
+  as: 'AS',
+  sport: 'Sport',
+  confidencial: 'El Confidencial',
+  abc: 'ABC',
+  lavanguardia: 'La Vanguardia',
+  cope: 'COPE',
+  ser: 'Cadena SER',
+  ceutatv: 'Ceuta Televisión',
+  rtvc: 'RTV Ceuta',
+  laverdad: 'La Verdad de Ceuta',
+  ceutaactualidad: 'Ceuta Actualidad',
+  onefootball: 'OneFootball',
+  ceutaaldia: 'Ceuta al Día',
+  elpais: 'El País',
+  rtve: 'RTVE',
+  goal: 'Goal.com',
+  elgoldigital: 'El Gol Digital',
+  fondosegunda: 'Fondo Segunda',
+  transfermarkt: 'Transfermarkt',
+  teleceuta: 'Teleceuta',
+}
+
 // Season & competition
 export const CURRENT_SEASON = '2025-2026'
 export const PREVIOUS_SEASON = '2024-2025'

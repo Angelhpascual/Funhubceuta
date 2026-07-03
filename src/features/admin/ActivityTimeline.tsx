@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
+import { timeAgo, fmtDate, fmtDuration } from '@/lib/formatters'
 
 type LogEntry = {
   id: number
@@ -29,27 +30,6 @@ const CRON_META: Record<string, { label: string; icon: string }> = {
   'backfill-images': { label: 'Sync fotos', icon: '🖼️' },
 }
 
-function timeAgo(iso: string) {
-  const diff = Date.now() - new Date(iso).getTime()
-  const m = Math.floor(diff / 60000)
-  if (m < 1) return 'Ahora'
-  if (m < 60) return `Hace ${m}m`
-  const h = Math.floor(m / 60)
-  if (h < 24) return `Hace ${h}h`
-  return `Hace ${Math.floor(h / 24)}d`
-}
-
-function fmt(iso: string) {
-  return new Date(iso).toLocaleString('es-ES', {
-    day: '2-digit', month: '2-digit',
-    hour: '2-digit', minute: '2-digit',
-    timeZone: 'Europe/Madrid',
-  })
-}
-
-function fmtMs(ms: number) {
-  return ms < 1000 ? `${ms}ms` : `${(ms / 1000).toFixed(1)}s`
-}
 
 export function ActivityTimeline() {
   const [logs, setLogs] = useState<LogEntry[]>([])
@@ -150,8 +130,8 @@ export function ActivityTimeline() {
                     <div className="min-w-0">
                       <div className="text-[12px] font-bold text-ceuta-black truncate">{meta.label}</div>
                       <div className="text-[10px] text-ceuta-muted">
-                        {timeAgo(log.created_at)} · {fmt(log.created_at)}
-                        {log.duration_ms ? ` · ${fmtMs(log.duration_ms)}` : ''}
+                        {timeAgo(log.created_at)} · {fmtDate(log.created_at)}
+                        {log.duration_ms ? ` · ${fmtDuration(log.duration_ms)}` : ''}
                       </div>
                     </div>
                   </div>

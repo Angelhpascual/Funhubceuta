@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
-import { createHash } from 'crypto'
-import { cookies } from 'next/headers'
+import { checkAdminAuth, unauthorizedResponse } from '@/infrastructure/admin/auth'
 import {
   createTransfer,
   deleteTransfer,
@@ -8,26 +7,14 @@ import {
   getTransfers,
 } from '@/infrastructure/supabase/TransfersRepository'
 
-function deriveToken(password: string): string {
-  return createHash('sha256').update(password + 'funhub-admin-v1').digest('hex')
-}
-
-async function checkAuth(): Promise<boolean> {
-  const cookieStore = await cookies()
-  const session = cookieStore.get('admin_session')?.value
-  const password = process.env.ADMIN_PASSWORD
-  if (!session || !password) return false
-  return session === deriveToken(password)
-}
-
 export async function GET() {
-  if (!(await checkAuth())) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!(await checkAdminAuth())) return unauthorizedResponse()
   const transfers = await getTransfers()
   return NextResponse.json({ transfers })
 }
 
 export async function POST(request: Request) {
-  if (!(await checkAuth())) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!(await checkAdminAuth())) return unauthorizedResponse()
   const body = await request.json()
   const transfer = await createTransfer(body)
   if (!transfer) return NextResponse.json({ error: 'Failed to create' }, { status: 500 })
@@ -35,7 +22,7 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  if (!(await checkAuth())) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!(await checkAdminAuth())) return unauthorizedResponse()
   const body = await request.json()
   const { id, ...data } = body
   if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 })
@@ -44,7 +31,7 @@ export async function PATCH(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  if (!(await checkAuth())) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!(await checkAdminAuth())) return unauthorizedResponse()
   const { id } = await request.json()
   if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 })
   await deleteTransfer(id)

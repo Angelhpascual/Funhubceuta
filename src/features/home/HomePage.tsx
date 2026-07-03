@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { timeAgo } from '@/lib/formatters'
 import { NewsItem } from '@/domain/news/News'
 import { SocialLinks } from '@/components/social/TwitterTimeline'
 import { LiveMatchCard } from './LiveMatchCard'
@@ -40,17 +41,6 @@ const SOURCES: Record<string, { label: string; domain: string }> = {
   prensa: { label: 'Prensa', domain: 'google.com' },
 }
 
-function timeAgo(dateStr: string | null): string {
-  if (!dateStr) return ''
-  const diff = Date.now() - new Date(dateStr).getTime()
-  const mins = Math.floor(diff / 60000)
-  if (mins < 60) return `Hace ${mins} min`
-  const hours = Math.floor(mins / 60)
-  if (hours < 24) return `Hace ${hours}h`
-  const days = Math.floor(hours / 24)
-  if (days === 1) return 'Ayer'
-  return `Hace ${days} días`
-}
 
 const THUMB_COLORS = [
   'bg-ceuta-red',

@@ -4,12 +4,16 @@ import { NextResponse } from 'next/server'
 import { scrapeSquad } from '@/infrastructure/scrapers/squadScraper'
 import { supabase } from '@/infrastructure/supabase/client'
 import { CURRENT_SEASON } from '@/lib/constants'
+import { logCron } from '@/infrastructure/supabase/logCron'
 
 async function syncSquad() {
+  const t0 = Date.now()
   const players = await scrapeSquad()
-  if (players.length === 0) return 0
+  if (players.length === 0) {
+    await logCron('squad', 'success', Date.now() - t0, { players: 0 })
+    return 0
+  }
 
-  // Upsert by name+season — preserves career_history and espn_id
   const { error } = await supabase.from('squad').upsert(
     players.map((p) => ({
       dorsal: p.dorsal,
@@ -26,7 +30,12 @@ async function syncSquad() {
     { onConflict: 'name,season', ignoreDuplicates: false }
   )
 
-  if (error) throw new Error(`Failed to upsert squad: ${error.message}`)
+  if (error) {
+    await logCron('squad', 'error', Date.now() - t0, { error: error.message })
+    throw new Error(`Failed to upsert squad: ${error.message}`)
+  }
+
+  await logCron('squad', 'success', Date.now() - t0, { players: players.length })
   return players.length
 }
 

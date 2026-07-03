@@ -1,4 +1,5 @@
 'use client'
+import { SOURCE_LABELS } from '@/lib/constants'
 
 import { useEffect, useState, useCallback } from 'react'
 
@@ -11,16 +12,6 @@ interface QueuedArticle {
   url: string
 }
 
-const SOURCE_LABELS: Record<string, string> = {
-  oficial: 'AD Ceuta FC', faro: 'El Faro', elpueblo: 'El Pueblo', marca: 'Marca',
-  mundodeportivo: 'M. Deportivo', '20minutos': '20min', sport: 'Sport', as: 'AS',
-  confidencial: 'El Confidencial', abc: 'ABC', lavanguardia: 'La Vanguardia',
-  cope: 'COPE', ser: 'SER', ceutatv: 'Ceuta TV', rtvc: 'RTV Ceuta',
-  laverdad: 'La Verdad', ceutaactualidad: 'Ceuta Actualidad', onefootball: 'OneFootball',
-  ceutaaldia: 'Ceuta al Día', elpais: 'El País', rtve: 'RTVE', goal: 'Goal',
-  elgoldigital: 'El Gol Digital', fondosegunda: 'Fondo Segunda',
-  transfermarkt: 'Transfermarkt', ceutadeportiva: 'Ceuta Deportiva',
-}
 
 export function NotifQueue() {
   const [items, setItems] = useState<QueuedArticle[]>([])

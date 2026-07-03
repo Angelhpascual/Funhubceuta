@@ -1,28 +1,14 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { cookies } from 'next/headers'
-import { createHash } from 'crypto'
+import { checkAdminAuth, unauthorizedResponse } from '@/infrastructure/admin/auth'
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-function deriveToken(password: string): string {
-  return createHash('sha256').update(password + 'funhub-admin-v1').digest('hex')
-}
-
-async function isAuthed(): Promise<boolean> {
-  const cookieStore = await cookies()
-  const token = cookieStore.get('admin_session')?.value
-  if (!token || !process.env.ADMIN_PASSWORD) return false
-  return token === deriveToken(process.env.ADMIN_PASSWORD)
-}
-
 export async function POST(request: Request) {
-  if (!(await isAuthed())) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+  if (!(await checkAdminAuth())) return unauthorizedResponse()
 
   const formData = await request.formData()
   const file = formData.get('file') as File | null
@@ -32,7 +18,6 @@ export async function POST(request: Request) {
 
   const buffer = Buffer.from(await file.arrayBuffer())
 
-  // Convert to WebP
   const sharp = (await import('sharp')).default
   const webpBuffer = await sharp(buffer)
     .resize(400, 400, { fit: 'cover', position: 'top' })

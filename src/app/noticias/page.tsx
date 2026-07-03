@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback, useRef } from 'react'
+import { timeAgo } from '@/lib/formatters'
 import { NewsItem } from '@/domain/news/News'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -38,17 +39,6 @@ const SOURCES: Record<string, { label: string; domain: string; color: string }> 
 
 const PAGE_SIZE = 20
 
-function timeAgo(dateStr: string | null): string {
-  if (!dateStr) return ''
-  const diff = Date.now() - new Date(dateStr).getTime()
-  const mins = Math.floor(diff / 60000)
-  if (mins < 60) return `Hace ${mins} min`
-  const hours = Math.floor(mins / 60)
-  if (hours < 24) return `Hace ${hours}h`
-  const days = Math.floor(hours / 24)
-  if (days === 1) return 'Ayer'
-  return `Hace ${days} días`
-}
 
 const PULL_THRESHOLD = 70
 

@@ -1,23 +1,10 @@
 import { NextResponse } from 'next/server'
-import { createHash } from 'crypto'
-import { cookies } from 'next/headers'
+import { checkAdminAuth, unauthorizedResponse } from '@/infrastructure/admin/auth'
 import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
 
-function deriveToken(password: string): string {
-  return createHash('sha256').update(password + 'funhub-admin-v1').digest('hex')
-}
-
-async function checkAuth(): Promise<boolean> {
-  const cookieStore = await cookies()
-  const session = cookieStore.get('admin_session')?.value
-  const password = process.env.ADMIN_PASSWORD
-  if (!session || !password) return false
-  return session === deriveToken(password)
-}
-
 export async function GET() {
-  if (!(await checkAuth())) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!(await checkAdminAuth())) {
+    return unauthorizedResponse()
   }
 
   const { data } = await supabaseAdmin

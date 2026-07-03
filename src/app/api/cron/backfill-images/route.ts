@@ -1,14 +1,15 @@
 import { NextResponse } from 'next/server'
 import { Receiver } from '@upstash/qstash'
 import { NewsSupabaseRepository } from '@/infrastructure/supabase/NewsSupabaseRepository'
-import { downloadAndUploadImage, isStoredNewsImage, newsImageFilename } from '@/infrastructure/storage/imageUploader'
+import { downloadAndUploadImage, newsImageFilename } from '@/infrastructure/storage/imageUploader'
+import { logCron } from '@/infrastructure/supabase/logCron'
 
 export const maxDuration = 60
 
 const repo = new NewsSupabaseRepository()
 
 async function run() {
-  // Fetch articles that still have external image URLs (not yet on Supabase Storage)
+  const t0 = Date.now()
   const rows = await repo.getRowsWithExternalImages(30)
   let optimized = 0
 
@@ -24,7 +25,19 @@ async function run() {
     })
   )
 
-  return { optimized, pending: Math.max(0, rows.length - optimized) }
+  const result = { optimized, pending: Math.max(0, rows.length - optimized) }
+  await logCron('backfill-images', 'success', Date.now() - t0, result)
+  return result
+}
+
+async function runSafe() {
+  const t0 = Date.now()
+  try {
+    return await run()
+  } catch (err) {
+    await logCron('backfill-images', 'error', Date.now() - t0, { error: String(err) })
+    throw err
+  }
 }
 
 export async function POST(request: Request) {
@@ -32,7 +45,7 @@ export async function POST(request: Request) {
   const secret = searchParams.get('secret')
 
   if (secret === process.env.TEST_SECRET) {
-    return NextResponse.json({ ok: true, ...(await run()) })
+    return NextResponse.json({ ok: true, ...(await runSafe()) })
   }
 
   const receiver = new Receiver({
@@ -47,5 +60,5 @@ export async function POST(request: Request) {
 
   if (!valid) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  return NextResponse.json({ ok: true, ...(await run()) })
+  return NextResponse.json({ ok: true, ...(await runSafe()) })
 }
