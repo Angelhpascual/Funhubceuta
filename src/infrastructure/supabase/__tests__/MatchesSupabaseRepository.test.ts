@@ -1,0 +1,84 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+
+vi.mock('../client', () => ({ supabase: { from: vi.fn() } }))
+vi.mock('@/lib/deduplicateMatches', () => ({
+  deduplicateMatches: (rows: unknown[]) => rows,
+}))
+
+import { supabase } from '../client'
+import { MatchesSupabaseRepository } from '../MatchesSupabaseRepository'
+
+const repo = new MatchesSupabaseRepository()
+
+beforeEach(() => { vi.resetAllMocks() })
+
+function makeResult(overrides = {}) {
+  return {
+    homeTeam: 'AD Ceuta FC', awayTeam: 'Real Madrid',
+    homeScore: 1, awayScore: 0, date: '2026-05-01',
+    weekday: 'Jueves', result: 'W' as const, isHome: true, espnEventId: null,
+    ...overrides,
+  }
+}
+
+describe('upsertResults', () => {
+  it('does nothing for empty array', async () => {
+    await repo.upsertResults([])
+    expect(supabase.from).not.toHaveBeenCalled()
+  })
+
+  it('upserts results with correct shape', async () => {
+    const upsertMock = vi.fn().mockResolvedValue({ error: null })
+    vi.mocked(supabase.from).mockReturnValue({ upsert: upsertMock } as never)
+
+    await repo.upsertResults([makeResult()])
+
+    expect(upsertMock).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        expect.objectContaining({
+          home_team: 'AD Ceuta FC',
+          away_team: 'Real Madrid',
+          status: 'finished',
+          result: 'W',
+          home_score: 1,
+          away_score: 0,
+        }),
+      ]),
+      { onConflict: 'external_id', ignoreDuplicates: false }
+    )
+  })
+
+  it('builds external_id from result-date-teams', async () => {
+    const upsertMock = vi.fn().mockResolvedValue({ error: null })
+    vi.mocked(supabase.from).mockReturnValue({ upsert: upsertMock } as never)
+
+    await repo.upsertResults([makeResult({ date: '2026-05-01', homeTeam: 'AD Ceuta FC', awayTeam: 'Real Madrid' })])
+
+    const [rows] = upsertMock.mock.calls[0]
+    expect(rows[0].external_id).toBe('result-2026-05-01-ad-ceuta-fc-real-madrid')
+  })
+
+  it('throws when supabase returns error', async () => {
+    const upsertMock = vi.fn().mockResolvedValue({ error: { message: 'constraint violation' } })
+    vi.mocked(supabase.from).mockReturnValue({ upsert: upsertMock } as never)
+    await expect(repo.upsertResults([makeResult()])).rejects.toThrow('constraint violation')
+  })
+})
+
+describe('fetchBySeason', () => {
+  it('returns deduplicated matches for a season', async () => {
+    const rows = [{ date: '2026-05-01', home_team: 'Ceuta', away_team: 'Madrid', result: null, status: 'scheduled' }]
+    vi.mocked(supabase.from).mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          order: vi.fn().mockReturnValue({
+            limit: vi.fn().mockResolvedValue({ data: rows }),
+          }),
+        }),
+      }),
+    } as never)
+
+    const result = await repo.fetchBySeason('2025-2026')
+    expect(result).toHaveLength(1)
+  })
+})
