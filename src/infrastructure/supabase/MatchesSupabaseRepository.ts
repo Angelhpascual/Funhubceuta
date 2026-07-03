@@ -77,6 +77,15 @@ export class MatchesSupabaseRepository {
     return { upcoming, results }
   }
 
+  async fetchByEspnId(espnId: string): Promise<{ date: string } | null> {
+    const { data } = await supabase
+      .from('matches')
+      .select('date')
+      .eq('espn_event_id', espnId)
+      .maybeSingle()
+    return data ?? null
+  }
+
   async getNextMatch(): Promise<ScrapedMatch | null> {
     const today = new Date().toISOString().split('T')[0]
 

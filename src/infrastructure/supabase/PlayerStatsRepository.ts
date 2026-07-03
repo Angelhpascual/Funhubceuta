@@ -1,6 +1,34 @@
 import { supabase } from './client'
 import type { LeadersMap } from '@/features/club/clubTypes'
 
+export interface PlayerStatRow {
+  espn_id: string
+  season: string
+  name: string
+  short_name: string
+  position: string
+  position_group: string
+  photo_url: string | null
+  appearances: number
+  goals: number
+  assists: number
+  shots: number
+  shots_on_target: number
+  yellow_cards: number
+  red_cards: number
+  saves: number
+  goals_conceded: number
+  updated_at: string
+}
+
+export async function upsertPlayerStats(rows: PlayerStatRow[]): Promise<void> {
+  if (rows.length === 0) return
+  const { error } = await supabase
+    .from('player_stats')
+    .upsert(rows, { onConflict: 'espn_id,season' })
+  if (error) throw new Error(`Supabase upsert failed: ${error.message}`)
+}
+
 const CATEGORIES = [
   { key: 'appearances', label: 'Partidos jugados', icon: '📋', min: 1 },
   { key: 'goals', label: 'Goles', icon: '⚽', min: 1 },

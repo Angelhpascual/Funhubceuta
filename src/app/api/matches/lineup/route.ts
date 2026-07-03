@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '@/infrastructure/supabase/client'
+import { fetchPhotosByDorsal } from '@/infrastructure/supabase/SquadSupabaseRepository'
 import { parseLineupEvents } from '../parseLineupEvents'
 import { ESPN_BASE as ESPN, ESPN_CEUTA_ID as CEUTA_ID, CURRENT_SEASON } from '@/lib/constants'
 import type { LineupPlayer, MatchEvent, MatchLineup } from '@/domain/match/Lineup'
@@ -88,16 +88,7 @@ export async function GET(request: Request) {
   const bench = players.filter((p) => !p.starter).map(mapPlayer)
 
   // Enrich photos from our squad table (keyed by jersey number)
-  const { data: squadRows } = await supabase
-    .from('squad')
-    .select('dorsal,photo_url')
-    .eq('season', CURRENT_SEASON)
-    .not('photo_url', 'ilike', '%/default/%')
-
-  const photoByDorsal: Record<string, string> = {}
-  for (const r of squadRows ?? []) {
-    if (r.dorsal != null && r.photo_url) photoByDorsal[String(r.dorsal)] = r.photo_url
-  }
+  const photoByDorsal = await fetchPhotosByDorsal(CURRENT_SEASON)
 
   const enrich = (p: LineupPlayer): LineupPlayer => ({
     ...p,

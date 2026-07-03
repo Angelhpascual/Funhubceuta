@@ -109,4 +109,13 @@ export class NewsSupabaseRepository {
       createdAt: row.created_at,
     }))
   }
+
+  async getAdminList(limit = 100) {
+    const { data } = await supabase
+      .from('news')
+      .select('id, title, source, published_at, image_url, url')
+      .order('created_at', { ascending: false })
+      .limit(limit)
+    return data ?? []
+  }
 }

@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server'
 import { ESPN_SCOREBOARD, ESPN_SUMMARY } from '@/lib/constants'
 import { getConfig } from '@/infrastructure/supabase/AppConfigRepository'
-import { supabase } from '@/infrastructure/supabase/client'
+import { MatchesSupabaseRepository } from '@/infrastructure/supabase/MatchesSupabaseRepository'
 import type { LiveEvent, LiveMatch } from '@/domain/match/LiveMatch'
+
+const matchesRepo = new MatchesSupabaseRepository()
 
 export type { LiveEvent, LiveMatch }
 
@@ -65,11 +67,7 @@ export async function GET() {
   let guardedState = state
   if (state === 'in') {
     const espnId = String(ceutaEvent.id ?? '')
-    const { data: dbMatch } = await supabase
-      .from('matches')
-      .select('date')
-      .eq('espn_event_id', espnId)
-      .maybeSingle()
+    const dbMatch = await matchesRepo.fetchByEspnId(espnId)
     if (dbMatch?.date) {
       const kickoff = new Date(dbMatch.date)
       const now = new Date()
