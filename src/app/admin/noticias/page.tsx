@@ -1,28 +1,11 @@
-import { supabase } from '@/infrastructure/supabase/client'
+import { NewsSupabaseRepository } from '@/infrastructure/supabase/NewsSupabaseRepository'
+import { SOURCE_LABELS } from '@/lib/constants'
 import { NoticiasClient } from './NoticiasClient'
 
-async function getNews() {
-  const { data } = await supabase
-    .from('news')
-    .select('id, title, source, published_at, image_url, url')
-    .order('created_at', { ascending: false })
-    .limit(100)
-  return data ?? []
-}
-
-const SOURCE_LABELS: Record<string, string> = {
-  oficial: 'AD Ceuta FC',
-  faro: 'El Faro',
-  elpueblo: 'El Pueblo',
-  marca: 'Marca',
-  mundodeportivo: 'Mundo Dep.',
-  '20minutos': '20 Min.',
-  elmundo: 'El Mundo',
-  ceutadeportiva: 'Ceuta Dep.',
-}
+const newsRepo = new NewsSupabaseRepository()
 
 export default async function NoticiasAdminPage() {
-  const news = await getNews()
+  const news = await newsRepo.getAdminList()
 
   return (
     <div>

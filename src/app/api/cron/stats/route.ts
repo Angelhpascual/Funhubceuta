@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { setConfig } from '@/infrastructure/supabase/AppConfigRepository'
+import { logCron } from '@/infrastructure/supabase/logCron'
 
 const LALIGA_URL = 'https://www.laliga.com/en-GB/clubs/ad-ceuta-fc/stats'
 const CDN_BASE = 'https://assets.laliga.com/squad/2025/t14705'
@@ -80,13 +81,16 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
+  const t0 = Date.now()
   try {
     const leaders = await scrapeLeaders()
     await setConfig('ceuta_leaders', JSON.stringify(leaders))
-    return NextResponse.json({ ok: true, categories: Object.keys(leaders).length })
+    const categories = Object.keys(leaders).length
+    await logCron('stats', 'success', Date.now() - t0, { categories })
+    return NextResponse.json({ ok: true, categories })
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
-    console.error('[cron/stats]', msg)
+    await logCron('stats', 'error', Date.now() - t0, { error: msg })
     return NextResponse.json({ error: msg }, { status: 500 })
   }
 }

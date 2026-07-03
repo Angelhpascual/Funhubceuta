@@ -1,17 +1,15 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '@/infrastructure/supabase/client'
+import { apiError } from '@/lib/apiError'
+import { getConfig } from '@/infrastructure/supabase/AppConfigRepository'
+
+const HEADERS = { 'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400' }
 
 export async function GET() {
-  const { data } = await supabase
-    .from('app_config')
-    .select('value, updated_at')
-    .eq('key', 'ceuta_leaders')
-    .single()
-
-  if (!data?.value) return NextResponse.json({ leaders: null })
-
-  return NextResponse.json({
-    leaders: JSON.parse(data.value),
-    updatedAt: data.updated_at,
-  })
+  try {
+    const value = await getConfig('ceuta_leaders')
+    if (!value) return NextResponse.json({ leaders: null }, { headers: HEADERS })
+    return NextResponse.json({ leaders: JSON.parse(value) }, { headers: HEADERS })
+  } catch (err) {
+    return apiError(err)
+  }
 }

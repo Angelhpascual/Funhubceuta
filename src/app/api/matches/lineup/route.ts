@@ -1,33 +1,11 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '@/infrastructure/supabase/client'
+import { fetchPhotosByDorsal } from '@/infrastructure/supabase/SquadSupabaseRepository'
 import { parseLineupEvents } from '../parseLineupEvents'
 import { ESPN_BASE as ESPN, ESPN_CEUTA_ID as CEUTA_ID, CURRENT_SEASON } from '@/lib/constants'
+import { apiError } from '@/lib/apiError'
+import type { LineupPlayer, MatchEvent, MatchLineup } from '@/domain/match/Lineup'
 
-export interface LineupPlayer {
-  name: string
-  shortName: string
-  jersey: string
-  position: string // ESPN position displayName
-  positionAbbr: string // e.g. GK, CB, LB, CM...
-  starter: boolean
-  photoUrl: string | null
-}
-
-export interface MatchEvent {
-  type: 'goal' | 'yellow-card' | 'red-card' | 'substitution'
-  minute: string
-  playerName: string
-  playerOut?: string // for substitutions: who goes off
-  team: 'home' | 'away'
-}
-
-export interface MatchLineup {
-  formation: string
-  starters: LineupPlayer[]
-  bench: LineupPlayer[]
-  events: MatchEvent[]
-  available: boolean
-}
+export type { LineupPlayer, MatchEvent, MatchLineup }
 
 // Map ESPN position display names → short abbreviations
 const POS_MAP: Record<string, string> = {
@@ -73,6 +51,7 @@ function mapPlayer(p: Record<string, unknown>): LineupPlayer {
 }
 
 export async function GET(request: Request) {
+  try {
   const { searchParams } = new URL(request.url)
   const eventId = searchParams.get('eventId')
 
@@ -111,16 +90,7 @@ export async function GET(request: Request) {
   const bench = players.filter((p) => !p.starter).map(mapPlayer)
 
   // Enrich photos from our squad table (keyed by jersey number)
-  const { data: squadRows } = await supabase
-    .from('squad')
-    .select('dorsal,photo_url')
-    .eq('season', CURRENT_SEASON)
-    .not('photo_url', 'ilike', '%/default/%')
-
-  const photoByDorsal: Record<string, string> = {}
-  for (const r of squadRows ?? []) {
-    if (r.dorsal != null && r.photo_url) photoByDorsal[String(r.dorsal)] = r.photo_url
-  }
+  const photoByDorsal = await fetchPhotosByDorsal(CURRENT_SEASON)
 
   const enrich = (p: LineupPlayer): LineupPlayer => ({
     ...p,
@@ -153,4 +123,7 @@ export async function GET(request: Request) {
   }
 
   return NextResponse.json(lineup)
+  } catch (err) {
+    return apiError(err)
+  }
 }

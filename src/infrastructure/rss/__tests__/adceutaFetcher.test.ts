@@ -10,6 +10,7 @@ function makeWPPost(
     id: number
     link: string
     date: string
+    date_gmt: string
     title: string
     excerpt: string
     imageUrl: string | null
@@ -19,6 +20,7 @@ function makeWPPost(
     id = 1,
     link = 'https://adceutafc.com/noticia-1',
     date = '2026-05-25T09:00:00',
+    date_gmt = '2026-05-25T09:00:00',
     title = 'Título de prueba',
     excerpt = '<p>Extracto de prueba.</p>',
     imageUrl = 'https://adceutafc.com/wp-content/uploads/img.jpg',
@@ -28,6 +30,7 @@ function makeWPPost(
     id,
     link,
     date,
+    date_gmt,
     title: { rendered: title },
     excerpt: { rendered: excerpt },
     _embedded: imageUrl ? { 'wp:featuredmedia': [{ source_url: imageUrl }] } : {},
@@ -67,12 +70,12 @@ describe('fetchAdceutaOfficialNews', () => {
       'fetch',
       vi.fn().mockResolvedValue({
         ok: true,
-        json: () => Promise.resolve([makeWPPost({ date: '2026-05-25T09:00:00' })]),
+        json: () => Promise.resolve([makeWPPost({ date: '2026-05-25T09:00:00', date_gmt: '2026-05-25T09:00:00' })]),
       })
     )
 
     const result = await fetchAdceutaOfficialNews()
-    expect(result[0].publishedAt).toBe(new Date('2026-05-25T09:00:00').toISOString())
+    expect(result[0].publishedAt).toBe(new Date('2026-05-25T09:00:00Z').toISOString())
   })
 
   it('strips HTML tags from excerpt', async () => {

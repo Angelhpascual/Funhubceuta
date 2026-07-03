@@ -1,29 +1,12 @@
 import { NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
+import { SOURCE_LABELS } from '@/lib/constants'
 import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
 import { sendPush } from '@/infrastructure/push/sendPush'
 import { logNotification } from '@/infrastructure/supabase/logCron'
+import { checkAdminAuth, unauthorizedResponse } from '@/infrastructure/admin/auth'
 
-const SOURCE_LABELS: Record<string, string> = {
-  oficial: 'AD Ceuta FC', faro: 'El Faro de Ceuta', elpueblo: 'El Pueblo de Ceuta',
-  marca: 'Marca', mundodeportivo: 'Mundo Deportivo', '20minutos': '20 Minutos',
-  sport: 'Sport', as: 'AS', confidencial: 'El Confidencial', abc: 'ABC',
-  lavanguardia: 'La Vanguardia', cope: 'COPE', ser: 'Cadena SER',
-  ceutatv: 'Ceuta Televisión', rtvc: 'RTV Ceuta', laverdad: 'La Verdad de Ceuta',
-  ceutaactualidad: 'Ceuta Actualidad', onefootball: 'OneFootball', ceutaaldia: 'Ceuta al Día',
-  elpais: 'El País', rtve: 'RTVE', goal: 'Goal.com', elgoldigital: 'El Gol Digital',
-  fondosegunda: 'Fondo Segunda', transfermarkt: 'Transfermarkt', ceutadeportiva: 'Ceuta Deportiva',
-}
-
-async function checkAuth() {
-  const cookieStore = await cookies()
-  const token = cookieStore.get('admin_token')?.value
-  return token === process.env.ADMIN_SECRET
-}
-
-// GET — list queued articles
 export async function GET() {
-  if (!(await checkAuth())) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!(await checkAdminAuth())) return unauthorizedResponse()
 
   const { data } = await supabaseAdmin
     .from('news')
@@ -35,9 +18,8 @@ export async function GET() {
   return NextResponse.json({ items: data ?? [] })
 }
 
-// POST — send or discard a queued article
 export async function POST(req: Request) {
-  if (!(await checkAuth())) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!(await checkAdminAuth())) return unauthorizedResponse()
 
   const { id, action } = await req.json() as { id: string; action: 'send' | 'discard' }
   if (!id || !action) return NextResponse.json({ error: 'Missing id or action' }, { status: 400 })
@@ -47,7 +29,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true })
   }
 
-  // action === 'send'
   const { data: article } = await supabaseAdmin
     .from('news')
     .select('id, title, source, url')

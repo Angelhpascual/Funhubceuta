@@ -1,4 +1,4 @@
-import type { LiveMatch, LiveEvent } from '@/app/api/live/route'
+import type { LiveMatch, LiveEvent } from '@/domain/match/LiveMatch'
 
 export interface MatchState {
   espnId: string

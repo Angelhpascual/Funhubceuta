@@ -1,6 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-vi.mock('next/headers', () => ({ cookies: vi.fn() }))
+vi.mock('@/infrastructure/admin/auth', () => ({
+  checkAdminAuth: vi.fn(),
+  unauthorizedResponse: () => new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 }),
+}))
 vi.mock('@/infrastructure/supabase/adminClient', () => ({
   supabaseAdmin: { from: vi.fn() },
 }))
@@ -11,19 +14,14 @@ vi.mock('@/infrastructure/supabase/logCron', () => ({
   logNotification: vi.fn(),
 }))
 
-import { cookies } from 'next/headers'
+import { checkAdminAuth } from '@/infrastructure/admin/auth'
 import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
 import { sendPush } from '@/infrastructure/push/sendPush'
 import { GET, POST } from '../route'
 
-const SECRET = 'test-secret'
-
 beforeEach(() => {
   vi.resetAllMocks()
-  process.env.ADMIN_SECRET = SECRET
-  vi.mocked(cookies).mockResolvedValue({
-    get: (name: string) => (name === 'admin_token' ? { value: SECRET } : undefined),
-  } as never)
+  vi.mocked(checkAdminAuth).mockResolvedValue(true)
 })
 
 function mockFrom(select?: unknown, update?: unknown, single?: unknown) {
@@ -45,8 +43,8 @@ function mockFrom(select?: unknown, update?: unknown, single?: unknown) {
 // ── GET ──────────────────────────────────────────────────────────────────────
 
 describe('GET /api/admin/notify-queue', () => {
-  it('returns 401 without valid token', async () => {
-    vi.mocked(cookies).mockResolvedValue({ get: () => undefined } as never)
+  it('returns 401 without valid session', async () => {
+    vi.mocked(checkAdminAuth).mockResolvedValue(false)
     const res = await GET()
     expect(res.status).toBe(401)
   })
@@ -72,8 +70,8 @@ describe('GET /api/admin/notify-queue', () => {
 // ── POST ─────────────────────────────────────────────────────────────────────
 
 describe('POST /api/admin/notify-queue', () => {
-  it('returns 401 without valid token', async () => {
-    vi.mocked(cookies).mockResolvedValue({ get: () => undefined } as never)
+  it('returns 401 without valid session', async () => {
+    vi.mocked(checkAdminAuth).mockResolvedValue(false)
     const req = new Request('http://localhost/api/admin/notify-queue', {
       method: 'POST',
       body: JSON.stringify({ id: '1', action: 'discard' }),

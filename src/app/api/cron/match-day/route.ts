@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { Receiver } from '@upstash/qstash'
 import webpush from 'web-push'
 import { ESPN_BASE as ESPN } from '@/lib/constants'
+import { logCron } from '@/infrastructure/supabase/logCron'
 import {
   getAllSubscriptions,
   deleteSubscription,
@@ -84,6 +85,19 @@ async function sendMatchDayPush(match: Awaited<ReturnType<typeof getTodayMatch>>
   return sent
 }
 
+async function runMatchDay() {
+  const t0 = Date.now()
+  try {
+    const match = await getTodayMatch()
+    const sent = await sendMatchDayPush(match)
+    await logCron('match-day', 'success', Date.now() - t0, { match: match ? 'found' : 'none', sent })
+    return { match: match ? 'found' : 'none', sent }
+  } catch (err) {
+    await logCron('match-day', 'error', Date.now() - t0, { error: String(err) })
+    throw err
+  }
+}
+
 // ── Routes ────────────────────────────────────────────────────────────────
 export async function POST(request: Request) {
   const receiver = new Receiver({
@@ -97,16 +111,14 @@ export async function POST(request: Request) {
 
   if (!valid) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const match = await getTodayMatch()
-  const sent = await sendMatchDayPush(match)
-  return NextResponse.json({ ok: true, match: match ? 'found' : 'none', sent })
+  const result = await runMatchDay()
+  return NextResponse.json({ ok: true, ...result })
 }
 
 export async function GET() {
   if (process.env.NODE_ENV === 'production') {
     return NextResponse.json({ error: 'Use POST in production' }, { status: 405 })
   }
-  const match = await getTodayMatch()
-  const sent = await sendMatchDayPush(match)
-  return NextResponse.json({ ok: true, match: match ? 'found' : 'none', sent })
+  const result = await runMatchDay()
+  return NextResponse.json({ ok: true, ...result })
 }

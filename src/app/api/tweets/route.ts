@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '@/infrastructure/supabase/client'
+import { getLatestTweets } from '@/infrastructure/supabase/TweetsRepository'
+import { apiError } from '@/lib/apiError'
 
 export async function GET() {
-  const { data } = await supabase
-    .from('tweets')
-    .select('*')
-    .order('created_at_twitter', { ascending: false })
-    .limit(5)
-
-  return NextResponse.json({ tweets: data ?? [] })
+  try {
+    const tweets = await getLatestTweets(5)
+    return NextResponse.json({ tweets }, { headers: { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600" } })
+  } catch (err) {
+    return apiError(err)
+  }
 }

@@ -1,8 +1,34 @@
 import { supabase } from './client'
-import { ScrapedMatch } from '@/infrastructure/scrapers/adceutaScraper'
+import type { ScrapedMatch, ScrapedResult } from '@/infrastructure/scrapers/adceutaScraper'
 import { CURRENT_SEASON, COMPETITION } from '@/lib/constants'
+import { deduplicateMatches } from '@/lib/deduplicateMatches'
 
 export class MatchesSupabaseRepository {
+  async upsertResults(results: ScrapedResult[]): Promise<void> {
+    if (results.length === 0) return
+    const { error } = await supabase.from('matches').upsert(
+      results.map((r) => ({
+        external_id: `result-${r.date}-${r.homeTeam}-${r.awayTeam}`.toLowerCase().replace(/\s+/g, '-'),
+        home_team: r.homeTeam,
+        away_team: r.awayTeam,
+        date: r.date,
+        time: '',
+        weekday: r.weekday,
+        is_home: r.isHome,
+        tickets_url: null,
+        status: 'finished',
+        season: CURRENT_SEASON,
+        competition: COMPETITION,
+        home_score: r.homeScore,
+        away_score: r.awayScore,
+        result: r.result,
+        espn_event_id: r.espnEventId,
+      })),
+      { onConflict: 'external_id', ignoreDuplicates: false }
+    )
+    if (error) throw new Error(`Failed to upsert results: ${error.message}`)
+  }
+
   async upsertMatches(matches: ScrapedMatch[]): Promise<void> {
     if (matches.length === 0) return
 
@@ -29,6 +55,37 @@ export class MatchesSupabaseRepository {
     if (error) throw new Error(`Failed to upsert matches: ${error.message}`)
   }
 
+  async fetchBySeason(season: string, limit = 60) {
+    const { data } = await supabase
+      .from('matches')
+      .select('*')
+      .eq('season', season)
+      .order('date', { ascending: false })
+      .limit(limit)
+    return deduplicateMatches(data ?? [])
+  }
+
+  async fetchSeasonMatches(season: string) {
+    const matches = await this.fetchBySeason(season)
+    const today = new Date().toISOString().split('T')[0]
+    const upcoming = matches
+      .filter((r) => r.status === 'scheduled' && String(r.date).slice(0, 10) >= today)
+      .sort((a, b) => a.date.localeCompare(b.date))
+    const results = matches
+      .filter((r) => r.status === 'finished' || (r.status === 'scheduled' && String(r.date).slice(0, 10) < today))
+      .sort((a, b) => b.date.localeCompare(a.date))
+    return { upcoming, results }
+  }
+
+  async fetchByEspnId(espnId: string): Promise<{ date: string } | null> {
+    const { data } = await supabase
+      .from('matches')
+      .select('date')
+      .eq('espn_event_id', espnId)
+      .maybeSingle()
+    return data ?? null
+  }
+
   async getNextMatch(): Promise<ScrapedMatch | null> {
     const today = new Date().toISOString().split('T')[0]
 
@@ -53,5 +110,16 @@ export class MatchesSupabaseRepository {
       ticketsUrl: data.tickets_url,
       espnEventId: data.espn_event_id ?? null,
     }
+  }
+
+  async fetchRecentForm(limit = 5): Promise<string[]> {
+    const { data } = await supabase
+      .from('matches')
+      .select('result, date')
+      .eq('status', 'finished')
+      .not('result', 'is', null)
+      .order('date', { ascending: false })
+      .limit(limit)
+    return (data ?? []).map((m) => m.result as string).reverse()
   }
 }

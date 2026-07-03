@@ -1,4 +1,4 @@
-import { LineupPlayer } from '@/app/api/matches/lineup/route'
+import { LineupPlayer } from '@/domain/match/Lineup'
 
 // Correcciones de posición para jugadores del Ceuta cuya posición ESPN es incorrecta.
 // Clave: fragmento del nombre del jugador (case-insensitive). Valor: abreviatura de posición correcta.

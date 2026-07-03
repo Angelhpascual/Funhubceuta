@@ -1,31 +1,15 @@
 import { NextResponse } from 'next/server'
 import { ESPN_SCOREBOARD, ESPN_SUMMARY } from '@/lib/constants'
 import { getConfig } from '@/infrastructure/supabase/AppConfigRepository'
-import { supabase } from '@/infrastructure/supabase/client'
+import { MatchesSupabaseRepository } from '@/infrastructure/supabase/MatchesSupabaseRepository'
+import type { LiveEvent, LiveMatch } from '@/domain/match/LiveMatch'
+
+const matchesRepo = new MatchesSupabaseRepository()
+
+export type { LiveEvent, LiveMatch }
 
 // Cache 60s — multiple users share the same ESPN response
 export const revalidate = 0
-
-export interface LiveEvent {
-  type: 'goal' | 'yellowCard' | 'redCard' | 'substitution'
-  minute: string
-  team: 'home' | 'away'
-  playerName: string
-}
-
-export interface LiveMatch {
-  espnId: string
-  state: 'pre' | 'in' | 'post'
-  status: string // "Scheduled" | "1st Half" | "Half Time" | "2nd Half" | "Full Time"
-  clock: string // "23'" | "HT" | ""
-  homeTeam: string
-  awayTeam: string
-  homeScore: number
-  awayScore: number
-  events: LiveEvent[]
-  venue: string
-  startDate: string
-}
 
 async function fetchEspn(url: string) {
   const res = await fetch(url, {
@@ -83,11 +67,7 @@ export async function GET() {
   let guardedState = state
   if (state === 'in') {
     const espnId = String(ceutaEvent.id ?? '')
-    const { data: dbMatch } = await supabase
-      .from('matches')
-      .select('date')
-      .eq('espn_event_id', espnId)
-      .maybeSingle()
+    const dbMatch = await matchesRepo.fetchByEspnId(espnId)
     if (dbMatch?.date) {
       const kickoff = new Date(dbMatch.date)
       const now = new Date()

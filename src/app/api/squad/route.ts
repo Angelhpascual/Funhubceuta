@@ -1,23 +1,13 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '@/infrastructure/supabase/client'
+import { fetchSquadBySeason } from '@/infrastructure/supabase/SquadSupabaseRepository'
 import { CURRENT_SEASON } from '@/lib/constants'
-
-const GROUP_ORDER = ['Porteros', 'Defensas', 'Centrocampistas', 'Delanteros']
+import { apiError } from '@/lib/apiError'
 
 export async function GET() {
-  const { data } = await supabase
-    .from('squad')
-    .select('id,dorsal,name,position,position_group,nationality,height,weight,birth_date,photo_url')
-    .eq('season', CURRENT_SEASON)
-    .order('dorsal', { ascending: true, nullsFirst: false })
-
-  const players = data ?? []
-
-  // Group by position_group in correct order
-  const grouped = GROUP_ORDER.map((group) => ({
-    group,
-    players: players.filter((p) => p.position_group === group),
-  })).filter((g) => g.players.length > 0)
-
-  return NextResponse.json({ grouped, total: players.length })
+  try {
+    const { grouped, total } = await fetchSquadBySeason(CURRENT_SEASON)
+    return NextResponse.json({ grouped, total }, { headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" } })
+  } catch (err) {
+    return apiError(err)
+  }
 }
