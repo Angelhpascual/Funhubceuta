@@ -33,10 +33,12 @@ export async function fetchAdceutaOfficialNews(limit = 15): Promise<ParsedArticl
         post.excerpt.rendered.replace(/<[^>]+>/g, '').trim()
       ).slice(0, 300)
 
-      // Download image and store in Supabase Storage to avoid hotlink issues
-      let imageUrl: string | null = null
+      // Download image and store in Supabase Storage to avoid hotlink issues.
+      // If upload fails, fall back to the raw WP URL so the backfill cron can retry later.
+      let imageUrl: string | null = rawImageUrl
       if (rawImageUrl) {
-        imageUrl = await downloadAndUploadImage(rawImageUrl, `adceuta-${post.id}`)
+        const stored = await downloadAndUploadImage(rawImageUrl, `adceuta-${post.id}`)
+        if (stored) imageUrl = stored
       }
 
       return {
