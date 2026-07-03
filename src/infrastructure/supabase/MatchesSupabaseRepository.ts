@@ -111,4 +111,15 @@ export class MatchesSupabaseRepository {
       espnEventId: data.espn_event_id ?? null,
     }
   }
+
+  async fetchRecentForm(limit = 5): Promise<string[]> {
+    const { data } = await supabase
+      .from('matches')
+      .select('result, date')
+      .eq('status', 'finished')
+      .not('result', 'is', null)
+      .order('date', { ascending: false })
+      .limit(limit)
+    return (data ?? []).map((m) => m.result as string).reverse()
+  }
 }

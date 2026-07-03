@@ -1,30 +1,26 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '@/infrastructure/supabase/client'
+import { MatchesSupabaseRepository } from '@/infrastructure/supabase/MatchesSupabaseRepository'
+import { getConfig } from '@/infrastructure/supabase/AppConfigRepository'
+import { apiError } from '@/lib/apiError'
+
+const repo = new MatchesSupabaseRepository()
 
 export async function GET() {
-  // Calculate form from finished matches in DB
-  const { data } = await supabase
-    .from('matches')
-    .select('result, date')
-    .eq('status', 'finished')
-    .not('result', 'is', null)
-    .order('date', { ascending: false })
-    .limit(5)
+  try {
+    const form = await repo.fetchRecentForm()
+    if (form.length > 0) {
+      return NextResponse.json({ form }, {
+        headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600' },
+      })
+    }
 
-  if (data && data.length > 0) {
-    const form = data.map((m) => m.result).reverse()
-    return NextResponse.json({ form })
+    // Fallback: app_config cached form
+    const value = await getConfig('ceuta_form')
+    if (!value) return NextResponse.json({ form: [] })
+    return NextResponse.json({ form: value.split(',').filter(Boolean) }, {
+      headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600' },
+    })
+  } catch (err) {
+    return apiError(err)
   }
-
-  // Fallback: app_config cached form
-  const { data: config } = await supabase
-    .from('app_config')
-    .select('value')
-    .eq('key', 'ceuta_form')
-    .single()
-
-  if (!config?.value) return NextResponse.json({ form: [] })
-
-  const form = config.value.split(',').filter(Boolean)
-  return NextResponse.json({ form })
 }
