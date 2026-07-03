@@ -82,3 +82,66 @@ describe('fetchBySeason', () => {
     expect(result).toHaveLength(1)
   })
 })
+
+describe('fetchByEspnId', () => {
+  it('returns match date when found', async () => {
+    const chain = { maybeSingle: vi.fn().mockResolvedValue({ data: { date: '2026-05-10' } }) }
+    vi.mocked(supabase.from).mockReturnValue({
+      select: vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue(chain) }),
+    } as never)
+
+    const result = await repo.fetchByEspnId('espn-123')
+    expect(result).toEqual({ date: '2026-05-10' })
+  })
+
+  it('returns null when not found', async () => {
+    const chain = { maybeSingle: vi.fn().mockResolvedValue({ data: null }) }
+    vi.mocked(supabase.from).mockReturnValue({
+      select: vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue(chain) }),
+    } as never)
+
+    const result = await repo.fetchByEspnId('nonexistent')
+    expect(result).toBeNull()
+  })
+})
+
+describe('fetchRecentForm', () => {
+  it('returns results in chronological order (reversed from DB)', async () => {
+    const data = [
+      { result: 'W', date: '2026-05-10' },
+      { result: 'D', date: '2026-05-05' },
+      { result: 'L', date: '2026-04-28' },
+    ]
+    vi.mocked(supabase.from).mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          not: vi.fn().mockReturnValue({
+            order: vi.fn().mockReturnValue({
+              limit: vi.fn().mockResolvedValue({ data }),
+            }),
+          }),
+        }),
+      }),
+    } as never)
+
+    const form = await repo.fetchRecentForm()
+    expect(form).toEqual(['L', 'D', 'W'])
+  })
+
+  it('returns empty array when no finished matches', async () => {
+    vi.mocked(supabase.from).mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          not: vi.fn().mockReturnValue({
+            order: vi.fn().mockReturnValue({
+              limit: vi.fn().mockResolvedValue({ data: null }),
+            }),
+          }),
+        }),
+      }),
+    } as never)
+
+    const form = await repo.fetchRecentForm()
+    expect(form).toEqual([])
+  })
+})
