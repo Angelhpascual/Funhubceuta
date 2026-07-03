@@ -39,6 +39,8 @@ export function NoticiasClient({
   const [news, setNews] = useState(initialNews)
   const [filter, setFilter] = useState<string>('all')
   const [deleting, setDeleting] = useState<Set<string>>(new Set())
+  const [notifying, setNotifying] = useState<Set<string>>(new Set())
+  const [notifResult, setNotifResult] = useState<Record<string, string>>({})
   const [search, setSearch] = useState('')
 
   const sources = [...new Set(initialNews.map((n) => n.source))].sort()
@@ -48,6 +50,29 @@ export function NoticiasClient({
     const matchSearch = !search || n.title.toLowerCase().includes(search.toLowerCase())
     return matchSource && matchSearch
   })
+
+  async function sendNotif(id: string) {
+    setNotifying((s) => new Set(s).add(id))
+    try {
+      const res = await fetch('/api/admin/notify-queue', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, action: 'send' }),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        setNotifResult((r) => ({ ...r, [id]: `✓ ${data.sent}` }))
+        setTimeout(() => setNotifResult((r) => { const next = { ...r }; delete next[id]; return next }), 3000)
+      } else {
+        setNotifResult((r) => ({ ...r, [id]: `✗ ${data.error ?? 'Error'}` }))
+        setTimeout(() => setNotifResult((r) => { const next = { ...r }; delete next[id]; return next }), 3000)
+      }
+    } catch {
+      setNotifResult((r) => ({ ...r, [id]: '✗ Error' }))
+    } finally {
+      setNotifying((s) => { const next = new Set(s); next.delete(id); return next })
+    }
+  }
 
   async function deleteNews(id: string) {
     if (!confirm('¿Borrar esta noticia?')) return
@@ -119,14 +144,28 @@ export function NoticiasClient({
                 ) : n.title}
               </p>
             </div>
-            <button
-              onClick={() => deleteNews(n.id)}
-              disabled={deleting.has(n.id)}
-              className="shrink-0 text-ceuta-muted hover:text-ceuta-red text-[18px] leading-none disabled:opacity-40 transition-colors"
-              title="Borrar"
-            >
-              {deleting.has(n.id) ? '⏳' : '🗑'}
-            </button>
+            <div className="shrink-0 flex flex-col items-center gap-1.5">
+              {notifResult[n.id] ? (
+                <span className="text-[10px] font-bold text-ceuta-black">{notifResult[n.id]}</span>
+              ) : (
+                <button
+                  onClick={() => sendNotif(n.id)}
+                  disabled={notifying.has(n.id)}
+                  className="text-ceuta-muted hover:text-ceuta-black text-[16px] leading-none disabled:opacity-40 transition-colors"
+                  title="Enviar notificación"
+                >
+                  {notifying.has(n.id) ? '⏳' : '🔔'}
+                </button>
+              )}
+              <button
+                onClick={() => deleteNews(n.id)}
+                disabled={deleting.has(n.id)}
+                className="text-ceuta-muted hover:text-ceuta-red text-[16px] leading-none disabled:opacity-40 transition-colors"
+                title="Borrar"
+              >
+                {deleting.has(n.id) ? '⏳' : '🗑'}
+              </button>
+            </div>
           </div>
         ))}
         {filtered.length === 0 && (
