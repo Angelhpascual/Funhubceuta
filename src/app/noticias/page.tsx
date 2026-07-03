@@ -76,8 +76,13 @@ export default function NoticiasPage() {
     setRefreshing(false)
   }, [refreshing, fetchNews])
 
+  // Pull-to-refresh: el scroll ocurre en .scroll-area (no en window)
+  function getScrollTop() {
+    return document.querySelector('.scroll-area')?.scrollTop ?? 0
+  }
+
   const onTouchStart = useCallback((e: React.TouchEvent) => {
-    if (window.scrollY === 0) {
+    if (getScrollTop() === 0) {
       touchStartY.current = e.touches[0].clientY
       pulling.current = true
     }
@@ -86,7 +91,7 @@ export default function NoticiasPage() {
   const onTouchMove = useCallback((e: React.TouchEvent) => {
     if (!pulling.current) return
     const dy = e.touches[0].clientY - touchStartY.current
-    if (dy > 0 && window.scrollY === 0) {
+    if (dy > 0 && getScrollTop() === 0) {
       setPullY(Math.min(dy * 0.4, PULL_THRESHOLD))
     } else {
       pulling.current = false
