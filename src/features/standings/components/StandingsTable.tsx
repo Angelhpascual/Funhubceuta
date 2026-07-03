@@ -12,7 +12,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import Image from 'next/image'
 import { FormPill } from '@/components/ui/FormPill'
-import { proxyLogo } from '@/lib/proxyImage'
+import { getLocalLogo } from '@/lib/teamLogos'
 
 interface Props {
   entries: StandingEntry[]
@@ -74,9 +74,9 @@ export function StandingsTable({ entries }: Props) {
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
-                    {entry.teamLogo && (
+                    {getLocalLogo(entry.teamName) && (
                       <Image
-                        src={proxyLogo(entry.teamLogo) ?? entry.teamLogo}
+                        src={getLocalLogo(entry.teamName)!}
                         alt={entry.teamName}
                         width={24}
                         height={24}

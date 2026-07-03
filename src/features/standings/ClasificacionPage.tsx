@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { StandingEntry } from '@/domain/standings/Standings'
-import { findLogo as findLogoUtil } from '@/lib/findLogo'
+import { getLocalLogo } from '@/lib/teamLogos'
 import { FormPill } from '@/components/ui/FormPill'
 
 function getZone(pos: number, total: number): 'promo' | 'playoff' | 'relegation' | 'none' {
@@ -62,14 +62,10 @@ interface Props {
   entries?: StandingEntry[]
   previousEntries?: StandingEntry[]
   form?: string[]
-  logos?: Record<string, string>
 }
 
-function StandingsTable({ entries, logos }: { entries: StandingEntry[]; logos: Record<string, string> }) {
+function StandingsTable({ entries }: { entries: StandingEntry[] }) {
   const total = entries.length
-  function findLogo(name: string): string | null {
-    return findLogoUtil(logos, name)
-  }
   return (
     <div className="mt-2 bg-white">
       <div
@@ -88,7 +84,7 @@ function StandingsTable({ entries, logos }: { entries: StandingEntry[]; logos: R
       {entries.map((t) => {
         const zone = getZone(t.position, total)
         const mine = isCeuta(t)
-        const logo = findLogo(t.teamName)
+        const logo = getLocalLogo(t.teamName)
         return (
           <div
             key={t.id ?? t.externalId}
@@ -183,16 +179,12 @@ function CeutaCard({ entry, form, total }: { entry: StandingEntry; form?: string
   )
 }
 
-export function ClasificacionPage({ entries = [], previousEntries = [], form = [], logos = {} }: Props) {
+export function ClasificacionPage({ entries = [], previousEntries = [], form = [] }: Props) {
   const [tab, setTab] = useState('actual')
   const me = entries.find(isCeuta)
   const prevMe = previousEntries.find(isCeuta)
   const total = entries.length
   const prevTotal = previousEntries.length
-
-  function findLogo(name: string): string | null {
-    return findLogoUtil(logos, name)
-  }
 
   return (
     <div className="page">
@@ -246,7 +238,7 @@ export function ClasificacionPage({ entries = [], previousEntries = [], form = [
                   Tabla completa
                 </div>
               </div>
-              <StandingsTable entries={previousEntries} logos={logos} />
+              <StandingsTable entries={previousEntries} />
               <div className="mt-4 bg-ceuta-bg-soft p-4">
                 <div className="mb-2.5 font-display text-[11px] font-bold uppercase tracking-[0.14em] text-ceuta-muted">
                   Zonas de la tabla
@@ -296,7 +288,7 @@ export function ClasificacionPage({ entries = [], previousEntries = [], form = [
           </div>
 
       {/* ── TABLE ── */}
-      <StandingsTable entries={entries} logos={logos} />
+      <StandingsTable entries={entries} />
 
       {/* ── LEGEND ── */}
       <div className="mt-4 bg-ceuta-bg-soft p-4">

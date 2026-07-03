@@ -1,8 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { findLogo as findLogoUtil } from '@/lib/findLogo'
-import { proxyLogo } from '@/lib/proxyImage'
+import { getLocalLogo } from '@/lib/teamLogos'
 import { formatMatchDate, shortTeamName, resultLabel } from './matchUtils'
 import Link from 'next/link'
 
@@ -31,13 +30,10 @@ interface Props {
   upcoming?: MatchRow[]
   results?: MatchRow[]
   previousSeason?: MatchRow[]
-  logos?: Record<string, string>
+
 }
 
-function ResultCard({ r, logos }: { r: MatchRow; logos: Record<string, string> }) {
-  function findLogo(name: string): string | null {
-    return findLogoUtil(logos, name)
-  }
+function ResultCard({ r }: { r: MatchRow }) {
   const { day, mon } = formatMatchDate(r.date)
   const ceutaHome = r.home_team.toLowerCase().includes('ceuta')
   const cls = r.result === 'W' ? 'win' : r.result === 'L' ? 'lose' : 'draw'
@@ -57,9 +53,9 @@ function ResultCard({ r, logos }: { r: MatchRow; logos: Record<string, string> }
         </div>
         <div className="result-teams-col">
           <div className="result-team-row">
-            {findLogo(r.home_team) ? (
+            {getLocalLogo(r.home_team) ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={proxyLogo(findLogo(r.home_team)) ?? ''} alt="" className="size-[18px] shrink-0 object-contain" />
+              <img src={getLocalLogo(r.home_team) ?? ''} alt="" className="size-[18px] shrink-0 object-contain" />
             ) : (
               <div className="size-[18px] shrink-0" />
             )}
@@ -69,9 +65,9 @@ function ResultCard({ r, logos }: { r: MatchRow; logos: Record<string, string> }
             <div className={`result-score ${homeScoreCls}`}>{r.home_score}</div>
           </div>
           <div className="result-team-row">
-            {findLogo(r.away_team) ? (
+            {getLocalLogo(r.away_team) ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={proxyLogo(findLogo(r.away_team)) ?? ''} alt="" className="size-[18px] shrink-0 object-contain" />
+              <img src={getLocalLogo(r.away_team) ?? ''} alt="" className="size-[18px] shrink-0 object-contain" />
             ) : (
               <div className="size-[18px] shrink-0" />
             )}
@@ -103,7 +99,7 @@ function ResultCard({ r, logos }: { r: MatchRow; logos: Record<string, string> }
   )
 }
 
-export function PartidosPage({ upcoming = [], results = [], previousSeason = [], logos = {} }: Props) {
+export function PartidosPage({ upcoming = [], results = [], previousSeason = [] }: Props) {
   const [tab, setTab] = useState('proximos')
 
   useEffect(() => {
@@ -116,9 +112,7 @@ export function PartidosPage({ upcoming = [], results = [], previousSeason = [],
     setTab(t)
   }
 
-  function findLogo(name: string): string | null {
-    return findLogoUtil(logos, name)
-  }
+
 
   // Group previousSeason matches by month label
   const prevByMonth: { label: string; matches: MatchRow[] }[] = []
@@ -193,9 +187,9 @@ export function PartidosPage({ upcoming = [], results = [], previousSeason = [],
                 </div>
                 <div className="fixt-teams items-center">
                   <div className="flex items-center gap-2">
-                    {findLogo(m.home_team) ? (
+                    {getLocalLogo(m.home_team) ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={proxyLogo(findLogo(m.home_team)) ?? ''} alt="" className="size-7 object-contain" />
+                      <img src={getLocalLogo(m.home_team) ?? ''} alt="" className="size-7 object-contain" />
                     ) : (
                       <div className="size-7 rounded-full bg-ceuta-bg-mid" />
                     )}
@@ -208,9 +202,9 @@ export function PartidosPage({ upcoming = [], results = [], previousSeason = [],
                     <div className={`fixt-tname away ${!m.is_home ? 'mine' : ''}`}>
                       {shortTeamName(m.away_team)}
                     </div>
-                    {findLogo(m.away_team) ? (
+                    {getLocalLogo(m.away_team) ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={proxyLogo(findLogo(m.away_team)) ?? ''} alt="" className="size-7 object-contain" />
+                      <img src={getLocalLogo(m.away_team) ?? ''} alt="" className="size-7 object-contain" />
                     ) : (
                       <div className="size-7 rounded-full bg-ceuta-bg-mid" />
                     )}
@@ -246,7 +240,7 @@ export function PartidosPage({ upcoming = [], results = [], previousSeason = [],
         <>
           <div className="month-label">Últimos partidos</div>
           {results.map((r, i) => (
-            <ResultCard key={i} r={r} logos={logos} />
+            <ResultCard key={i} r={r} />
           ))}
         </>
       )}
@@ -265,7 +259,7 @@ export function PartidosPage({ upcoming = [], results = [], previousSeason = [],
               <div key={group.label}>
                 <div className="month-label">{group.label}</div>
                 {group.matches.map((r, i) => (
-                  <ResultCard key={i} r={r} logos={logos} />
+                  <ResultCard key={i} r={r} />
                 ))}
               </div>
             ))
