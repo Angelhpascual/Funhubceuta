@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { Receiver } from '@upstash/qstash'
 import { scrapeLatestTweets } from '@/infrastructure/scrapers/twitterScraper'
-import { supabase } from '@/infrastructure/supabase/client'
+import { upsertTweets } from '@/infrastructure/supabase/TweetsRepository'
 import { logCron } from '@/infrastructure/supabase/logCron'
 
 async function syncTweets() {
@@ -13,22 +13,7 @@ async function syncTweets() {
     return 0
   }
 
-  const { error } = await supabase.from('tweets').upsert(
-    tweets.map((t) => ({
-      tweet_id: t.tweetId,
-      text: t.text,
-      created_at_twitter: t.createdAt,
-      url: t.url,
-      image_url: t.imageUrl,
-    })),
-    { onConflict: 'tweet_id', ignoreDuplicates: true }
-  )
-
-  if (error) {
-    await logCron('tweets', 'error', Date.now() - t0, { error: error.message })
-    throw new Error(`Failed to upsert tweets: ${error.message}`)
-  }
-
+  await upsertTweets(tweets)
   await logCron('tweets', 'success', Date.now() - t0, { tweets: tweets.length })
   return tweets.length
 }

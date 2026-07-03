@@ -1,12 +1,7 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '@/infrastructure/supabase/client'
+import { getLatestTweets } from '@/infrastructure/supabase/TweetsRepository'
 
 export async function GET() {
-  const { data } = await supabase
-    .from('tweets')
-    .select('*')
-    .order('created_at_twitter', { ascending: false })
-    .limit(5)
-
-  return NextResponse.json({ tweets: data ?? [] })
+  const tweets = await getLatestTweets(5)
+  return NextResponse.json({ tweets })
 }
