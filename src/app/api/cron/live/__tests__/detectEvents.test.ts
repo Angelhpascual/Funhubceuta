@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { detectEvents } from '../detectEvents'
 import type { MatchState } from '../detectEvents'
-import type { LiveMatch } from '@/app/api/live/route'
+import type { LiveMatch } from '@/domain/match/LiveMatch'
 
 function makeMatch(overrides: Partial<LiveMatch> = {}): LiveMatch {
   return {

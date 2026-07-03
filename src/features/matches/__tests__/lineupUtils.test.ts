@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { parseFormation, assignRows } from '../lineupUtils'
-import type { LineupPlayer } from '@/app/api/matches/lineup/route'
+import type { LineupPlayer } from '@/domain/match/Lineup'
 
 function makePlayer(positionAbbr: string, name = positionAbbr): LineupPlayer {
   return {

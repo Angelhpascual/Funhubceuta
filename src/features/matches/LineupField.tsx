@@ -1,6 +1,6 @@
 'use client'
 
-import { LineupPlayer, MatchEvent, MatchLineup } from '@/app/api/matches/lineup/route'
+import { LineupPlayer, MatchEvent, MatchLineup } from '@/domain/match/Lineup'
 import { parseFormation, assignRows, applyPositionOverrides } from './lineupUtils'
 
 function PlayerDot({ player }: { player: LineupPlayer }) {

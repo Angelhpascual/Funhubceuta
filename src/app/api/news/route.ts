@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { apiError } from '@/lib/apiError'
 import { NewsSupabaseRepository } from '@/infrastructure/supabase/NewsSupabaseRepository'
 import { decodeEntities } from '@/lib/decodeEntities'
 
@@ -9,6 +10,7 @@ export async function GET(request: Request) {
   const limit = Math.min(parseInt(searchParams.get('limit') ?? '10'), 50)
   const offset = Math.max(parseInt(searchParams.get('offset') ?? '0'), 0)
 
+  try {
   const raw = await repo.getLatest(limit, offset)
   const news = raw.map(n => ({ ...n, title: decodeEntities(n.title) }))
   return NextResponse.json(
@@ -19,4 +21,7 @@ export async function GET(request: Request) {
       },
     }
   )
+  } catch (err) {
+    return apiError(err)
+  }
 }

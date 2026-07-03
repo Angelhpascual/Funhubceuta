@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { LiveMatch } from '@/app/api/live/route'
+import { LiveMatch } from '@/domain/match/LiveMatch'
 import { usePushNotifications } from '@/hooks/usePushNotifications'
 import { findLogo } from '@/lib/findLogo'
 import { ScrapedMatch } from '@/infrastructure/scrapers/adceutaScraper'

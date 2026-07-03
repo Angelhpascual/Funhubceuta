@@ -2,32 +2,9 @@ import { NextResponse } from 'next/server'
 import { supabase } from '@/infrastructure/supabase/client'
 import { parseLineupEvents } from '../parseLineupEvents'
 import { ESPN_BASE as ESPN, ESPN_CEUTA_ID as CEUTA_ID, CURRENT_SEASON } from '@/lib/constants'
+import type { LineupPlayer, MatchEvent, MatchLineup } from '@/domain/match/Lineup'
 
-export interface LineupPlayer {
-  name: string
-  shortName: string
-  jersey: string
-  position: string // ESPN position displayName
-  positionAbbr: string // e.g. GK, CB, LB, CM...
-  starter: boolean
-  photoUrl: string | null
-}
-
-export interface MatchEvent {
-  type: 'goal' | 'yellow-card' | 'red-card' | 'substitution'
-  minute: string
-  playerName: string
-  playerOut?: string // for substitutions: who goes off
-  team: 'home' | 'away'
-}
-
-export interface MatchLineup {
-  formation: string
-  starters: LineupPlayer[]
-  bench: LineupPlayer[]
-  events: MatchEvent[]
-  available: boolean
-}
+export type { LineupPlayer, MatchEvent, MatchLineup }
 
 // Map ESPN position display names → short abbreviations
 const POS_MAP: Record<string, string> = {
