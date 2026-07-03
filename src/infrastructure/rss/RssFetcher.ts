@@ -154,6 +154,8 @@ const EXCLUDE_TERMS = [
   'atlético ceuta',
   'atletico de ceuta',
   'atlético de ceuta',
+  'camoens',
+  'camoëns',
 ]
 
 // Title patterns from press that are generic roundup/preview content, not real club news.
