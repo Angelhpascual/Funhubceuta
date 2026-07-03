@@ -6,6 +6,7 @@ import { setConfig, deleteConfig } from '@/infrastructure/supabase/AppConfigRepo
 import { deleteSubscription } from '@/infrastructure/supabase/PushSubscriptionsRepository'
 import { ESPN_BASE as ESPN } from '@/lib/constants'
 import { MSG } from './messages'
+import { logCron } from '@/infrastructure/supabase/logCron'
 
 // ── Fetch live match from ESPN (same logic as /api/live) ──────────────────
 
@@ -225,6 +226,21 @@ async function checkAndNotify() {
   }
 }
 
+async function checkAndNotifySafe() {
+  const t0 = Date.now()
+  try {
+    const result = await checkAndNotify()
+    await logCron('live', 'success', Date.now() - t0, {
+      match: result.match,
+      notifications: result.notifications,
+    })
+    return result
+  } catch (err) {
+    await logCron('live', 'error', Date.now() - t0, { error: String(err) })
+    throw err
+  }
+}
+
 // ── Routes ────────────────────────────────────────────────────────────────
 export async function POST(request: Request) {
   const receiver = new Receiver({
@@ -233,15 +249,12 @@ export async function POST(request: Request) {
   })
   const body = await request.text()
   const valid = await receiver
-    .verify({
-      signature: request.headers.get('Upstash-Signature') ?? '',
-      body,
-    })
+    .verify({ signature: request.headers.get('Upstash-Signature') ?? '', body })
     .catch(() => false)
 
   if (!valid) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const result = await checkAndNotify()
+  const result = await checkAndNotifySafe()
   return NextResponse.json({ ok: true, ...result })
 }
 
@@ -249,6 +262,6 @@ export async function GET() {
   if (process.env.NODE_ENV === 'production') {
     return NextResponse.json({ error: 'Use POST in production' }, { status: 405 })
   }
-  const result = await checkAndNotify()
+  const result = await checkAndNotifySafe()
   return NextResponse.json({ ok: true, ...result })
 }
