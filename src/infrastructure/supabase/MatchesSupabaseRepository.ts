@@ -1,9 +1,34 @@
 import { supabase } from './client'
-import { ScrapedMatch } from '@/infrastructure/scrapers/adceutaScraper'
+import type { ScrapedMatch, ScrapedResult } from '@/infrastructure/scrapers/adceutaScraper'
 import { CURRENT_SEASON, COMPETITION } from '@/lib/constants'
 import { deduplicateMatches } from '@/lib/deduplicateMatches'
 
 export class MatchesSupabaseRepository {
+  async upsertResults(results: ScrapedResult[]): Promise<void> {
+    if (results.length === 0) return
+    const { error } = await supabase.from('matches').upsert(
+      results.map((r) => ({
+        external_id: `result-${r.date}-${r.homeTeam}-${r.awayTeam}`.toLowerCase().replace(/\s+/g, '-'),
+        home_team: r.homeTeam,
+        away_team: r.awayTeam,
+        date: r.date,
+        time: '',
+        weekday: r.weekday,
+        is_home: r.isHome,
+        tickets_url: null,
+        status: 'finished',
+        season: CURRENT_SEASON,
+        competition: COMPETITION,
+        home_score: r.homeScore,
+        away_score: r.awayScore,
+        result: r.result,
+        espn_event_id: r.espnEventId,
+      })),
+      { onConflict: 'external_id', ignoreDuplicates: false }
+    )
+    if (error) throw new Error(`Failed to upsert results: ${error.message}`)
+  }
+
   async upsertMatches(matches: ScrapedMatch[]): Promise<void> {
     if (matches.length === 0) return
 

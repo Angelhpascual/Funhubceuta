@@ -13,7 +13,7 @@ export async function GET(request: Request) {
   try {
     const standings = await service.getStandings(season)
     if (!standings) return NextResponse.json({ error: 'No standings found' }, { status: 404 })
-    return NextResponse.json(standings)
+    return NextResponse.json(standings, { headers: { "Cache-Control": "public, s-maxage=600, stale-while-revalidate=1800" } })
   } catch (err) {
     return apiError(err)
   }

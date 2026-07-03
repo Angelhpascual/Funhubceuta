@@ -6,7 +6,7 @@ import { apiError } from '@/lib/apiError'
 export async function GET() {
   try {
     const { grouped, total } = await fetchSquadBySeason(CURRENT_SEASON)
-    return NextResponse.json({ grouped, total })
+    return NextResponse.json({ grouped, total }, { headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" } })
   } catch (err) {
     return apiError(err)
   }
