@@ -49,3 +49,16 @@ export async function fetchPlayerById(id: string, season: string) {
     .single()
   return data ?? null
 }
+
+export async function fetchPhotosByDorsal(season: string): Promise<Record<string, string>> {
+  const { data } = await supabase
+    .from('squad')
+    .select('dorsal,photo_url')
+    .eq('season', season)
+    .not('photo_url', 'ilike', '%/default/%')
+  const map: Record<string, string> = {}
+  for (const r of data ?? []) {
+    if (r.dorsal != null && r.photo_url) map[String(r.dorsal)] = r.photo_url
+  }
+  return map
+}

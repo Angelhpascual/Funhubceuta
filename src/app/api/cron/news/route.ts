@@ -11,7 +11,7 @@ import { NewsSupabaseRepository } from '@/infrastructure/supabase/NewsSupabaseRe
 import { sendNewsNotification } from '@/infrastructure/push/sendNewsNotification'
 import { notifyAdmin } from '@/infrastructure/push/notifyAdmin'
 import { logCron, logNotification } from '@/infrastructure/supabase/logCron'
-import { supabase } from '@/infrastructure/supabase/client'
+import { getRecentNotifTitles, markNotifyQueued, getSubscriberCount } from '@/infrastructure/supabase/NotificationRepository'
 import {
   downloadAndUploadImage,
   isStoredNewsImage,
@@ -165,10 +165,7 @@ async function syncNews() {
   if (toNotify) {
     // Check if a very similar title was already notified in the last 6 hours
     const SIX_HOURS_AGO = new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString()
-    const { data: recentNotifs } = await supabase
-      .from('notification_logs')
-      .select('article_title')
-      .gte('created_at', SIX_HOURS_AGO)
+    const recentTitles = await getRecentNotifTitles(SIX_HOURS_AGO)
 
     // Extract meaningful keywords (words > 4 chars, ignore stopwords)
     const STOPWORDS = new Set(['ceuta', 'para', 'como', 'pero', 'este', 'esta', 'desde', 'hasta', 'sobre', 'entre', 'todos', 'tiene', 'tras'])
@@ -177,27 +174,23 @@ async function syncNews() {
       return new Set(words.filter(w => w.length > 4 && !STOPWORDS.has(w)))
     }
     const titleKw = keywords(toNotify.title)
-    const alreadySent = (recentNotifs ?? []).some((n) => {
-      const sentKw = keywords(n.article_title)
+    const alreadySent = recentTitles.some((title) => {
+      const sentKw = keywords(title)
       if (titleKw.size === 0 || sentKw.size === 0) return false
-      // Count how many keywords overlap
       let overlap = 0
       for (const w of titleKw) if (sentKw.has(w)) overlap++
-      // Similar if >40% of the smaller set's keywords match
       const minSize = Math.min(titleKw.size, sentKw.size)
       return overlap / minSize >= 0.4
     })
 
     if (!alreadySent) {
-      await supabase.from('news').update({ notify_queued: true }).eq('external_id', toNotify.externalId)
+      await markNotifyQueued(toNotify.externalId)
       await notifyAdmin('📬 Noticia pendiente', toNotify.title).catch(() => null)
     }
   }
 
   // Get current subscriber count for the log
-  const { count: subscribers } = await supabase
-    .from('push_subscriptions')
-    .select('*', { count: 'exact', head: true })
+  const subscribers = await getSubscriberCount()
 
   const articlesFound = results.reduce(
     (acc, r) => acc + (r.status === 'fulfilled' ? r.value.count : 0),
@@ -212,7 +205,7 @@ async function syncNews() {
     backfilledImages,
     imageErrors: imageErrors.length > 0 ? imageErrors : undefined,
     noImageArticles: noImageArticles > 0 ? noImageArticles : undefined,
-    subscribers: subscribers ?? 0,
+    subscribers,
     queued: toNotify?.title ?? null,
     summary,
   })

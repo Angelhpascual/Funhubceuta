@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { Receiver } from '@upstash/qstash'
-import { supabase } from '@/infrastructure/supabase/client'
 import { logCron } from '@/infrastructure/supabase/logCron'
+import { upsertPlayerStats, PlayerStatRow } from '@/infrastructure/supabase/PlayerStatsRepository'
 import { ESPN_ROSTER, CURRENT_SEASON } from '@/lib/constants'
 
 const POSITION_GROUP: Record<string, string> = {
@@ -46,7 +46,7 @@ async function scrapePlayerStats() {
     const data = await res.json()
     const athletes: EspnAthlete[] = data.athletes ?? []
 
-    const rows = athletes
+    const rows: PlayerStatRow[] = athletes
       .filter((a) => a.statistics?.splits?.categories)
       .map((a) => {
         const cats = a.statistics!.splits!.categories!
@@ -74,11 +74,7 @@ async function scrapePlayerStats() {
 
     if (rows.length === 0) throw new Error('No athletes with stats found')
 
-    const { error } = await supabase
-      .from('player_stats')
-      .upsert(rows, { onConflict: 'espn_id,season' })
-
-    if (error) throw new Error(`Supabase upsert failed: ${error.message}`)
+    await upsertPlayerStats(rows)
 
     await logCron('player-stats', 'success', Date.now() - t0, {
       updated: rows.length,
