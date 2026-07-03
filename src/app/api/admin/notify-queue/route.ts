@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { SOURCE_LABELS } from '@/lib/constants'
 import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
 import { sendPush } from '@/infrastructure/push/sendPush'
@@ -21,7 +22,7 @@ export async function GET() {
 export async function POST(req: Request) {
   if (!(await checkAdminAuth())) return unauthorizedResponse()
 
-  const { id, action } = await req.json() as { id: string; action: 'send' | 'discard' }
+  const { id, action } = await req.json() as { id: string; action: 'send' | 'publish' | 'discard' }
   if (!id || !action) return NextResponse.json({ error: 'Missing id or action' }, { status: 400 })
 
   if (action === 'discard') {
@@ -37,6 +38,16 @@ export async function POST(req: Request) {
 
   if (!article) return NextResponse.json({ error: 'Article not found' }, { status: 404 })
 
+  // publish: make it visible in the news list
+  await supabaseAdmin.from('news').update({ notify_queued: false, published: true }).eq('id', id)
+  revalidatePath('/noticias')
+  revalidatePath('/')
+
+  if (action === 'discard' || action === 'publish') {
+    return NextResponse.json({ ok: true, sent: 0 })
+  }
+
+  // send: also push a notification to subscribers
   const sourceLabel = SOURCE_LABELS[article.source] ?? 'Noticias'
   const result = await sendPush({
     title: '🔴 Noticias',
@@ -44,8 +55,6 @@ export async function POST(req: Request) {
     tag: `news-${article.id}`,
     url: '/',
   })
-
-  await supabaseAdmin.from('news').update({ notify_queued: false }).eq('id', id)
 
   await logNotification({
     articleTitle: article.title,

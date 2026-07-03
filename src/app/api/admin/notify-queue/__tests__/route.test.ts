@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
+vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
 vi.mock('@/infrastructure/admin/auth', () => ({
   checkAdminAuth: vi.fn(),
   unauthorizedResponse: () => new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 }),
@@ -14,6 +15,7 @@ vi.mock('@/infrastructure/supabase/logCron', () => ({
   logNotification: vi.fn(),
 }))
 
+import { revalidatePath } from 'next/cache'
 import { checkAdminAuth } from '@/infrastructure/admin/auth'
 import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
 import { sendPush } from '@/infrastructure/push/sendPush'
@@ -105,7 +107,30 @@ describe('POST /api/admin/notify-queue', () => {
     expect(eqMock).toHaveBeenCalledWith('id', 'abc')
   })
 
-  it('send calls sendPush and clears notify_queued', async () => {
+  it('publish sets published=true, no push, revalidates paths', async () => {
+    const article = { id: 'abc', title: 'Gol del Ceuta', source: 'as', url: 'https://as.com/1' }
+    const eqMock = vi.fn().mockResolvedValue({ error: null })
+    vi.mocked(supabaseAdmin.from).mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          single: vi.fn().mockResolvedValue({ data: article }),
+        }),
+      }),
+      update: vi.fn().mockReturnValue({ eq: eqMock }),
+    } as never)
+
+    const req = new Request('http://localhost/api/admin/notify-queue', {
+      method: 'POST',
+      body: JSON.stringify({ id: 'abc', action: 'publish' }),
+    })
+    const res = await POST(req)
+    expect(res.status).toBe(200)
+    expect(sendPush).not.toHaveBeenCalled()
+    expect(revalidatePath).toHaveBeenCalledWith('/noticias')
+    expect(revalidatePath).toHaveBeenCalledWith('/')
+  })
+
+  it('send calls sendPush, sets published=true and revalidates paths', async () => {
     const article = { id: 'abc', title: 'Gol del Ceuta', source: 'as', url: 'https://as.com/1' }
     const eqMock = vi.fn().mockResolvedValue({ error: null })
     vi.mocked(supabaseAdmin.from).mockReturnValue({
@@ -130,9 +155,10 @@ describe('POST /api/admin/notify-queue', () => {
       body: expect.stringContaining('Gol del Ceuta'),
       url: '/',
     }))
+    expect(revalidatePath).toHaveBeenCalledWith('/noticias')
   })
 
-  it('returns 404 if article not found on send', async () => {
+  it('returns 404 if article not found on send or publish', async () => {
     vi.mocked(supabaseAdmin.from).mockReturnValue({
       select: vi.fn().mockReturnValue({
         eq: vi.fn().mockReturnValue({

@@ -29,7 +29,7 @@ export function NotifQueue() {
 
   useEffect(() => { load() }, [load])
 
-  async function act(id: string, action: 'send' | 'discard') {
+  async function act(id: string, action: 'send' | 'publish' | 'discard') {
     setBusy(id)
     const res = await fetch('/api/admin/notify-queue', {
       method: 'POST',
@@ -38,10 +38,11 @@ export function NotifQueue() {
     })
     const data = await res.json()
     if (res.ok) {
-      setFeedback((f) => ({
-        ...f,
-        [id]: action === 'send' ? `✓ Enviada a ${data.sent} suscriptores` : '✓ Descartada',
-      }))
+      const msg =
+        action === 'send'    ? `✓ Enviada a ${data.sent} suscriptores` :
+        action === 'publish' ? '✓ Publicada en noticias'               :
+                               '✓ Descartada'
+      setFeedback((f) => ({ ...f, [id]: msg }))
       setTimeout(() => setItems((prev) => prev.filter((a) => a.id !== id)), 1200)
     } else {
       setFeedback((f) => ({ ...f, [id]: `✗ ${data.error}` }))
@@ -95,28 +96,39 @@ export function NotifQueue() {
                 {feedback[article.id]}
               </p>
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', borderTop: '1px solid var(--border)' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', borderTop: '1px solid var(--border)' }}>
                 <button
                   onClick={() => act(article.id, 'discard')}
                   disabled={busy === article.id}
                   style={{
                     background: 'none', border: 'none', borderRight: '1px solid var(--border)',
-                    padding: '11px 0', fontSize: 13, fontWeight: 700, cursor: 'pointer',
+                    padding: '11px 0', fontSize: 12, fontWeight: 700, cursor: 'pointer',
                     color: 'var(--muted)',
                   }}
                 >
                   Descartar
                 </button>
                 <button
+                  onClick={() => act(article.id, 'publish')}
+                  disabled={busy === article.id}
+                  style={{
+                    background: 'none', border: 'none', borderRight: '1px solid var(--border)',
+                    padding: '11px 0', fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                    color: 'var(--black)',
+                  }}
+                >
+                  {busy === article.id ? '⏳' : '📰 Publicar'}
+                </button>
+                <button
                   onClick={() => act(article.id, 'send')}
                   disabled={busy === article.id}
                   style={{
                     background: 'var(--red)', border: 'none',
-                    padding: '11px 0', fontSize: 13, fontWeight: 700, cursor: 'pointer',
+                    padding: '11px 0', fontSize: 12, fontWeight: 700, cursor: 'pointer',
                     color: 'var(--white)',
                   }}
                 >
-                  {busy === article.id ? '⏳' : '🔔 Enviar'}
+                  {busy === article.id ? '⏳' : '🔔 Notificar'}
                 </button>
               </div>
             )}
