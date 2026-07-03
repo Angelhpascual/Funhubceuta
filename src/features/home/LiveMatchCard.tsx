@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { LiveMatch } from '@/domain/match/LiveMatch'
 import { usePushNotifications } from '@/hooks/usePushNotifications'
 import { findLogo } from '@/lib/findLogo'
+import { proxyLogo } from '@/lib/proxyImage'
 import { ScrapedMatch } from '@/infrastructure/scrapers/adceutaScraper'
 import Link from 'next/link'
 
@@ -46,7 +47,7 @@ function TeamCrest({ name, logos }: { name: string; logos: Record<string, string
       <div className="flex size-[52px] items-center justify-center rounded-full bg-white">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={logo} alt={name} className="size-9 object-contain" fetchPriority="high" />
+        <img src={proxyLogo(logo) ?? logo} alt={name} className="size-9 object-contain" fetchPriority="high" />
       </div>
     )
   }

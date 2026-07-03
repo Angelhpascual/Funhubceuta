@@ -12,6 +12,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import Image from 'next/image'
 import { FormPill } from '@/components/ui/FormPill'
+import { proxyLogo } from '@/lib/proxyImage'
 
 interface Props {
   entries: StandingEntry[]
@@ -75,11 +76,12 @@ export function StandingsTable({ entries }: Props) {
                   <div className="flex items-center gap-2">
                     {entry.teamLogo && (
                       <Image
-                        src={entry.teamLogo}
+                        src={proxyLogo(entry.teamLogo) ?? entry.teamLogo}
                         alt={entry.teamName}
                         width={24}
                         height={24}
                         className="object-contain"
+                        unoptimized
                       />
                     )}
                     <span className={isCeuta ? 'text-[#4a90d9]' : ''}>{entry.teamName}</span>

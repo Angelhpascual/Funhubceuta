@@ -7,13 +7,20 @@ import { HomePage } from '@/features/home/HomePage'
 import { HimnoPage } from '@/features/himno/HimnoPage'
 import { LoadingScreen } from '@/components/ui/LoadingScreen'
 
-const PULL_THRESHOLD = 72
+const PULL_THRESHOLD = 64
+const PULL_MAX = 80
+
+// Rubber-band resistance: feels natural like native iOS
+function rubberBand(dy: number): number {
+  return Math.min(PULL_MAX, Math.sqrt(dy) * 5.5)
+}
 
 function usePullToRefresh(onRefresh: () => Promise<void>) {
   const [pullY, setPullY] = useState(0)
   const [refreshing, setRefreshing] = useState(false)
   const touchStartY = useRef(0)
   const pulling = useRef(false)
+  const refreshingRef = useRef(false)
 
   const onTouchStart = useCallback((e: React.TouchEvent) => {
     const scrollEl = document.querySelector('.scroll-area')
@@ -24,29 +31,32 @@ function usePullToRefresh(onRefresh: () => Promise<void>) {
   }, [])
 
   const onTouchMove = useCallback((e: React.TouchEvent) => {
-    if (!pulling.current || refreshing) return
+    if (!pulling.current || refreshingRef.current) return
     const scrollEl = document.querySelector('.scroll-area')
     const dy = e.touches[0].clientY - touchStartY.current
     if (dy > 0 && (scrollEl?.scrollTop ?? 0) === 0) {
-      setPullY(Math.min(dy * 0.45, PULL_THRESHOLD))
+      setPullY(rubberBand(dy))
     } else {
       pulling.current = false
       setPullY(0)
     }
-  }, [refreshing])
+  }, [])
 
   const onTouchEnd = useCallback(async () => {
-    if (pullY >= PULL_THRESHOLD && !refreshing) {
+    if (pullY >= PULL_THRESHOLD && !refreshingRef.current) {
       pulling.current = false
-      setPullY(0)
+      refreshingRef.current = true
       setRefreshing(true)
+      setPullY(PULL_THRESHOLD) // snap to threshold while refreshing
       await onRefresh()
       setRefreshing(false)
+      refreshingRef.current = false
+      setPullY(0)
     } else {
       pulling.current = false
       setPullY(0)
     }
-  }, [pullY, refreshing, onRefresh])
+  }, [pullY, onRefresh])
 
   return { pullY, refreshing, onTouchStart, onTouchMove, onTouchEnd }
 }
@@ -220,34 +230,38 @@ function AppInner() {
         </div>
 
         {/* Pull-to-refresh indicator */}
-        <div
-          style={{
-            position: 'absolute',
-            top: 'var(--top-h)',
-            left: 0,
-            right: 0,
-            zIndex: 50,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            overflow: 'hidden',
-            height: refreshing ? 44 : pullY > 0 ? pullY : 0,
-            background: 'var(--black)',
-            transition: pullY === 0 ? 'height 0.2s ease' : 'none',
-          }}
-        >
-          <svg
-            width="18" height="18" viewBox="0 0 24 24" fill="none"
-            stroke="white" strokeWidth="2.5" strokeLinecap="round"
+        {(pullY > 0 || refreshing) && (
+          <div
             style={{
-              opacity: refreshing ? 1 : pullProgress,
-              transform: refreshing ? undefined : `rotate(${pullProgress * 180}deg)`,
-              animation: refreshing ? 'spin 0.7s linear infinite' : undefined,
+              position: 'absolute',
+              top: 'var(--top-h)',
+              left: 0,
+              right: 0,
+              zIndex: 50,
+              height: PULL_MAX,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'var(--black)',
+              transform: `translateY(${refreshing ? 0 : pullY - PULL_MAX}px)`,
+              transition: refreshing || pullY > 0 ? 'none' : 'transform 0.25s cubic-bezier(0.25,0.46,0.45,0.94)',
+              willChange: 'transform',
             }}
           >
-            <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-          </svg>
-        </div>
+            <svg
+              width="20" height="20" viewBox="0 0 24 24" fill="none"
+              stroke="white" strokeWidth="2.5" strokeLinecap="round"
+              style={{
+                opacity: refreshing ? 1 : Math.min(pullY / PULL_THRESHOLD, 1),
+                transform: refreshing ? undefined : `rotate(${Math.min(pullY / PULL_THRESHOLD, 1) * 220}deg)`,
+                animation: refreshing ? 'spin 0.7s linear infinite' : undefined,
+                transition: refreshing ? undefined : 'opacity 0.1s',
+              }}
+            >
+              <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+            </svg>
+          </div>
+        )}
 
         <div className="scroll-area">
           <HomePage key={refreshKey} onReady={() => setReady(true)} onOpenHimno={() => setModal('himno')} />

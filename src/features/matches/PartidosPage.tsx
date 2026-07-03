@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { findLogo as findLogoUtil } from '@/lib/findLogo'
+import { proxyLogo } from '@/lib/proxyImage'
 import { formatMatchDate, shortTeamName, resultLabel } from './matchUtils'
 import Link from 'next/link'
 
@@ -58,7 +59,7 @@ function ResultCard({ r, logos }: { r: MatchRow; logos: Record<string, string> }
           <div className="result-team-row">
             {findLogo(r.home_team) ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={findLogo(r.home_team)!} alt="" className="size-[18px] shrink-0 object-contain" />
+              <img src={proxyLogo(findLogo(r.home_team)) ?? ''} alt="" className="size-[18px] shrink-0 object-contain" />
             ) : (
               <div className="size-[18px] shrink-0" />
             )}
@@ -70,7 +71,7 @@ function ResultCard({ r, logos }: { r: MatchRow; logos: Record<string, string> }
           <div className="result-team-row">
             {findLogo(r.away_team) ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={findLogo(r.away_team)!} alt="" className="size-[18px] shrink-0 object-contain" />
+              <img src={proxyLogo(findLogo(r.away_team)) ?? ''} alt="" className="size-[18px] shrink-0 object-contain" />
             ) : (
               <div className="size-[18px] shrink-0" />
             )}
@@ -194,7 +195,7 @@ export function PartidosPage({ upcoming = [], results = [], previousSeason = [],
                   <div className="flex items-center gap-2">
                     {findLogo(m.home_team) ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={findLogo(m.home_team)!} alt="" className="size-7 object-contain" />
+                      <img src={proxyLogo(findLogo(m.home_team)) ?? ''} alt="" className="size-7 object-contain" />
                     ) : (
                       <div className="size-7 rounded-full bg-ceuta-bg-mid" />
                     )}
@@ -209,7 +210,7 @@ export function PartidosPage({ upcoming = [], results = [], previousSeason = [],
                     </div>
                     {findLogo(m.away_team) ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={findLogo(m.away_team)!} alt="" className="size-7 object-contain" />
+                      <img src={proxyLogo(findLogo(m.away_team)) ?? ''} alt="" className="size-7 object-contain" />
                     ) : (
                       <div className="size-7 rounded-full bg-ceuta-bg-mid" />
                     )}
