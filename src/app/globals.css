@@ -181,6 +181,11 @@ img {
   margin-top: var(--top-h);
   padding-bottom: 16px;
   background: var(--bg);
+  overscroll-behavior-y: none;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 /* ════════ BOTTOM NAV ════════ */

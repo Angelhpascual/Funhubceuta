@@ -1,11 +1,55 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Suspense } from 'react'
 import { useRouter } from 'next/navigation'
 import { HomePage } from '@/features/home/HomePage'
 import { HimnoPage } from '@/features/himno/HimnoPage'
 import { LoadingScreen } from '@/components/ui/LoadingScreen'
+
+const PULL_THRESHOLD = 72
+
+function usePullToRefresh(onRefresh: () => Promise<void>) {
+  const [pullY, setPullY] = useState(0)
+  const [refreshing, setRefreshing] = useState(false)
+  const touchStartY = useRef(0)
+  const pulling = useRef(false)
+
+  const onTouchStart = useCallback((e: React.TouchEvent) => {
+    const scrollEl = document.querySelector('.scroll-area')
+    if ((scrollEl?.scrollTop ?? 0) === 0) {
+      touchStartY.current = e.touches[0].clientY
+      pulling.current = true
+    }
+  }, [])
+
+  const onTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!pulling.current || refreshing) return
+    const scrollEl = document.querySelector('.scroll-area')
+    const dy = e.touches[0].clientY - touchStartY.current
+    if (dy > 0 && (scrollEl?.scrollTop ?? 0) === 0) {
+      setPullY(Math.min(dy * 0.45, PULL_THRESHOLD))
+    } else {
+      pulling.current = false
+      setPullY(0)
+    }
+  }, [refreshing])
+
+  const onTouchEnd = useCallback(async () => {
+    if (pullY >= PULL_THRESHOLD && !refreshing) {
+      pulling.current = false
+      setPullY(0)
+      setRefreshing(true)
+      await onRefresh()
+      setRefreshing(false)
+    } else {
+      pulling.current = false
+      setPullY(0)
+    }
+  }, [pullY, refreshing, onRefresh])
+
+  return { pullY, refreshing, onTouchStart, onTouchMove, onTouchEnd }
+}
 
 type NavId = 'inicio' | 'mercado' | 'clasificacion' | 'partidos' | 'club'
 type Modal = 'himno' | null
@@ -113,6 +157,15 @@ function AppInner() {
   const [modal, setModal] = useState<Modal>(null)
   const [ready, setReady] = useState(false)
   const [loaderVisible, setLoaderVisible] = useState(true)
+  const [refreshKey, setRefreshKey] = useState(0)
+
+  const handleRefresh = useCallback(async () => {
+    setRefreshKey(k => k + 1)
+    await new Promise(r => setTimeout(r, 600))
+  }, [])
+
+  const { pullY, refreshing, onTouchStart, onTouchMove, onTouchEnd } = usePullToRefresh(handleRefresh)
+  const pullProgress = Math.min(pullY / PULL_THRESHOLD, 1)
 
   // Safari bfcache: when restored from cache, force a full reload so React re-initialises
   useEffect(() => {
@@ -128,7 +181,13 @@ function AppInner() {
   }
 
   return (
-    <div id="app-root" className="home-shell">
+    <div
+      id="app-root"
+      className="home-shell"
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+    >
       {loaderVisible && <LoadingScreen fadeOut={ready} onFadeOutDone={() => setLoaderVisible(false)} />}
 
       {/* Modal views — slide over the main content */}
@@ -160,8 +219,38 @@ function AppInner() {
           />
         </div>
 
+        {/* Pull-to-refresh indicator */}
+        <div
+          style={{
+            position: 'absolute',
+            top: 'var(--top-h)',
+            left: 0,
+            right: 0,
+            zIndex: 50,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            overflow: 'hidden',
+            height: refreshing ? 44 : pullY > 0 ? pullY : 0,
+            background: 'var(--black)',
+            transition: pullY === 0 ? 'height 0.2s ease' : 'none',
+          }}
+        >
+          <svg
+            width="18" height="18" viewBox="0 0 24 24" fill="none"
+            stroke="white" strokeWidth="2.5" strokeLinecap="round"
+            style={{
+              opacity: refreshing ? 1 : pullProgress,
+              transform: refreshing ? undefined : `rotate(${pullProgress * 180}deg)`,
+              animation: refreshing ? 'spin 0.7s linear infinite' : undefined,
+            }}
+          >
+            <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+          </svg>
+        </div>
+
         <div className="scroll-area">
-          <HomePage onReady={() => setReady(true)} onOpenHimno={() => setModal('himno')} />
+          <HomePage key={refreshKey} onReady={() => setReady(true)} onOpenHimno={() => setModal('himno')} />
         </div>
 
         <div className="bottom-nav">
