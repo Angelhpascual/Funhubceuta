@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { Receiver } from '@upstash/qstash'
 import webpush from 'web-push'
-import type { LiveMatch, LiveEvent } from '@/app/api/live/route'
+import type { LiveMatch, LiveEvent } from '@/domain/match/LiveMatch'
 import { setConfig, deleteConfig } from '@/infrastructure/supabase/AppConfigRepository'
 import { deleteSubscription } from '@/infrastructure/supabase/PushSubscriptionsRepository'
 import { ESPN_BASE as ESPN } from '@/lib/constants'

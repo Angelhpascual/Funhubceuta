@@ -2,7 +2,7 @@
 
 import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { MatchLineup } from '@/app/api/matches/lineup/route'
+import { MatchLineup } from '@/domain/match/Lineup'
 import { LineupField } from '@/features/matches/LineupField'
 
 function LineupContent() {

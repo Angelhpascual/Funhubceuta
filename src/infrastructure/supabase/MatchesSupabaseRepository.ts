@@ -1,7 +1,7 @@
 import { supabase } from './client'
 import { ScrapedMatch } from '@/infrastructure/scrapers/adceutaScraper'
 import { CURRENT_SEASON, COMPETITION } from '@/lib/constants'
-import { deduplicateMatches } from '@/app/api/matches/deduplicateMatches'
+import { deduplicateMatches } from '@/lib/deduplicateMatches'
 
 export class MatchesSupabaseRepository {
   async upsertMatches(matches: ScrapedMatch[]): Promise<void> {
