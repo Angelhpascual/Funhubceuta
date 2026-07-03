@@ -39,7 +39,7 @@ export function NotifQueue() {
     const data = await res.json()
     if (res.ok) {
       const msg =
-        action === 'send'    ? `✓ Enviada a ${data.sent} suscriptores` :
+        action === 'send'    ? `✓ Publicada y enviada a ${data.sent} suscriptores` :
         action === 'publish' ? '✓ Publicada en noticias'               :
                                '✓ Descartada'
       setFeedback((f) => ({ ...f, [id]: msg }))
@@ -117,7 +117,7 @@ export function NotifQueue() {
                     color: 'var(--black)',
                   }}
                 >
-                  {busy === article.id ? '⏳' : '📰 Publicar'}
+                  {busy === article.id ? '⏳' : '📰 Solo publicar'}
                 </button>
                 <button
                   onClick={() => act(article.id, 'send')}
@@ -128,7 +128,7 @@ export function NotifQueue() {
                     color: 'var(--white)',
                   }}
                 >
-                  {busy === article.id ? '⏳' : '🔔 Notificar'}
+                  {busy === article.id ? '⏳' : '🔔 Pub. y notif.'}
                 </button>
               </div>
             )}
