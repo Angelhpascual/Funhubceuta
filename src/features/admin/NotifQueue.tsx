@@ -29,7 +29,7 @@ export function NotifQueue() {
 
   useEffect(() => { load() }, [load])
 
-  async function act(id: string, action: 'send' | 'publish' | 'discard') {
+  async function act(id: string, action: 'send' | 'publish' | 'notify' | 'discard') {
     setBusy(id)
     const res = await fetch('/api/admin/notify-queue', {
       method: 'POST',
@@ -40,7 +40,8 @@ export function NotifQueue() {
     if (res.ok) {
       const msg =
         action === 'send'    ? `✓ Publicada y enviada a ${data.sent} suscriptores` :
-        action === 'publish' ? '✓ Publicada en noticias'               :
+        action === 'notify'  ? `✓ Notificada a ${data.sent} suscriptores`          :
+        action === 'publish' ? '✓ Publicada en noticias'                           :
                                '✓ Descartada'
       setFeedback((f) => ({ ...f, [id]: msg }))
       setTimeout(() => setItems((prev) => prev.filter((a) => a.id !== id)), 1200)
@@ -96,13 +97,14 @@ export function NotifQueue() {
                 {feedback[article.id]}
               </p>
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', borderTop: '1px solid var(--border)' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', borderTop: '1px solid var(--border)' }}>
                 <button
                   onClick={() => act(article.id, 'discard')}
                   disabled={busy === article.id}
                   style={{
                     background: 'none', border: 'none', borderRight: '1px solid var(--border)',
-                    padding: '11px 0', fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                    borderBottom: '1px solid var(--border)',
+                    padding: '11px 0', fontSize: 11, fontWeight: 700, cursor: 'pointer',
                     color: 'var(--muted)',
                   }}
                 >
@@ -112,23 +114,35 @@ export function NotifQueue() {
                   onClick={() => act(article.id, 'publish')}
                   disabled={busy === article.id}
                   style={{
-                    background: 'none', border: 'none', borderRight: '1px solid var(--border)',
-                    padding: '11px 0', fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                    background: 'none', border: 'none',
+                    borderBottom: '1px solid var(--border)',
+                    padding: '11px 0', fontSize: 11, fontWeight: 700, cursor: 'pointer',
                     color: 'var(--black)',
                   }}
                 >
                   {busy === article.id ? '⏳' : '📰 Solo publicar'}
                 </button>
                 <button
+                  onClick={() => act(article.id, 'notify')}
+                  disabled={busy === article.id}
+                  style={{
+                    background: 'none', border: 'none', borderRight: '1px solid var(--border)',
+                    padding: '11px 0', fontSize: 11, fontWeight: 700, cursor: 'pointer',
+                    color: 'var(--black)',
+                  }}
+                >
+                  {busy === article.id ? '⏳' : '🔔 Solo notificar'}
+                </button>
+                <button
                   onClick={() => act(article.id, 'send')}
                   disabled={busy === article.id}
                   style={{
                     background: 'var(--red)', border: 'none',
-                    padding: '11px 0', fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                    padding: '11px 0', fontSize: 11, fontWeight: 700, cursor: 'pointer',
                     color: 'var(--white)',
                   }}
                 >
-                  {busy === article.id ? '⏳' : '🔔 Pub. y notif.'}
+                  {busy === article.id ? '⏳' : '🔔📰 Pub. y notif.'}
                 </button>
               </div>
             )}

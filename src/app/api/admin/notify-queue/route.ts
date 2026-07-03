@@ -22,7 +22,7 @@ export async function GET() {
 export async function POST(req: Request) {
   if (!(await checkAdminAuth())) return unauthorizedResponse()
 
-  const { id, action } = await req.json() as { id: string; action: 'send' | 'publish' | 'discard' }
+  const { id, action } = await req.json() as { id: string; action: 'send' | 'publish' | 'notify' | 'discard' }
   if (!id || !action) return NextResponse.json({ error: 'Missing id or action' }, { status: 400 })
 
   if (action === 'discard') {
@@ -38,16 +38,23 @@ export async function POST(req: Request) {
 
   if (!article) return NextResponse.json({ error: 'Article not found' }, { status: 404 })
 
-  // publish: make it visible in the news list
-  await supabaseAdmin.from('news').update({ notify_queued: false, published: true }).eq('id', id)
-  revalidatePath('/noticias')
-  revalidatePath('/')
+  const willPublish = action === 'publish' || action === 'send'
+  const willNotify  = action === 'notify'  || action === 'send'
 
-  if (action === 'discard' || action === 'publish') {
+  await supabaseAdmin
+    .from('news')
+    .update({ notify_queued: false, ...(willPublish ? { published: true } : {}) })
+    .eq('id', id)
+
+  if (willPublish) {
+    revalidatePath('/noticias')
+    revalidatePath('/')
+  }
+
+  if (!willNotify) {
     return NextResponse.json({ ok: true, sent: 0 })
   }
 
-  // send: also push a notification to subscribers
   const sourceLabel = SOURCE_LABELS[article.source] ?? 'Noticias'
   const result = await sendPush({
     title: '🔴 Noticias',

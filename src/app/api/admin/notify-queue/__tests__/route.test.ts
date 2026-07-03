@@ -107,6 +107,31 @@ describe('POST /api/admin/notify-queue', () => {
     expect(eqMock).toHaveBeenCalledWith('id', 'abc')
   })
 
+  it('notify sends push without publishing or revalidating', async () => {
+    const article = { id: 'abc', title: 'Gol del Ceuta', source: 'as', url: 'https://as.com/1' }
+    const eqMock = vi.fn().mockResolvedValue({ error: null })
+    vi.mocked(supabaseAdmin.from).mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          single: vi.fn().mockResolvedValue({ data: article }),
+        }),
+      }),
+      update: vi.fn().mockReturnValue({ eq: eqMock }),
+    } as never)
+    vi.mocked(sendPush).mockResolvedValue({ sent: 2, total: 2 })
+
+    const req = new Request('http://localhost/api/admin/notify-queue', {
+      method: 'POST',
+      body: JSON.stringify({ id: 'abc', action: 'notify' }),
+    })
+    const res = await POST(req)
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body.sent).toBe(2)
+    expect(sendPush).toHaveBeenCalled()
+    expect(revalidatePath).not.toHaveBeenCalled()
+  })
+
   it('publish sets published=true, no push, revalidates paths', async () => {
     const article = { id: 'abc', title: 'Gol del Ceuta', source: 'as', url: 'https://as.com/1' }
     const eqMock = vi.fn().mockResolvedValue({ error: null })
