@@ -26,21 +26,37 @@ export class NewsSupabaseRepository {
     const existingIds = new Set((existing ?? []).map((r) => r.external_id))
     const newArticles = articles.filter((a) => !existingIds.has(a.externalId))
 
-    const { error } = await supabase.from('news').upsert(
-      articles.map((a) => ({
-        external_id: a.externalId,
-        title: a.title,
-        description: a.description,
-        url: a.url,
-        image_url: a.imageUrl,
-        source: a.source,
-        published_at: a.publishedAt,
-        published: NewsSupabaseRepository.AUTO_PUBLISH_SOURCES.has(a.source),
-      })),
-      { onConflict: 'external_id', ignoreDuplicates: false }
-    )
+    // Insert new articles (with published flag set by source rules)
+    if (newArticles.length > 0) {
+      const { error } = await supabase.from('news').insert(
+        newArticles.map((a) => ({
+          external_id: a.externalId,
+          title: a.title,
+          description: a.description,
+          url: a.url,
+          image_url: a.imageUrl,
+          source: a.source,
+          published_at: a.publishedAt,
+          published: NewsSupabaseRepository.AUTO_PUBLISH_SOURCES.has(a.source),
+        }))
+      )
+      if (error) throw new Error(`Failed to insert news: ${error.message}`)
+    }
 
-    if (error) throw new Error(`Failed to upsert news: ${error.message}`)
+    // Update existing articles — never overwrite published (admin may have changed it)
+    const existingArticles = articles.filter((a) => existingIds.has(a.externalId))
+    if (existingArticles.length > 0) {
+      for (const a of existingArticles) {
+        await supabase.from('news')
+          .update({
+            title: a.title,
+            description: a.description,
+            image_url: a.imageUrl,
+            published_at: a.publishedAt,
+          })
+          .eq('external_id', a.externalId)
+      }
+    }
     return newArticles
   }
 
