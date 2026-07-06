@@ -242,7 +242,7 @@ export function EstadisticasTab({
                   {c ? getZoneLabel(c.position) : ''}
                 </p>
                 <p className="mt-0.5 text-[12px] text-white/50">
-                  Segunda División B · Temp. 25/26
+                  Liga Hypermotion · Temp. 25/26
                 </p>
               </div>
             </div>
