@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { revalidateTag } from 'next/cache'
 
 export const maxDuration = 60
 import { Receiver } from '@upstash/qstash'
@@ -11,7 +12,7 @@ import { NewsSupabaseRepository } from '@/infrastructure/supabase/NewsSupabaseRe
 import { sendNewsNotification } from '@/infrastructure/push/sendNewsNotification'
 import { notifyAdmin } from '@/infrastructure/push/notifyAdmin'
 import { logCron, logNotification } from '@/infrastructure/supabase/logCron'
-import { getRecentNotifTitles, markNotifyQueued, getSubscriberCount } from '@/infrastructure/supabase/NotificationRepository'
+import { getRecentNotifTitles, getQueuedTitles, markNotifyQueued, getSubscriberCount } from '@/infrastructure/supabase/NotificationRepository'
 import {
   downloadAndUploadImage,
   isStoredNewsImage,
@@ -154,39 +155,55 @@ async function syncNews() {
 
   const backfilledImages = 0 // moved to dedicated /api/cron/backfill-images
 
-  // Only notify about articles published in the last 24 hours.
+  // Queue ALL new recent articles for admin review (not just the most relevant).
+  // Admin decides which ones to send or discard from the panel.
   const ONE_DAY = 24 * 60 * 60 * 1000
   const recentNew = allNew.filter((a) => {
     if (!a.publishedAt) return false
     return Date.now() - new Date(a.publishedAt).getTime() < ONE_DAY
   })
-  const toNotify = pickMostRelevant(recentNew)
-  let notifStats = null
-  if (toNotify) {
-    // Check if a very similar title was already notified in the last 6 hours
-    const SIX_HOURS_AGO = new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString()
-    const recentTitles = await getRecentNotifTitles(SIX_HOURS_AGO)
 
-    // Extract meaningful keywords (words > 4 chars, ignore stopwords)
-    const STOPWORDS = new Set(['ceuta', 'para', 'como', 'pero', 'este', 'esta', 'desde', 'hasta', 'sobre', 'entre', 'todos', 'tiene', 'tras'])
-    const keywords = (s: string): Set<string> => {
-      const words = s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9\s]/g, '').split(/\s+/)
-      return new Set(words.filter(w => w.length > 4 && !STOPWORDS.has(w)))
-    }
-    const titleKw = keywords(toNotify.title)
-    const alreadySent = recentTitles.some((title) => {
-      const sentKw = keywords(title)
-      if (titleKw.size === 0 || sentKw.size === 0) return false
+  // Sort by priority so admin sees the most relevant first
+  const recentNewSorted = pickMostRelevant(recentNew)
+    ? [pickMostRelevant(recentNew)!, ...recentNew.filter(a => a !== pickMostRelevant(recentNew))]
+    : recentNew
+
+  const SIX_HOURS_AGO = new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString()
+  const [recentTitles, queuedTitles] = await Promise.all([
+    getRecentNotifTitles(SIX_HOURS_AGO),
+    getQueuedTitles(),
+  ])
+
+  const STOPWORDS = new Set(['ceuta', 'para', 'como', 'pero', 'este', 'esta', 'desde', 'hasta', 'sobre', 'entre', 'todos', 'tiene', 'tras'])
+  const keywords = (s: string): Set<string> => {
+    const words = s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9\s]/g, '').split(/\s+/)
+    return new Set(words.filter(w => w.length > 4 && !STOPWORDS.has(w)))
+  }
+  const isDuplicate = (title: string, existing: string[]): boolean =>
+    existing.some((t) => {
+      const kw = keywords(title)
+      const ekw = keywords(t)
+      if (kw.size === 0 || ekw.size === 0) return false
       let overlap = 0
-      for (const w of titleKw) if (sentKw.has(w)) overlap++
-      const minSize = Math.min(titleKw.size, sentKw.size)
-      return overlap / minSize >= 0.4
+      for (const w of kw) if (ekw.has(w)) overlap++
+      return overlap / Math.min(kw.size, ekw.size) >= 0.4
     })
 
-    if (!alreadySent) {
-      await markNotifyQueued(toNotify.externalId)
-      await notifyAdmin('📬 Noticia pendiente', toNotify.title).catch(() => null)
+  const seenThisBatch: string[] = [...recentTitles, ...queuedTitles]
+  let newlyQueued = 0
+  for (const article of recentNewSorted) {
+    if (!isDuplicate(article.title, seenThisBatch)) {
+      await markNotifyQueued(article.externalId)
+      seenThisBatch.push(article.title)
+      newlyQueued++
     }
+  }
+
+  if (newlyQueued > 0) {
+    const msg = newlyQueued === 1
+      ? recentNewSorted[0].title
+      : `${newlyQueued} noticias nuevas para revisar`
+    await notifyAdmin('📬 Noticia pendiente', msg).catch(() => null)
   }
 
   // Get current subscriber count for the log
@@ -206,11 +223,13 @@ async function syncNews() {
     imageErrors: imageErrors.length > 0 ? imageErrors : undefined,
     noImageArticles: noImageArticles > 0 ? noImageArticles : undefined,
     subscribers,
-    queued: toNotify?.title ?? null,
+    queued: newlyQueued > 0 ? newlyQueued : null,
     summary,
   })
 
-  return { summary, queued: toNotify?.title ?? null }
+  if (allNew.length > 0) revalidateTag('news')
+
+  return { summary, queued: newlyQueued > 0 ? newlyQueued : null }
 }
 
 export async function POST(request: Request) {

@@ -1,4 +1,5 @@
 import { supabase } from './client'
+import { supabaseAdmin } from './adminClient'
 
 export async function getRecentNotifTitles(sinceIso: string): Promise<string[]> {
   const { data } = await supabase
@@ -8,8 +9,17 @@ export async function getRecentNotifTitles(sinceIso: string): Promise<string[]> 
   return (data ?? []).map((n) => n.article_title as string)
 }
 
+/** Titles of articles currently pending review in the notify queue */
+export async function getQueuedTitles(): Promise<string[]> {
+  const { data } = await supabaseAdmin
+    .from('news')
+    .select('title')
+    .eq('notify_queued', true)
+  return (data ?? []).map((n) => n.title as string)
+}
+
 export async function markNotifyQueued(externalId: string): Promise<void> {
-  await supabase.from('news').update({ notify_queued: true }).eq('external_id', externalId)
+  await supabaseAdmin.from('news').update({ notify_queued: true }).eq('external_id', externalId)
 }
 
 export async function getSubscriberCount(): Promise<number> {

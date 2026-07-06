@@ -19,15 +19,15 @@ export function NotifQueue() {
   const [busy, setBusy] = useState<string | null>(null)
   const [feedback, setFeedback] = useState<Record<string, string>>({})
 
-  const load = useCallback(async () => {
-    setLoading(true)
+  const load = useCallback(async (showSpinner = false) => {
+    if (showSpinner) setLoading(true)
     const res = await fetch('/api/admin/notify-queue')
     const data = await res.json()
     setItems(data.items ?? [])
-    setLoading(false)
+    if (showSpinner) setLoading(false)
   }, [])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => { load(true) }, [load])
 
   async function act(id: string, action: 'send' | 'discard') {
     setBusy(id)
@@ -42,7 +42,7 @@ export function NotifQueue() {
         ...f,
         [id]: action === 'send' ? `✓ Enviada a ${data.sent} suscriptores` : '✓ Descartada',
       }))
-      setTimeout(() => setItems((prev) => prev.filter((a) => a.id !== id)), 1200)
+      setTimeout(() => load(), 1200)
     } else {
       setFeedback((f) => ({ ...f, [id]: `✗ ${data.error}` }))
     }

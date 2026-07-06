@@ -1,8 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('../client', () => ({ supabase: { from: vi.fn() } }))
+vi.mock('../adminClient', () => ({ supabaseAdmin: { from: vi.fn() } }))
 
 import { supabase } from '../client'
+import { supabaseAdmin } from '../adminClient'
 import { getRecentNotifTitles, markNotifyQueued, getSubscriberCount } from '../NotificationRepository'
 
 beforeEach(() => { vi.resetAllMocks() })
@@ -33,7 +35,7 @@ describe('markNotifyQueued', () => {
   it('calls update with notify_queued: true on matching external_id', async () => {
     const eqMock = vi.fn().mockResolvedValue({})
     const updateMock = vi.fn().mockReturnValue({ eq: eqMock })
-    vi.mocked(supabase.from).mockReturnValue({ update: updateMock } as never)
+    vi.mocked(supabaseAdmin.from).mockReturnValue({ update: updateMock } as never)
 
     await markNotifyQueued('article-xyz')
 

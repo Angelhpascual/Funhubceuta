@@ -11,16 +11,9 @@ export async function GET(request: Request) {
   const offset = Math.max(parseInt(searchParams.get('offset') ?? '0'), 0)
 
   try {
-  const raw = await repo.getLatest(limit, offset)
-  const news = raw.map(n => ({ ...n, title: decodeEntities(n.title) }))
-  return NextResponse.json(
-    { news },
-    {
-      headers: {
-        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
-      },
-    }
-  )
+    const raw = await repo.getLatest(limit, offset)
+    const news = raw.map(n => ({ ...n, title: decodeEntities(n.title) }))
+    return NextResponse.json({ news })
   } catch (err) {
     return apiError(err)
   }

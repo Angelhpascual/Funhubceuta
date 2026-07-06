@@ -1,8 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('../client', () => ({ supabase: { from: vi.fn() } }))
+vi.mock('../adminClient', () => ({ supabaseAdmin: { from: vi.fn() } }))
 
-import { supabase } from '../client'
+import { supabaseAdmin } from '../adminClient'
 import { NewsSupabaseRepository } from '../NewsSupabaseRepository'
 
 const repo = new NewsSupabaseRepository()
@@ -18,7 +19,7 @@ describe('getAdminList', () => {
     const limitMock = vi.fn().mockResolvedValue({ data })
     const orderMock = vi.fn().mockReturnValue({ limit: limitMock })
     const selectMock = vi.fn().mockReturnValue({ order: orderMock })
-    vi.mocked(supabase.from).mockReturnValue({ select: selectMock } as never)
+    vi.mocked(supabaseAdmin.from).mockReturnValue({ select: selectMock } as never)
 
     const result = await repo.getAdminList()
 
@@ -30,7 +31,7 @@ describe('getAdminList', () => {
 
   it('returns empty array when no data', async () => {
     const limitMock = vi.fn().mockResolvedValue({ data: null })
-    vi.mocked(supabase.from).mockReturnValue({
+    vi.mocked(supabaseAdmin.from).mockReturnValue({
       select: vi.fn().mockReturnValue({ order: vi.fn().mockReturnValue({ limit: limitMock }) }),
     } as never)
 
@@ -40,7 +41,7 @@ describe('getAdminList', () => {
 
   it('respects custom limit', async () => {
     const limitMock = vi.fn().mockResolvedValue({ data: [] })
-    vi.mocked(supabase.from).mockReturnValue({
+    vi.mocked(supabaseAdmin.from).mockReturnValue({
       select: vi.fn().mockReturnValue({ order: vi.fn().mockReturnValue({ limit: limitMock }) }),
     } as never)
 

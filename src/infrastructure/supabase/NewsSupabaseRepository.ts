@@ -1,4 +1,5 @@
 import { supabase } from './client'
+import { supabaseAdmin } from './adminClient'
 import { ParsedArticle } from '../rss/RssFetcher'
 import { NewsItem } from '@/domain/news/News'
 
@@ -92,6 +93,7 @@ export class NewsSupabaseRepository {
     const { data, error } = await supabase
       .from('news')
       .select('*')
+      .eq('published', true)
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1)
 
@@ -111,9 +113,9 @@ export class NewsSupabaseRepository {
   }
 
   async getAdminList(limit = 100) {
-    const { data } = await supabase
+    const { data } = await supabaseAdmin
       .from('news')
-      .select('id, title, source, published_at, image_url, url')
+      .select('id, title, source, published_at, image_url, url, published, notify_queued')
       .order('created_at', { ascending: false })
       .limit(limit)
     return data ?? []

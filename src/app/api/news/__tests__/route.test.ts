@@ -47,12 +47,6 @@ describe('GET /api/news', () => {
     expect(mockGetLatest).toHaveBeenCalledWith(10, 0)
   })
 
-  it('sets Cache-Control header', async () => {
-    mockGetLatest.mockResolvedValue([])
-    const res = await GET(makeRequest())
-    expect(res.headers.get('Cache-Control')).toContain('s-maxage=60')
-  })
-
   it('returns 500 when repo throws', async () => {
     mockGetLatest.mockRejectedValue(new Error('DB down'))
     const res = await GET(makeRequest())

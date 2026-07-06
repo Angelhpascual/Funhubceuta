@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
+vi.mock('next/cache', () => ({ revalidateTag: vi.fn() }))
 vi.mock('@/infrastructure/admin/auth', () => ({
   checkAdminAuth: vi.fn(),
   unauthorizedResponse: () => new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 }),

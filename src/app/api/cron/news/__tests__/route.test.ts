@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
+vi.mock('next/cache', () => ({ revalidateTag: vi.fn() }))
 vi.mock('@/infrastructure/rss/sources', () => ({ RSS_SOURCES: [] }))
 vi.mock('@/infrastructure/rss/RssFetcher', () => ({ fetchSource: vi.fn() }))
 vi.mock('@/infrastructure/rss/adceutaFetcher', () => ({ fetchAdceutaOfficialNews: vi.fn() }))
@@ -10,6 +11,7 @@ vi.mock('@/infrastructure/push/notifyAdmin', () => ({ notifyAdmin: vi.fn() }))
 vi.mock('@/infrastructure/supabase/logCron', () => ({ logCron: vi.fn(), logNotification: vi.fn() }))
 vi.mock('@/infrastructure/supabase/NotificationRepository', () => ({
   getRecentNotifTitles: vi.fn(),
+  getQueuedTitles: vi.fn(),
   markNotifyQueued: vi.fn(),
   getSubscriberCount: vi.fn(),
 }))
@@ -42,7 +44,7 @@ vi.mock('@/infrastructure/supabase/NewsSupabaseRepository', () => {
 import { fetchAdceutaOfficialNews } from '@/infrastructure/rss/adceutaFetcher'
 import { fetchCeutaDeportiva } from '@/infrastructure/rss/ceutadeportivaFetcher'
 import { logCron } from '@/infrastructure/supabase/logCron'
-import { getRecentNotifTitles, markNotifyQueued, getSubscriberCount } from '@/infrastructure/supabase/NotificationRepository'
+import { getRecentNotifTitles, getQueuedTitles, markNotifyQueued, getSubscriberCount } from '@/infrastructure/supabase/NotificationRepository'
 import { notifyAdmin } from '@/infrastructure/push/notifyAdmin'
 import { Receiver } from '@upstash/qstash'
 import { NewsSupabaseRepository } from '@/infrastructure/supabase/NewsSupabaseRepository'
@@ -68,6 +70,7 @@ beforeEach(() => {
   vi.mocked(fetchCeutaDeportiva).mockResolvedValue([])
   vi.mocked(logCron).mockResolvedValue(undefined)
   vi.mocked(getRecentNotifTitles).mockResolvedValue([])
+  vi.mocked(getQueuedTitles).mockResolvedValue([])
   vi.mocked(markNotifyQueued).mockResolvedValue(undefined)
   vi.mocked(getSubscriberCount).mockResolvedValue(0)
   vi.mocked(notifyAdmin).mockResolvedValue(undefined)
@@ -97,7 +100,7 @@ describe('cron/news GET', () => {
     const res = await GET(new Request('http://localhost/api/cron/news'))
     expect(res.status).toBe(200)
     const body = await res.json()
-    expect(body.queued).toBe(article.title)
+    expect(body.queued).toBe(1)
     expect(markNotifyQueued).toHaveBeenCalledWith(article.externalId)
     expect(notifyAdmin).toHaveBeenCalled()
   })
