@@ -56,7 +56,6 @@ export function NotifQueue() {
     })
     const data = await res.json()
     if (res.ok) {
-<<<<<<< HEAD
       const msg =
         action === 'send'    ? `✓ Publicada y enviada a ${data.sent} suscriptores` :
         action === 'notify'  ? `✓ Notificada a ${data.sent} suscriptores`          :
