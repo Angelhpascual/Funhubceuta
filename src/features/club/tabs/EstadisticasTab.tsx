@@ -197,7 +197,7 @@ export function EstadisticasTab({
   const c = activeCeuta
   const gfMax = Math.max(c?.goalsFor ?? 0, c?.goalsAgainst ?? 0, 1)
   const totalGames = (c?.played ?? 0)
-  // WDL color logic: Victoria=white/light, Empate=muted gray, Derrota=black
+  // WDL: Victoria=blanco, Empate=negro, Derrota=rojo (--win/--draw/--loss)
   const lossPct  = totalGames > 0 ? ((c?.lost  ?? 0) / totalGames) * 360 : 0
   const wdPct    = totalGames > 0 ? (((c?.lost ?? 0) + (c?.drawn ?? 0)) / totalGames) * 360 : 0
 
@@ -278,9 +278,9 @@ export function EstadisticasTab({
               Resultados · {c?.played ?? 0} PJ
             </p>
 
-            {/* Donut: Derrota=black, Empate=muted, Victoria=white border */}
+            {/* Donut: usa --loss/--draw/--win (derrota=rojo, empate=negro, victoria=blanco) */}
             <div className="relative mx-auto mb-4 size-[90px] rounded-full"
-              style={{ background: `conic-gradient(var(--black) 0deg ${lossPct}deg, var(--muted) ${lossPct}deg ${wdPct}deg, #e8e6e0 ${wdPct}deg 360deg)` }}>
+              style={{ background: `conic-gradient(var(--loss) 0deg ${lossPct}deg, var(--draw) ${lossPct}deg ${wdPct}deg, var(--win) ${wdPct}deg 360deg)` }}>
               <div className="absolute inset-[14px] flex flex-col items-center justify-center rounded-full bg-white">
                 <span className="font-display text-[20px] font-black leading-none">{c?.played ?? 0}</span>
                 <span className="font-display text-[7px] font-bold uppercase tracking-[0.1em] text-[var(--muted)]">PJ</span>
@@ -289,9 +289,9 @@ export function EstadisticasTab({
 
             <div className="flex flex-col gap-1.5">
               {[
-                { label: 'Victorias', val: c?.won   ?? 0, color: '#e8e6e0', border: true },
-                { label: 'Empates',   val: c?.drawn ?? 0, color: 'var(--muted)', border: false },
-                { label: 'Derrotas',  val: c?.lost  ?? 0, color: 'var(--black)', border: false },
+                { label: 'Victorias', val: c?.won   ?? 0, color: 'var(--win)',  border: true  },
+                { label: 'Empates',   val: c?.drawn ?? 0, color: 'var(--draw)', border: false },
+                { label: 'Derrotas',  val: c?.lost  ?? 0, color: 'var(--loss)', border: false },
               ].map(({ label, val, color, border }) => (
                 <div key={label} className="flex items-center gap-2">
                   <span className="size-[9px] shrink-0 rounded-[2px]" style={{ background: color, border: border ? '1.5px solid var(--black)' : 'none' }} />

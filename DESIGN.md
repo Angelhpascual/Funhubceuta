@@ -35,14 +35,14 @@ Usa siempre las variables CSS — **nunca valores hexadecimales hardcodeados**.
 
 ### Variables semánticas (fútbol)
 
-| Variable       | Color | Significado     |
-| -------------- | ----- | --------------- |
-| `--win`        | rojo  | Victoria        |
-| `--draw`       | gris  | Empate          |
-| `--loss`       | negro | Derrota         |
-| `--promo`      | oro   | Ascenso directo |
-| `--playoff`    | rojo  | Play-off        |
-| `--relegation` | negro | Descenso        |
+| Variable       | Color  | Significado     |
+| -------------- | ------ | --------------- |
+| `--win`        | blanco | Victoria        |
+| `--draw`       | negro  | Empate          |
+| `--loss`       | rojo   | Derrota         |
+| `--promo`      | oro    | Ascenso directo |
+| `--playoff`    | rojo   | Play-off        |
+| `--relegation` | negro  | Descenso        |
 
 ---
 
@@ -155,9 +155,9 @@ Grid de 2 columnas con clase `stats-grid`. Variantes: neutro (blanco), `red`, `d
 
 **Siempre usar iniciales en castellano:**
 
-- **V** (victoria) → fondo negro
-- **E** (empate) → fondo gris (`--muted`)
-- **D** (derrota) → fondo rojo
+- **V** (victoria) → fondo blanco (`--win`), texto negro, borde negro
+- **E** (empate) → fondo negro (`--draw`), texto blanco
+- **D** (derrota) → fondo rojo (`--loss`), texto blanco
 
 **Nunca usar W/L/D en inglés.**
 
@@ -165,9 +165,9 @@ Grid de 2 columnas con clase `stats-grid`. Variantes: neutro (blanco), `red`, `d
 
 Mismo criterio que el indicador de forma:
 
-- `.badge-w` → negro (Victoria = **V**)
-- `.badge-d` → gris (Empate = **E**)
-- `.badge-l` → rojo (Derrota = **D**)
+- `.badge-w` → blanco, texto negro, borde negro (Victoria = **V**)
+- `.badge-d` → negro, texto blanco (Empate = **E**)
+- `.badge-l` → rojo, texto blanco (Derrota = **D**)
 
 ### Navegación inferior
 
@@ -200,7 +200,7 @@ La pestaña activa: icono/etiqueta en negro + **indicador rojo centrado pegado a
 | 1   | ~~Alta~~ ✅ | Nombre del club inconsistente                          | Usar `AD Ceuta FC` / `AD Ceuta`                                     |
 | 2   | Alta        | Indicador rojo de la nav «flotando»                    | `position:absolute; top:0` dentro de `.nav-item{position:relative}` |
 | 3   | Alta        | Empty state «Próximos partidos» sin diseño             | Empty state real con escudo atenuado + mensaje en condensada        |
-| 4   | ~~Alta~~ ✅ | Forma reciente mezcla V/E/D con W/L                    | Corregido: V negro · E gris · D rojo                                |
+| 4   | ~~Alta~~ ✅ | Forma reciente mezcla V/E/D con W/L                    | Corregido: V blanco · E negro · D rojo                              |
 | 5   | Media       | El oro tiene dos significados (logro + partido título) | Reservar oro solo para logros/ascenso                               |
 | 6   | Media       | Resalte de fila AD Ceuta vs barra de play-off          | Borde izquierdo grueso o fondo neutro en vez de rojo suave          |
 | 7   | Media       | Truncado de nombres a mitad de palabra                 | Nombres cortos oficiales en tablas, 2 líneas con elipsis            |

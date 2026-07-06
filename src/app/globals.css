@@ -44,9 +44,9 @@
   --border-strong: #0e0e0e;
 
   /* ——— SEMÁNTICOS (fútbol) ——— */
-  --win: #da1a22; /* Victoria */
-  --draw: #7a786f; /* Empate */
-  --loss: #0e0e0e; /* Derrota */
+  --win: #ffffff; /* Victoria */
+  --draw: #0e0e0e; /* Empate */
+  --loss: #da1a22; /* Derrota */
   --promo: #f4c300; /* Ascenso directo */
   --playoff: #da1a22; /* Play-off */
   --relegation: #0e0e0e; /* Descenso */
@@ -779,15 +779,17 @@ img {
   border-radius: 4px;
 }
 .form-pill.W {
-  background: var(--white);
+  background: var(--win);
   color: var(--black);
   border: 1.5px solid var(--black);
 }
 .form-pill.D {
-  background: var(--muted);
+  background: var(--draw);
+  color: var(--white);
 }
 .form-pill.L {
-  background: var(--black);
+  background: var(--loss);
+  color: var(--white);
 }
 
 /* ════════ HISTORIA TAB ════════ */
@@ -1499,10 +1501,10 @@ img {
   transform: scale(0.99);
 }
 .result-card.win {
-  border-left: 4px solid var(--black);
+  border-left: 4px solid var(--draw);
 }
 .result-card.lose {
-  border-left: 4px solid var(--black);
+  border-left: 4px solid var(--loss);
 }
 .result-card.draw {
   border-left: 4px solid var(--muted);
@@ -1567,7 +1569,7 @@ img {
   color: var(--black);
 }
 .result-score.lose {
-  color: var(--muted);
+  color: var(--loss);
 }
 .result-badge {
   font-family: var(--font-display);
@@ -1580,16 +1582,16 @@ img {
   text-align: center;
 }
 .badge-w {
-  background: var(--white);
+  background: var(--win);
   color: var(--black);
   border: 1.5px solid var(--black);
 }
 .badge-d {
-  background: var(--bg-mid);
-  color: var(--text);
+  background: var(--draw);
+  color: var(--white);
 }
 .badge-l {
-  background: var(--black);
+  background: var(--loss);
   color: var(--white);
 }
 
