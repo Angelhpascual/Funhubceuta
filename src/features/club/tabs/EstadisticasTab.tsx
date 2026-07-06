@@ -154,7 +154,7 @@ export function EstadisticasTab({
   const [season, setSeason] = useState<'2526' | '2627'>('2526')
 
   const activeCeuta   = season === '2526' ? ceutaPrevious ?? null : null
-  const activeLeaders = season === '2526' ? (previousLeaders ?? leaders) : null
+  const activeLeaders = season === '2526' ? (leaders ?? previousLeaders) : null
   const activeForm    = season === '2526' ? form : []
 
   /* ─── 26/27 empty state ─── */
@@ -197,8 +197,9 @@ export function EstadisticasTab({
   const c = activeCeuta
   const gfMax = Math.max(c?.goalsFor ?? 0, c?.goalsAgainst ?? 0, 1)
   const totalGames = (c?.played ?? 0)
-  const wPct  = totalGames > 0 ? ((c?.won  ?? 0) / totalGames) * 360 : 0
-  const wdPct = totalGames > 0 ? (((c?.won ?? 0) + (c?.drawn ?? 0)) / totalGames) * 360 : 0
+  // WDL color logic: Victoria=white/light, Empate=muted gray, Derrota=black
+  const lossPct  = totalGames > 0 ? ((c?.lost  ?? 0) / totalGames) * 360 : 0
+  const wdPct    = totalGames > 0 ? (((c?.lost ?? 0) + (c?.drawn ?? 0)) / totalGames) * 360 : 0
 
   const goalDiffStr = c
     ? (c.goalDifference > 0 ? `+${c.goalDifference}` : String(c.goalDifference))
@@ -277,9 +278,9 @@ export function EstadisticasTab({
               Resultados · {c?.played ?? 0} PJ
             </p>
 
-            {/* Donut */}
+            {/* Donut: Derrota=black, Empate=muted, Victoria=white border */}
             <div className="relative mx-auto mb-4 size-[90px] rounded-full"
-              style={{ background: `conic-gradient(var(--black) 0deg ${wPct}deg, #C9C6BF ${wPct}deg ${wdPct}deg, var(--red) ${wdPct}deg 360deg)` }}>
+              style={{ background: `conic-gradient(var(--black) 0deg ${lossPct}deg, var(--muted) ${lossPct}deg ${wdPct}deg, #e8e6e0 ${wdPct}deg 360deg)` }}>
               <div className="absolute inset-[14px] flex flex-col items-center justify-center rounded-full bg-white">
                 <span className="font-display text-[20px] font-black leading-none">{c?.played ?? 0}</span>
                 <span className="font-display text-[7px] font-bold uppercase tracking-[0.1em] text-[var(--muted)]">PJ</span>
@@ -288,12 +289,12 @@ export function EstadisticasTab({
 
             <div className="flex flex-col gap-1.5">
               {[
-                { label: 'Victorias', val: c?.won   ?? 0, color: 'var(--black)' },
-                { label: 'Empates',   val: c?.drawn ?? 0, color: '#C9C6BF' },
-                { label: 'Derrotas',  val: c?.lost  ?? 0, color: 'var(--red)' },
-              ].map(({ label, val, color }) => (
+                { label: 'Victorias', val: c?.won   ?? 0, color: '#e8e6e0', border: true },
+                { label: 'Empates',   val: c?.drawn ?? 0, color: 'var(--muted)', border: false },
+                { label: 'Derrotas',  val: c?.lost  ?? 0, color: 'var(--black)', border: false },
+              ].map(({ label, val, color, border }) => (
                 <div key={label} className="flex items-center gap-2">
-                  <span className="size-[9px] shrink-0 rounded-[2px]" style={{ background: color }} />
+                  <span className="size-[9px] shrink-0 rounded-[2px]" style={{ background: color, border: border ? '1.5px solid var(--black)' : 'none' }} />
                   <span className="flex-1 font-display text-[11px] font-bold uppercase tracking-wide text-[var(--black)]">{label}</span>
                   <span className="font-display text-[15px] font-black">{val}</span>
                 </div>
