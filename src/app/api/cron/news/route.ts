@@ -59,7 +59,7 @@ function pickMostRelevant(articles: ParsedArticle[]): ParsedArticle | null {
 const MAX_ARTICLE_AGE_MS = 5 * 24 * 60 * 60 * 1000 // 5 days
 
 function isRecent(publishedAt: string | null): boolean {
-  if (!publishedAt) return true // no date → don't discard
+  if (!publishedAt) return false // no date → discard (can't verify age)
   return Date.now() - new Date(publishedAt).getTime() < MAX_ARTICLE_AGE_MS
 }
 

@@ -230,6 +230,16 @@ describe('fetchSource', () => {
     expect(result[0].description!.length).toBeLessThanOrEqual(300)
   })
 
+  it('returns null imageUrl without fetching og:image (done by syncNews instead)', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(makeRssFeed(makeItem())) })
+    vi.stubGlobal('fetch', fetchMock)
+
+    const result = await fetchSource(source)
+    expect(result[0].imageUrl).toBeNull()
+    // Only one fetch call: the RSS feed itself, no og:image fetch
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
+
   it('decodes HTML entities in title', async () => {
     const xml = makeRssFeed(makeItem({ title: 'Ceuta &#8211; Andorra' }))
     vi.stubGlobal(

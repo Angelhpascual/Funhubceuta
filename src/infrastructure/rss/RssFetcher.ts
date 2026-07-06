@@ -215,6 +215,7 @@ export async function fetchSource(source: RssSource): Promise<ParsedArticle[]> {
   const res = await fetch(source.url, {
     headers: { 'User-Agent': 'FunHubCeuta/1.0 RSS Reader' },
     next: { revalidate: 0 },
+    signal: AbortSignal.timeout(10_000),
   })
 
   if (!res.ok) return []
@@ -243,14 +244,5 @@ export async function fetchSource(source: RssSource): Promise<ParsedArticle[]> {
     }))
     .filter((a) => a.externalId && a.url)
 
-  // Fetch og:image in parallel for articles that have no image yet
-  const withImages = await Promise.all(
-    mapped.map(async (a) => {
-      if (a.imageUrl) return a
-      const ogImage = await fetchOgImage(a.url)
-      return { ...a, imageUrl: ogImage }
-    })
-  )
-
-  return withImages
+  return mapped
 }
