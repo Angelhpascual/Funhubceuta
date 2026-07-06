@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { revalidateTag } from 'next/cache'
+import { revalidatePath } from 'next/cache'
 
 export const maxDuration = 60
 import { Receiver } from '@upstash/qstash'
@@ -229,7 +229,7 @@ async function syncNews() {
     summary,
   })
 
-  if (allNew.length > 0) revalidateTag('news')
+  if (allNew.length > 0) { revalidatePath('/'); revalidatePath('/noticias') }
 
   return { summary, queued: newlyQueued > 0 ? newlyQueued : null }
 }

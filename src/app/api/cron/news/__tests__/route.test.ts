@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-vi.mock('next/cache', () => ({ revalidateTag: vi.fn() }))
+vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
 vi.mock('@/infrastructure/rss/sources', () => ({ RSS_SOURCES: [] }))
 vi.mock('@/infrastructure/rss/RssFetcher', () => ({ fetchSource: vi.fn() }))
 vi.mock('@/infrastructure/rss/adceutaFetcher', () => ({ fetchAdceutaOfficialNews: vi.fn() }))

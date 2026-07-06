@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { revalidateTag } from 'next/cache'
+import { revalidatePath } from 'next/cache'
 import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
 import { checkAdminAuth, unauthorizedResponse } from '@/infrastructure/admin/auth'
 
@@ -28,7 +28,8 @@ export async function DELETE(req: Request) {
     .eq('id', id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-  revalidateTag('news')
+  revalidatePath('/')
+  revalidatePath('/noticias')
 
   return NextResponse.json({ ok: true })
 }
