@@ -4,7 +4,7 @@ import { useState, useRef, useCallback } from 'react'
 import type React from 'react'
 import { useRouter } from 'next/navigation'
 
-type Status = 'idle' | 'queued' | 'ok' | 'error'
+type Status = 'idle' | 'running' | 'ok' | 'error'
 
 type CronLog = {
   id: number
@@ -29,7 +29,7 @@ async function callTrigger(action: string, payload?: unknown) {
 function useCronPoller() {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
-  const pollUntilDone = useCallback(
+  return useCallback(
     (cronType: string, since: number, onDone: (log: CronLog) => void, onTimeout: () => void) => {
       if (intervalRef.current) clearInterval(intervalRef.current)
       const deadline = Date.now() + 90_000
@@ -51,61 +51,138 @@ function useCronPoller() {
             clearInterval(intervalRef.current!)
             onDone(found)
           }
-        } catch {
-          // ignore, keep polling
-        }
+        } catch { /* keep polling */ }
       }, 2500)
     },
     []
   )
-
-  return pollUntilDone
 }
 
-function formatLogResult(log: CronLog): string {
+function buildResult(log: CronLog): { lines: string[]; ok: boolean } {
   const d = log.details
-  if (log.status !== 'success') return `✗ ${(d.error as string) ?? 'Error'}`
-  const parts: string[] = []
-  if (typeof d.newArticles === 'number') parts.push(`${d.newArticles} nuevas`)
-  if (typeof d.optimizedNewImages === 'number' && d.optimizedNewImages > 0) parts.push(`${d.optimizedNewImages} fotos`)
-  if (typeof d.count === 'number') parts.push(`${d.count} partidos`)
-  if (typeof d.updated === 'number') parts.push(`${d.updated} jugadores`)
-  if (typeof d.total === 'number') parts.push(`${d.total} escudos`)
-  if ((d.imageErrors as unknown[])?.length) parts.push(`⚠️ ${(d.imageErrors as unknown[]).length} fotos fallidas`)
-  return parts.length > 0 ? parts.join(' · ') : 'OK'
+  const ok = log.status === 'success'
+  if (!ok) return { lines: [(d.error as string) ?? 'Error desconocido'], ok: false }
+
+  const lines: string[] = []
+
+  // News
+  if (typeof d.newArticles === 'number') {
+    lines.push(`${d.newArticles} nuevas · ${d.articlesFound ?? '?'} encontradas`)
+  }
+  if (d.queued) lines.push(`📬 Cola: ${d.queued}`)
+  if ((d.imageErrors as unknown[])?.length) {
+    lines.push(`⚠️ ${(d.imageErrors as unknown[]).length} fotos con error`)
+  }
+
+  // Matches
+  if (typeof d.count === 'number') lines.push(`${d.count} partidos sincronizados`)
+
+  // Images / stats
+  if (typeof d.updated === 'number') lines.push(`${d.updated} jugadores actualizados`)
+  if (typeof d.optimizedNewImages === 'number' && d.optimizedNewImages > 0) {
+    lines.push(`${d.optimizedNewImages} fotos optimizadas`)
+  }
+  if (d.warning) lines.push(`⚠️ ${d.warning}`)
+
+  // Duration
+  if (log.duration_ms) lines.push(`${(log.duration_ms / 1000).toFixed(1)}s`)
+
+  return { lines: lines.length > 0 ? lines : ['OK'], ok: true }
 }
 
-type SyncState = { status: Status; result: string; elapsed: number }
+type SyncState = {
+  status: Status
+  phase: string
+  result: { lines: string[]; ok: boolean } | null
+  elapsed: number
+}
+const IDLE: SyncState = { status: 'idle', phase: '', result: null, elapsed: 0 }
 
-function SyncBtn({ label, emoji, state, onClick }: {
-  label: string; emoji: string; state: SyncState; onClick: () => void
+function SyncCard({
+  emoji, label, description, state,
+  onClick,
+}: {
+  emoji: string
+  label: string
+  description: string
+  state: SyncState
+  onClick: () => void
 }) {
-  const { status, result, elapsed } = state
-  const busy = status === 'queued'
-  const cls = status === 'ok' ? 'admin-btn-ok' : status === 'error' ? 'admin-btn-error' : 'admin-btn-dark'
+  const busy = state.status === 'running'
+  const done = state.status === 'ok' || state.status === 'error'
+  const isError = state.status === 'error'
 
   return (
-    <div className="flex flex-col gap-1">
-      <button onClick={onClick} disabled={busy} className={`admin-btn ${cls} w-full`}>
-        <span className="admin-btn-emoji">{busy ? '⏳' : emoji}</span>
-        <span className="admin-btn-label">
-          {busy ? 'Ejecutando...' : label}
-        </span>
-        {result && !busy && <span className="admin-btn-result">{result}</span>}
-      </button>
-      {busy && (
-        <div className="px-1 space-y-1">
-          <div className="w-full h-1 bg-ceuta-border rounded-full overflow-hidden">
-            <div className="h-full bg-ceuta-red rounded-full animate-pulse" style={{ width: `${Math.min(95, (elapsed / 60) * 100)}%`, transition: 'width 2.5s linear' }} />
+    <div className={`rounded-[14px] border-2 transition-colors ${
+      isError ? 'border-ceuta-red bg-red-50' :
+      state.status === 'ok' ? 'border-green-500 bg-green-50' :
+      busy ? 'border-ceuta-black bg-white' :
+      'border-ceuta-border bg-white'
+    }`}>
+      <button
+        onClick={onClick}
+        disabled={busy}
+        className="w-full text-left p-4 disabled:cursor-not-allowed"
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <span className="text-[22px] leading-none">{busy ? '⏳' : emoji}</span>
+            <div>
+              <div className={`text-[14px] font-bold ${
+                isError ? 'text-ceuta-red' :
+                state.status === 'ok' ? 'text-green-700' :
+                'text-ceuta-black'
+              }`}>{label}</div>
+              <div className="text-[11px] text-ceuta-muted mt-0.5">{description}</div>
+            </div>
           </div>
-          <p className="text-[9px] text-ceuta-muted">{elapsed}s · En ejecución en servidor…</p>
+          {!busy && !done && (
+            <div className="shrink-0 bg-ceuta-black text-white text-[11px] font-bold px-3 py-1.5 rounded-full">
+              Ejecutar
+            </div>
+          )}
+          {busy && (
+            <div className="shrink-0 text-[10px] font-bold text-ceuta-muted tabular-nums">
+              {state.elapsed}s
+            </div>
+          )}
+        </div>
+      </button>
+
+      {/* Progress */}
+      {busy && (
+        <div className="px-4 pb-3 space-y-2">
+          <div className="flex items-center gap-2">
+            <div className="flex gap-1">
+              {[0, 1, 2].map((i) => (
+                <div
+                  key={i}
+                  className="w-1.5 h-1.5 rounded-full bg-ceuta-black animate-bounce"
+                  style={{ animationDelay: `${i * 0.15}s` }}
+                />
+              ))}
+            </div>
+            <span className="text-[11px] text-ceuta-black font-medium">{state.phase}</span>
+          </div>
+          <div className="w-full h-0.5 bg-ceuta-border rounded-full overflow-hidden">
+            <div className="h-full bg-ceuta-black rounded-full animate-pulse" style={{ width: '60%' }} />
+          </div>
+        </div>
+      )}
+
+      {/* Result */}
+      {done && state.result && (
+        <div className="px-4 pb-4 space-y-1">
+          {state.result.lines.map((line, i) => (
+            <div key={i} className={`text-[12px] font-medium ${isError ? 'text-ceuta-red' : 'text-green-700'}`}>
+              {i === 0 && (isError ? '✗ ' : '✓ ')}{line}
+            </div>
+          ))}
         </div>
       )}
     </div>
   )
 }
-
-const IDLE: SyncState = { status: 'idle', result: '', elapsed: 0 }
 
 export function AdminActions() {
   const router = useRouter()
@@ -123,8 +200,7 @@ export function AdminActions() {
   const [customResult, setCustomResult] = useState('')
 
   const [logoutLoading, setLogoutLoading] = useState(false)
-
-  const [deviceStatus, setDeviceStatus] = useState<'idle' | 'queued' | 'ok' | 'error' | 'unsupported'>('idle')
+  const [deviceStatus, setDeviceStatus] = useState<'idle' | 'running' | 'ok' | 'error' | 'unsupported'>('idle')
   const [deviceMsg, setDeviceMsg] = useState('')
 
   function startElapsed(set: React.Dispatch<React.SetStateAction<SyncState>>) {
@@ -143,17 +219,27 @@ export function AdminActions() {
   async function triggerSync(
     set: React.Dispatch<React.SetStateAction<SyncState>>,
     action: string,
-    cronType: string
+    cronType: string,
+    phases: string[]
   ) {
-    set({ status: 'queued', result: '', elapsed: 0 })
+    set({ status: 'running', phase: phases[0], result: null, elapsed: 0 })
     startElapsed(set)
     const since = Date.now()
+
+    // Phase cycling while waiting
+    let phaseIdx = 0
+    const phaseInterval = setInterval(() => {
+      phaseIdx = Math.min(phaseIdx + 1, phases.length - 1)
+      set((prev) => ({ ...prev, phase: phases[phaseIdx] }))
+    }, 4000)
+
     try {
       await callTrigger(action)
     } catch (e) {
+      clearInterval(phaseInterval)
       stopElapsed()
-      set({ status: 'error', result: (e as Error).message, elapsed: 0 })
-      setTimeout(() => set(IDLE), 6000)
+      set({ status: 'error', phase: '', result: { lines: [(e as Error).message], ok: false }, elapsed: 0 })
+      setTimeout(() => set(IDLE), 8000)
       return
     }
 
@@ -161,28 +247,29 @@ export function AdminActions() {
       cronType,
       since,
       (log) => {
+        clearInterval(phaseInterval)
         stopElapsed()
-        const result = formatLogResult(log)
-        const status = log.status === 'success' && !(log.details.imageErrors as unknown[])?.length ? 'ok' : 'error'
-        set({ status, result, elapsed: 0 })
-        setTimeout(() => set(IDLE), 8000)
+        const result = buildResult(log)
+        set({ status: result.ok ? 'ok' : 'error', phase: '', result, elapsed: 0 })
+        setTimeout(() => set(IDLE), 10000)
       },
       () => {
+        clearInterval(phaseInterval)
         stopElapsed()
-        set({ status: 'error', result: 'Sin respuesta del servidor', elapsed: 0 })
-        setTimeout(() => set(IDLE), 6000)
+        set({ status: 'error', phase: '', result: { lines: ['Sin respuesta del servidor'], ok: false }, elapsed: 0 })
+        setTimeout(() => set(IDLE), 8000)
       }
     )
   }
 
   async function sendCustomPush() {
     if (!customTitle.trim() || !customBody.trim()) return
-    setCustomStatus('queued')
+    setCustomStatus('running')
     try {
       const result = await callTrigger('push', {
         title: customTitle, body: customBody, tag: 'custom', url: customUrl || '/',
       })
-      setCustomResult(`${result?.sent ?? 0} enviadas`)
+      setCustomResult(`Enviada a ${result?.sent ?? 0} suscriptores`)
       setCustomStatus('ok')
       setCustomTitle('')
       setCustomBody('')
@@ -191,41 +278,55 @@ export function AdminActions() {
       setCustomResult((e as Error).message)
       setCustomStatus('error')
     }
-    setTimeout(() => setCustomStatus('idle'), 5000)
+    setTimeout(() => setCustomStatus('idle'), 6000)
   }
 
   async function registerDevice() {
-    setDeviceStatus('queued')
-    setDeviceMsg('')
+    setDeviceStatus('running')
+    setDeviceMsg('Comprobando permisos…')
     try {
       if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-        setDeviceStatus('unsupported'); setDeviceMsg('Push no disponible en este navegador'); return
+        setDeviceStatus('unsupported')
+        setDeviceMsg('Push no disponible en este navegador')
+        return
       }
       await navigator.serviceWorker.register('/sw.js')
+      setDeviceMsg('Registrando service worker…')
       const reg = await Promise.race([
         navigator.serviceWorker.ready,
         new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Service worker timeout')), 8000)),
       ])
       let sub = await reg.pushManager.getSubscription()
       if (!sub) {
+        setDeviceMsg('Solicitando permiso de notificaciones…')
         const permission = await Notification.requestPermission()
         if (permission !== 'granted') {
-          setDeviceStatus('error'); setDeviceMsg('Permiso denegado'); return
+          setDeviceStatus('error')
+          setDeviceMsg('Permiso denegado')
+          return
         }
         const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
         if (!vapidKey) { setDeviceStatus('error'); setDeviceMsg('Falta VAPID key'); return }
         sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: vapidKey })
-        await fetch('/api/push/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(sub.toJSON()) })
+        setDeviceMsg('Guardando suscripción…')
+        await fetch('/api/push/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(sub.toJSON()),
+        })
       }
       const res = await fetch('/api/admin/register-device', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ endpoint: sub.endpoint }),
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ endpoint: sub.endpoint }),
       })
-      if (res.ok) { setDeviceStatus('ok'); setDeviceMsg('Dispositivo registrado') }
-      else { setDeviceStatus('error'); setDeviceMsg('Error al registrar') }
+      if (res.ok) { setDeviceStatus('ok'); setDeviceMsg('Dispositivo registrado — recibirás alertas aquí') }
+      else { setDeviceStatus('error'); setDeviceMsg('Error al registrar en el servidor') }
     } catch (e) {
-      setDeviceStatus('error'); setDeviceMsg((e as Error).message ?? 'Error desconocido')
+      setDeviceStatus('error')
+      setDeviceMsg((e as Error).message ?? 'Error desconocido')
     }
-    setTimeout(() => setDeviceStatus('idle'), 5000)
+    setTimeout(() => { setDeviceStatus('idle'); setDeviceMsg('') }, 6000)
   }
 
   async function handleLogout() {
@@ -235,91 +336,133 @@ export function AdminActions() {
   }
 
   return (
-    <div className="space-y-5">
-      {/* Sync */}
-      <div>
-        <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-ceuta-muted mb-2">Sincronizar datos</p>
-        <div className="grid grid-cols-2 gap-2">
-          <SyncBtn
-            emoji="📰" label="Sync noticias" state={syncNews}
-            onClick={() => triggerSync(setSyncNews, 'news', 'news')}
+    <div className="space-y-6">
+
+      {/* Sincronización */}
+      <section>
+        <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-ceuta-muted mb-3">Sincronización de datos</p>
+        <div className="space-y-2">
+          <SyncCard
+            emoji="📰"
+            label="Noticias"
+            description="Scraper RSS + imágenes. Encola para notificación."
+            state={syncNews}
+            onClick={() => triggerSync(setSyncNews, 'news', 'news', [
+              'Lanzando scraper…',
+              'Procesando fuentes RSS…',
+              'Descargando imágenes…',
+              'Finalizando…',
+            ])}
           />
-          <SyncBtn
-            emoji="⚽" label="Sync partidos" state={syncMatches}
-            onClick={() => triggerSync(setSyncMatches, 'matches', 'matches')}
+          <SyncCard
+            emoji="⚽"
+            label="Partidos"
+            description="Actualiza próximos partidos y resultados."
+            state={syncMatches}
+            onClick={() => triggerSync(setSyncMatches, 'matches', 'matches', [
+              'Consultando calendario…',
+              'Actualizando resultados…',
+            ])}
           />
-          <SyncBtn
-            emoji="🛡️" label="Sync escudos" state={IDLE}
-            onClick={() => triggerSync(setSyncNews, 'sync-logos', 'sync-logos')}
-          />
-          <SyncBtn
-            emoji="🖼️" label="Sync fotos" state={syncImages}
-            onClick={() => triggerSync(setSyncImages, 'backfill-images', 'backfill-images')}
+          <SyncCard
+            emoji="🖼️"
+            label="Fotos de plantilla"
+            description="Optimiza fotos de jugadores pendientes."
+            state={syncImages}
+            onClick={() => triggerSync(setSyncImages, 'backfill-images', 'backfill-images', [
+              'Buscando fotos sin optimizar…',
+              'Procesando y guardando…',
+            ])}
           />
         </div>
-      </div>
+      </section>
 
       {/* Notificación manual */}
-      <div>
-        <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-ceuta-muted mb-2">Enviar notificación</p>
-        <div className="bg-ceuta-bg-soft rounded-[14px] p-4 space-y-3">
+      <section>
+        <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-ceuta-muted mb-3">Notificación manual</p>
+        <div className="bg-white rounded-[14px] border-2 border-ceuta-border p-4 space-y-3">
           <input
-            type="text" placeholder="Título" value={customTitle}
+            type="text"
+            placeholder="Título"
+            value={customTitle}
             onChange={(e) => setCustomTitle(e.target.value)}
-            className="w-full bg-white border border-ceuta-border rounded-xl px-3 py-2 text-[13px] outline-none focus:border-ceuta-red"
+            className="w-full bg-ceuta-bg-soft border border-ceuta-border rounded-xl px-3 py-2 text-[13px] outline-none focus:border-ceuta-black"
           />
           <textarea
-            placeholder="Mensaje" value={customBody}
+            placeholder="Mensaje"
+            value={customBody}
             onChange={(e) => setCustomBody(e.target.value)}
             rows={2}
-            className="w-full bg-white border border-ceuta-border rounded-xl px-3 py-2 text-[13px] outline-none focus:border-ceuta-red resize-none"
+            className="w-full bg-ceuta-bg-soft border border-ceuta-border rounded-xl px-3 py-2 text-[13px] outline-none focus:border-ceuta-black resize-none"
           />
           <input
-            type="text" placeholder="URL destino (ej: /partidos)" value={customUrl}
+            type="text"
+            placeholder="URL destino (ej: /partidos)"
+            value={customUrl}
             onChange={(e) => setCustomUrl(e.target.value)}
-            className="w-full bg-white border border-ceuta-border rounded-xl px-3 py-2 text-[13px] outline-none focus:border-ceuta-red"
+            className="w-full bg-ceuta-bg-soft border border-ceuta-border rounded-xl px-3 py-2 text-[13px] outline-none focus:border-ceuta-black"
           />
           <button
             onClick={sendCustomPush}
-            disabled={customStatus === 'queued' || !customTitle.trim() || !customBody.trim()}
-            className={`admin-btn ${customStatus === 'ok' ? 'admin-btn-ok' : customStatus === 'error' ? 'admin-btn-error' : 'admin-btn-dark'} w-full items-center`}
+            disabled={customStatus === 'running' || !customTitle.trim() || !customBody.trim()}
+            className={`w-full rounded-xl py-3 text-[13px] font-bold transition-colors disabled:opacity-50 ${
+              customStatus === 'ok' ? 'bg-green-600 text-white' :
+              customStatus === 'error' ? 'bg-ceuta-red text-white' :
+              'bg-ceuta-black text-white'
+            }`}
           >
-            <span className="admin-btn-label text-[13px]">
-              {customStatus === 'queued' ? '⏳ Enviando...'
-                : customStatus === 'ok' ? `✓ ${customResult}`
-                : customStatus === 'error' ? `✗ ${customResult}`
-                : '🔔 Enviar a todos los suscriptores'}
-            </span>
+            {customStatus === 'running' ? '⏳ Enviando…' :
+             customStatus === 'ok' ? `✓ ${customResult}` :
+             customStatus === 'error' ? `✗ ${customResult}` :
+             '🔔 Enviar a todos los suscriptores'}
           </button>
         </div>
-      </div>
+      </section>
 
-      {/* Registrar dispositivo */}
-      <div>
-        <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-ceuta-muted mb-2">Este dispositivo</p>
-        <button
-          onClick={registerDevice} disabled={deviceStatus === 'queued'}
-          className={`admin-btn ${deviceStatus === 'ok' ? 'admin-btn-ok' : deviceStatus === 'error' || deviceStatus === 'unsupported' ? 'admin-btn-error' : 'admin-btn-dark'} w-full`}
-        >
-          <span className="admin-btn-emoji">📲</span>
-          <span className="admin-btn-label">
-            {deviceStatus === 'queued' ? '⏳ Registrando...' :
-             deviceStatus === 'ok' ? `✓ ${deviceMsg}` :
-             deviceStatus === 'error' || deviceStatus === 'unsupported' ? `✗ ${deviceMsg}` :
-             'Recibir alertas en este dispositivo'}
-          </span>
-        </button>
-      </div>
+      {/* Este dispositivo + logout */}
+      <section>
+        <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-ceuta-muted mb-3">Este dispositivo</p>
+        <div className="space-y-2">
+          <button
+            onClick={registerDevice}
+            disabled={deviceStatus === 'running'}
+            className={`w-full rounded-[14px] border-2 p-4 text-left transition-colors disabled:opacity-60 ${
+              deviceStatus === 'ok' ? 'border-green-500 bg-green-50' :
+              deviceStatus === 'error' || deviceStatus === 'unsupported' ? 'border-ceuta-red bg-red-50' :
+              'border-ceuta-border bg-white'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-[22px]">📲</span>
+              <div>
+                <div className={`text-[14px] font-bold ${
+                  deviceStatus === 'ok' ? 'text-green-700' :
+                  deviceStatus === 'error' || deviceStatus === 'unsupported' ? 'text-ceuta-red' :
+                  'text-ceuta-black'
+                }`}>
+                  {deviceStatus === 'ok' ? '✓ Dispositivo registrado' :
+                   deviceStatus === 'error' || deviceStatus === 'unsupported' ? `✗ ${deviceMsg}` :
+                   'Activar alertas en este dispositivo'}
+                </div>
+                <div className="text-[11px] text-ceuta-muted mt-0.5">
+                  {deviceStatus === 'running' ? deviceMsg :
+                   deviceStatus === 'ok' ? deviceMsg :
+                   'Recibirás notificaciones cuando lleguen noticias nuevas'}
+                </div>
+              </div>
+            </div>
+          </button>
 
-      {/* Logout */}
-      <div className="flex justify-end pt-2 border-t border-ceuta-border">
-        <button
-          onClick={handleLogout} disabled={logoutLoading}
-          className="bg-transparent border border-ceuta-border rounded-lg px-4 py-2 text-[12px] font-semibold text-ceuta-muted cursor-pointer"
-        >
-          {logoutLoading ? 'Saliendo...' : 'Cerrar sesión'}
-        </button>
-      </div>
+          <button
+            onClick={handleLogout}
+            disabled={logoutLoading}
+            className="w-full rounded-[14px] border-2 border-ceuta-border bg-white p-4 text-left text-[14px] font-bold text-ceuta-muted disabled:opacity-50 transition-colors hover:border-ceuta-red hover:text-ceuta-red"
+          >
+            {logoutLoading ? '⏳ Saliendo…' : '← Cerrar sesión'}
+          </button>
+        </div>
+      </section>
+
     </div>
   )
 }
