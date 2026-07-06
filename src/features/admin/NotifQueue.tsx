@@ -1,6 +1,6 @@
 'use client'
 import { SOURCE_LABELS } from '@/lib/constants'
-
+import { supabase } from '@/infrastructure/supabase/client'
 import { useEffect, useState, useCallback } from 'react'
 
 interface QueuedArticle {
@@ -12,7 +12,6 @@ interface QueuedArticle {
   url: string
 }
 
-
 export function NotifQueue() {
   const [items, setItems] = useState<QueuedArticle[]>([])
   const [loading, setLoading] = useState(true)
@@ -20,7 +19,6 @@ export function NotifQueue() {
   const [feedback, setFeedback] = useState<Record<string, string>>({})
 
   const load = useCallback(async () => {
-    setLoading(true)
     const res = await fetch('/api/admin/notify-queue')
     const data = await res.json()
     setItems(data.items ?? [])
@@ -29,8 +27,24 @@ export function NotifQueue() {
 
   useEffect(() => {
     load()
-    const interval = setInterval(load, 30_000)
-    return () => clearInterval(interval)
+
+    // Realtime: re-fetch whenever notify_queued changes on the news table
+    const channel = supabase
+      .channel('notif-queue-watch')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'news', filter: 'notify_queued=eq.true' },
+        () => { load() }
+      )
+      .subscribe()
+
+    // 5s fallback polling in case Realtime is not enabled on this table
+    const interval = setInterval(load, 5_000)
+
+    return () => {
+      supabase.removeChannel(channel)
+      clearInterval(interval)
+    }
   }, [load])
 
   async function act(id: string, action: 'send' | 'publish' | 'notify' | 'discard') {
