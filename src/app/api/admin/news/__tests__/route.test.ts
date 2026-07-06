@@ -10,7 +10,7 @@ vi.mock('@/infrastructure/supabase/adminClient', () => ({
 
 import { checkAdminAuth } from '@/infrastructure/admin/auth'
 import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
-import { DELETE } from '../route'
+import { GET, DELETE } from '../route'
 
 beforeEach(() => {
   vi.resetAllMocks()
@@ -24,6 +24,35 @@ function makeRequest(body: unknown) {
     body: JSON.stringify(body),
   })
 }
+
+describe('GET /api/admin/news', () => {
+  it('returns 401 without valid session', async () => {
+    vi.mocked(checkAdminAuth).mockResolvedValue(false)
+    const res = await GET()
+    expect(res.status).toBe(401)
+  })
+
+  it('returns news items', async () => {
+    const items = [{ id: '1', title: 'Test', source: 'faro', published_at: null, image_url: null, url: null }]
+    const limitMock = vi.fn().mockResolvedValue({ data: items, error: null })
+    vi.mocked(supabaseAdmin.from).mockReturnValue({
+      select: vi.fn().mockReturnValue({ order: vi.fn().mockReturnValue({ limit: limitMock }) }),
+    } as never)
+    const res = await GET()
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body.items).toHaveLength(1)
+  })
+
+  it('returns 500 on DB error', async () => {
+    const limitMock = vi.fn().mockResolvedValue({ data: null, error: { message: 'DB error' } })
+    vi.mocked(supabaseAdmin.from).mockReturnValue({
+      select: vi.fn().mockReturnValue({ order: vi.fn().mockReturnValue({ limit: limitMock }) }),
+    } as never)
+    const res = await GET()
+    expect(res.status).toBe(500)
+  })
+})
 
 describe('DELETE /api/admin/news', () => {
   it('returns 401 if session is missing or invalid', async () => {

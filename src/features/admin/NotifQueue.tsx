@@ -27,7 +27,11 @@ export function NotifQueue() {
     setLoading(false)
   }, [])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => {
+    load()
+    const interval = setInterval(load, 30_000)
+    return () => clearInterval(interval)
+  }, [load])
 
   async function act(id: string, action: 'send' | 'publish' | 'notify' | 'discard') {
     setBusy(id)
