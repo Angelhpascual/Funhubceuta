@@ -12,6 +12,7 @@ vi.mock('@/infrastructure/supabase/logCron', () => ({ logCron: vi.fn(), logNotif
 vi.mock('@/infrastructure/supabase/NotificationRepository', () => ({
   getRecentNotifTitles: vi.fn(),
   getQueuedTitles: vi.fn(),
+  getDiscardedTitles: vi.fn(),
   markNotifyQueued: vi.fn(),
   getSubscriberCount: vi.fn(),
 }))
@@ -44,7 +45,7 @@ vi.mock('@/infrastructure/supabase/NewsSupabaseRepository', () => {
 import { fetchAdceutaOfficialNews } from '@/infrastructure/rss/adceutaFetcher'
 import { fetchCeutaDeportiva } from '@/infrastructure/rss/ceutadeportivaFetcher'
 import { logCron } from '@/infrastructure/supabase/logCron'
-import { getRecentNotifTitles, getQueuedTitles, markNotifyQueued, getSubscriberCount } from '@/infrastructure/supabase/NotificationRepository'
+import { getRecentNotifTitles, getQueuedTitles, getDiscardedTitles, markNotifyQueued, getSubscriberCount } from '@/infrastructure/supabase/NotificationRepository'
 import { notifyAdmin } from '@/infrastructure/push/notifyAdmin'
 import { Receiver } from '@upstash/qstash'
 import { NewsSupabaseRepository } from '@/infrastructure/supabase/NewsSupabaseRepository'
@@ -71,6 +72,7 @@ beforeEach(() => {
   vi.mocked(logCron).mockResolvedValue(undefined)
   vi.mocked(getRecentNotifTitles).mockResolvedValue([])
   vi.mocked(getQueuedTitles).mockResolvedValue([])
+  vi.mocked(getDiscardedTitles).mockResolvedValue([])
   vi.mocked(markNotifyQueued).mockResolvedValue(undefined)
   vi.mocked(getSubscriberCount).mockResolvedValue(0)
   vi.mocked(notifyAdmin).mockResolvedValue(undefined)

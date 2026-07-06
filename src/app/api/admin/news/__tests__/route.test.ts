@@ -69,9 +69,9 @@ describe('DELETE /api/admin/news', () => {
     expect(res.status).toBe(400)
   })
 
-  it('returns 500 if supabase delete fails', async () => {
-    const mockDelete = vi.fn().mockResolvedValue({ error: { message: 'DB error' } })
-    vi.mocked(supabaseAdmin.from).mockReturnValue({ delete: () => ({ eq: mockDelete }) } as never)
+  it('returns 500 if supabase update fails', async () => {
+    const eqMock = vi.fn().mockResolvedValue({ error: { message: 'DB error' } })
+    vi.mocked(supabaseAdmin.from).mockReturnValue({ update: () => ({ eq: eqMock }) } as never)
     const req = makeRequest({ id: 'abc-123' })
     const res = await DELETE(req)
     expect(res.status).toBe(500)
@@ -79,9 +79,9 @@ describe('DELETE /api/admin/news', () => {
     expect(body.error).toBe('DB error')
   })
 
-  it('returns ok:true on successful delete', async () => {
-    const mockDelete = vi.fn().mockResolvedValue({ error: null })
-    vi.mocked(supabaseAdmin.from).mockReturnValue({ delete: () => ({ eq: mockDelete }) } as never)
+  it('returns ok:true on successful soft-delete', async () => {
+    const eqMock = vi.fn().mockResolvedValue({ error: null })
+    vi.mocked(supabaseAdmin.from).mockReturnValue({ update: () => ({ eq: eqMock }) } as never)
     const req = makeRequest({ id: 'abc-123' })
     const res = await DELETE(req)
     expect(res.status).toBe(200)
@@ -89,12 +89,13 @@ describe('DELETE /api/admin/news', () => {
     expect(body.ok).toBe(true)
   })
 
-  it('calls delete with the correct id', async () => {
+  it('soft-deletes with discarded=true and correct id', async () => {
     const eqMock = vi.fn().mockResolvedValue({ error: null })
-    const deleteMock = vi.fn().mockReturnValue({ eq: eqMock })
-    vi.mocked(supabaseAdmin.from).mockReturnValue({ delete: deleteMock } as never)
+    const updateMock = vi.fn().mockReturnValue({ eq: eqMock })
+    vi.mocked(supabaseAdmin.from).mockReturnValue({ update: updateMock } as never)
     const req = makeRequest({ id: 'my-news-id' })
     await DELETE(req)
+    expect(updateMock).toHaveBeenCalledWith({ published: false, notify_queued: false, discarded: true })
     expect(eqMock).toHaveBeenCalledWith('id', 'my-news-id')
   })
 })

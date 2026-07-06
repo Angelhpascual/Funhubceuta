@@ -27,15 +27,16 @@ beforeEach(() => {
 })
 
 function mockFrom(select?: unknown, update?: unknown, single?: unknown) {
-  vi.mocked(supabaseAdmin.from).mockReturnValue({
-    select: vi.fn().mockReturnValue({
-      eq: vi.fn().mockReturnValue({
-        order: vi.fn().mockReturnValue({
-          limit: vi.fn().mockResolvedValue({ data: select ?? [] }),
-        }),
-        single: vi.fn().mockResolvedValue({ data: single ?? null }),
-      }),
+  const eqChain: Record<string, unknown> = {
+    order: vi.fn().mockReturnValue({
+      limit: vi.fn().mockResolvedValue({ data: select ?? [] }),
     }),
+    single: vi.fn().mockResolvedValue({ data: single ?? null }),
+  }
+  // Support chained .eq().eq()
+  eqChain.eq = vi.fn().mockReturnValue(eqChain)
+  vi.mocked(supabaseAdmin.from).mockReturnValue({
+    select: vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue(eqChain) }),
     update: vi.fn().mockReturnValue({
       eq: vi.fn().mockResolvedValue({ error: null }),
     }),
@@ -105,7 +106,7 @@ describe('POST /api/admin/notify-queue', () => {
     const res = await POST(req)
     expect(res.status).toBe(200)
     expect(sendPush).not.toHaveBeenCalled()
-    expect(updateMock).toHaveBeenCalledWith({ notify_queued: false, published: false })
+    expect(updateMock).toHaveBeenCalledWith({ notify_queued: false, published: false, discarded: true })
     expect(eqMock).toHaveBeenCalledWith('id', 'abc')
     expect(revalidatePath).toHaveBeenCalledWith('/noticias')
     expect(revalidatePath).toHaveBeenCalledWith('/')

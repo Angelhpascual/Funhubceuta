@@ -12,7 +12,7 @@ import { NewsSupabaseRepository } from '@/infrastructure/supabase/NewsSupabaseRe
 import { sendNewsNotification } from '@/infrastructure/push/sendNewsNotification'
 import { notifyAdmin } from '@/infrastructure/push/notifyAdmin'
 import { logCron, logNotification } from '@/infrastructure/supabase/logCron'
-import { getRecentNotifTitles, getQueuedTitles, markNotifyQueued, getSubscriberCount } from '@/infrastructure/supabase/NotificationRepository'
+import { getRecentNotifTitles, getQueuedTitles, getDiscardedTitles, markNotifyQueued, getSubscriberCount } from '@/infrastructure/supabase/NotificationRepository'
 import {
   downloadAndUploadImage,
   isStoredNewsImage,
@@ -169,9 +169,10 @@ async function syncNews() {
     : recentNew
 
   const SIX_HOURS_AGO = new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString()
-  const [recentTitles, queuedTitles] = await Promise.all([
+  const [recentTitles, queuedTitles, discardedTitles] = await Promise.all([
     getRecentNotifTitles(SIX_HOURS_AGO),
     getQueuedTitles(),
+    getDiscardedTitles(),
   ])
 
   const STOPWORDS = new Set(['ceuta', 'para', 'como', 'pero', 'este', 'esta', 'desde', 'hasta', 'sobre', 'entre', 'todos', 'tiene', 'tras'])
@@ -189,7 +190,8 @@ async function syncNews() {
       return overlap / Math.min(kw.size, ekw.size) >= 0.4
     })
 
-  const seenThisBatch: string[] = [...recentTitles, ...queuedTitles]
+  // discardedTitles acts as a permanent blocklist — admin explicitly said "no" to these
+  const seenThisBatch: string[] = [...recentTitles, ...queuedTitles, ...discardedTitles]
   let newlyQueued = 0
   for (const article of recentNewSorted) {
     if (!isDuplicate(article.title, seenThisBatch)) {

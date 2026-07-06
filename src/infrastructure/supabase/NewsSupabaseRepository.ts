@@ -137,6 +137,7 @@ export class NewsSupabaseRepository {
     const { data } = await supabaseAdmin
       .from('news')
       .select('id, title, source, published_at, image_url, url, published, notify_queued')
+      .eq('discarded', false)
       .order('created_at', { ascending: false })
       .limit(limit)
     return data ?? []

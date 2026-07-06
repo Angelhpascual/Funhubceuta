@@ -22,7 +22,10 @@ export async function DELETE(req: Request) {
   const { id } = await req.json()
   if (!id) return NextResponse.json({ error: 'ID requerido' }, { status: 400 })
 
-  const { error } = await supabaseAdmin.from('news').delete().eq('id', id)
+  const { error } = await supabaseAdmin
+    .from('news')
+    .update({ published: false, notify_queued: false, discarded: true })
+    .eq('id', id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
   revalidateTag('news')
