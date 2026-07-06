@@ -51,65 +51,162 @@ function flag(nationality: string): string {
   return ''
 }
 
-function initials(name: string): string {
-  return name
-    .split(' ')
-    .map((w) => w[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase()
-}
-
 function capitalize(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase()
 }
 
-function CollapsibleStaff() {
+function PlayerSilhouette() {
+  return (
+    <svg
+      viewBox="0 0 24 26"
+      fill="currentColor"
+      className="w-[78px] h-[88px] text-ceuta-muted opacity-40"
+    >
+      <circle cx="12" cy="7" r="5" />
+      <path d="M2 26v-3a10 10 0 0120 0v3z" />
+    </svg>
+  )
+}
+
+function AvatarSilhouette() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className="w-[26px] h-[26px] text-ceuta-muted">
+      <circle cx="12" cy="8" r="4" stroke="currentColor" strokeWidth="2" />
+      <path d="M4 21v-1a6 6 0 016-6h4a6 6 0 016 6v1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+function ChevronIcon({ open }: { open: boolean }) {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      className={`text-ceuta-muted transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+    >
+      <path d="M6 15l6-6 6 6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+function StaffCard({ name, role, photo }: { name: string; role: string; photo?: string }) {
+  return (
+    <div className="relative flex items-center gap-[14px] rounded-[14px] border border-ceuta-border bg-white overflow-hidden px-[14px] py-3">
+      <div className="absolute left-0 top-0 w-1 h-full bg-ceuta-black" />
+      <div className="ml-1 size-12 shrink-0 rounded-full bg-ceuta-bg-mid border-2 border-ceuta-border flex items-center justify-center overflow-hidden">
+        {photo ? (
+          <Image src={photo} alt={name} width={48} height={48} className="size-12 object-cover object-top" />
+        ) : (
+          <AvatarSilhouette />
+        )}
+      </div>
+      <div>
+        <div className="font-display text-[16px] font-extrabold uppercase leading-none tracking-[0.02em] text-ceuta-black">
+          {name}
+        </div>
+        <div className="mt-[3px] text-[12.5px] text-ceuta-muted">{role}</div>
+      </div>
+    </div>
+  )
+}
+
+function PlayerCard({ player }: { player: Player }) {
+  return (
+    <Link href={`/jugador/${player.id}`} className="block no-underline">
+      <div className="rounded-[16px] border border-ceuta-border bg-white overflow-hidden shadow-[var(--shadow-card)]">
+        {/* Media area */}
+        <div className="relative h-[132px] bg-ceuta-bg-mid overflow-hidden flex items-end justify-center">
+          {/* Diagonal stripes */}
+          <div className="absolute inset-0 opacity-50 bg-[repeating-linear-gradient(-45deg,white_0_12px,transparent_12px_24px)]" />
+          {/* Large faded dorsal */}
+          {player.dorsal != null && (
+            <span className="absolute top-[6px] left-3 font-display font-black text-[52px] leading-[0.8] text-ceuta-black opacity-[0.12] z-[1] tracking-[-0.02em]">
+              {player.dorsal}
+            </span>
+          )}
+          {/* Flag */}
+          <span className="absolute top-[11px] right-[11px] text-[19px] z-[2] drop-shadow-[0_1px_2px_rgba(0,0,0,0.2)]">
+            {flag(player.nationality)}
+          </span>
+          {/* Photo or silhouette */}
+          <div className="relative z-[2] w-24 h-[104px] flex items-end justify-center">
+            {player.photo_url ? (
+              <Image
+                src={player.photo_url}
+                alt={player.name}
+                width={96}
+                height={104}
+                sizes="96px"
+                quality={75}
+                className="w-full h-full object-cover object-top"
+              />
+            ) : (
+              <PlayerSilhouette />
+            )}
+          </div>
+        </div>
+        {/* Info area */}
+        <div className="border-t-2 border-ceuta-black px-[13px] pt-[11px] pb-[13px]">
+          <div className="font-display text-[16px] font-extrabold uppercase leading-none tracking-[0.01em] text-ceuta-black truncate">
+            {player.name}
+          </div>
+          <div className="mt-1 flex items-center justify-between text-[11.5px] text-ceuta-muted">
+            <span>{capitalize(player.position)}</span>
+            {player.dorsal != null && (
+              <span className="font-display text-[12px] font-extrabold text-ceuta-muted tracking-[0.04em]">
+                #{player.dorsal}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+    </Link>
+  )
+}
+
+function GroupHeader({
+  label,
+  count,
+  open,
+  onClick,
+}: {
+  label: string
+  count: number
+  open: boolean
+  onClick: () => void
+}) {
+  return (
+    <button onClick={onClick} className="flex w-full items-center gap-[11px] py-[18px] px-0">
+      <span className="w-1 h-[19px] bg-ceuta-red rounded-[2px] shrink-0" />
+      <span className="font-display text-[18px] font-extrabold uppercase tracking-[0.04em] text-ceuta-black">
+        {label}
+      </span>
+      <span className="font-display text-[12px] font-semibold uppercase tracking-[0.06em] text-ceuta-muted">
+        {count} {count === 1 ? 'miembro' : 'jugadores'}
+      </span>
+      <span className="ml-auto">
+        <ChevronIcon open={open} />
+      </span>
+    </button>
+  )
+}
+
+function StaffSection() {
   const [open, setOpen] = useState(false)
   return (
-    <div className="mb-1">
-      <button
+    <div>
+      <GroupHeader
+        label="Cuerpo técnico"
+        count={STAFF.length}
+        open={open}
         onClick={() => setOpen((o) => !o)}
-        className={`flex w-full items-center justify-between bg-ceuta-bg-soft px-4 py-3 ${open ? 'rounded-t-[10px]' : 'rounded-[10px]'}`}
-      >
-        <div className="flex items-center gap-2.5">
-          <div className="h-4 w-[3px] rounded-sm bg-ceuta-red" />
-          <span className="font-display text-[12px] font-extrabold uppercase tracking-widest text-ceuta-black">
-            Cuerpo técnico
-          </span>
-          <span className="font-display text-[10px] tracking-wide text-ceuta-muted">
-            {STAFF.length} miembros
-          </span>
-        </div>
-        <span
-          className={`text-[14px] text-ceuta-muted transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
-        >
-          ▼
-        </span>
-      </button>
+      />
       {open && (
-        <div className="overflow-hidden rounded-b-[10px] bg-ceuta-bg-soft">
+        <div className="flex flex-col gap-[10px] pb-4">
           {STAFF.map((s, i) => (
-            <div
-              key={i}
-              className={`flex items-center gap-3 px-4 py-3 ${i > 0 ? 'border-t border-ceuta-border' : ''}`}
-            >
-              <Image
-                src={s.photo}
-                alt={s.name}
-                width={38}
-                height={38}
-                sizes="38px"
-                quality={70}
-                className="size-[38px] shrink-0 rounded-full object-cover object-top"
-              />
-              <div className="flex-1 min-w-0">
-                <div className="font-display text-[13px] font-bold uppercase tracking-wide text-ceuta-black">
-                  {s.name}
-                </div>
-                <div className="text-[12px] text-ceuta-muted">{s.role}</div>
-              </div>
-            </div>
+            <StaffCard key={i} name={s.name} role={s.role} photo={s.photo} />
           ))}
         </div>
       )}
@@ -117,7 +214,7 @@ function CollapsibleStaff() {
   )
 }
 
-function CollapsibleGroup({
+function GroupSection({
   group,
   players,
   defaultOpen,
@@ -128,75 +225,17 @@ function CollapsibleGroup({
 }) {
   const [open, setOpen] = useState(defaultOpen ?? false)
   return (
-    <div className="mb-1">
-      <button
+    <div>
+      <GroupHeader
+        label={group}
+        count={players.length}
+        open={open}
         onClick={() => setOpen((o) => !o)}
-        className={`flex w-full items-center justify-between bg-ceuta-bg-soft px-4 py-3 ${open ? 'rounded-t-[10px]' : 'rounded-[10px]'}`}
-      >
-        <div className="flex items-center gap-2.5">
-          <div className="h-4 w-[3px] rounded-sm bg-ceuta-red" />
-          <span className="font-display text-[12px] font-extrabold uppercase tracking-widest text-ceuta-black">
-            {group}
-          </span>
-          <span className="font-display text-[10px] tracking-wide text-ceuta-muted">
-            {players.length} jugadores
-          </span>
-        </div>
-        <span
-          className={`text-[14px] text-ceuta-muted transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
-        >
-          ▼
-        </span>
-      </button>
+      />
       {open && (
-        <div className="overflow-hidden rounded-b-[10px] bg-ceuta-bg-soft">
-          {players.map((p, i) => (
-            <Link
-              key={i}
-              href={`/jugador/${p.id}`}
-              className={`flex items-center gap-3 px-4 py-3 active:bg-ceuta-bg-soft no-underline ${i > 0 ? 'border-t border-ceuta-border' : ''}`}
-            >
-              <div className="min-w-[32px] text-center font-display text-[22px] font-black text-ceuta-bg-mid">
-                {p.dorsal ?? '—'}
-              </div>
-              {p.photo_url ? (
-                <Image
-                  src={p.photo_url}
-                  alt={p.name}
-                  width={38}
-                  height={38}
-                  sizes="38px"
-                  quality={70}
-                  className="size-[38px] shrink-0 rounded-full object-cover object-top"
-                />
-              ) : (
-                <div className="flex size-[38px] shrink-0 items-center justify-center rounded-full bg-ceuta-bg-mid font-display text-[12px] font-extrabold text-ceuta-muted">
-                  {initials(p.name)}
-                </div>
-              )}
-              <div className="flex-1 min-w-0">
-                <div className="font-display text-[13px] font-bold uppercase tracking-wide text-ceuta-black">
-                  {p.name}
-                </div>
-                <div className="text-[12px] text-ceuta-muted">{capitalize(p.position)}</div>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="text-[16px]">{flag(p.nationality)}</div>
-                <svg
-                  width="10"
-                  height="10"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="text-ceuta-muted"
-                >
-                  <path d="M5 12h14M12 5l7 7-7 7" />
-                </svg>
-              </div>
-            </Link>
+        <div className="grid grid-cols-2 gap-3 pb-4">
+          {players.map((p) => (
+            <PlayerCard key={p.id} player={p} />
           ))}
         </div>
       )}
@@ -207,8 +246,6 @@ function CollapsibleGroup({
 export function PlantillaTab({
   grouped,
   total,
-  previousGrouped = [],
-  previousTotal = 0,
   loading,
 }: {
   grouped: Group[]
@@ -221,7 +258,6 @@ export function PlantillaTab({
 
   return (
     <>
-      {/* ── SEASON SELECTOR ── */}
       <div className="chips chips-center mb-3 mt-1">
         <button className={`chip ${season === '2526' ? 'active' : ''}`} onClick={() => setSeason('2526')}>
           Temp. 25/26
@@ -237,35 +273,33 @@ export function PlantillaTab({
           <p className="font-display text-[13px] font-bold uppercase tracking-widest text-ceuta-muted text-center">
             Plantilla por determinar
           </p>
-          <p className="font-body text-[12px] text-ceuta-muted text-center">
+          <p className="text-[12px] text-ceuta-muted text-center">
             La plantilla 26/27 se anunciará próximamente
           </p>
         </div>
       ) : (
-        <>
-          <div className="px-3 mb-1">
-            <CollapsibleStaff />
-          </div>
-          <p className="px-3 pb-1.5 font-display text-[10px] uppercase tracking-widest text-ceuta-muted">
-            Jugadores · {total} · toca para expandir
-          </p>
+        <div className="px-5">
+          <StaffSection />
           {loading ? (
             <p className="py-8 text-center font-display text-[11px] uppercase tracking-widest text-ceuta-muted">
               Cargando plantilla…
             </p>
           ) : (
-            <div className="flex flex-col gap-1 px-3">
+            <>
               {grouped.map((g, i) => (
-                <CollapsibleGroup
+                <GroupSection
                   key={g.group}
                   group={g.group}
                   players={g.players}
                   defaultOpen={i === 0}
                 />
               ))}
-            </div>
+              <p className="py-5 text-center font-display text-[11px] font-semibold uppercase tracking-[0.14em] text-ceuta-muted">
+                Jugadores · {total} · toca un grupo para plegar
+              </p>
+            </>
           )}
-        </>
+        </div>
       )}
     </>
   )
