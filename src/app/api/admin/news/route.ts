@@ -3,6 +3,19 @@ import { revalidateTag } from 'next/cache'
 import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
 import { checkAdminAuth, unauthorizedResponse } from '@/infrastructure/admin/auth'
 
+export async function GET() {
+  if (!(await checkAdminAuth())) return unauthorizedResponse()
+
+  const { data, error } = await supabaseAdmin
+    .from('news')
+    .select('id, title, source, published_at, image_url, url')
+    .order('created_at', { ascending: false })
+    .limit(100)
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ items: data ?? [] })
+}
+
 export async function DELETE(req: Request) {
   if (!(await checkAdminAuth())) return unauthorizedResponse()
 

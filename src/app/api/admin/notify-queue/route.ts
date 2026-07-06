@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { SOURCE_LABELS } from '@/lib/constants'
 import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
 import { sendPush } from '@/infrastructure/push/sendPush'
@@ -21,11 +22,13 @@ export async function GET() {
 export async function POST(req: Request) {
   if (!(await checkAdminAuth())) return unauthorizedResponse()
 
-  const { id, action } = await req.json() as { id: string; action: 'send' | 'discard' }
+  const { id, action } = await req.json() as { id: string; action: 'send' | 'publish' | 'notify' | 'discard' }
   if (!id || !action) return NextResponse.json({ error: 'Missing id or action' }, { status: 400 })
 
   if (action === 'discard') {
-    await supabaseAdmin.from('news').update({ notify_queued: false }).eq('id', id)
+    await supabaseAdmin.from('news').update({ notify_queued: false, published: false }).eq('id', id)
+    revalidatePath('/noticias')
+    revalidatePath('/')
     return NextResponse.json({ ok: true })
   }
 
@@ -37,6 +40,23 @@ export async function POST(req: Request) {
 
   if (!article) return NextResponse.json({ error: 'Article not found' }, { status: 404 })
 
+  const willPublish = action === 'publish' || action === 'send'
+  const willNotify  = action === 'notify'  || action === 'send'
+
+  await supabaseAdmin
+    .from('news')
+    .update({ notify_queued: false, ...(willPublish ? { published: true } : {}) })
+    .eq('id', id)
+
+  if (willPublish) {
+    revalidatePath('/noticias')
+    revalidatePath('/')
+  }
+
+  if (!willNotify) {
+    return NextResponse.json({ ok: true, sent: 0 })
+  }
+
   const sourceLabel = SOURCE_LABELS[article.source] ?? 'Noticias'
   const result = await sendPush({
     title: '🔴 Noticias',
@@ -44,8 +64,6 @@ export async function POST(req: Request) {
     tag: `news-${article.id}`,
     url: '/',
   })
-
-  await supabaseAdmin.from('news').update({ notify_queued: false }).eq('id', id)
 
   await logNotification({
     articleTitle: article.title,

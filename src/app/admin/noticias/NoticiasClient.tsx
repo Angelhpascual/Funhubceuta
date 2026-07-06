@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { fmtDate } from '@/lib/formatters'
 
 type NewsItem = {
@@ -34,6 +34,20 @@ export function NoticiasClient({
   const [notifying, setNotifying] = useState<Set<string>>(new Set())
   const [notifResult, setNotifResult] = useState<Record<string, string>>({})
   const [search, setSearch] = useState('')
+  const [refreshing, setRefreshing] = useState(false)
+
+  const refresh = useCallback(async () => {
+    setRefreshing(true)
+    try {
+      const res = await fetch('/api/admin/news')
+      if (res.ok) {
+        const data = await res.json()
+        setNews(data.items ?? [])
+      }
+    } finally {
+      setRefreshing(false)
+    }
+  }, [])
 
   const sources = [...new Set(initialNews.map((n) => n.source))].sort()
 
@@ -105,6 +119,13 @@ export function NoticiasClient({
             <option key={s} value={s}>{sourceLabels[s] ?? s}</option>
           ))}
         </select>
+        <button
+          onClick={refresh}
+          disabled={refreshing}
+          className="bg-ceuta-bg-soft border border-ceuta-border rounded-xl px-3 py-2 text-[13px] text-ceuta-black disabled:opacity-50 transition-opacity"
+        >
+          {refreshing ? '⏳' : '↻ Actualizar'}
+        </button>
       </div>
 
       <p className="text-[11px] text-ceuta-muted mb-3">{filtered.length} artículos</p>

@@ -68,11 +68,14 @@ export async function fetchCeutaDeportiva(limit = 15): Promise<ParsedArticle[]> 
     if (urls.length >= limit * 2) break
   }
 
-  // Fetch each article page to get OG meta
+  // Fetch each article page to get OG meta — max 5 concurrent to avoid hammering the server
   const articles: ParsedArticle[] = []
+  const CONCURRENCY = 5
+  const batch = urls.slice(0, limit)
 
-  await Promise.allSettled(
-    urls.slice(0, limit).map(async (url) => {
+  for (let i = 0; i < batch.length; i += CONCURRENCY) {
+    await Promise.allSettled(
+      batch.slice(i, i + CONCURRENCY).map(async (url) => {
       try {
         const res = await fetch(url, {
           headers: {
@@ -113,7 +116,8 @@ export async function fetchCeutaDeportiva(limit = 15): Promise<ParsedArticle[]> 
         // skip
       }
     })
-  )
+    )
+  }
 
   // Sort newest first
   return articles.sort((a, b) =>

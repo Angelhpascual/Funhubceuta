@@ -114,6 +114,15 @@ describe('cron/news GET', () => {
     await GET(new Request('http://localhost/api/cron/news'))
     expect(markNotifyQueued).not.toHaveBeenCalled()
   })
+
+  it('skips notification for article with null publishedAt (no date = not recent)', async () => {
+    const noDate = { ...article, publishedAt: null }
+    vi.mocked(fetchAdceutaOfficialNews).mockResolvedValue([noDate])
+    mockUpsertArticles.mockResolvedValue([noDate])
+
+    await GET(new Request('http://localhost/api/cron/news'))
+    expect(markNotifyQueued).not.toHaveBeenCalled()
+  })
 })
 
 describe('cron/news POST', () => {

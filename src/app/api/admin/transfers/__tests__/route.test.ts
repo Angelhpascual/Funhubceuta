@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
+vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
 vi.mock('@/infrastructure/admin/auth', () => ({
   checkAdminAuth: vi.fn(),
   unauthorizedResponse: () => new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 }),
@@ -11,6 +12,7 @@ vi.mock('@/infrastructure/supabase/TransfersRepository', () => ({
   deleteTransfer: vi.fn(),
 }))
 
+import { revalidatePath } from 'next/cache'
 import { checkAdminAuth } from '@/infrastructure/admin/auth'
 import { getTransfers, createTransfer, updateTransfer, deleteTransfer } from '@/infrastructure/supabase/TransfersRepository'
 import { GET, POST, PATCH, DELETE } from '../route'
@@ -52,13 +54,14 @@ describe('POST /api/admin/transfers', () => {
     expect(res.status).toBe(401)
   })
 
-  it('creates transfer and returns it', async () => {
+  it('creates transfer, revalidates /mercado and returns it', async () => {
     const created = { id: 'new-1', player: 'Nuevo', type: 'in' }
     vi.mocked(createTransfer).mockResolvedValue(created)
     const res = await POST(makeRequest('POST', { player: 'Nuevo', type: 'in' }))
     expect(res.status).toBe(200)
     const body = await res.json()
     expect(body.transfer.id).toBe('new-1')
+    expect(revalidatePath).toHaveBeenCalledWith('/mercado')
   })
 
   it('returns 500 when creation fails', async () => {
@@ -74,13 +77,14 @@ describe('PATCH /api/admin/transfers', () => {
     expect(res.status).toBe(400)
   })
 
-  it('updates transfer and returns ok:true', async () => {
+  it('updates transfer, revalidates /mercado and returns ok:true', async () => {
     vi.mocked(updateTransfer).mockResolvedValue(undefined)
     const res = await PATCH(makeRequest('PATCH', { id: '1', player: 'Updated' }))
     expect(res.status).toBe(200)
     const body = await res.json()
     expect(body.ok).toBe(true)
     expect(updateTransfer).toHaveBeenCalledWith('1', { player: 'Updated' })
+    expect(revalidatePath).toHaveBeenCalledWith('/mercado')
   })
 })
 
@@ -90,12 +94,13 @@ describe('DELETE /api/admin/transfers', () => {
     expect(res.status).toBe(400)
   })
 
-  it('deletes transfer and returns ok:true', async () => {
+  it('deletes transfer, revalidates /mercado and returns ok:true', async () => {
     vi.mocked(deleteTransfer).mockResolvedValue(undefined)
     const res = await DELETE(makeRequest('DELETE', { id: '1' }))
     expect(res.status).toBe(200)
     const body = await res.json()
     expect(body.ok).toBe(true)
     expect(deleteTransfer).toHaveBeenCalledWith('1')
+    expect(revalidatePath).toHaveBeenCalledWith('/mercado')
   })
 })

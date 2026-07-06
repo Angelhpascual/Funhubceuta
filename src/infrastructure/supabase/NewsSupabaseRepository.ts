@@ -11,33 +11,54 @@ export interface NewsImageBackfillRow {
 }
 
 export class NewsSupabaseRepository {
+  // Sources whose articles are published automatically (no admin approval needed)
+  static readonly AUTO_PUBLISH_SOURCES = new Set(['oficial', 'ceutadeportiva'])
+
   // Returns articles that were genuinely new (not previously in DB)
   async upsertArticles(articles: ParsedArticle[]): Promise<ParsedArticle[]> {
     if (articles.length === 0) return []
 
-    // Find which external_ids already exist
+    // Find which external_ids already exist — use admin client to bypass RLS
+    // so discarded articles (published=false) are visible and not re-inserted
     const ids = articles.map((a) => a.externalId)
-    const { data: existing } = await supabase
+    const { data: existing } = await supabaseAdmin
       .from('news')
       .select('external_id')
       .in('external_id', ids)
     const existingIds = new Set((existing ?? []).map((r) => r.external_id))
     const newArticles = articles.filter((a) => !existingIds.has(a.externalId))
 
-    const { error } = await supabase.from('news').upsert(
-      articles.map((a) => ({
-        external_id: a.externalId,
-        title: a.title,
-        description: a.description,
-        url: a.url,
-        image_url: a.imageUrl,
-        source: a.source,
-        published_at: a.publishedAt,
-      })),
-      { onConflict: 'external_id', ignoreDuplicates: false }
-    )
+    // Insert new articles (with published flag set by source rules)
+    if (newArticles.length > 0) {
+      const { error } = await supabaseAdmin.from('news').insert(
+        newArticles.map((a) => ({
+          external_id: a.externalId,
+          title: a.title,
+          description: a.description,
+          url: a.url,
+          image_url: a.imageUrl,
+          source: a.source,
+          published_at: a.publishedAt,
+          published: NewsSupabaseRepository.AUTO_PUBLISH_SOURCES.has(a.source),
+        }))
+      )
+      if (error) throw new Error(`Failed to insert news: ${error.message}`)
+    }
 
-    if (error) throw new Error(`Failed to upsert news: ${error.message}`)
+    // Update existing articles — never overwrite published or notify_queued (admin may have changed them)
+    const existingArticles = articles.filter((a) => existingIds.has(a.externalId))
+    if (existingArticles.length > 0) {
+      for (const a of existingArticles) {
+        await supabaseAdmin.from('news')
+          .update({
+            title: a.title,
+            description: a.description,
+            image_url: a.imageUrl,
+            published_at: a.publishedAt,
+          })
+          .eq('external_id', a.externalId)
+      }
+    }
     return newArticles
   }
 

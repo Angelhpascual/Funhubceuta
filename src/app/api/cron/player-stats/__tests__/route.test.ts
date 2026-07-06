@@ -80,12 +80,19 @@ describe('cron/player-stats GET', () => {
     )
   })
 
-  it('returns 500 when ESPN returns no athletes with stats', async () => {
+  it('returns 200 with updated=0 when ESPN returns no athletes with stats yet', async () => {
     mockEspnFetch([])
     vi.mocked(logCron).mockResolvedValue(undefined)
 
     const res = await GET(new Request('http://localhost/api/cron/player-stats'))
-    expect(res.status).toBe(500)
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body.ok).toBe(true)
+    expect(body.updated).toBe(0)
+    expect(upsertPlayerStats).not.toHaveBeenCalled()
+    expect(logCron).toHaveBeenCalledWith('player-stats', 'success', expect.any(Number),
+      expect.objectContaining({ updated: 0, warning: expect.any(String) })
+    )
   })
 
   it('returns 500 on ESPN HTTP failure', async () => {

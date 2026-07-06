@@ -1,6 +1,6 @@
 'use client'
 import { SOURCE_LABELS } from '@/lib/constants'
-
+import { supabase } from '@/infrastructure/supabase/client'
 import { useEffect, useState, useCallback } from 'react'
 
 interface QueuedArticle {
@@ -12,24 +12,42 @@ interface QueuedArticle {
   url: string
 }
 
-
 export function NotifQueue() {
   const [items, setItems] = useState<QueuedArticle[]>([])
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState<string | null>(null)
   const [feedback, setFeedback] = useState<Record<string, string>>({})
 
-  const load = useCallback(async (showSpinner = false) => {
-    if (showSpinner) setLoading(true)
+  const load = useCallback(async () => {
     const res = await fetch('/api/admin/notify-queue')
     const data = await res.json()
     setItems(data.items ?? [])
-    if (showSpinner) setLoading(false)
+    setLoading(false)
   }, [])
 
-  useEffect(() => { load(true) }, [load])
+  useEffect(() => {
+    load()
 
-  async function act(id: string, action: 'send' | 'discard') {
+    // Realtime: re-fetch whenever notify_queued changes on the news table
+    const channel = supabase
+      .channel('notif-queue-watch')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'news', filter: 'notify_queued=eq.true' },
+        () => { load() }
+      )
+      .subscribe()
+
+    // 5s fallback polling in case Realtime is not enabled on this table
+    const interval = setInterval(load, 5_000)
+
+    return () => {
+      supabase.removeChannel(channel)
+      clearInterval(interval)
+    }
+  }, [load])
+
+  async function act(id: string, action: 'send' | 'publish' | 'notify' | 'discard') {
     setBusy(id)
     const res = await fetch('/api/admin/notify-queue', {
       method: 'POST',
@@ -38,11 +56,14 @@ export function NotifQueue() {
     })
     const data = await res.json()
     if (res.ok) {
-      setFeedback((f) => ({
-        ...f,
-        [id]: action === 'send' ? `✓ Enviada a ${data.sent} suscriptores` : '✓ Descartada',
-      }))
-      setTimeout(() => load(), 1200)
+<<<<<<< HEAD
+      const msg =
+        action === 'send'    ? `✓ Publicada y enviada a ${data.sent} suscriptores` :
+        action === 'notify'  ? `✓ Notificada a ${data.sent} suscriptores`          :
+        action === 'publish' ? '✓ Publicada en noticias'                           :
+                               '✓ Descartada'
+      setFeedback((f) => ({ ...f, [id]: msg }))
+      setTimeout(() => setItems((prev) => prev.filter((a) => a.id !== id)), 1200)
     } else {
       setFeedback((f) => ({ ...f, [id]: `✗ ${data.error}` }))
     }
@@ -101,22 +122,46 @@ export function NotifQueue() {
                   disabled={busy === article.id}
                   style={{
                     background: 'none', border: 'none', borderRight: '1px solid var(--border)',
-                    padding: '11px 0', fontSize: 13, fontWeight: 700, cursor: 'pointer',
+                    borderBottom: '1px solid var(--border)',
+                    padding: '11px 0', fontSize: 11, fontWeight: 700, cursor: 'pointer',
                     color: 'var(--muted)',
                   }}
                 >
                   Descartar
                 </button>
                 <button
+                  onClick={() => act(article.id, 'publish')}
+                  disabled={busy === article.id}
+                  style={{
+                    background: 'none', border: 'none',
+                    borderBottom: '1px solid var(--border)',
+                    padding: '11px 0', fontSize: 11, fontWeight: 700, cursor: 'pointer',
+                    color: 'var(--black)',
+                  }}
+                >
+                  {busy === article.id ? '⏳' : '📰 Solo publicar'}
+                </button>
+                <button
+                  onClick={() => act(article.id, 'notify')}
+                  disabled={busy === article.id}
+                  style={{
+                    background: 'none', border: 'none', borderRight: '1px solid var(--border)',
+                    padding: '11px 0', fontSize: 11, fontWeight: 700, cursor: 'pointer',
+                    color: 'var(--black)',
+                  }}
+                >
+                  {busy === article.id ? '⏳' : '🔔 Solo notificar'}
+                </button>
+                <button
                   onClick={() => act(article.id, 'send')}
                   disabled={busy === article.id}
                   style={{
                     background: 'var(--red)', border: 'none',
-                    padding: '11px 0', fontSize: 13, fontWeight: 700, cursor: 'pointer',
+                    padding: '11px 0', fontSize: 11, fontWeight: 700, cursor: 'pointer',
                     color: 'var(--white)',
                   }}
                 >
-                  {busy === article.id ? '⏳' : '🔔 Enviar'}
+                  {busy === article.id ? '⏳' : '🔔📰 Pub. y notif.'}
                 </button>
               </div>
             )}

@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 vi.mock('@/lib/constants', () => ({
   ESPN_STANDINGS: 'https://espn.com/standings',
   CURRENT_SEASON: '2025-2026',
+  STANDINGS_CURRENT_SEASON: '2026-2027',
 }))
 vi.mock('@/infrastructure/supabase/client', () => ({
   supabase: {

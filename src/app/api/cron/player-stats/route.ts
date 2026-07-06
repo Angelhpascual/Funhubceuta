@@ -72,7 +72,14 @@ async function scrapePlayerStats() {
         }
       })
 
-    if (rows.length === 0) throw new Error('No athletes with stats found')
+    if (rows.length === 0) {
+      await logCron('player-stats', 'success', Date.now() - t0, {
+        updated: 0,
+        season: CURRENT_SEASON,
+        warning: 'No athletes with stats yet — season may not have started',
+      })
+      return 0
+    }
 
     await upsertPlayerStats(rows)
 

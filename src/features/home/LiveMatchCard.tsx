@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { LiveMatch } from '@/domain/match/LiveMatch'
 import { usePushNotifications } from '@/hooks/usePushNotifications'
-import { findLogo } from '@/lib/findLogo'
+import { getLocalLogo } from '@/lib/teamLogos'
 import { ScrapedMatch } from '@/infrastructure/scrapers/adceutaScraper'
 import Link from 'next/link'
 
@@ -39,12 +39,11 @@ function LiveBadge({ clock }: { clock: string }) {
   )
 }
 
-function TeamCrest({ name, logos }: { name: string; logos: Record<string, string> }) {
-  const logo = findLogo(logos, name)
+function TeamCrest({ name }: { name: string }) {
+  const logo = getLocalLogo(name)
   if (logo) {
     return (
       <div className="flex size-[52px] items-center justify-center rounded-full bg-white">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={logo} alt={name} className="size-9 object-contain" fetchPriority="high" />
       </div>
@@ -149,7 +148,7 @@ export function LiveMatchCard() {
   const [match, setMatch] = useState<LiveMatch | null>(null)
   const [nextMatch, setNextMatch] = useState<ScrapedMatch | null>(null)
   const [goalFlash, setGoalFlash] = useState(false)
-  const [logos, setLogos] = useState<Record<string, string>>({})
+
   const prevScoreRef = useRef<string>('')
   const { permission, subscribed, subscribe } = usePushNotifications()
 
@@ -175,23 +174,6 @@ export function LiveMatchCard() {
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
         if (d?.match) setNextMatch(d.match)
-      })
-      .catch(() => {})
-    fetch('/api/teams')
-      .then((r) => (r.ok ? r.json() : null))
-      .then((d) => {
-        if (d?.teams) {
-          const map: Record<string, string> = {}
-          for (const t of d.teams) if (t.logoUrl) map[t.name] = t.logoUrl
-          setLogos(map)
-          // Preload next match logos so they appear instantly
-          if (nextMatch) {
-            for (const teamName of [nextMatch.homeTeam, nextMatch.awayTeam]) {
-              const url = map[teamName] ?? Object.entries(map).find(([k]) => k.toLowerCase().includes(teamName.toLowerCase().slice(0, 5)))?.[1]
-              if (url) { const img = new Image(); img.src = url }
-            }
-          }
-        }
       })
       .catch(() => {})
 
@@ -230,7 +212,7 @@ export function LiveMatchCard() {
         <Competition />
         <div className="relative z-[1] mt-4 grid grid-cols-[1fr_auto_1fr] items-center gap-2.5">
           <div className="flex flex-col items-center gap-2">
-            <TeamCrest name={nextMatch.homeTeam} logos={logos} />
+            <TeamCrest name={nextMatch.homeTeam} />
             <div className="text-center font-display text-[15px] font-bold uppercase tracking-[0.04em]">
               {nextMatch.homeTeam}
             </div>
@@ -251,7 +233,7 @@ export function LiveMatchCard() {
             </div>
           </div>
           <div className="flex flex-col items-center gap-2">
-            <TeamCrest name={nextMatch.awayTeam} logos={logos} />
+            <TeamCrest name={nextMatch.awayTeam} />
             <div className="text-center font-display text-[15px] font-bold uppercase tracking-[0.04em]">
               {nextMatch.awayTeam}
             </div>
@@ -291,7 +273,7 @@ export function LiveMatchCard() {
 
       <div className="relative z-[1] mt-4 grid grid-cols-[1fr_auto_1fr] items-center gap-2.5">
         <div className="flex flex-col items-center gap-2">
-          <TeamCrest name={match.homeTeam} logos={logos} />
+          <TeamCrest name={match.homeTeam} />
           <div className="text-center font-display text-[15px] font-bold uppercase tracking-[0.04em]">
             {match.homeTeam}
           </div>
@@ -328,7 +310,7 @@ export function LiveMatchCard() {
           )}
         </div>
         <div className="flex flex-col items-center gap-2">
-          <TeamCrest name={match.awayTeam} logos={logos} />
+          <TeamCrest name={match.awayTeam} />
           <div className="text-center font-display text-[15px] font-bold uppercase tracking-[0.04em]">
             {match.awayTeam}
           </div>
