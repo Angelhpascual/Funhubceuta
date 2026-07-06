@@ -8,6 +8,7 @@ const supabaseAdmin = createClient(
 )
 
 const BUCKET = 'news-images'
+export const PLAYER_BUCKET = 'player-photos'
 const SUPABASE_HOST_RE = /\.supabase\.co$/i
 
 export function isStoredNewsImage(url: string | null | undefined): boolean {
@@ -27,10 +28,16 @@ export function newsImageFilename(source: string, externalId: string): string {
 
 export async function downloadAndUploadImage(
   sourceUrl: string,
-  filename: string
+  filename: string,
+  options: { bucket?: string; maxWidth?: number; maxHeight?: number; quality?: number } = {}
 ): Promise<string | null> {
+  const {
+    bucket = BUCKET,
+    maxWidth = 800,
+    maxHeight,
+    quality = 75,
+  } = options
   try {
-    // Download image from source (server-side, bypasses hotlink protection)
     const res = await fetch(sourceUrl, {
       headers: {
         'User-Agent':
@@ -43,17 +50,15 @@ export async function downloadAndUploadImage(
 
     const buffer = Buffer.from(await res.arrayBuffer())
 
-    // Convert to WebP and resize to max 800px wide
     const sharp = (await import('sharp')).default
     const webpBuffer = await sharp(buffer)
-      .resize(800, undefined, { withoutEnlargement: true })
-      .webp({ quality: 75 })
+      .resize(maxWidth, maxHeight, { withoutEnlargement: true, fit: 'inside' })
+      .webp({ quality })
       .toBuffer()
 
     const path = `${filename}.webp`
 
-    // Upload to Supabase Storage
-    const { error } = await supabaseAdmin.storage.from(BUCKET).upload(path, webpBuffer, {
+    const { error } = await supabaseAdmin.storage.from(bucket).upload(path, webpBuffer, {
       contentType: 'image/webp',
       cacheControl: '31536000',
       upsert: true,
@@ -64,8 +69,7 @@ export async function downloadAndUploadImage(
       return null
     }
 
-    // Return public URL
-    const { data } = supabaseAdmin.storage.from(BUCKET).getPublicUrl(path)
+    const { data } = supabaseAdmin.storage.from(bucket).getPublicUrl(path)
     return data.publicUrl
   } catch (err) {
     console.error('[imageUploader] Error:', err)

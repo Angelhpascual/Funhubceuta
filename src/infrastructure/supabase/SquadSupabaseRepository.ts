@@ -1,4 +1,5 @@
 import { supabase } from './client'
+import { supabaseAdmin } from './adminClient'
 import type { Player, Group } from '@/features/club/clubTypes'
 import type { ScrapedPlayer } from '@/infrastructure/scrapers/squadScraper'
 
@@ -51,8 +52,24 @@ export async function fetchPlayerById(id: string, season: string) {
   return data ?? null
 }
 
+const SUPABASE_HOST_RE = /\.supabase\.co$/i
+function isStoredUrl(url: string | null | undefined): boolean {
+  if (!url) return false
+  try { return SUPABASE_HOST_RE.test(new URL(url).hostname) } catch { return false }
+}
+
 export async function upsertSquad(players: ScrapedPlayer[], season: string): Promise<void> {
-  const { error } = await supabase.from('squad').upsert(
+  // Preserve already-optimized Supabase photo URLs so the scraper doesn't overwrite them
+  const { data: existing } = await supabaseAdmin
+    .from('squad')
+    .select('name,photo_url')
+    .eq('season', season)
+  const storedPhotos = new Map<string, string>()
+  for (const row of existing ?? []) {
+    if (isStoredUrl(row.photo_url)) storedPhotos.set(row.name as string, row.photo_url as string)
+  }
+
+  const { error } = await supabaseAdmin.from('squad').upsert(
     players.map((p) => ({
       dorsal: p.dorsal,
       name: p.name,
@@ -62,12 +79,27 @@ export async function upsertSquad(players: ScrapedPlayer[], season: string): Pro
       height: p.height,
       weight: p.weight,
       birth_date: p.birthDate,
-      photo_url: p.photoUrl,
+      photo_url: storedPhotos.get(p.name) ?? p.photoUrl,
       season,
     })),
     { onConflict: 'name,season', ignoreDuplicates: false }
   )
   if (error) throw new Error(`Failed to upsert squad: ${error.message}`)
+}
+
+export async function updatePlayerPhotoUrl(id: string, url: string): Promise<void> {
+  await supabaseAdmin.from('squad').update({ photo_url: url }).eq('id', id)
+}
+
+export async function getPlayersWithExternalPhotos(season: string): Promise<{ id: string; photo_url: string }[]> {
+  const { data } = await supabaseAdmin
+    .from('squad')
+    .select('id,photo_url')
+    .eq('season', season)
+    .not('photo_url', 'is', null)
+    .not('photo_url', 'ilike', '%supabase.co%')
+    .not('photo_url', 'ilike', '%/default/%')
+  return (data ?? []) as { id: string; photo_url: string }[]
 }
 
 export async function fetchSquadNames(season: string): Promise<{ id: string; name: string }[]> {

@@ -1,8 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('../client', () => ({ supabase: { from: vi.fn() } }))
+vi.mock('../adminClient', () => ({ supabaseAdmin: { from: vi.fn() } }))
 
 import { supabase } from '../client'
+import { supabaseAdmin } from '../adminClient'
 import {
   fetchSquadBySeason,
   fetchPlayerById,
@@ -124,8 +126,12 @@ describe('upsertSquad', () => {
   }
 
   it('upserts players with correct shape', async () => {
+    // select for existing stored photos
+    const selectMock = vi.fn().mockReturnValue({
+      eq: vi.fn().mockResolvedValue({ data: [] }),
+    })
     const upsertMock = vi.fn().mockResolvedValue({ error: null })
-    vi.mocked(supabase.from).mockReturnValue({ upsert: upsertMock } as never)
+    vi.mocked(supabaseAdmin.from).mockReturnValue({ select: selectMock, upsert: upsertMock } as never)
 
     await upsertSquad([scrapedPlayer], '2025-2026')
 
@@ -142,8 +148,11 @@ describe('upsertSquad', () => {
   })
 
   it('throws when supabase returns error', async () => {
+    const selectMock = vi.fn().mockReturnValue({
+      eq: vi.fn().mockResolvedValue({ data: [] }),
+    })
     const upsertMock = vi.fn().mockResolvedValue({ error: { message: 'db error' } })
-    vi.mocked(supabase.from).mockReturnValue({ upsert: upsertMock } as never)
+    vi.mocked(supabaseAdmin.from).mockReturnValue({ select: selectMock, upsert: upsertMock } as never)
     await expect(upsertSquad([scrapedPlayer], '2025-2026')).rejects.toThrow('db error')
   })
 })
