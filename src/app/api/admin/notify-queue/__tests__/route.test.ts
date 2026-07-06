@@ -91,10 +91,11 @@ describe('POST /api/admin/notify-queue', () => {
     expect(res.status).toBe(400)
   })
 
-  it('discard sets notify_queued=false without sending push', async () => {
+  it('discard sets notify_queued=false AND published=false, revalidates, no push', async () => {
     const eqMock = vi.fn().mockResolvedValue({ error: null })
+    const updateMock = vi.fn().mockReturnValue({ eq: eqMock })
     vi.mocked(supabaseAdmin.from).mockReturnValue({
-      update: vi.fn().mockReturnValue({ eq: eqMock }),
+      update: updateMock,
     } as never)
 
     const req = new Request('http://localhost/api/admin/notify-queue', {
@@ -104,7 +105,10 @@ describe('POST /api/admin/notify-queue', () => {
     const res = await POST(req)
     expect(res.status).toBe(200)
     expect(sendPush).not.toHaveBeenCalled()
+    expect(updateMock).toHaveBeenCalledWith({ notify_queued: false, published: false })
     expect(eqMock).toHaveBeenCalledWith('id', 'abc')
+    expect(revalidatePath).toHaveBeenCalledWith('/noticias')
+    expect(revalidatePath).toHaveBeenCalledWith('/')
   })
 
   it('notify sends push without publishing or revalidating', async () => {

@@ -26,7 +26,9 @@ export async function POST(req: Request) {
   if (!id || !action) return NextResponse.json({ error: 'Missing id or action' }, { status: 400 })
 
   if (action === 'discard') {
-    await supabaseAdmin.from('news').update({ notify_queued: false }).eq('id', id)
+    await supabaseAdmin.from('news').update({ notify_queued: false, published: false }).eq('id', id)
+    revalidatePath('/noticias')
+    revalidatePath('/')
     return NextResponse.json({ ok: true })
   }
 
