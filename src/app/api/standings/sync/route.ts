@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { StandingsSupabaseRepository } from '@/infrastructure/supabase/StandingsSupabaseRepository'
 import { TeamsSupabaseRepository } from '@/infrastructure/supabase/TeamsSupabaseRepository'
-import { ESPN_STANDINGS as ESPN, CURRENT_SEASON } from '@/lib/constants'
+import { ESPN_STANDINGS as ESPN, STANDINGS_CURRENT_SEASON as CURRENT_SEASON } from '@/lib/constants'
 
 function getDescription(position: number, total: number): string {
   if (position <= 2) return 'Promotion'
