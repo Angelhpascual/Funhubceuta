@@ -1,8 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('../client', () => ({ supabase: { from: vi.fn() } }))
+vi.mock('../adminClient', () => ({ supabaseAdmin: { from: vi.fn() } }))
 
 import { supabase } from '../client'
+import { supabaseAdmin } from '../adminClient'
 import { NewsSupabaseRepository } from '../NewsSupabaseRepository'
 
 const repo = new NewsSupabaseRepository()
@@ -24,7 +26,7 @@ describe('upsertArticles', () => {
     const insertMock = vi.fn().mockResolvedValue({ error: null })
     const inMock = vi.fn().mockResolvedValue({ data: [] }) // no existing
     const selectMock = vi.fn().mockReturnValue({ in: inMock })
-    vi.mocked(supabase.from).mockReturnValue({
+    vi.mocked(supabaseAdmin.from).mockReturnValue({
       select: selectMock,
       insert: insertMock,
     } as never)
@@ -40,7 +42,7 @@ describe('upsertArticles', () => {
     const insertMock = vi.fn().mockResolvedValue({ error: null })
     const inMock = vi.fn().mockResolvedValue({ data: [] })
     const selectMock = vi.fn().mockReturnValue({ in: inMock })
-    vi.mocked(supabase.from).mockReturnValue({
+    vi.mocked(supabaseAdmin.from).mockReturnValue({
       select: selectMock,
       insert: insertMock,
     } as never)
@@ -56,7 +58,7 @@ describe('upsertArticles', () => {
     const updateMock = vi.fn().mockReturnValue({ eq: vi.fn().mockResolvedValue({ error: null }) })
     const inMock = vi.fn().mockResolvedValue({ data: [{ external_id: 'existing-1' }] })
     const selectMock = vi.fn().mockReturnValue({ in: inMock })
-    vi.mocked(supabase.from).mockReturnValue({
+    vi.mocked(supabaseAdmin.from).mockReturnValue({
       select: selectMock,
       update: updateMock,
     } as never)
@@ -69,12 +71,48 @@ describe('upsertArticles', () => {
     )
   })
 
+  it('does NOT update notify_queued for existing articles (preserves discard state)', async () => {
+    const updateMock = vi.fn().mockReturnValue({ eq: vi.fn().mockResolvedValue({ error: null }) })
+    const inMock = vi.fn().mockResolvedValue({ data: [{ external_id: 'discarded-1' }] })
+    const selectMock = vi.fn().mockReturnValue({ in: inMock })
+    vi.mocked(supabaseAdmin.from).mockReturnValue({
+      select: selectMock,
+      update: updateMock,
+    } as never)
+
+    await repo.upsertArticles([makeArticle('discarded-1')])
+
+    expect(updateMock).toHaveBeenCalledWith(
+      expect.not.objectContaining({ notify_queued: expect.anything() })
+    )
+  })
+
+  it('does not re-insert discarded articles (published=false) visible via admin client', async () => {
+    // Admin client sees ALL articles including discarded ones
+    const insertMock = vi.fn().mockResolvedValue({ error: null })
+    const updateMock = vi.fn().mockReturnValue({ eq: vi.fn().mockResolvedValue({}) })
+    const inMock = vi.fn().mockResolvedValue({ data: [{ external_id: 'discarded-article' }] })
+    const selectMock = vi.fn().mockReturnValue({ in: inMock })
+    vi.mocked(supabaseAdmin.from).mockReturnValue({
+      select: selectMock,
+      insert: insertMock,
+      update: updateMock,
+    } as never)
+
+    const result = await repo.upsertArticles([makeArticle('discarded-article')])
+
+    // Should NOT insert — article already exists
+    expect(insertMock).not.toHaveBeenCalled()
+    // Should return empty array (no new articles)
+    expect(result).toHaveLength(0)
+  })
+
   it('returns only new articles', async () => {
     const insertMock = vi.fn().mockResolvedValue({ error: null })
     const inMock = vi.fn().mockResolvedValue({ data: [{ external_id: 'old' }] })
     const updateMock = vi.fn().mockReturnValue({ eq: vi.fn().mockResolvedValue({}) })
     const selectMock = vi.fn().mockReturnValue({ in: inMock })
-    vi.mocked(supabase.from).mockReturnValue({
+    vi.mocked(supabaseAdmin.from).mockReturnValue({
       select: selectMock,
       insert: insertMock,
       update: updateMock,

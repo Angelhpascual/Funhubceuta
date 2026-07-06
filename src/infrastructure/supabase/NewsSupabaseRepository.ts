@@ -1,4 +1,5 @@
 import { supabase } from './client'
+import { supabaseAdmin } from './adminClient'
 import { ParsedArticle } from '../rss/RssFetcher'
 import { NewsItem } from '@/domain/news/News'
 
@@ -17,9 +18,10 @@ export class NewsSupabaseRepository {
   async upsertArticles(articles: ParsedArticle[]): Promise<ParsedArticle[]> {
     if (articles.length === 0) return []
 
-    // Find which external_ids already exist
+    // Find which external_ids already exist — use admin client to bypass RLS
+    // so discarded articles (published=false) are visible and not re-inserted
     const ids = articles.map((a) => a.externalId)
-    const { data: existing } = await supabase
+    const { data: existing } = await supabaseAdmin
       .from('news')
       .select('external_id')
       .in('external_id', ids)
@@ -28,7 +30,7 @@ export class NewsSupabaseRepository {
 
     // Insert new articles (with published flag set by source rules)
     if (newArticles.length > 0) {
-      const { error } = await supabase.from('news').insert(
+      const { error } = await supabaseAdmin.from('news').insert(
         newArticles.map((a) => ({
           external_id: a.externalId,
           title: a.title,
@@ -43,11 +45,11 @@ export class NewsSupabaseRepository {
       if (error) throw new Error(`Failed to insert news: ${error.message}`)
     }
 
-    // Update existing articles — never overwrite published (admin may have changed it)
+    // Update existing articles — never overwrite published or notify_queued (admin may have changed them)
     const existingArticles = articles.filter((a) => existingIds.has(a.externalId))
     if (existingArticles.length > 0) {
       for (const a of existingArticles) {
-        await supabase.from('news')
+        await supabaseAdmin.from('news')
           .update({
             title: a.title,
             description: a.description,
