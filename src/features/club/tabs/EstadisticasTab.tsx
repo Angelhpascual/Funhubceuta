@@ -252,7 +252,7 @@ export function EstadisticasTab({
               {[
                 { v: c?.played ?? '—', l: 'Jugados' },
                 { v: c?.won    ?? '—', l: 'Victorias' },
-                { v: goalDiffStr,      l: 'Dif. goles' },
+                { v: c?.lost   ?? '—', l: 'Derrotas' },
               ].map(({ v, l }) => (
                 <div key={l} className="rounded-[10px] bg-white/[0.06] p-3">
                   <span className="block font-display text-[24px] font-black leading-none text-white">{v}</span>
