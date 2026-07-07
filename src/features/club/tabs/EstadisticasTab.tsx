@@ -205,10 +205,6 @@ export function EstadisticasTab({
     ? (c.goalDifference > 0 ? `+${c.goalDifference}` : String(c.goalDifference))
     : '—'
 
-  // Total tiros a puerta del equipo: suma de todos los jugadores en el leaderboard
-  const totalShotsOnTarget = activeLeaders?.shots_on_target?.leaders
-    ?.reduce((sum, p) => sum + p.value, 0) ?? null
-
   // Protagonistas: top scorer, top assister, top keeper
   const al = activeLeaders
   const topScorer  = al?.goals?.leaders?.[0]    ?? null
@@ -327,9 +323,9 @@ export function EstadisticasTab({
             </div>
 
             <div className="mt-3 flex items-baseline justify-between border-t border-[var(--border)] pt-3">
-              <span className="font-display text-[10px] font-bold uppercase tracking-[0.1em] text-[var(--muted)]">🎳 A puerta</span>
-              <span className="font-display text-[22px] font-black text-[var(--black)]">
-                {totalShotsOnTarget ?? '—'}
+              <span className="font-display text-[10px] font-bold uppercase tracking-[0.1em] text-[var(--muted)]">Diferencia</span>
+              <span className={`font-display text-[22px] font-black ${(c?.goalDifference ?? 0) >= 0 ? 'text-[var(--black)]' : 'text-[var(--red)]'}`}>
+                {goalDiffStr}
               </span>
             </div>
           </div>
