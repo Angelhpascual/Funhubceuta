@@ -23,6 +23,14 @@ const LOGOS: Record<string, string> = {
   valladolid:   '/logos/valladolid.webp',
   sporting:     '/logos/sporting.webp',
   tenerife:     '/logos/tenerife.webp',
+  // Equipos temporada 25/26 (ascendidos/descendidos)
+  malaga:       '/logos/malaga.webp',
+  racing:       '/logos/racing.webp',
+  deportivo:    '/logos/deportivo.webp',
+  huesca:       '/logos/huesca.webp',
+  mirandes:     '/logos/mirandes.webp',
+  zaragoza:     '/logos/zaragoza.webp',
+  leonesa:      '/logos/leonesa.webp',
 }
 
 const STOPWORDS = new Set(['fc', 'cf', 'ad', 'sd', 'ud', 'cd', 'rc', 'real', 'atletico', 'deportivo', 'club', 'balompie'])
@@ -54,6 +62,15 @@ const ALIASES: Record<string, string> = {
   'real oviedo': 'oviedo',
   'real valladolid': 'valladolid',
   'fc andorra': 'andorra',
+  'malaga cf': 'malaga',
+  'racing santander': 'racing',
+  'real racing club de santander': 'racing',
+  'deportivo la coruna': 'deportivo',
+  'deportivo la coruña': 'deportivo',
+  'sd huesca': 'huesca',
+  'cd mirandes': 'mirandes',
+  'real zaragoza': 'zaragoza',
+  'cultural leonesa': 'leonesa',
 }
 
 export function getLocalLogo(name: string): string | null {
