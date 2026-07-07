@@ -54,27 +54,11 @@ function ResultCard({ r }: { r: MatchRow }) {
           <div className={`fixt-tname ${ceutaHome ? 'mine' : ''}`}>{shortTeamName(r.home_team)}</div>
         </div>
 
-        {/* Score + alineación centered */}
-        <div className="flex flex-col items-center gap-1.5">
-          <div className="flex items-center gap-1 font-display text-[28px] font-black leading-none">
-            <span className={ceutaHome ? 'text-ceuta-red' : 'text-ceuta-black'}>{r.home_score}</span>
-            <span className="text-[18px] text-ceuta-muted">–</span>
-            <span className={!ceutaHome ? 'text-ceuta-red' : 'text-ceuta-black'}>{r.away_score}</span>
-          </div>
-          {r.espn_event_id && (
-            <Link
-              href={`/alineacion?eventId=${r.espn_event_id}&match=${encodeURIComponent(`${shortTeamName(r.home_team)} vs ${shortTeamName(r.away_team)}`)}&score=${r.home_score}-${r.away_score}`}
-              className="flex items-center gap-1 rounded-[6px] border-[1.5px] border-ceuta-black bg-ceuta-black px-2 py-[4px] no-underline"
-            >
-              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="3" width="18" height="18" rx="2" />
-                <path d="M3 9h18M3 15h18M9 3v18" />
-              </svg>
-              <span className="whitespace-nowrap font-display text-[9px] font-black uppercase tracking-[0.08em] text-white">
-                Alineación
-              </span>
-            </Link>
-          )}
+        {/* Score centered */}
+        <div className="flex items-center gap-3 font-display font-black leading-none">
+          <span className={`text-[38px] ${ceutaHome ? 'text-ceuta-red' : 'text-ceuta-black'}`}>{r.home_score}</span>
+          <span className="text-[20px] text-ceuta-muted">–</span>
+          <span className={`text-[38px] ${!ceutaHome ? 'text-ceuta-red' : 'text-ceuta-black'}`}>{r.away_score}</span>
         </div>
 
         <div className="flex items-center justify-end gap-2">
@@ -86,11 +70,25 @@ function ResultCard({ r }: { r: MatchRow }) {
         </div>
       </div>
 
-      {r.is_home && (
-        <div className="mt-1.5">
-          <span className="font-display text-[11px] uppercase tracking-[0.08em] text-ceuta-muted">A. Murube</span>
-        </div>
-      )}
+      <div className="mt-1.5 flex items-center justify-between">
+        <span className="font-display text-[11px] uppercase tracking-[0.08em] text-ceuta-muted">
+          {r.is_home ? 'A. Murube' : ''}
+        </span>
+        {r.espn_event_id && (
+          <Link
+            href={`/alineacion?eventId=${r.espn_event_id}&match=${encodeURIComponent(`${shortTeamName(r.home_team)} vs ${shortTeamName(r.away_team)}`)}&score=${r.home_score}-${r.away_score}`}
+            className="flex items-center gap-1.5 rounded-[6px] border-[1.5px] border-ceuta-black bg-ceuta-black px-2 py-1 no-underline"
+          >
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <path d="M3 9h18M3 15h18M9 3v18" />
+            </svg>
+            <span className="whitespace-nowrap font-display text-[9px] font-black uppercase tracking-[0.08em] text-white">
+              Alineación
+            </span>
+          </Link>
+        )}
+      </div>
     </div>
   )
 }
