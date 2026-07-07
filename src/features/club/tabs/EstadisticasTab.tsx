@@ -5,14 +5,14 @@ import { StandingEntry } from '@/domain/standings/Standings'
 import type { LeadersMap } from '../clubTypes'
 
 const LB_KEYS = [
-  { key: 'goals',           label: 'Goles',      unit: 'Goles en liga' },
-  { key: 'assists',         label: 'Asistencias', unit: 'Asistencias' },
-  { key: 'appearances',    label: 'Partidos',    unit: 'Partidos jugados' },
-  { key: 'shots',          label: 'Tiros',       unit: 'Tiros totales' },
-  { key: 'shots_on_target', label: 'A puerta',   unit: 'Tiros a puerta' },
-  { key: 'saves',          label: 'Paradas',     unit: 'Paradas' },
-  { key: 'yellow_cards',   label: 'Amarillas',   unit: 'Tarjetas amarillas' },
-  { key: 'red_cards',      label: 'Rojas',       unit: 'Tarjetas rojas' },
+  { key: 'goals',           label: 'Goles',       unit: '⚽ Goles en liga' },
+  { key: 'assists',         label: 'Asistencias', unit: '🎯 Asistencias' },
+  { key: 'appearances',    label: 'Partidos',     unit: '🏟️ Partidos jugados' },
+  { key: 'shots',          label: 'Tiros',        unit: '💥 Tiros totales' },
+  { key: 'shots_on_target', label: 'A puerta',    unit: '🎳 Tiros a puerta' },
+  { key: 'saves',          label: 'Paradas',      unit: '🧤 Paradas' },
+  { key: 'yellow_cards',   label: 'Amarillas',    unit: '🟨 Tarjetas amarillas' },
+  { key: 'red_cards',      label: 'Rojas',        unit: '🟥 Tarjetas rojas' },
 ]
 
 function initials(name: string) {
