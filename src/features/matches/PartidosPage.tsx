@@ -20,69 +20,101 @@ interface MatchRow {
   espn_event_id: string | null
 }
 
-function resultBadge(r: string | null) {
-  const item = resultLabel(r)
-  if (!item) return null
-  return <span className={`result-badge ${item.cls}`}>{item.label}</span>
-}
-
 interface Props {
   upcoming?: MatchRow[]
   results?: MatchRow[]
   previousSeason?: MatchRow[]
-
 }
 
-function ResultCard({ r }: { r: MatchRow }) {
-  const { day, mon } = formatMatchDate(r.date)
-  const ceutaHome = r.home_team.toLowerCase().includes('ceuta')
-  const cls = r.result === 'W' ? 'win' : r.result === 'L' ? 'lose' : 'draw'
-  const homeScoreCls = ceutaHome
-    ? r.result === 'W' ? 'win' : r.result === 'L' ? 'lose' : ''
-    : r.result === 'L' ? 'win' : r.result === 'W' ? 'lose' : ''
-  const awayScoreCls = !ceutaHome
-    ? r.result === 'W' ? 'win' : r.result === 'L' ? 'lose' : ''
-    : r.result === 'L' ? 'win' : r.result === 'W' ? 'lose' : ''
+function TeamLogo({ team, size = 20 }: { team: string; size?: number }) {
+  const logo = getLocalLogo(team)
+  if (logo) return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src={logo} alt="" className="shrink-0 object-contain" style={{ width: size, height: size }} />
+  )
+  return <div className="shrink-0 rounded-full bg-[var(--bg-mid)]" style={{ width: size, height: size }} />
+}
+
+function MatchCard({ m }: { m: MatchRow }) {
+  const { day, mon } = formatMatchDate(m.date)
+  const finished = m.result != null
+  const ceutaHome = m.home_team.toLowerCase().includes('ceuta')
+  const borderCls = finished
+    ? m.result === 'W' ? 'win' : m.result === 'L' ? 'lose' : 'draw'
+    : ''
+  const badge = finished ? resultLabel(m.result) : null
+
+  const homeScoreCls = finished
+    ? (ceutaHome ? (m.result === 'W' ? 'text-[var(--black)]' : 'text-[var(--loss)]') : (m.result === 'L' ? 'text-[var(--black)]' : 'text-[var(--loss)]'))
+    : ''
+  const awayScoreCls = finished
+    ? (!ceutaHome ? (m.result === 'W' ? 'text-[var(--black)]' : 'text-[var(--loss)]') : (m.result === 'L' ? 'text-[var(--black)]' : 'text-[var(--loss)]'))
+    : ''
+
+  const dateLabel = new Date(m.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', timeZone: 'UTC' })
+  const venueLabel = m.is_home ? ' · A. Murube' : ''
 
   return (
-    <div className={`result-card ${cls}`}>
+    <div className={`result-card ${borderCls}`}>
+      {/* Teams + score */}
       <div className="result-card-row">
+        {/* Date col */}
         <div className="result-date-col">
           <div className="result-day">{day}</div>
           <div className="result-mon">{mon}</div>
         </div>
+
+        {/* Teams col */}
         <div className="result-teams-col">
           <div className="result-team-row">
-            {getLocalLogo(r.home_team) ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={getLocalLogo(r.home_team) ?? ''} alt="" className="size-[18px] shrink-0 object-contain" />
-            ) : (
-              <div className="size-[18px] shrink-0" />
+            <TeamLogo team={m.home_team} size={18} />
+            <span className={`result-team-name ${ceutaHome ? 'bold' : ''}`}>
+              {shortTeamName(m.home_team)}
+            </span>
+            {finished && (
+              <span className={`font-display text-[26px] font-black leading-none ${homeScoreCls}`}>
+                {m.home_score}
+              </span>
             )}
-            <div className={`result-team-name ${ceutaHome ? 'bold' : ''}`}>
-              {shortTeamName(r.home_team)}
-            </div>
-            <div className={`result-score ${homeScoreCls}`}>{r.home_score}</div>
           </div>
           <div className="result-team-row">
-            {getLocalLogo(r.away_team) ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={getLocalLogo(r.away_team) ?? ''} alt="" className="size-[18px] shrink-0 object-contain" />
-            ) : (
-              <div className="size-[18px] shrink-0" />
+            <TeamLogo team={m.away_team} size={18} />
+            <span className={`result-team-name ${!ceutaHome ? 'bold' : ''}`}>
+              {shortTeamName(m.away_team)}
+            </span>
+            {finished && (
+              <span className={`font-display text-[26px] font-black leading-none ${awayScoreCls}`}>
+                {m.away_score}
+              </span>
             )}
-            <div className={`result-team-name ${!ceutaHome ? 'bold' : ''}`}>
-              {shortTeamName(r.away_team)}
-            </div>
-            <div className={`result-score ${awayScoreCls}`}>{r.away_score}</div>
           </div>
         </div>
-        <div className="flex flex-col items-end gap-1.5">
-          {resultBadge(r.result)}
-          {r.espn_event_id && (
+      </div>
+
+      {/* Footer: date/venue + badge + alineación */}
+      <div className="flex items-center justify-between gap-2">
+        <span className="font-display text-[10px] font-bold uppercase tracking-[0.1em] text-[var(--muted)]">
+          Liga Hypermotion · {dateLabel}{venueLabel}
+        </span>
+
+        <div className="flex shrink-0 items-center gap-1.5">
+          {badge && (
+            <span className={`result-badge ${badge.cls}`}>{badge.label}</span>
+          )}
+          {!finished && m.tickets_url && (
+            <a
+              href={m.tickets_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="match-cta px-[10px] py-1 text-[10px]"
+            >
+              Entradas
+            </a>
+          )}
+          {m.espn_event_id && (
             <Link
-              href={`/alineacion?eventId=${r.espn_event_id}&match=${encodeURIComponent(`${shortTeamName(r.home_team)} vs ${shortTeamName(r.away_team)}`)}&score=${r.home_score}-${r.away_score}`}
-              className="flex items-center gap-1.5 rounded-[6px] border-[1.5px] border-ceuta-black bg-ceuta-black px-2 py-1 no-underline"
+              href={`/alineacion?eventId=${m.espn_event_id}&match=${encodeURIComponent(`${shortTeamName(m.home_team)} vs ${shortTeamName(m.away_team)}`)}&score=${m.home_score ?? ''}-${m.away_score ?? ''}`}
+              className="flex items-center gap-1 rounded-[6px] border-[1.5px] border-[var(--black)] bg-[var(--black)] px-2 py-[5px] no-underline"
             >
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="3" y="3" width="18" height="18" rx="2" />
@@ -97,6 +129,19 @@ function ResultCard({ r }: { r: MatchRow }) {
       </div>
     </div>
   )
+}
+
+function groupByMonth(matches: MatchRow[]) {
+  const groups: { label: string; matches: MatchRow[] }[] = []
+  for (const m of matches) {
+    const label = new Date(m.date)
+      .toLocaleString('es-ES', { month: 'long', year: 'numeric', timeZone: 'UTC' })
+      .replace(/^\w/, (c) => c.toUpperCase())
+    const existing = groups.find((g) => g.label === label)
+    if (existing) existing.matches.push(m)
+    else groups.push({ label, matches: [m] })
+  }
+  return groups
 }
 
 export function PartidosPage({ upcoming = [], results = [], previousSeason = [] }: Props) {
@@ -118,17 +163,6 @@ export function PartidosPage({ upcoming = [], results = [], previousSeason = [] 
     ...(previousSeason.length > 0 ? [{ id: 'temporada-anterior', l: 'Temp. 25/26' }] : []),
   ]
 
-  // Group previousSeason matches by month label
-  const prevByMonth: { label: string; matches: MatchRow[] }[] = []
-  for (const m of previousSeason) {
-    const label = new Date(m.date)
-      .toLocaleString('es-ES', { month: 'long', year: 'numeric', timeZone: 'UTC' })
-      .replace(/^\w/, (c) => c.toUpperCase())
-    const existing = prevByMonth.find((g) => g.label === label)
-    if (existing) existing.matches.push(m)
-    else prevByMonth.push({ label, matches: [m] })
-  }
-
   return (
     <div className="page">
       {/* ── HERO ── */}
@@ -142,7 +176,7 @@ export function PartidosPage({ upcoming = [], results = [], previousSeason = [] 
         />
         <div className="flex items-center gap-2 font-display text-[11px] font-bold uppercase tracking-[0.16em] text-ceuta-red">
           <div className="h-0.5 w-[18px] bg-ceuta-red" />
-          Temporada 2025–26 · Liga Hypermotion
+          Temporada 2026–27 · Liga Hypermotion
         </div>
         <div className="mt-2 font-display text-[38px] font-black uppercase leading-[0.95]">
           PARTIDOS <em className="not-italic text-ceuta-gold">Y</em>
@@ -165,71 +199,15 @@ export function PartidosPage({ upcoming = [], results = [], previousSeason = [] 
 
       {tab === 'proximos' && (
         <>
-          <div className="month-label">
-            {upcoming[0]
-              ? new Date(upcoming[0].date)
-                  .toLocaleString('es-ES', { month: 'long', year: 'numeric', timeZone: 'UTC' })
-                  .replace(/^\w/, (c) => c.toUpperCase())
-              : 'Próximos partidos'}
-          </div>
           {upcoming.length === 0 ? (
             <p className="px-4 py-5 font-display text-[13px] uppercase tracking-[0.06em] text-ceuta-muted">
               No hay próximos partidos
             </p>
           ) : (
-            upcoming.map((m, i) => (
-              <div key={i} className="fixt-card">
-                <div className="fixt-head">
-                  <div className="fixt-comp">Liga Hypermotion</div>
-                  <div className="fixt-date">
-                    {m.matchday ? `Jornada ${m.matchday}` : 'Por confirmar'}
-                  </div>
-                </div>
-                <div className="fixt-teams items-center">
-                  <div className="flex items-center gap-2">
-                    {getLocalLogo(m.home_team) ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={getLocalLogo(m.home_team) ?? ''} alt="" className="size-7 object-contain" />
-                    ) : (
-                      <div className="size-7 rounded-full bg-ceuta-bg-mid" />
-                    )}
-                    <div className={`fixt-tname ${m.is_home ? 'mine' : ''}`}>
-                      {shortTeamName(m.home_team)}
-                    </div>
-                  </div>
-                  <div className="fixt-vs">VS</div>
-                  <div className="flex items-center justify-end gap-2">
-                    <div className={`fixt-tname away ${!m.is_home ? 'mine' : ''}`}>
-                      {shortTeamName(m.away_team)}
-                    </div>
-                    {getLocalLogo(m.away_team) ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={getLocalLogo(m.away_team) ?? ''} alt="" className="size-7 object-contain" />
-                    ) : (
-                      <div className="size-7 rounded-full bg-ceuta-bg-mid" />
-                    )}
-                  </div>
-                </div>
-                <div className="mt-1.5 flex items-center justify-between">
-                  <span className="font-display text-[11px] uppercase tracking-[0.08em] text-ceuta-muted">
-                    {new Date(m.date).toLocaleDateString('es-ES', {
-                      day: 'numeric',
-                      month: 'long',
-                      timeZone: 'UTC',
-                    })}
-                    {m.is_home ? ' · A. Murube' : ''}
-                  </span>
-                  {m.tickets_url && (
-                    <a
-                      href={m.tickets_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="match-cta px-[10px] py-1 text-[10px]"
-                    >
-                      Entradas
-                    </a>
-                  )}
-                </div>
+            groupByMonth(upcoming).map((group) => (
+              <div key={group.label}>
+                <div className="month-label">{group.label}</div>
+                {group.matches.map((m, i) => <MatchCard key={i} m={m} />)}
               </div>
             ))
           )}
@@ -243,27 +221,27 @@ export function PartidosPage({ upcoming = [], results = [], previousSeason = [] 
               No hay resultados todavía
             </p>
           ) : (
-            results.map((r, i) => <ResultCard key={i} r={r} />)
+            groupByMonth(results).map((group) => (
+              <div key={group.label}>
+                <div className="month-label">{group.label}</div>
+                {group.matches.map((r, i) => <MatchCard key={i} m={r} />)}
+              </div>
+            ))
           )}
         </>
       )}
 
       {tab === 'temporada-anterior' && (
         <>
-          <div className="px-4 py-3 font-display text-[11px] font-bold uppercase tracking-[0.14em] text-ceuta-muted">
-            Temporada 2025–26 · Temporada anterior
-          </div>
           {previousSeason.length === 0 ? (
             <p className="px-4 py-5 font-display text-[13px] uppercase tracking-[0.06em] text-ceuta-muted">
               No hay datos de la temporada anterior
             </p>
           ) : (
-            prevByMonth.map((group) => (
+            groupByMonth(previousSeason).map((group) => (
               <div key={group.label}>
                 <div className="month-label">{group.label}</div>
-                {group.matches.map((r, i) => (
-                  <ResultCard key={i} r={r} />
-                ))}
+                {group.matches.map((r, i) => <MatchCard key={i} m={r} />)}
               </div>
             ))
           )}
