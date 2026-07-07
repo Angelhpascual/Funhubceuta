@@ -3,6 +3,20 @@ import type { ScrapedMatch, ScrapedResult } from '@/infrastructure/scrapers/adce
 import { CURRENT_SEASON, COMPETITION } from '@/lib/constants'
 import { deduplicateMatches } from '@/lib/deduplicateMatches'
 
+export interface HomeAwaySlot {
+  played: number
+  won: number
+  drawn: number
+  lost: number
+  goalsFor: number
+  goalsAgainst: number
+}
+
+export interface HomeAwaySplit {
+  home: HomeAwaySlot
+  away: HomeAwaySlot
+}
+
 export class MatchesSupabaseRepository {
   async upsertResults(results: ScrapedResult[]): Promise<void> {
     if (results.length === 0) return
@@ -121,5 +135,34 @@ export class MatchesSupabaseRepository {
       .order('date', { ascending: false })
       .limit(limit)
     return (data ?? []).map((m) => m.result as string).reverse()
+  }
+
+  async fetchHomeAwaySplit(season: string): Promise<HomeAwaySplit> {
+    const { data } = await supabase
+      .from('matches')
+      .select('is_home, result, home_score, away_score')
+      .eq('season', season)
+      .eq('status', 'finished')
+      .not('result', 'is', null)
+
+    const split: HomeAwaySplit = {
+      home: { played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0 },
+      away: { played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0 },
+    }
+
+    for (const m of data ?? []) {
+      const slot = m.is_home ? split.home : split.away
+      slot.played++
+      if (m.result === 'W') slot.won++
+      else if (m.result === 'D') slot.drawn++
+      else if (m.result === 'L') slot.lost++
+
+      const gf = m.is_home ? (m.home_score ?? 0) : (m.away_score ?? 0)
+      const ga = m.is_home ? (m.away_score ?? 0) : (m.home_score ?? 0)
+      slot.goalsFor += gf
+      slot.goalsAgainst += ga
+    }
+
+    return split
   }
 }

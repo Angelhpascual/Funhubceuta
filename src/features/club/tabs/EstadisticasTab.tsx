@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import { StandingEntry } from '@/domain/standings/Standings'
 import type { LeadersMap } from '../clubTypes'
+import type { HomeAwaySplit } from '@/infrastructure/supabase/MatchesSupabaseRepository'
 
 const LB_KEYS = [
   { key: 'goals',           label: 'Goles',      unit: 'Goles en liga' },
@@ -144,12 +145,14 @@ export function EstadisticasTab({
   form,
   leaders,
   previousLeaders,
+  homeAway,
 }: {
   ceuta: StandingEntry | null
   ceutaPrevious?: StandingEntry | null
   form: string[]
   leaders: LeadersMap | null
   previousLeaders?: LeadersMap | null
+  homeAway?: HomeAwaySplit | null
 }) {
   const [season, setSeason] = useState<'2526' | '2627'>('2526')
 
@@ -197,9 +200,7 @@ export function EstadisticasTab({
   const c = activeCeuta
   const gfMax = Math.max(c?.goalsFor ?? 0, c?.goalsAgainst ?? 0, 1)
   const totalGames = (c?.played ?? 0)
-  // WDL: Victoria=blanco, Empate=negro, Derrota=rojo (--win/--draw/--loss)
-  const lossPct  = totalGames > 0 ? ((c?.lost  ?? 0) / totalGames) * 360 : 0
-  const wdPct    = totalGames > 0 ? (((c?.lost ?? 0) + (c?.drawn ?? 0)) / totalGames) * 360 : 0
+  const ha = homeAway ?? null
 
   const goalDiffStr = c
     ? (c.goalDifference > 0 ? `+${c.goalDifference}` : String(c.goalDifference))
@@ -272,34 +273,34 @@ export function EstadisticasTab({
         {/* ── WDL + GOALS (2 col) ── */}
         <div className="grid grid-cols-2 gap-3">
 
-          {/* WDL card */}
+          {/* Casa vs Fuera */}
           <div className="rounded-[14px] border border-[var(--border)] bg-[var(--white)] p-4">
             <p className="mb-3 font-display text-[10px] font-bold uppercase tracking-[0.12em] text-[var(--muted)]">
-              Resultados · {c?.played ?? 0} PJ
+              Casa vs Fuera
             </p>
-
-            {/* Donut: derrota=rojo, empate=negro, victoria=borde-suave (blanco puro sería invisible sobre fondo blanco) */}
-            <div className="relative mx-auto mb-4 size-[90px] rounded-full"
-              style={{ background: `conic-gradient(var(--loss) 0deg ${lossPct}deg, var(--draw) ${lossPct}deg ${wdPct}deg, var(--border) ${wdPct}deg 360deg)` }}>
-              <div className="absolute inset-[14px] flex flex-col items-center justify-center rounded-full bg-white">
-                <span className="font-display text-[20px] font-black leading-none">{c?.played ?? 0}</span>
-                <span className="font-display text-[7px] font-bold uppercase tracking-[0.1em] text-[var(--muted)]">PJ</span>
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              {[
-                { label: 'Victorias', val: c?.won   ?? 0, color: 'var(--win)',  border: true  },
-                { label: 'Empates',   val: c?.drawn ?? 0, color: 'var(--draw)', border: false },
-                { label: 'Derrotas',  val: c?.lost  ?? 0, color: 'var(--loss)', border: false },
-              ].map(({ label, val, color, border }) => (
-                <div key={label} className="flex items-center gap-2">
-                  <span className="size-[9px] shrink-0 rounded-[2px]" style={{ background: color, border: border ? '1.5px solid var(--black)' : 'none' }} />
-                  <span className="flex-1 font-display text-[11px] font-bold uppercase tracking-wide text-[var(--black)]">{label}</span>
-                  <span className="font-display text-[15px] font-black">{val}</span>
+            {[
+              { label: 'Casa', slot: ha?.home },
+              { label: 'Fuera', slot: ha?.away },
+            ].map(({ label, slot }) => (
+              <div key={label} className="mb-3 last:mb-0">
+                <p className="mb-1 font-display text-[11px] font-bold uppercase tracking-wide text-[var(--black)]">{label}</p>
+                <div className="flex justify-between text-center">
+                  {[
+                    { l: 'PJ', v: slot?.played ?? 0 },
+                    { l: 'V',  v: slot?.won    ?? 0 },
+                    { l: 'E',  v: slot?.drawn  ?? 0 },
+                    { l: 'D',  v: slot?.lost   ?? 0 },
+                    { l: 'GF', v: slot?.goalsFor    ?? 0 },
+                    { l: 'GC', v: slot?.goalsAgainst ?? 0 },
+                  ].map(({ l, v }) => (
+                    <div key={l}>
+                      <span className="block font-display text-[16px] font-black leading-none text-[var(--black)]">{v}</span>
+                      <span className="font-display text-[8px] font-bold uppercase tracking-wide text-[var(--muted)]">{l}</span>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
 
           {/* Goals card */}
