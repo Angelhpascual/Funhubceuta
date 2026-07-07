@@ -12,7 +12,9 @@ export default async function PartidosServerPage() {
     repo.fetchBySeason(STANDINGS_PREVIOUS_SEASON, 200),
   ])
 
-  const previous = previousSeason.sort((a, b) => b.date.localeCompare(a.date))
+  const previous = previousSeason
+    .filter((m) => m.status === 'finished')
+    .sort((a, b) => b.date.localeCompare(a.date))
 
   return (
     <PartidosPage
