@@ -112,7 +112,11 @@ export function PartidosPage({ upcoming = [], results = [], previousSeason = [] 
     setTab(t)
   }
 
-
+  const tabs = [
+    { id: 'proximos', l: 'Próximos' },
+    { id: 'resultados', l: 'Resultados' },
+    ...(previousSeason.length > 0 ? [{ id: 'temporada-anterior', l: 'Temp. 24/25' }] : []),
+  ]
 
   // Group previousSeason matches by month label
   const prevByMonth: { label: string; matches: MatchRow[] }[] = []
@@ -138,7 +142,7 @@ export function PartidosPage({ upcoming = [], results = [], previousSeason = [] 
         />
         <div className="flex items-center gap-2 font-display text-[11px] font-bold uppercase tracking-[0.16em] text-ceuta-red">
           <div className="h-0.5 w-[18px] bg-ceuta-red" />
-          Temporada 2026–27 · Liga Hypermotion
+          Temporada 2025–26 · Liga Hypermotion
         </div>
         <div className="mt-2 font-display text-[38px] font-black uppercase leading-[0.95]">
           PARTIDOS <em className="not-italic text-ceuta-gold">Y</em>
@@ -148,11 +152,7 @@ export function PartidosPage({ upcoming = [], results = [], previousSeason = [] 
       </div>
 
       <div className="chips mt-4 mb-2">
-        {[
-          { id: 'proximos', l: 'Próximos' },
-          { id: 'resultados', l: 'Resultados' },
-          { id: 'temporada-anterior', l: 'Temp. 25/26' },
-        ].map((t) => (
+        {tabs.map((t) => (
           <button
             key={t.id}
             className={`chip ${tab === t.id ? 'active' : ''}`}
@@ -238,10 +238,13 @@ export function PartidosPage({ upcoming = [], results = [], previousSeason = [] 
 
       {tab === 'resultados' && (
         <>
-          <div className="month-label">Últimos partidos</div>
-          {results.map((r, i) => (
-            <ResultCard key={i} r={r} />
-          ))}
+          {results.length === 0 ? (
+            <p className="px-4 py-5 font-display text-[13px] uppercase tracking-[0.06em] text-ceuta-muted">
+              No hay resultados todavía
+            </p>
+          ) : (
+            results.map((r, i) => <ResultCard key={i} r={r} />)
+          )}
         </>
       )}
 

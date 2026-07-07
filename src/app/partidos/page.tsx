@@ -1,26 +1,18 @@
 import { PartidosPage } from '@/features/matches/PartidosPage'
 import { MatchesSupabaseRepository } from '@/infrastructure/supabase/MatchesSupabaseRepository'
-import { STANDINGS_CURRENT_SEASON, STANDINGS_PREVIOUS_SEASON } from '@/lib/constants'
+import { CURRENT_SEASON } from '@/lib/constants'
 
 export const revalidate = 300
 
 const repo = new MatchesSupabaseRepository()
 
 export default async function PartidosServerPage() {
-  const [{ upcoming, results }, previousSeason] = await Promise.all([
-    repo.fetchSeasonMatches(STANDINGS_CURRENT_SEASON),
-    repo.fetchBySeason(STANDINGS_PREVIOUS_SEASON, 200),
-  ])
-
-  const previous = previousSeason
-    .filter((m) => m.status === 'finished')
-    .sort((a, b) => b.date.localeCompare(a.date))
+  const { upcoming, results } = await repo.fetchSeasonMatches(CURRENT_SEASON)
 
   return (
     <PartidosPage
       upcoming={upcoming}
       results={results}
-      previousSeason={previous}
     />
   )
 }
