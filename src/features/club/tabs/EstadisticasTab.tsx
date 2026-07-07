@@ -278,9 +278,9 @@ export function EstadisticasTab({
               Resultados · {c?.played ?? 0} PJ
             </p>
 
-            {/* Donut: usa --loss/--draw/--win (derrota=rojo, empate=negro, victoria=blanco) */}
+            {/* Donut: derrota=rojo, empate=negro, victoria=borde-suave (blanco puro sería invisible sobre fondo blanco) */}
             <div className="relative mx-auto mb-4 size-[90px] rounded-full"
-              style={{ background: `conic-gradient(var(--loss) 0deg ${lossPct}deg, var(--draw) ${lossPct}deg ${wdPct}deg, var(--win) ${wdPct}deg 360deg)` }}>
+              style={{ background: `conic-gradient(var(--loss) 0deg ${lossPct}deg, var(--draw) ${lossPct}deg ${wdPct}deg, var(--border) ${wdPct}deg 360deg)` }}>
               <div className="absolute inset-[14px] flex flex-col items-center justify-center rounded-full bg-white">
                 <span className="font-display text-[20px] font-black leading-none">{c?.played ?? 0}</span>
                 <span className="font-display text-[7px] font-bold uppercase tracking-[0.1em] text-[var(--muted)]">PJ</span>
