@@ -7,7 +7,6 @@ import { EstadisticasTab } from './tabs/EstadisticasTab'
 import { PlantillaTab } from './tabs/PlantillaTab'
 import { HistoriaTab } from './tabs/HistoriaTab'
 import type { Group, LeadersMap } from './clubTypes'
-import type { HomeAwaySplit } from '@/infrastructure/supabase/MatchesSupabaseRepository'
 
 const TABS = [
   { id: 'stats', label: 'Estadísticas' },
@@ -25,7 +24,6 @@ interface Props {
   form?: string[]
   leaders?: LeadersMap | null
   previousLeaders?: LeadersMap | null
-  homeAway?: HomeAwaySplit | null
 }
 
 export function ClubPage({
@@ -38,7 +36,6 @@ export function ClubPage({
   form = [],
   leaders = null,
   previousLeaders = null,
-  homeAway = null,
 }: Props) {
   const searchParams = useSearchParams()
   const [tab, setTab] = useState(() => searchParams.get('tab') ?? 'stats')
@@ -82,7 +79,7 @@ export function ClubPage({
         ))}
       </div>
 
-      {tab === 'stats' && <EstadisticasTab ceuta={ceuta} ceutaPrevious={ceutaPrevious} form={form} leaders={leaders} previousLeaders={previousLeaders} homeAway={homeAway} />}
+      {tab === 'stats' && <EstadisticasTab ceuta={ceuta} ceutaPrevious={ceutaPrevious} form={form} leaders={leaders} previousLeaders={previousLeaders} />}
       {tab === 'plantilla' && <PlantillaTab grouped={grouped} total={total} previousGrouped={previousGrouped} previousTotal={previousTotal} loading={false} />}
       {tab === 'historia' && <HistoriaTab />}
 

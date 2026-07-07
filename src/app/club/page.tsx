@@ -6,7 +6,6 @@ import { CURRENT_SEASON, PREVIOUS_SEASON, STANDINGS_CURRENT_SEASON, STANDINGS_PR
 import { fetchCeutaForm } from '@/lib/serverFetches'
 import { fetchSquadBySeason } from '@/infrastructure/supabase/SquadSupabaseRepository'
 import { fetchLeadersBySeason } from '@/infrastructure/supabase/PlayerStatsRepository'
-import { MatchesSupabaseRepository } from '@/infrastructure/supabase/MatchesSupabaseRepository'
 
 export const revalidate = 300
 
@@ -17,8 +16,6 @@ async function fetchCeuta(season: string) {
 }
 
 export default async function ClubServerPage() {
-  const matchesRepo = new MatchesSupabaseRepository()
-
   const [
     { grouped, total },
     { grouped: previousGrouped, total: previousTotal },
@@ -27,7 +24,6 @@ export default async function ClubServerPage() {
     form,
     leaders,
     previousLeaders,
-    homeAway,
   ] = await Promise.all([
     fetchSquadBySeason(CURRENT_SEASON),
     fetchSquadBySeason(PREVIOUS_SEASON),
@@ -36,7 +32,6 @@ export default async function ClubServerPage() {
     fetchCeutaForm(),
     fetchLeadersBySeason(CURRENT_SEASON),
     fetchLeadersBySeason(PREVIOUS_SEASON),
-    matchesRepo.fetchHomeAwaySplit(STANDINGS_CURRENT_SEASON),
   ])
 
   return (
@@ -51,7 +46,6 @@ export default async function ClubServerPage() {
         form={form}
         leaders={leaders}
         previousLeaders={previousLeaders}
-        homeAway={homeAway}
       />
     </Suspense>
   )
