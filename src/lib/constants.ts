@@ -37,6 +37,11 @@ export const PREVIOUS_SEASON = '2024-2025'
 // Standings seasons (ESPN ya sincroniza con 2026-2027)
 export const STANDINGS_CURRENT_SEASON = '2026-2027'
 export const STANDINGS_PREVIOUS_SEASON = '2025-2026'
+
+// Match seasons — aligned with the current football calendar
+export const CURRENT_MATCH_SEASON = '2026-2027'
+export const PREVIOUS_MATCH_SEASON = '2025-2026'
+
 export const COMPETITION = 'Liga Hypermotion'
 
 // ESPN API

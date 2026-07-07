@@ -1,6 +1,6 @@
 import { supabase } from './client'
 import type { ScrapedMatch, ScrapedResult } from '@/infrastructure/scrapers/adceutaScraper'
-import { CURRENT_SEASON, COMPETITION } from '@/lib/constants'
+import { CURRENT_MATCH_SEASON, COMPETITION } from '@/lib/constants'
 import { deduplicateMatches } from '@/lib/deduplicateMatches'
 
 export class MatchesSupabaseRepository {
@@ -17,7 +17,7 @@ export class MatchesSupabaseRepository {
         is_home: r.isHome,
         tickets_url: null,
         status: 'finished',
-        season: CURRENT_SEASON,
+        season: CURRENT_MATCH_SEASON,
         competition: COMPETITION,
         home_score: r.homeScore,
         away_score: r.awayScore,
@@ -46,7 +46,7 @@ export class MatchesSupabaseRepository {
         is_home: m.isHome,
         tickets_url: m.ticketsUrl,
         status: 'scheduled',
-        season: CURRENT_SEASON,
+        season: CURRENT_MATCH_SEASON,
         competition: COMPETITION,
         espn_event_id: m.espnEventId,
       }))

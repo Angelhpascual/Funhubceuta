@@ -115,7 +115,7 @@ export function PartidosPage({ upcoming = [], results = [], previousSeason = [] 
   const tabs = [
     { id: 'proximos', l: 'Próximos' },
     { id: 'resultados', l: 'Resultados' },
-    ...(previousSeason.length > 0 ? [{ id: 'temporada-anterior', l: 'Temp. 24/25' }] : []),
+    ...(previousSeason.length > 0 ? [{ id: 'temporada-anterior', l: 'Temp. 25/26' }] : []),
   ]
 
   // Group previousSeason matches by month label
@@ -251,7 +251,7 @@ export function PartidosPage({ upcoming = [], results = [], previousSeason = [] 
       {tab === 'temporada-anterior' && (
         <>
           <div className="px-4 py-3 font-display text-[11px] font-bold uppercase tracking-[0.14em] text-ceuta-muted">
-            Temporada 2025–26 · Liga Hypermotion
+            Temporada 2025–26 · Temporada anterior
           </div>
           {previousSeason.length === 0 ? (
             <p className="px-4 py-5 font-display text-[13px] uppercase tracking-[0.06em] text-ceuta-muted">
