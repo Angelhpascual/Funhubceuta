@@ -121,7 +121,7 @@ export function HimnoPage({ onBack }: Props) {
                   {verse.lines.map((line, li) => (
                     <p
                       key={li}
-                      className="font-body text-[15px] leading-[1.55] text-[var(--text)]"
+                      className="font-body text-[17px] leading-[1.6] text-[var(--text)]"
                     >
                       {line}
                     </p>
