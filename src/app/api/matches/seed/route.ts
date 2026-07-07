@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { scrapeAllScheduled } from '@/infrastructure/scrapers/adceutaScraper'
 import { supabase } from '@/infrastructure/supabase/client'
-import { CURRENT_SEASON, COMPETITION } from '@/lib/constants'
+import { CURRENT_MATCH_SEASON, COMPETITION } from '@/lib/constants'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -21,7 +21,7 @@ export async function GET(request: Request) {
     .from('matches')
     .delete()
     .eq('status', 'scheduled')
-    .eq('season', CURRENT_SEASON)
+    .eq('season', CURRENT_MATCH_SEASON)
 
   const { error } = await supabase.from('matches').insert(
     matches.map((m) => ({
@@ -34,7 +34,7 @@ export async function GET(request: Request) {
       is_home: m.isHome,
       tickets_url: m.ticketsUrl,
       status: 'scheduled',
-      season: CURRENT_SEASON,
+      season: CURRENT_MATCH_SEASON,
       competition: COMPETITION,
       espn_event_id: m.espnEventId,
     }))
@@ -42,5 +42,5 @@ export async function GET(request: Request) {
 
   if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 })
 
-  return NextResponse.json({ ok: true, inserted: matches.length, season: CURRENT_SEASON })
+  return NextResponse.json({ ok: true, inserted: matches.length, season: CURRENT_MATCH_SEASON })
 }
