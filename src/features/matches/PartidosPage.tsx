@@ -36,63 +36,57 @@ interface Props {
 function ResultCard({ r }: { r: MatchRow }) {
   const ceutaHome = r.home_team.toLowerCase().includes('ceuta')
   const badge = resultLabel(r.result)
-  const dateLabel = new Date(r.date).toLocaleDateString('es-ES', {
-    day: 'numeric', month: 'long', timeZone: 'UTC',
-  })
 
   return (
     <div className="fixt-card">
-      {/* Header */}
       <div className="fixt-head">
         <div className="fixt-comp">Liga Hypermotion</div>
-        <div className="fixt-date">{dateLabel}</div>
+        <div className="fixt-date">
+          {new Date(r.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', timeZone: 'UTC' })}
+        </div>
       </div>
 
-      {/* Teams row */}
       <div className="fixt-teams items-center">
         <div className="flex items-center gap-2">
           {getLocalLogo(r.home_team)
-            ? <img src={getLocalLogo(r.home_team) ?? ''} alt="" className="size-7 object-contain" /> // eslint-disable-line @next/next/no-img-element
+            // eslint-disable-next-line @next/next/no-img-element
+            ? <img src={getLocalLogo(r.home_team) ?? ''} alt="" className="size-7 object-contain" />
             : <div className="size-7 rounded-full bg-ceuta-bg-mid" />}
-          <div className={`fixt-tname ${ceutaHome ? 'mine' : ''}`}>
-            {shortTeamName(r.home_team)}
-          </div>
+          <div className={`fixt-tname ${ceutaHome ? 'mine' : ''}`}>{shortTeamName(r.home_team)}</div>
         </div>
 
-        {/* Score center */}
-        <div className="flex flex-col items-center">
-          <span className="font-display text-[22px] font-black leading-none text-[var(--black)]">
-            {r.home_score} – {r.away_score}
-          </span>
-        </div>
+        <div className="fixt-vs">{r.home_score} – {r.away_score}</div>
 
         <div className="flex items-center justify-end gap-2">
-          <div className={`fixt-tname away ${!ceutaHome ? 'mine' : ''}`}>
-            {shortTeamName(r.away_team)}
-          </div>
+          <div className={`fixt-tname away ${!ceutaHome ? 'mine' : ''}`}>{shortTeamName(r.away_team)}</div>
           {getLocalLogo(r.away_team)
-            ? <img src={getLocalLogo(r.away_team) ?? ''} alt="" className="size-7 object-contain" /> // eslint-disable-line @next/next/no-img-element
+            // eslint-disable-next-line @next/next/no-img-element
+            ? <img src={getLocalLogo(r.away_team) ?? ''} alt="" className="size-7 object-contain" />
             : <div className="size-7 rounded-full bg-ceuta-bg-mid" />}
         </div>
       </div>
 
-      {/* Footer: badge + alineación */}
-      <div className="flex items-center justify-end gap-1.5">
-        {badge && <span className={`result-badge ${badge.cls}`}>{badge.label}</span>}
-        {r.espn_event_id && (
-          <Link
-            href={`/alineacion?eventId=${r.espn_event_id}&match=${encodeURIComponent(`${shortTeamName(r.home_team)} vs ${shortTeamName(r.away_team)}`)}&score=${r.home_score}-${r.away_score}`}
-            className="flex items-center gap-1.5 rounded-[6px] border-[1.5px] border-ceuta-black bg-ceuta-black px-2 py-1 no-underline"
-          >
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="3" width="18" height="18" rx="2" />
-              <path d="M3 9h18M3 15h18M9 3v18" />
-            </svg>
-            <span className="whitespace-nowrap font-display text-[9px] font-black uppercase tracking-[0.08em] text-white">
-              Alineación
-            </span>
-          </Link>
-        )}
+      <div className="mt-1.5 flex items-center justify-between">
+        <span className="font-display text-[11px] uppercase tracking-[0.08em] text-ceuta-muted">
+          {r.is_home ? 'A. Murube' : ''}
+        </span>
+        <div className="flex items-center gap-1.5">
+          {badge && <span className={`result-badge ${badge.cls}`}>{badge.label}</span>}
+          {r.espn_event_id && (
+            <Link
+              href={`/alineacion?eventId=${r.espn_event_id}&match=${encodeURIComponent(`${shortTeamName(r.home_team)} vs ${shortTeamName(r.away_team)}`)}&score=${r.home_score}-${r.away_score}`}
+              className="flex items-center gap-1.5 rounded-[6px] border-[1.5px] border-ceuta-black bg-ceuta-black px-2 py-1 no-underline"
+            >
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+                <path d="M3 9h18M3 15h18M9 3v18" />
+              </svg>
+              <span className="whitespace-nowrap font-display text-[9px] font-black uppercase tracking-[0.08em] text-white">
+                Alineación
+              </span>
+            </Link>
+          )}
+        </div>
       </div>
     </div>
   )
