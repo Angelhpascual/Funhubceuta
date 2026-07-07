@@ -12,6 +12,7 @@ vi.mock('@/infrastructure/supabase/MatchesSupabaseRepository', () => {
 vi.mock('@/lib/constants', () => ({
   STANDINGS_CURRENT_SEASON: '2025-2026',
   CURRENT_SEASON: '2025-2026',
+  CURRENT_MATCH_SEASON: '2026-2027',
 }))
 
 import { MatchesSupabaseRepository } from '@/infrastructure/supabase/MatchesSupabaseRepository'
