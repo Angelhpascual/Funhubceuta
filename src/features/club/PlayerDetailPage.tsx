@@ -243,13 +243,12 @@ export function PlayerDetailPage({ player, stats }: Props) {
                         {(() => {
                           const src = entry.logo ?? getLocalLogo(entry.club)
                           return src ? (
-                            <Image
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
                               src={src}
                               alt={entry.club}
                               width={36}
                               height={36}
-                              sizes="36px"
-                              quality={70}
                               className="pd-tl-crest-img"
                             />
                           ) : (
