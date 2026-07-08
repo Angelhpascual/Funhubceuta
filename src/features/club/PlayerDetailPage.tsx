@@ -40,6 +40,17 @@ function flag(nat: string): string {
   return ''
 }
 
+const NATIONAL_TEAMS = new Set([
+  'españa','france','marruecos','argelia','mali','guinea','guinea bisáu','senegal',
+  'argentina','colombia','uruguay','brasil','portugal','ghana','nigeria','camerún',
+  'burkina faso','costa de marfil','estados unidos','mexico',
+])
+
+function isNationalTeam(club: string): boolean {
+  const base = club.toLowerCase().replace(/ sub-\d+$/, '').trim()
+  return NATIONAL_TEAMS.has(base)
+}
+
 function capitalize(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase()
 }
@@ -233,6 +244,8 @@ export function PlayerDetailPage({ player, stats }: Props) {
               <div className="pd-timeline">
                 {(player.career_history as CareerEntry[]).map((entry, i) => {
                   const isCurrent = i === 0
+                  const isNational = isNationalTeam(entry.club)
+                  const isAbsolute = isNational && !entry.club.includes('SUB-') && !entry.club.includes('Mexico')
                   return (
                     <div key={i} className={`pd-tl-item${isCurrent ? ' pd-tl-item--current' : ''}`}>
                       <div className="pd-tl-marker">
@@ -257,6 +270,11 @@ export function PlayerDetailPage({ player, stats }: Props) {
                         })()}
                         <div className="pd-tl-info">
                           <div className="pd-tl-club">{entry.club}</div>
+                          {isNational && (
+                            <div className={`mt-0.5 inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-display text-[9px] font-black uppercase tracking-[0.1em] ${isAbsolute ? 'bg-ceuta-red text-white' : 'bg-ceuta-bg-soft text-ceuta-muted border border-ceuta-border'}`}>
+                              {isAbsolute ? '🌍 Internacional' : '🌍 Sub'}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
