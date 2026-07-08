@@ -31,6 +31,18 @@ const LOGOS: Record<string, string> = {
   mirandes:     '/logos/mirandes.webp',
   zaragoza:     '/logos/zaragoza.webp',
   leonesa:      '/logos/leonesa.webp',
+  // Equipos de categorías inferiores (trayectoria jugadores)
+  algeciras:    '/logos/algeciras.webp',
+  guijuelo:     '/logos/guijuelo.webp',
+  marbella:     '/logos/marbella.webp',
+  numancia:     '/logos/numancia.webp',
+  sanse:        '/logos/sanse.webp',
+  unionistas:   '/logos/unionistas.webp',
+  villanovense: '/logos/villanovense.webp',
+  cacereno:     '/logos/cacereno.webp',
+  llagostera:   '/logos/llagostera.webp',
+  teruel:       '/logos/teruel.webp',
+  elche:        '/logos/elche.webp',
 }
 
 const STOPWORDS = new Set(['fc', 'cf', 'ad', 'sd', 'ud', 'cd', 'rc', 'real', 'atletico', 'deportivo', 'club', 'balompie'])
@@ -71,6 +83,32 @@ const ALIASES: Record<string, string> = {
   'cd mirandes': 'mirandes',
   'real zaragoza': 'zaragoza',
   'cultural leonesa': 'leonesa',
+  // Trayectoria jugadores — categorías inferiores
+  'algeciras cf': 'algeciras',
+  'cd guijuelo': 'guijuelo',
+  'marbella fc': 'marbella',
+  'cd numancia': 'numancia',
+  'numancia b': 'numancia',
+  'cd numancia b': 'numancia',
+  'ud sanse': 'sanse',
+  'san sebastian de los reyes': 'sanse',
+  'unionistas de salamanca': 'unionistas',
+  'cd villanovense': 'villanovense',
+  'cacereno': 'cacereno',
+  'cp cacereno': 'cacereno',
+  'cd llagostera': 'llagostera',
+  'ue llagostera': 'llagostera',
+  'cd teruel': 'teruel',
+  'elche cf': 'elche',
+  // Filiales con logo del club principal
+  'rcd mallorca b': 'mallorca',
+  'mallorca b': 'mallorca',
+  'r valladolid b': 'valladolid',
+  'real valladolid b': 'valladolid',
+  // AD Ceuta versiones antiguas
+  'ad ceuta fc': 'ceuta',
+  // CyD Leonesa = Cultural Leonesa
+  'cyd leonesa': 'leonesa',
 }
 
 export function getLocalLogo(name: string): string | null {

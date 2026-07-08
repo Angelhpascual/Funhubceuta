@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import type { CareerEntry, Player } from './clubTypes'
+import { getLocalLogo } from '@/lib/teamLogos'
 
 const NAT_FLAGS: Record<string, string> = {
   españa: '🇪🇸',
@@ -239,19 +240,22 @@ export function PlayerDetailPage({ player, stats }: Props) {
                         <div className="pd-tl-years">{entry.seasons}</div>
                       </div>
                       <div className="pd-tl-body">
-                        {entry.logo ? (
-                          <Image
-                            src={entry.logo}
-                            alt={entry.club}
-                            width={36}
-                            height={36}
-                            sizes="36px"
-                            quality={70}
-                            className="pd-tl-crest-img"
-                          />
-                        ) : (
-                          <div className="pd-tl-crest">{entry.club.slice(0, 3).toUpperCase()}</div>
-                        )}
+                        {(() => {
+                          const src = entry.logo ?? getLocalLogo(entry.club)
+                          return src ? (
+                            <Image
+                              src={src}
+                              alt={entry.club}
+                              width={36}
+                              height={36}
+                              sizes="36px"
+                              quality={70}
+                              className="pd-tl-crest-img"
+                            />
+                          ) : (
+                            <div className="pd-tl-crest">{entry.club.slice(0, 3).toUpperCase()}</div>
+                          )
+                        })()}
                         <div className="pd-tl-info">
                           <div className="pd-tl-club">{entry.club}</div>
                         </div>
