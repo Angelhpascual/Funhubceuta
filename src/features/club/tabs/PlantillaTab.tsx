@@ -60,7 +60,7 @@ function PlayerSilhouette() {
     <svg
       viewBox="0 0 24 26"
       fill="currentColor"
-      className="w-[78px] h-[88px] text-ceuta-muted opacity-40"
+      className="w-[78px] h-[88px] text-white opacity-10"
     >
       <circle cx="12" cy="7" r="5" />
       <path d="M2 26v-3a10 10 0 0120 0v3z" />
@@ -115,30 +115,36 @@ function StaffCard({ name, role, photo }: { name: string; role: string; photo?: 
 function PlayerCard({ player }: { player: Player }) {
   return (
     <Link href={`/jugador/${player.id}`} className="block no-underline">
-      <div className="rounded-[16px] border border-ceuta-border bg-white overflow-hidden shadow-[var(--shadow-card)]">
-        {/* Media area */}
-        <div className="relative h-[132px] bg-ceuta-bg-mid overflow-hidden flex items-end justify-center">
-          {/* Diagonal stripes */}
-          <div className="absolute inset-0 opacity-50 bg-[repeating-linear-gradient(-45deg,white_0_12px,transparent_12px_24px)]" />
-          {/* Large faded dorsal */}
+      <div className="rounded-[16px] bg-ceuta-black overflow-hidden">
+        {/* Media area — fondo negro con foto */}
+        <div className="relative h-[148px] overflow-hidden flex items-end justify-center">
+          {/* Stripes diagonales sutiles en blanco */}
+          <div className="absolute inset-0 bg-[repeating-linear-gradient(-45deg,transparent_0_10px,rgba(255,255,255,0.03)_10px_20px)]" />
+          {/* Dorsal grande en opacidad baja */}
           {player.dorsal != null && (
-            <span className="absolute top-[6px] left-3 font-display font-black text-[52px] leading-[0.8] text-ceuta-black opacity-[0.12] z-[1] tracking-[-0.02em]">
+            <span className="absolute bottom-0 right-1 font-display font-black text-[80px] leading-[0.85] text-white opacity-[0.07] z-[1] tracking-[-0.04em]">
               {player.dorsal}
             </span>
           )}
-          {/* Flag */}
-          <span className="absolute top-[11px] right-[11px] text-[19px] z-[2] drop-shadow-[0_1px_2px_rgba(0,0,0,0.2)]">
+          {/* Bandera arriba izquierda */}
+          <span className="absolute top-[10px] left-[10px] text-[16px] z-[2]">
             {flag(player.nationality)}
           </span>
-          {/* Photo or silhouette */}
-          <div className="relative z-[2] w-24 h-[104px] flex items-end justify-center">
+          {/* Dorsal pequeño arriba derecha */}
+          {player.dorsal != null && (
+            <span className="absolute top-[10px] right-[10px] font-display text-[11px] font-black uppercase tracking-[0.08em] text-white/30 z-[2]">
+              #{player.dorsal}
+            </span>
+          )}
+          {/* Foto o silueta */}
+          <div className="relative z-[2] w-[88px] h-[128px] flex items-end justify-center">
             {player.photo_url ? (
               <Image
                 src={player.photo_url}
                 alt={player.name}
-                width={96}
-                height={104}
-                sizes="96px"
+                width={88}
+                height={128}
+                sizes="88px"
                 quality={75}
                 className="w-full h-full object-cover object-top"
               />
@@ -146,21 +152,20 @@ function PlayerCard({ player }: { player: Player }) {
               <PlayerSilhouette />
             )}
           </div>
+          {/* Gradiente inferior para fundir foto con info */}
+          <div className="absolute bottom-0 inset-x-0 h-10 bg-gradient-to-t from-ceuta-black to-transparent z-[3]" />
         </div>
-        {/* Info area */}
-        <div className="border-t-2 border-ceuta-black px-[13px] pt-[11px] pb-[13px]">
-          <div className="font-display text-[16px] font-extrabold uppercase leading-none tracking-[0.01em] text-ceuta-black truncate">
+        {/* Info area — sobre negro */}
+        <div className="px-3 pt-2 pb-3">
+          <div className="font-display text-[15px] font-extrabold uppercase leading-tight tracking-[0.01em] text-white truncate">
             {player.name}
           </div>
-          <div className="mt-1 flex items-center justify-between text-[11.5px] text-ceuta-muted">
-            <span>{capitalize(player.position)}</span>
-            {player.dorsal != null && (
-              <span className="font-display text-[12px] font-extrabold text-ceuta-muted tracking-[0.04em]">
-                #{player.dorsal}
-              </span>
-            )}
+          <div className="mt-0.5 font-display text-[10px] font-semibold uppercase tracking-[0.1em] text-white/40">
+            {capitalize(player.position)}
           </div>
         </div>
+        {/* Línea roja inferior */}
+        <div className="h-[3px] bg-ceuta-red" />
       </div>
     </Link>
   )
