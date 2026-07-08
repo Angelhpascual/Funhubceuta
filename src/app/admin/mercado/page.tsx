@@ -30,6 +30,138 @@ const EMPTY_FORM = {
   notes: '',
 }
 
+interface SquadPlayer {
+  id: string
+  name: string
+  position: string
+  photo_url: string | null
+  dorsal: number | null
+}
+
+function PlayerPickerModal({
+  onSelect,
+  onClose,
+}: {
+  onSelect: (p: SquadPlayer) => void
+  onClose: () => void
+}) {
+  const [players, setPlayers] = useState<SquadPlayer[]>([])
+  const [loading, setLoading] = useState(true)
+  const [search, setSearch] = useState('')
+
+  useEffect(() => {
+    fetch('/api/squad')
+      .then((r) => r.json())
+      .then((data) => {
+        const all: SquadPlayer[] = (data.grouped ?? []).flatMap(
+          (g: { players: SquadPlayer[] }) => g.players
+        )
+        setPlayers(all)
+        setLoading(false)
+      })
+  }, [])
+
+  const filtered = players.filter((p) =>
+    !search || p.name.toLowerCase().includes(search.toLowerCase())
+  )
+
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)',
+        zIndex: 1000, display: 'flex', alignItems: 'flex-end',
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          width: '100%', maxHeight: '80vh', background: 'var(--white)',
+          borderRadius: '20px 20px 0 0', overflow: 'hidden',
+          display: 'flex', flexDirection: 'column',
+        }}
+      >
+        <div style={{ padding: '16px 16px 12px', borderBottom: '1px solid var(--border)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <span style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'var(--font-display)' }}>
+              Seleccionar jugador
+            </span>
+            <button
+              onClick={onClose}
+              style={{ background: 'none', border: 'none', fontSize: 18, cursor: 'pointer', color: 'var(--muted)', lineHeight: 1 }}
+            >
+              ✕
+            </button>
+          </div>
+          <input
+            autoFocus
+            type="text"
+            placeholder="Buscar jugador..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            style={{
+              width: '100%', padding: '10px 12px', borderRadius: 10,
+              border: '1.5px solid var(--border)', fontSize: 14,
+              background: 'var(--bone)', boxSizing: 'border-box',
+              fontFamily: 'var(--font-body)', outline: 'none',
+            }}
+          />
+        </div>
+        <div style={{ overflowY: 'auto', flex: 1 }}>
+          {loading ? (
+            <div style={{ padding: 32, textAlign: 'center', color: 'var(--muted)', fontSize: 13 }}>
+              Cargando plantilla…
+            </div>
+          ) : filtered.length === 0 ? (
+            <div style={{ padding: 32, textAlign: 'center', color: 'var(--muted)', fontSize: 13 }}>
+              Sin resultados
+            </div>
+          ) : (
+            filtered.map((p) => (
+              <button
+                key={p.id}
+                onClick={() => onSelect(p)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 12, width: '100%',
+                  padding: '12px 16px', background: 'none', border: 'none',
+                  borderBottom: '1px solid var(--border)', cursor: 'pointer', textAlign: 'left',
+                }}
+              >
+                <div style={{
+                  width: 44, height: 44, borderRadius: 8, overflow: 'hidden',
+                  background: 'var(--bone-2)', flexShrink: 0, position: 'relative',
+                }}>
+                  {p.photo_url ? (
+                    <Image
+                      src={p.photo_url}
+                      alt={p.name}
+                      fill
+                      sizes="44px"
+                      className="object-cover object-top"
+                    />
+                  ) : (
+                    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>
+                      👤
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--black)', fontFamily: 'var(--font-display)', textTransform: 'uppercase' }}>
+                    {p.name}
+                  </div>
+                  <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>
+                    {p.position}{p.dorsal != null ? ` · #${p.dorsal}` : ''}
+                  </div>
+                </div>
+              </button>
+            ))
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function AdminMercadoPage() {
   const [transfers, setTransfers] = useState<Transfer[]>([])
   const [form, setForm] = useState(EMPTY_FORM)
@@ -38,6 +170,7 @@ export default function AdminMercadoPage() {
   const [uploading, setUploading] = useState(false)
   const [msg, setMsg] = useState('')
   const [activeTab, setActiveTab] = useState<TransferType>('renew')
+  const [showPicker, setShowPicker] = useState(false)
   const formRef = useRef<HTMLFormElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -83,6 +216,22 @@ export default function AdminMercadoPage() {
   function cancelEdit() {
     setEditingId(null)
     setForm(EMPTY_FORM)
+  }
+
+  function handlePlayerPick(p: SquadPlayer) {
+    const posMap: Record<string, string> = {
+      portero: 'POR', defensa: 'DEF', centrocampista: 'MED',
+      mediocentro: 'MED', delantero: 'DEL', extremo: 'DEL',
+    }
+    const pos = posMap[p.position.toLowerCase()] ?? 'DEL'
+    setForm((f) => ({
+      ...f,
+      name: p.name,
+      position: pos,
+      photoUrl: p.photo_url ?? '',
+      clubFrom: 'AD Ceuta FC',
+    }))
+    setShowPicker(false)
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -167,6 +316,8 @@ export default function AdminMercadoPage() {
     fontFamily: 'var(--font-display)',
   }
 
+  const showPlayerPicker = form.type === 'out' || form.type === 'renew'
+
   return (
     <div style={{ fontFamily: 'var(--font-display)' }}>
         <div style={{ fontSize: 22, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '-0.01em', marginBottom: 20 }}>
@@ -191,6 +342,38 @@ export default function AdminMercadoPage() {
             )}
           </div>
 
+          {/* Tipo primero para que el picker aparezca según tipo */}
+          <div style={C.row}>
+            <label style={C.label}>Tipo de movimiento</label>
+            <select style={C.select} value={form.type}
+              onChange={(e) => setForm({ ...form, type: e.target.value as TransferType })}>
+              <option value="in">✅ Fichaje</option>
+              <option value="renew">🔄 Renovación</option>
+              <option value="out">🚪 Salida</option>
+              <option value="rumor">🔥 Rumor</option>
+            </select>
+          </div>
+
+          {/* Player picker para salidas y renovaciones */}
+          {showPlayerPicker && (
+            <div style={{ marginBottom: 14 }}>
+              <button
+                type="button"
+                onClick={() => setShowPicker(true)}
+                style={{
+                  width: '100%', padding: '11px 0', borderRadius: 10,
+                  border: '2px solid var(--red)', background: 'rgba(220,38,38,0.06)',
+                  cursor: 'pointer', fontFamily: 'var(--font-display)',
+                  fontSize: 13, fontWeight: 800, color: 'var(--red)',
+                  textTransform: 'uppercase', letterSpacing: '0.06em',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                }}
+              >
+                👥 {form.name ? `Cambiar jugador (${form.name})` : 'Seleccionar jugador de plantilla'}
+              </button>
+            </div>
+          )}
+
           <div style={C.row}>
             <label style={C.label}>Nombre del jugador</label>
             <input style={C.input} value={form.name} required
@@ -207,14 +390,28 @@ export default function AdminMercadoPage() {
               </select>
             </div>
             <div>
-              <label style={C.label}>Tipo</label>
-              <select style={C.select} value={form.type}
-                onChange={(e) => setForm({ ...form, type: e.target.value as TransferType })}>
-                <option value="in">✅ Fichaje</option>
-                <option value="renew">🔄 Renovación</option>
-                <option value="out">🚪 Salida</option>
-                <option value="rumor">🔥 Rumor</option>
-              </select>
+              <label style={C.label}>Fiabilidad</label>
+              {form.type === 'rumor' ? (
+                <div style={{ display: 'flex', gap: 8, height: 42 }}>
+                  {([1, 2, 3] as const).map((v) => (
+                    <button key={v} type="button"
+                      onClick={() => setForm({ ...form, reliability: v })}
+                      style={{
+                        flex: 1, borderRadius: 10, border: 'none',
+                        background: form.reliability >= v ? 'var(--black)' : 'var(--bone-2)',
+                        color: form.reliability >= v ? 'var(--white)' : 'var(--muted)',
+                        cursor: 'pointer', fontFamily: 'var(--font-display)',
+                        fontSize: 16, fontWeight: 800,
+                      }}>
+                      {'🔥'.repeat(v)}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div style={{ ...C.select as React.CSSProperties, display: 'flex', alignItems: 'center', color: 'var(--muted)', fontSize: 12 }}>
+                  N/A
+                </div>
+              )}
             </div>
           </div>
 
@@ -233,30 +430,8 @@ export default function AdminMercadoPage() {
             </div>
           </div>
 
-          {form.type === 'rumor' && (
-            <div style={C.row}>
-              <label style={C.label}>Fiabilidad del rumor</label>
-              <div style={{ display: 'flex', gap: 8 }}>
-                {([1, 2, 3] as const).map((v) => (
-                  <button key={v} type="button"
-                    onClick={() => setForm({ ...form, reliability: v })}
-                    style={{
-                      flex: 1, padding: '10px 0', borderRadius: 10, border: 'none',
-                      background: form.reliability >= v ? 'var(--black)' : 'var(--bone-2)',
-                      color: form.reliability >= v ? 'var(--white)' : 'var(--muted)',
-                      cursor: 'pointer', fontFamily: 'var(--font-display)',
-                      fontSize: 16, fontWeight: 800,
-                    }}>
-                    {'🔥'.repeat(v)}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
           <div style={C.row}>
             <label style={C.label}>Foto del jugador</label>
-            {/* Upload button */}
             <input
               ref={fileInputRef}
               type="file"
@@ -276,7 +451,6 @@ export default function AdminMercadoPage() {
                 {uploading ? 'Subiendo...' : '📁 Subir desde dispositivo'}
               </button>
             </div>
-            {/* Manual URL fallback */}
             <input style={{ ...C.input, fontSize: 12 }} value={form.photoUrl}
               onChange={(e) => setForm({ ...form, photoUrl: e.target.value })}
               placeholder="O pega una URL directamente..." type="url" />
@@ -286,7 +460,6 @@ export default function AdminMercadoPage() {
                   width: 56, height: 56, borderRadius: 8, overflow: 'hidden',
                   background: 'var(--bone-2)', position: 'relative', flexShrink: 0,
                 }}>
-                  {/* Serve Supabase URLs directly; proxy external ones */}
                   <Image
                     src={form.photoUrl.includes('supabase.co')
                       ? form.photoUrl
@@ -431,6 +604,13 @@ export default function AdminMercadoPage() {
             </div>
           ))
         }
+
+        {showPicker && (
+          <PlayerPickerModal
+            onSelect={handlePlayerPick}
+            onClose={() => setShowPicker(false)}
+          />
+        )}
     </div>
   )
 }
