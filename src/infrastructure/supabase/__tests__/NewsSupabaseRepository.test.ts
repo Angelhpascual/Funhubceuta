@@ -21,7 +21,7 @@ const makeArticle = (externalId: string, source = 'faro') => ({
 })
 
 describe('upsertArticles', () => {
-  it('inserts new articles with published=true for auto-publish sources', async () => {
+  it('inserts new articles with published=false even for oficial source (admin must approve)', async () => {
     const insertMock = vi.fn().mockResolvedValue({ error: null })
     const inMock = vi.fn().mockResolvedValue({ data: [] }) // no existing
     const selectMock = vi.fn().mockReturnValue({ in: inMock })
@@ -33,7 +33,7 @@ describe('upsertArticles', () => {
     await repo.upsertArticles([makeArticle('abc', 'oficial')])
 
     expect(insertMock).toHaveBeenCalledWith(
-      expect.arrayContaining([expect.objectContaining({ published: true })])
+      expect.arrayContaining([expect.objectContaining({ published: false })])
     )
   })
 

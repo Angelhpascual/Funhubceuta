@@ -41,7 +41,7 @@ export async function POST(req: Request) {
 
   if (!article) return NextResponse.json({ error: 'Article not found' }, { status: 404 })
 
-  const willPublish = action === 'publish' || action === 'send'
+  const willPublish = action === 'publish' || action === 'send' || action === 'notify'
   const willNotify  = action === 'notify'  || action === 'send'
 
   await supabaseAdmin

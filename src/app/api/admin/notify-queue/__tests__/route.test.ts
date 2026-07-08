@@ -134,7 +134,8 @@ describe('POST /api/admin/notify-queue', () => {
     const body = await res.json()
     expect(body.sent).toBe(2)
     expect(sendPush).toHaveBeenCalled()
-    expect(revalidatePath).not.toHaveBeenCalled()
+    expect(revalidatePath).toHaveBeenCalledWith('/noticias')
+    expect(revalidatePath).toHaveBeenCalledWith('/')
   })
 
   it('publish sets published=true, no push, revalidates paths', async () => {

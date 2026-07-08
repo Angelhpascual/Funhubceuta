@@ -11,9 +11,6 @@ export interface NewsImageBackfillRow {
 }
 
 export class NewsSupabaseRepository {
-  // Sources whose articles are published automatically (no admin approval needed)
-  static readonly AUTO_PUBLISH_SOURCES = new Set(['oficial', 'ceutadeportiva'])
-
   // Returns articles that were genuinely new (not previously in DB)
   async upsertArticles(articles: ParsedArticle[]): Promise<ParsedArticle[]> {
     if (articles.length === 0) return []
@@ -28,7 +25,7 @@ export class NewsSupabaseRepository {
     const existingIds = new Set((existing ?? []).map((r) => r.external_id))
     const newArticles = articles.filter((a) => !existingIds.has(a.externalId))
 
-    // Insert new articles (with published flag set by source rules)
+    // Insert new articles — always unpublished until admin approves from the panel
     if (newArticles.length > 0) {
       const { error } = await supabaseAdmin.from('news').insert(
         newArticles.map((a) => ({
@@ -39,7 +36,7 @@ export class NewsSupabaseRepository {
           image_url: a.imageUrl,
           source: a.source,
           published_at: a.publishedAt,
-          published: NewsSupabaseRepository.AUTO_PUBLISH_SOURCES.has(a.source),
+          published: false,
         }))
       )
       if (error) throw new Error(`Failed to insert news: ${error.message}`)
