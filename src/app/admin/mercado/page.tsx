@@ -38,6 +38,23 @@ interface SquadPlayer {
   dorsal: number | null
 }
 
+const STAFF_PLAYERS: SquadPlayer[] = [
+  {
+    id: 'staff-1',
+    name: 'José Juan Romero',
+    position: 'Entrenador',
+    photo_url: 'https://assets.laliga.com/squad/2025/t14705/man53081/512x512/man53081_t14705_2025_1_003_000.png',
+    dorsal: null,
+  },
+  {
+    id: 'staff-2',
+    name: 'Antonio José Sánchez',
+    position: 'Segundo entrenador',
+    photo_url: 'https://assets.laliga.com/squad/2025/t14705/man67065/512x512/man67065_t14705_2025_1_003_000.png',
+    dorsal: null,
+  },
+]
+
 function PlayerPickerModal({
   onSelect,
   onClose,
@@ -53,9 +70,10 @@ function PlayerPickerModal({
     fetch('/api/squad')
       .then((r) => r.json())
       .then((data) => {
-        const all: SquadPlayer[] = (data.grouped ?? []).flatMap(
-          (g: { players: SquadPlayer[] }) => g.players
-        )
+        const all: SquadPlayer[] = [
+          ...STAFF_PLAYERS,
+          ...(data.grouped ?? []).flatMap((g: { players: SquadPlayer[] }) => g.players),
+        ]
         setPlayers(all)
         setLoading(false)
       })
@@ -222,6 +240,7 @@ export default function AdminMercadoPage() {
     const posMap: Record<string, string> = {
       portero: 'POR', defensa: 'DEF', centrocampista: 'MED',
       mediocentro: 'MED', delantero: 'DEL', extremo: 'DEL',
+      entrenador: 'ENT', 'segundo entrenador': 'ENT',
     }
     const pos = posMap[p.position.toLowerCase()] ?? 'DEL'
     setForm((f) => ({
