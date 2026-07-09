@@ -33,22 +33,25 @@ describe('GET /api/admin/news', () => {
     expect(res.status).toBe(401)
   })
 
-  it('returns news items', async () => {
-    const items = [{ id: '1', title: 'Test', source: 'faro', published_at: null, image_url: null, url: null }]
+  it('returns news items excluding discarded', async () => {
+    const items = [{ id: '1', title: 'Test', source: 'faro', published_at: null, image_url: null, url: null, published: false, notify_queued: true }]
     const limitMock = vi.fn().mockResolvedValue({ data: items, error: null })
+    const eqMock = vi.fn().mockReturnValue({ order: vi.fn().mockReturnValue({ limit: limitMock }) })
     vi.mocked(supabaseAdmin.from).mockReturnValue({
-      select: vi.fn().mockReturnValue({ order: vi.fn().mockReturnValue({ limit: limitMock }) }),
+      select: vi.fn().mockReturnValue({ eq: eqMock }),
     } as never)
     const res = await GET()
     expect(res.status).toBe(200)
     const body = await res.json()
     expect(body.items).toHaveLength(1)
+    expect(eqMock).toHaveBeenCalledWith('discarded', false)
   })
 
   it('returns 500 on DB error', async () => {
     const limitMock = vi.fn().mockResolvedValue({ data: null, error: { message: 'DB error' } })
+    const eqMock = vi.fn().mockReturnValue({ order: vi.fn().mockReturnValue({ limit: limitMock }) })
     vi.mocked(supabaseAdmin.from).mockReturnValue({
-      select: vi.fn().mockReturnValue({ order: vi.fn().mockReturnValue({ limit: limitMock }) }),
+      select: vi.fn().mockReturnValue({ eq: eqMock }),
     } as never)
     const res = await GET()
     expect(res.status).toBe(500)
