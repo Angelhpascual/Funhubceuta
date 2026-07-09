@@ -68,8 +68,8 @@ async function fetchLiveMatch(): Promise<LiveMatch | null> {
   }
 }
 
-// ── Send push to all subscribers ──────────────────────────────────────────
-async function sendPush(title: string, body: string, tag: string, url = '/partidos') {
+// ── Send push to all subscribers (or admin-only in test mode) ─────────────
+async function sendPush(title: string, body: string, tag: string, url = '/partidos', testMode = false) {
   webpush.setVapidDetails(
     'mailto:angelhpascual@gmail.com',
     process.env.VAPID_PUBLIC_KEY!,
@@ -77,7 +77,7 @@ async function sendPush(title: string, body: string, tag: string, url = '/partid
   )
 
   const subs = await import('@/infrastructure/supabase/PushSubscriptionsRepository').then((m) =>
-    m.getAllSubscriptions()
+    m.getAllSubscriptions({ adminOnly: testMode })
   )
 
   if (!subs.length) return 0
@@ -131,7 +131,7 @@ async function saveState(state: MatchState) {
 }
 
 // ── Main logic ────────────────────────────────────────────────────────────
-async function checkAndNotify() {
+async function checkAndNotify(testMode = false) {
   const match = await fetchLiveMatch()
 
   if (!match) {
@@ -163,7 +163,7 @@ async function checkAndNotify() {
   // ── Match just started ────────────────────────────────────────────────
   if ((!prev || prev.state === 'pre') && match.state === 'in') {
     const m = MSG.kickoff(rival)
-    await sendPush(m.title, m.body, 'kickoff')
+    await sendPush(m.title, m.body, 'kickoff', '/partidos', testMode)
     notifications.push('kickoff')
   }
 
@@ -178,7 +178,7 @@ async function checkAndNotify() {
       const m = ceutaScored
         ? MSG.goalCeuta(scorer?.playerName ?? 'GOOOL', score, scorer?.minute ?? '')
         : MSG.goalRival(scorer?.playerName ?? '', score)
-      await sendPush(m.title, m.body, `goal-home-${match.homeScore}`)
+      await sendPush(m.title, m.body, `goal-home-${match.homeScore}`, '/partidos', testMode)
       notifications.push(`goal-home-${match.homeScore}`)
     }
 
@@ -188,7 +188,7 @@ async function checkAndNotify() {
       const m = ceutaScored
         ? MSG.goalCeuta(scorer?.playerName ?? 'GOOOL', score, scorer?.minute ?? '')
         : MSG.goalRival(scorer?.playerName ?? '', score)
-      await sendPush(m.title, m.body, `goal-away-${match.awayScore}`)
+      await sendPush(m.title, m.body, `goal-away-${match.awayScore}`, '/partidos', testMode)
       notifications.push(`goal-away-${match.awayScore}`)
     }
 
@@ -200,7 +200,7 @@ async function checkAndNotify() {
       const m = isCeuta
         ? MSG.redCeuta(card.playerName, card.minute)
         : MSG.redRival(card.playerName, card.minute)
-      await sendPush(m.title, m.body, `red-${card.minute}`)
+      await sendPush(m.title, m.body, `red-${card.minute}`, '/partidos', testMode)
       notifications.push(`red-${card.playerName}`)
     }
   }
@@ -215,7 +215,7 @@ async function checkAndNotify() {
         : ceutaScore < rivalScore
           ? MSG.lossCeuta(score)
           : MSG.drawCeuta(score)
-    await sendPush(m.title, m.body, 'fulltime')
+    await sendPush(m.title, m.body, 'fulltime', '/partidos', testMode)
     notifications.push('fulltime')
   }
 
@@ -226,13 +226,14 @@ async function checkAndNotify() {
   }
 }
 
-async function checkAndNotifySafe() {
+async function checkAndNotifySafe(testMode = false) {
   const t0 = Date.now()
   try {
-    const result = await checkAndNotify()
+    const result = await checkAndNotify(testMode)
     await logCron('live', 'success', Date.now() - t0, {
       match: result.match,
       notifications: result.notifications,
+      testMode: testMode || undefined,
     })
     return result
   } catch (err) {
@@ -243,6 +244,19 @@ async function checkAndNotifySafe() {
 
 // ── Routes ────────────────────────────────────────────────────────────────
 export async function POST(request: Request) {
+  const { searchParams } = new URL(request.url)
+  const testMode = searchParams.get('test') === 'true'
+
+  // In test mode, bypass QStash auth — only callable with explicit ?test=true
+  if (testMode) {
+    const secret = searchParams.get('secret')
+    if (secret !== process.env.TEST_SECRET) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    const result = await checkAndNotifySafe(true)
+    return NextResponse.json({ ok: true, testMode: true, ...result })
+  }
+
   const receiver = new Receiver({
     currentSigningKey: process.env.QSTASH_CURRENT_SIGNING_KEY!,
     nextSigningKey: process.env.QSTASH_NEXT_SIGNING_KEY!,
@@ -258,10 +272,12 @@ export async function POST(request: Request) {
   return NextResponse.json({ ok: true, ...result })
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   if (process.env.NODE_ENV === 'production') {
     return NextResponse.json({ error: 'Use POST in production' }, { status: 405 })
   }
-  const result = await checkAndNotifySafe()
-  return NextResponse.json({ ok: true, ...result })
+  const { searchParams } = new URL(request.url)
+  const testMode = searchParams.get('test') === 'true'
+  const result = await checkAndNotifySafe(testMode)
+  return NextResponse.json({ ok: true, testMode: testMode || undefined, ...result })
 }
