@@ -134,7 +134,7 @@ function Topbar({ pathname, router }: { pathname: string; router: ReturnType<typ
     <div className="topbar">
       <div className="topbar-logo" style={{ cursor: 'pointer' }} onClick={() => router.push('/')}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/escudo.png" alt="AD Ceuta" style={{ width: 40, height: 40, objectFit: 'contain' }} />
+        <img src="/escudo.webp" alt="AD Ceuta" style={{ width: 40, height: 40, objectFit: 'contain' }} />
         <span className="topbar-title desktop-only">AD CEUTA <b>INFO</b></span>
       </div>
       <nav className="top-nav desktop-only">

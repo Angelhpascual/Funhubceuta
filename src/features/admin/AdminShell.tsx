@@ -17,7 +17,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       <nav className="admin-navbar">
         <div className="admin-navbar-logo">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/escudo.png" alt="AD Ceuta" style={{ width: 28, height: 28, objectFit: 'contain' }} />
+          <img src="/escudo.webp" alt="AD Ceuta" style={{ width: 28, height: 28, objectFit: 'contain' }} />
           <span>Admin</span>
         </div>
 

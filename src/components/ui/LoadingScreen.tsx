@@ -102,7 +102,7 @@ export function LoadingScreen({ fadeOut, onFadeOutDone }: { fadeOut?: boolean; o
           }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/escudo.png" alt="AD Ceuta" style={{ width: 68, height: 68, objectFit: 'contain' }} />
+          <img src="/escudo.webp" alt="AD Ceuta" style={{ width: 68, height: 68, objectFit: 'contain' }} />
         </div>
       </div>
 

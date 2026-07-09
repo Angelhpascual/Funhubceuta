@@ -206,7 +206,7 @@ function AppInner() {
           <div className="topbar home-topbar-mobile" style={{ justifyContent: 'center' }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/escudo.png"
+              src="/escudo.webp"
               alt="AD Ceuta"
               style={{ width: 40, height: 40, objectFit: 'contain' }}
             />
@@ -222,7 +222,7 @@ function AppInner() {
         <div className="topbar home-topbar-mobile" style={{ justifyContent: 'center' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/escudo.png"
+            src="/escudo.webp"
             alt="AD Ceuta"
             style={{ width: 40, height: 40, objectFit: 'contain', cursor: 'pointer' }}
             onClick={() => router.push('/')}

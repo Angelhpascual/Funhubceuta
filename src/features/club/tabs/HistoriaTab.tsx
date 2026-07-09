@@ -108,7 +108,7 @@ function IdentityBlock() {
       <div className="hist-identity-inner">
         <div className="hist-identity-crest">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/escudo.png" alt="Escudo AD Ceuta" style={{ width: '78%', height: '78%', objectFit: 'contain' }} />
+          <img src="/escudo.webp" alt="Escudo AD Ceuta" style={{ width: '78%', height: '78%', objectFit: 'contain' }} />
         </div>
         <div className="hist-identity-text-col">
           <div className="hist-identity-eyebrow">
