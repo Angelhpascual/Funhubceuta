@@ -4,52 +4,8 @@ import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import type { Group, Player } from '../clubTypes'
-
-const NAT_FLAGS: Record<string, string> = {
-  España: '🇪🇸',
-  Mali: '🇲🇱',
-  Senegal: '🇸🇳',
-  Guinea: '🇬🇳',
-  Bisau: '🇬🇼',
-  Argentina: '🇦🇷',
-  Uruguay: '🇺🇾',
-  Colombia: '🇨🇴',
-  Francia: '🇫🇷',
-  Marruecos: '🇲🇦',
-  Argelia: '🇩🇿',
-  Camerún: '🇨🇲',
-  Brasil: '🇧🇷',
-  Portugal: '🇵🇹',
-  Ghana: '🇬🇭',
-  Nigeria: '🇳🇬',
-  'Costa de Marfil': '🇨🇮',
-  'Ivory Coast': '🇨🇮',
-  'Estados Unidos': '🇺🇸',
-  'United States': '🇺🇸',
-  'Burkina Faso': '🇧🇫',
-}
-
-const STAFF = [
-  {
-    name: 'José Juan Romero',
-    role: 'Entrenador',
-    photo:
-      'https://assets.laliga.com/squad/2025/t14705/man53081/512x512/man53081_t14705_2025_1_003_000.png',
-  },
-  {
-    name: 'Antonio José Sánchez',
-    role: 'Segundo entrenador',
-    photo:
-      'https://assets.laliga.com/squad/2025/t14705/man67065/512x512/man67065_t14705_2025_1_003_000.png',
-  },
-]
-
-function flag(nationality: string): string {
-  for (const [key, emoji] of Object.entries(NAT_FLAGS)) {
-    if (nationality.toLowerCase().includes(key.toLowerCase())) return emoji
-  }
-  return ''
-}
+import { flag } from '@/lib/nationality'
+import { STAFF } from '@/lib/staff'
 
 function capitalize(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase()

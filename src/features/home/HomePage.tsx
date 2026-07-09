@@ -252,8 +252,7 @@ export function HomePage({
               sizes="(max-width: 768px) 100vw, 420px"
               quality={70}
               unoptimized={isStoredNewsImage(featuredImage)}
-              className="object-cover"
-              style={{ objectPosition: 'center 20%' }}
+              className="object-cover object-[center_20%]"
               onLoad={(event) => {
                 reportFeaturedImageLoad(event.currentTarget)
                 setFeaturedImageReady(true)

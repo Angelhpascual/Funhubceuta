@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import type { Transfer, TransferType } from '@/infrastructure/supabase/TransfersRepository'
+import { STAFF as STAFF_DATA } from '@/lib/staff'
 
 const POSITIONS = ['POR', 'DEF', 'MED', 'DEL', 'ENT']
 const TYPE_LABELS: Record<TransferType, string> = { in: 'Fichaje', out: 'Salida', rumor: 'Rumor', renew: 'Renovación' }
@@ -38,22 +39,13 @@ interface SquadPlayer {
   dorsal: number | null
 }
 
-const STAFF_PLAYERS: SquadPlayer[] = [
-  {
-    id: 'staff-1',
-    name: 'José Juan Romero',
-    position: 'Entrenador',
-    photo_url: 'https://assets.laliga.com/squad/2025/t14705/man53081/512x512/man53081_t14705_2025_1_003_000.png',
-    dorsal: null,
-  },
-  {
-    id: 'staff-2',
-    name: 'Antonio José Sánchez',
-    position: 'Segundo entrenador',
-    photo_url: 'https://assets.laliga.com/squad/2025/t14705/man67065/512x512/man67065_t14705_2025_1_003_000.png',
-    dorsal: null,
-  },
-]
+const STAFF_PLAYERS: SquadPlayer[] = STAFF_DATA.map((s) => ({
+  id: s.id,
+  name: s.name,
+  position: s.role,
+  photo_url: s.photo,
+  dorsal: null,
+}))
 
 function PlayerPickerModal({
   onSelect,
