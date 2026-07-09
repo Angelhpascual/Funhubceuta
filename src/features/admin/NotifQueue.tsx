@@ -28,7 +28,6 @@ export function NotifQueue() {
   useEffect(() => {
     load()
 
-    // Realtime: re-fetch whenever notify_queued changes on the news table
     const channel = supabase
       .channel('notif-queue-watch')
       .on(
@@ -73,92 +72,67 @@ export function NotifQueue() {
   if (items.length === 0) return null
 
   return (
-    <div style={{ marginBottom: 24 }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-        <p style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--muted)', margin: 0 }}>
-          📬 Notificaciones pendientes — {items.length}
-        </p>
-      </div>
+    <div className="mb-6">
+      <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-ceuta-muted mb-[10px]">
+        📬 Notificaciones pendientes — {items.length}
+      </p>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <div className="flex flex-col gap-[10px]">
         {items.map((article) => (
           <div
             key={article.id}
-            style={{
-              background: 'var(--white)',
-              border: '2px solid var(--red)',
-              borderRadius: 16,
-              overflow: 'hidden',
-            }}
+            className="bg-white border-2 border-ceuta-red rounded-[16px] overflow-hidden"
           >
-            <div style={{ display: 'flex', gap: 10, padding: 12 }}>
+            <div className="flex gap-[10px] p-3">
               {article.image_url && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={article.image_url}
                   alt=""
-                  style={{ width: 64, height: 64, objectFit: 'cover', borderRadius: 10, flexShrink: 0 }}
+                  className="w-16 h-16 object-cover rounded-[10px] shrink-0"
                 />
               )}
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontSize: 10, fontWeight: 700, color: 'var(--red)', textTransform: 'uppercase', margin: '0 0 3px' }}>
+              <div className="flex-1 min-w-0">
+                <p className="text-[10px] font-bold text-ceuta-red uppercase mb-[3px]">
                   {SOURCE_LABELS[article.source] ?? article.source}
                 </p>
-                <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--black)', margin: 0, lineHeight: 1.3 }}>
+                <p className="text-[13px] font-bold text-ceuta-black leading-[1.3]">
                   {article.title}
                 </p>
               </div>
             </div>
 
             {feedback[article.id] ? (
-              <p style={{ fontSize: 12, fontWeight: 600, textAlign: 'center', padding: '10px 12px', margin: 0, color: 'var(--black)' }}>
+              <p className="text-[12px] font-semibold text-center text-ceuta-black px-3 py-[10px]">
                 {feedback[article.id]}
               </p>
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', borderTop: '1px solid var(--border)' }}>
+              <div className="grid grid-cols-2 border-t border-ceuta-border">
                 <button
                   onClick={() => act(article.id, 'discard')}
                   disabled={busy === article.id}
-                  style={{
-                    background: 'none', border: 'none', borderRight: '1px solid var(--border)',
-                    borderBottom: '1px solid var(--border)',
-                    padding: '11px 0', fontSize: 11, fontWeight: 700, cursor: 'pointer',
-                    color: 'var(--muted)',
-                  }}
+                  className="py-[11px] text-[11px] font-bold text-ceuta-muted border-r border-b border-ceuta-border disabled:opacity-50"
                 >
                   Descartar
                 </button>
                 <button
                   onClick={() => act(article.id, 'publish')}
                   disabled={busy === article.id}
-                  style={{
-                    background: 'none', border: 'none',
-                    borderBottom: '1px solid var(--border)',
-                    padding: '11px 0', fontSize: 11, fontWeight: 700, cursor: 'pointer',
-                    color: 'var(--black)',
-                  }}
+                  className="py-[11px] text-[11px] font-bold text-ceuta-black border-b border-ceuta-border disabled:opacity-50"
                 >
                   {busy === article.id ? '⏳' : '📰 Solo publicar'}
                 </button>
                 <button
                   onClick={() => act(article.id, 'notify')}
                   disabled={busy === article.id}
-                  style={{
-                    background: 'none', border: 'none', borderRight: '1px solid var(--border)',
-                    padding: '11px 0', fontSize: 11, fontWeight: 700, cursor: 'pointer',
-                    color: 'var(--black)',
-                  }}
+                  className="py-[11px] text-[11px] font-bold text-ceuta-black border-r border-ceuta-border disabled:opacity-50"
                 >
                   {busy === article.id ? '⏳' : '🔔 Solo notificar'}
                 </button>
                 <button
                   onClick={() => act(article.id, 'send')}
                   disabled={busy === article.id}
-                  style={{
-                    background: 'var(--red)', border: 'none',
-                    padding: '11px 0', fontSize: 11, fontWeight: 700, cursor: 'pointer',
-                    color: 'var(--white)',
-                  }}
+                  className="py-[11px] text-[11px] font-bold bg-ceuta-red text-white disabled:opacity-50"
                 >
                   {busy === article.id ? '⏳' : '🔔📰 Pub. y notif.'}
                 </button>

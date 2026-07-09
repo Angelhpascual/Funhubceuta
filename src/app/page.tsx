@@ -203,12 +203,12 @@ function AppInner() {
       {/* Modal views — slide over the main content */}
       {modal === 'himno' && (
         <>
-          <div className="topbar home-topbar-mobile" style={{ justifyContent: 'center' }}>
+          <div className="topbar home-topbar-mobile justify-center">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/escudo.webp"
               alt="AD Ceuta"
-              style={{ width: 40, height: 40, objectFit: 'contain' }}
+              className="w-10 h-10 object-contain"
             />
           </div>
           <div className="scroll-area">
@@ -224,7 +224,7 @@ function AppInner() {
           <img
             src="/escudo.webp"
             alt="AD Ceuta"
-            style={{ width: 40, height: 40, objectFit: 'contain', cursor: 'pointer' }}
+            className="w-10 h-10 object-contain cursor-pointer"
             onClick={() => router.push('/')}
           />
         </div>

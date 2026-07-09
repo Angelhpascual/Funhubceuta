@@ -27,48 +27,12 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: 'var(--bg-soft)',
-        padding: 16,
-      }}
-    >
-      <div
-        style={{
-          background: 'var(--white)',
-          borderRadius: 20,
-          padding: 32,
-          width: '100%',
-          maxWidth: 360,
-          boxShadow: '0 4px 24px rgba(0,0,0,0.08)',
-        }}
-      >
-        <div
-          style={{
-            fontSize: 11,
-            fontWeight: 700,
-            textTransform: 'uppercase',
-            letterSpacing: '0.1em',
-            color: 'var(--red)',
-            marginBottom: 4,
-          }}
-        >
+    <div className="min-h-screen flex items-center justify-center bg-ceuta-bg-soft p-4">
+      <div className="bg-white rounded-[20px] p-8 w-full max-w-[360px] shadow-[0_4px_24px_rgba(0,0,0,0.08)]">
+        <div className="text-[11px] font-bold uppercase tracking-[0.1em] text-ceuta-red mb-1">
           Panel de administración
         </div>
-        <div
-          style={{
-            fontSize: 24,
-            fontWeight: 900,
-            textTransform: 'uppercase',
-            letterSpacing: '-0.02em',
-            color: 'var(--black)',
-            marginBottom: 24,
-          }}
-        >
+        <div className="text-[24px] font-black uppercase tracking-[-0.02em] text-ceuta-black mb-6">
           AD Ceuta FC
         </div>
 
@@ -79,39 +43,19 @@ export default function AdminLoginPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             autoFocus
-            style={{
-              width: '100%',
-              padding: '12px 16px',
-              borderRadius: 12,
-              border: `1.5px solid ${error ? 'var(--red)' : 'var(--border)'}`,
-              fontSize: 16,
-              outline: 'none',
-              marginBottom: 8,
-              boxSizing: 'border-box',
-              background: 'var(--bg-soft)',
-            }}
+            className={`w-full px-4 py-3 rounded-[12px] border text-[16px] outline-none mb-2 bg-ceuta-bg-soft ${
+              error ? 'border-ceuta-red' : 'border-ceuta-border'
+            }`}
           />
           {error && (
-            <p style={{ fontSize: 12, color: 'var(--red)', margin: '0 0 12px', fontWeight: 600 }}>
-              {error}
-            </p>
+            <p className="text-[12px] text-ceuta-red mb-3 font-semibold">{error}</p>
           )}
           <button
             type="submit"
             disabled={loading || !password}
-            style={{
-              width: '100%',
-              padding: '13px 0',
-              borderRadius: 12,
-              border: 'none',
-              background: loading ? 'var(--bg-mid)' : 'var(--black)',
-              color: 'var(--white)',
-              fontSize: 14,
-              fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em',
-              cursor: loading ? 'default' : 'pointer',
-            }}
+            className={`w-full py-[13px] rounded-[12px] border-none text-white text-[14px] font-bold uppercase tracking-[0.05em] ${
+              loading ? 'bg-ceuta-bg-mid cursor-default' : 'bg-ceuta-black cursor-pointer'
+            }`}
           >
             {loading ? 'Entrando...' : 'Entrar'}
           </button>
