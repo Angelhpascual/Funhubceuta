@@ -20,10 +20,12 @@ export class NewsSupabaseRepository {
     const ids = articles.map((a) => a.externalId)
     const { data: existing } = await supabaseAdmin
       .from('news')
-      .select('external_id')
+      .select('external_id, image_url')
       .in('external_id', ids)
-    const existingIds = new Set((existing ?? []).map((r) => r.external_id))
-    const newArticles = articles.filter((a) => !existingIds.has(a.externalId))
+    const existingMap = new Map(
+      (existing ?? []).map((r) => [r.external_id, r.image_url as string | null])
+    )
+    const newArticles = articles.filter((a) => !existingMap.has(a.externalId))
 
     // Insert new articles — always unpublished until admin approves from the panel
     if (newArticles.length > 0) {
@@ -42,17 +44,28 @@ export class NewsSupabaseRepository {
       if (error) throw new Error(`Failed to insert news: ${error.message}`)
     }
 
-    // Update existing articles — never overwrite published or notify_queued (admin may have changed them)
-    const existingArticles = articles.filter((a) => existingIds.has(a.externalId))
+    // Update existing articles — never overwrite published or notify_queued (admin may have changed them).
+    // Image URL update rules:
+    //  - Never overwrite with null (RSS may omit an image that was there before)
+    //  - Never replace a Supabase-stored URL with an external one (would lose our CDN copy)
+    //  - Allow update only when: new URL is non-null AND existing is null or also external
+    const SUPABASE_HOST = 'supabase.co'
+    const isSupabaseUrl = (url: string | null) => !!url && url.includes(SUPABASE_HOST)
+
+    const existingArticles = articles.filter((a) => existingMap.has(a.externalId))
     if (existingArticles.length > 0) {
       for (const a of existingArticles) {
+        const currentImageUrl = existingMap.get(a.externalId) ?? null
+        const update: Record<string, unknown> = {
+          title: a.title,
+          description: a.description,
+          published_at: a.publishedAt,
+        }
+        if (a.imageUrl && !isSupabaseUrl(currentImageUrl)) {
+          update.image_url = a.imageUrl
+        }
         await supabaseAdmin.from('news')
-          .update({
-            title: a.title,
-            description: a.description,
-            image_url: a.imageUrl,
-            published_at: a.publishedAt,
-          })
+          .update(update)
           .eq('external_id', a.externalId)
       }
     }
@@ -85,6 +98,18 @@ export class NewsSupabaseRepository {
         source: row.source,
         imageUrl: row.image_url,
       }))
+  }
+
+  // Returns recently published articles with no image URL, newest first
+  async getRowsWithoutImages(limit = 20): Promise<{ id: string; url: string }[]> {
+    const { data } = await supabaseAdmin
+      .from('news')
+      .select('id, url')
+      .is('image_url', null)
+      .not('url', 'is', null)
+      .order('created_at', { ascending: false })
+      .limit(limit)
+    return (data ?? []).map((r) => ({ id: r.id, url: r.url }))
   }
 
   // Returns articles with external (non-Supabase) image URLs, newest first

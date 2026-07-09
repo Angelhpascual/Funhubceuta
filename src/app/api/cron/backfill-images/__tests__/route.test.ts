@@ -9,14 +9,18 @@ vi.mock('@upstash/qstash', () => {
   const verify = vi.fn()
   return { Receiver: class { verify = verify; static __verify = verify } }
 })
+vi.mock('@/infrastructure/rss/fetchOgImage', () => ({ fetchOgImage: vi.fn().mockResolvedValue(null) }))
 vi.mock('@/infrastructure/supabase/NewsSupabaseRepository', () => {
   const getRowsWithExternalImages = vi.fn()
+  const getRowsWithoutImages = vi.fn()
   const updateImageUrlById = vi.fn()
   return {
     NewsSupabaseRepository: class {
       getRowsWithExternalImages = getRowsWithExternalImages
+      getRowsWithoutImages = getRowsWithoutImages
       updateImageUrlById = updateImageUrlById
       static __getRows = getRowsWithExternalImages
+      static __getRowsNoImage = getRowsWithoutImages
       static __updateById = updateImageUrlById
     },
   }
@@ -33,12 +37,15 @@ const mockVerify: ReturnType<typeof vi.fn> = (Receiver as any).__verify
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mockGetRows: ReturnType<typeof vi.fn> = (NewsSupabaseRepository as any).__getRows
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
+const mockGetRowsNoImage: ReturnType<typeof vi.fn> = (NewsSupabaseRepository as any).__getRowsNoImage
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mockUpdateById: ReturnType<typeof vi.fn> = (NewsSupabaseRepository as any).__updateById
 
 beforeEach(() => {
   vi.resetAllMocks()
   vi.mocked(logCron).mockResolvedValue(undefined)
   mockGetRows.mockResolvedValue([])
+  mockGetRowsNoImage.mockResolvedValue([])
   mockUpdateById.mockResolvedValue(undefined)
   process.env.TEST_SECRET = 'test-secret'
 })
