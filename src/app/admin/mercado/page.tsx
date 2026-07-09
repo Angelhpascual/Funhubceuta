@@ -78,27 +78,20 @@ function PlayerPickerModal({
   return (
     <div
       onClick={onClose}
-      style={{
-        position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)',
-        zIndex: 1000, display: 'flex', alignItems: 'flex-end',
-      }}
+      className="fixed inset-0 bg-black/60 z-[1000] flex items-end"
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        style={{
-          width: '100%', maxHeight: '80vh', background: 'var(--white)',
-          borderRadius: '20px 20px 0 0', overflow: 'hidden',
-          display: 'flex', flexDirection: 'column',
-        }}
+        className="w-full max-h-[80vh] bg-white rounded-t-[20px] overflow-hidden flex flex-col"
       >
-        <div style={{ padding: '16px 16px 12px', borderBottom: '1px solid var(--border)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-            <span style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'var(--font-display)' }}>
+        <div className="px-4 pt-4 pb-3 border-b border-ceuta-border">
+          <div className="flex justify-between items-center mb-3">
+            <span className="text-[13px] font-extrabold uppercase tracking-[0.08em] font-display">
               Seleccionar jugador
             </span>
             <button
               onClick={onClose}
-              style={{ background: 'none', border: 'none', fontSize: 18, cursor: 'pointer', color: 'var(--muted)', lineHeight: 1 }}
+              className="text-[18px] text-ceuta-muted leading-none bg-transparent border-none cursor-pointer"
             >
               ✕
             </button>
@@ -109,38 +102,22 @@ function PlayerPickerModal({
             placeholder="Buscar jugador..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            style={{
-              width: '100%', padding: '10px 12px', borderRadius: 10,
-              border: '1.5px solid var(--border)', fontSize: 14,
-              background: 'var(--bone)', boxSizing: 'border-box',
-              fontFamily: 'var(--font-body)', outline: 'none',
-            }}
+            className="w-full px-3 py-[10px] rounded-[10px] border border-ceuta-border text-[14px] bg-ceuta-bg-soft outline-none"
           />
         </div>
-        <div style={{ overflowY: 'auto', flex: 1 }}>
+        <div className="overflow-y-auto flex-1">
           {loading ? (
-            <div style={{ padding: 32, textAlign: 'center', color: 'var(--muted)', fontSize: 13 }}>
-              Cargando plantilla…
-            </div>
+            <div className="p-8 text-center text-ceuta-muted text-[13px]">Cargando plantilla…</div>
           ) : filtered.length === 0 ? (
-            <div style={{ padding: 32, textAlign: 'center', color: 'var(--muted)', fontSize: 13 }}>
-              Sin resultados
-            </div>
+            <div className="p-8 text-center text-ceuta-muted text-[13px]">Sin resultados</div>
           ) : (
             filtered.map((p) => (
               <button
                 key={p.id}
                 onClick={() => onSelect(p)}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 12, width: '100%',
-                  padding: '12px 16px', background: 'none', border: 'none',
-                  borderBottom: '1px solid var(--border)', cursor: 'pointer', textAlign: 'left',
-                }}
+                className="flex items-center gap-3 w-full px-4 py-3 bg-transparent border-none border-b border-ceuta-border cursor-pointer text-left"
               >
-                <div style={{
-                  width: 44, height: 44, borderRadius: 8, overflow: 'hidden',
-                  background: 'var(--bone-2)', flexShrink: 0, position: 'relative',
-                }}>
+                <div className="w-11 h-11 rounded-lg overflow-hidden bg-ceuta-bg-mid shrink-0 relative">
                   {p.photo_url ? (
                     <Image
                       src={p.photo_url}
@@ -150,16 +127,14 @@ function PlayerPickerModal({
                       className="object-cover object-top"
                     />
                   ) : (
-                    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>
-                      👤
-                    </div>
+                    <div className="w-full h-full flex items-center justify-center text-[20px]">👤</div>
                   )}
                 </div>
                 <div>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--black)', fontFamily: 'var(--font-display)', textTransform: 'uppercase' }}>
+                  <div className="text-[14px] font-bold text-ceuta-black font-display uppercase">
                     {p.name}
                   </div>
-                  <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>
+                  <div className="text-[11px] text-ceuta-muted mt-0.5">
                     {p.position}{p.dorsal != null ? ` · #${p.dorsal}` : ''}
                   </div>
                 </div>
@@ -171,6 +146,10 @@ function PlayerPickerModal({
     </div>
   )
 }
+
+const INPUT_CLS = 'w-full px-3 py-[10px] rounded-[10px] border border-ceuta-border text-[14px] bg-ceuta-bg-soft outline-none'
+const LABEL_CLS = 'block text-[10px] font-extrabold uppercase tracking-[0.1em] text-ceuta-muted mb-1.5 font-display'
+const CARD_CLS = 'bg-white rounded-[14px] p-5 mb-4 shadow-[var(--shadow-card)]'
 
 export default function AdminMercadoPage() {
   const [transfers, setTransfers] = useState<Transfer[]>([])
@@ -295,333 +274,301 @@ export default function AdminMercadoPage() {
     await load()
   }
 
-  const C = {
-    card: {
-      background: 'var(--white)', borderRadius: 14, padding: 20,
-      marginBottom: 16, boxShadow: 'var(--shadow-card)',
-    } as React.CSSProperties,
-    label: {
-      fontSize: 10, fontWeight: 800, textTransform: 'uppercase' as const,
-      letterSpacing: '0.1em', color: 'var(--muted)', marginBottom: 6,
-      display: 'block', fontFamily: 'var(--font-display)',
-    },
-    input: {
-      width: '100%', padding: '10px 12px', borderRadius: 10,
-      border: '1.5px solid var(--border)', fontSize: 14,
-      background: 'var(--bone)', boxSizing: 'border-box' as const,
-      fontFamily: 'var(--font-body)', outline: 'none',
-    },
-    select: {
-      width: '100%', padding: '10px 12px', borderRadius: 10,
-      border: '1.5px solid var(--border)', fontSize: 14,
-      background: 'var(--bone)', boxSizing: 'border-box' as const,
-      fontFamily: 'var(--font-body)',
-    },
-    row: { marginBottom: 14 } as React.CSSProperties,
-    grid2: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 } as React.CSSProperties,
-  }
-
-  const secTitle = {
-    fontSize: 10, fontWeight: 800, textTransform: 'uppercase' as const,
-    letterSpacing: '0.1em', color: 'var(--muted)', marginBottom: 14,
-    fontFamily: 'var(--font-display)',
-  }
-
   const showPlayerPicker = form.type === 'out' || form.type === 'renew'
 
   return (
-    <div style={{ fontFamily: 'var(--font-display)' }}>
-        <div style={{ fontSize: 22, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '-0.01em', marginBottom: 20 }}>
-          Mercado de Fichajes
+    <div className="font-display">
+      <div className="text-[22px] font-black uppercase tracking-[-0.01em] mb-5">
+        Mercado de Fichajes
+      </div>
+
+      {/* Form */}
+      <form
+        ref={formRef}
+        onSubmit={handleSubmit}
+        className={`${CARD_CLS} border-t-[3px] ${editingId ? 'border-t-[var(--gold)]' : 'border-t-ceuta-black'}`}
+      >
+        <div className="flex justify-between items-center mb-3.5">
+          <span className={LABEL_CLS}>{editingId ? '✏️ Editando jugador' : 'Añadir movimiento'}</span>
+          {editingId && (
+            <button
+              type="button"
+              onClick={cancelEdit}
+              className="text-[12px] font-bold text-ceuta-muted border border-ceuta-border rounded-lg px-3 py-1 cursor-pointer bg-transparent font-display"
+            >
+              Cancelar
+            </button>
+          )}
         </div>
 
-        {/* Form */}
-        <form ref={formRef} onSubmit={handleSubmit} style={{
-          ...C.card,
-          borderTop: editingId ? '3px solid var(--gold)' : '3px solid var(--black)',
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-            <div style={secTitle}>{editingId ? '✏️ Editando jugador' : 'Añadir movimiento'}</div>
-            {editingId && (
-              <button type="button" onClick={cancelEdit} style={{
-                background: 'none', border: '1px solid var(--border)', borderRadius: 8,
-                padding: '4px 12px', cursor: 'pointer', fontSize: 12,
-                color: 'var(--muted)', fontFamily: 'var(--font-display)', fontWeight: 700,
-              }}>
-                Cancelar
-              </button>
-            )}
-          </div>
+        {/* Tipo */}
+        <div className="mb-3.5">
+          <label className={LABEL_CLS}>Tipo de movimiento</label>
+          <select
+            className={INPUT_CLS}
+            value={form.type}
+            onChange={(e) => setForm({ ...form, type: e.target.value as TransferType })}
+          >
+            <option value="in">✅ Fichaje</option>
+            <option value="renew">🔄 Renovación</option>
+            <option value="out">🚪 Salida</option>
+            <option value="rumor">🔥 Rumor</option>
+          </select>
+        </div>
 
-          {/* Tipo primero para que el picker aparezca según tipo */}
-          <div style={C.row}>
-            <label style={C.label}>Tipo de movimiento</label>
-            <select style={C.select} value={form.type}
-              onChange={(e) => setForm({ ...form, type: e.target.value as TransferType })}>
-              <option value="in">✅ Fichaje</option>
-              <option value="renew">🔄 Renovación</option>
-              <option value="out">🚪 Salida</option>
-              <option value="rumor">🔥 Rumor</option>
+        {/* Player picker para salidas y renovaciones */}
+        {showPlayerPicker && (
+          <div className="mb-3.5">
+            <button
+              type="button"
+              onClick={() => setShowPicker(true)}
+              className="w-full py-[11px] rounded-[10px] border-2 border-ceuta-red bg-ceuta-red/[0.06] cursor-pointer font-display text-[13px] font-extrabold text-ceuta-red uppercase tracking-[0.06em] flex items-center justify-center gap-2"
+            >
+              👥 {form.name ? `Cambiar jugador (${form.name})` : 'Seleccionar jugador de plantilla'}
+            </button>
+          </div>
+        )}
+
+        <div className="mb-3.5">
+          <label className={LABEL_CLS}>Nombre del jugador</label>
+          <input
+            className={INPUT_CLS}
+            value={form.name}
+            required
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            placeholder="ej. Marcos Acuña"
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 mb-3.5">
+          <div>
+            <label className={LABEL_CLS}>Posición</label>
+            <select
+              className={INPUT_CLS}
+              value={form.position}
+              onChange={(e) => setForm({ ...form, position: e.target.value })}
+            >
+              {POSITIONS.map((p) => <option key={p} value={p}>{p}</option>)}
             </select>
           </div>
-
-          {/* Player picker para salidas y renovaciones */}
-          {showPlayerPicker && (
-            <div style={{ marginBottom: 14 }}>
-              <button
-                type="button"
-                onClick={() => setShowPicker(true)}
-                style={{
-                  width: '100%', padding: '11px 0', borderRadius: 10,
-                  border: '2px solid var(--red)', background: 'rgba(220,38,38,0.06)',
-                  cursor: 'pointer', fontFamily: 'var(--font-display)',
-                  fontSize: 13, fontWeight: 800, color: 'var(--red)',
-                  textTransform: 'uppercase', letterSpacing: '0.06em',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                }}
-              >
-                👥 {form.name ? `Cambiar jugador (${form.name})` : 'Seleccionar jugador de plantilla'}
-              </button>
-            </div>
-          )}
-
-          <div style={C.row}>
-            <label style={C.label}>Nombre del jugador</label>
-            <input style={C.input} value={form.name} required
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-              placeholder="ej. Marcos Acuña" />
-          </div>
-
-          <div style={C.grid2}>
-            <div>
-              <label style={C.label}>Posición</label>
-              <select style={C.select} value={form.position}
-                onChange={(e) => setForm({ ...form, position: e.target.value })}>
-                {POSITIONS.map((p) => <option key={p} value={p}>{p}</option>)}
-              </select>
-            </div>
-            <div>
-              <label style={C.label}>Fiabilidad</label>
-              {form.type === 'rumor' ? (
-                <div style={{ display: 'flex', gap: 8, height: 42 }}>
-                  {([1, 2, 3] as const).map((v) => (
-                    <button key={v} type="button"
-                      onClick={() => setForm({ ...form, reliability: v })}
-                      style={{
-                        flex: 1, borderRadius: 10, border: 'none',
-                        background: form.reliability >= v ? 'var(--black)' : 'var(--bone-2)',
-                        color: form.reliability >= v ? 'var(--white)' : 'var(--muted)',
-                        cursor: 'pointer', fontFamily: 'var(--font-display)',
-                        fontSize: 16, fontWeight: 800,
-                      }}>
-                      {'🔥'.repeat(v)}
-                    </button>
-                  ))}
-                </div>
-              ) : (
-                <div style={{ ...C.select as React.CSSProperties, display: 'flex', alignItems: 'center', color: 'var(--muted)', fontSize: 12 }}>
-                  N/A
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div style={C.grid2}>
-            <div>
-              <label style={C.label}>Club de origen</label>
-              <input style={C.input} value={form.clubFrom}
-                onChange={(e) => setForm({ ...form, clubFrom: e.target.value })}
-                placeholder="ej. Sevilla FC" />
-            </div>
-            <div>
-              <label style={C.label}>Club de destino</label>
-              <input style={C.input} value={form.clubTo}
-                onChange={(e) => setForm({ ...form, clubTo: e.target.value })}
-                placeholder="Solo para salidas" />
-            </div>
-          </div>
-
-          <div style={C.row}>
-            <label style={C.label}>Foto del jugador</label>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              style={{ display: 'none' }}
-              onChange={handlePhotoUpload}
-            />
-            <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-              <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploading}
-                style={{
-                  flex: 1, padding: '10px 0', borderRadius: 10, border: '1.5px dashed var(--border)',
-                  background: 'var(--bone)', cursor: uploading ? 'default' : 'pointer',
-                  fontFamily: 'var(--font-display)', fontSize: 12, fontWeight: 700,
-                  color: uploading ? 'var(--muted)' : 'var(--black)',
-                  textTransform: 'uppercase', letterSpacing: '0.06em',
-                }}>
-                {uploading ? 'Subiendo...' : '📁 Subir desde dispositivo'}
-              </button>
-            </div>
-            <input style={{ ...C.input, fontSize: 12 }} value={form.photoUrl}
-              onChange={(e) => setForm({ ...form, photoUrl: e.target.value })}
-              placeholder="O pega una URL directamente..." type="url" />
-            {form.photoUrl && (
-              <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 10 }}>
-                <div style={{
-                  width: 56, height: 56, borderRadius: 8, overflow: 'hidden',
-                  background: 'var(--bone-2)', position: 'relative', flexShrink: 0,
-                }}>
-                  <Image
-                    src={form.photoUrl.includes('supabase.co')
-                      ? form.photoUrl
-                      : `/api/proxy/image?url=${encodeURIComponent(form.photoUrl)}&w=120`}
-                    alt="preview"
-                    fill
-                    sizes="56px"
-                    className="object-cover object-top"
-                    unoptimized
-                  />
-                </div>
-                <span style={{ fontSize: 11, color: 'var(--muted)' }}>
-                  {form.photoUrl.includes('supabase.co') ? '✅ Guardada en Supabase' : 'Vista previa'}
-                </span>
+          <div>
+            <label className={LABEL_CLS}>Fiabilidad</label>
+            {form.type === 'rumor' ? (
+              <div className="flex gap-2 h-[42px]">
+                {([1, 2, 3] as const).map((v) => (
+                  <button
+                    key={v}
+                    type="button"
+                    onClick={() => setForm({ ...form, reliability: v })}
+                    className={`flex-1 rounded-[10px] border-none cursor-pointer font-display text-[16px] font-extrabold ${
+                      form.reliability >= v ? 'bg-ceuta-black text-white' : 'bg-ceuta-bg-mid text-ceuta-muted'
+                    }`}
+                  >
+                    {'🔥'.repeat(v)}
+                  </button>
+                ))}
               </div>
+            ) : (
+              <div className={`${INPUT_CLS} flex items-center text-ceuta-muted text-[12px]`}>N/A</div>
             )}
           </div>
+        </div>
 
-          <div style={C.row}>
-            <label style={C.label}>Nota / contexto (opcional)</label>
-            <input style={C.input} value={form.notes}
-              onChange={(e) => setForm({ ...form, notes: e.target.value })}
-              placeholder="ej. Interés confirmado por El Faro" />
+        <div className="grid grid-cols-2 gap-3 mb-3.5">
+          <div>
+            <label className={LABEL_CLS}>Club de origen</label>
+            <input
+              className={INPUT_CLS}
+              value={form.clubFrom}
+              onChange={(e) => setForm({ ...form, clubFrom: e.target.value })}
+              placeholder="ej. Sevilla FC"
+            />
           </div>
+          <div>
+            <label className={LABEL_CLS}>Club de destino</label>
+            <input
+              className={INPUT_CLS}
+              value={form.clubTo}
+              onChange={(e) => setForm({ ...form, clubTo: e.target.value })}
+              placeholder="Solo para salidas"
+            />
+          </div>
+        </div>
 
-          <button type="submit" disabled={saving}
-            style={{
-              width: '100%', padding: '13px 0', borderRadius: 12, border: 'none',
-              background: saving ? 'var(--bone-2)' : editingId ? 'var(--gold)' : 'var(--black)',
-              color: editingId ? 'var(--black)' : 'var(--white)',
-              fontFamily: 'var(--font-display)', fontSize: 14, fontWeight: 800,
-              textTransform: 'uppercase', letterSpacing: '0.08em', cursor: saving ? 'default' : 'pointer',
-            }}>
-            {saving ? 'Guardando...' : editingId ? 'Guardar cambios' : 'Añadir movimiento'}
-          </button>
-
-          {msg && (
-            <p style={{ textAlign: 'center', marginTop: 10, fontSize: 13, fontWeight: 700,
-              color: msg.startsWith('✓') ? '#166534' : 'var(--red)' }}>
-              {msg}
-            </p>
+        <div className="mb-3.5">
+          <label className={LABEL_CLS}>Foto del jugador</label>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handlePhotoUpload}
+          />
+          <div className="flex gap-2 mb-2">
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+              className={`flex-1 py-[10px] rounded-[10px] border-[1.5px] border-dashed border-ceuta-border bg-ceuta-bg-soft font-display text-[12px] font-bold uppercase tracking-[0.06em] cursor-pointer ${
+                uploading ? 'text-ceuta-muted cursor-default' : 'text-ceuta-black'
+              }`}
+            >
+              {uploading ? 'Subiendo...' : '📁 Subir desde dispositivo'}
+            </button>
+          </div>
+          <input
+            className={`${INPUT_CLS} text-[12px]`}
+            value={form.photoUrl}
+            onChange={(e) => setForm({ ...form, photoUrl: e.target.value })}
+            placeholder="O pega una URL directamente..."
+            type="url"
+          />
+          {form.photoUrl && (
+            <div className="mt-2 flex items-center gap-[10px]">
+              <div className="w-14 h-14 rounded-lg overflow-hidden bg-ceuta-bg-mid relative shrink-0">
+                <Image
+                  src={form.photoUrl.includes('supabase.co')
+                    ? form.photoUrl
+                    : `/api/proxy/image?url=${encodeURIComponent(form.photoUrl)}&w=120`}
+                  alt="preview"
+                  fill
+                  sizes="56px"
+                  className="object-cover object-top"
+                  unoptimized
+                />
+              </div>
+              <span className="text-[11px] text-ceuta-muted">
+                {form.photoUrl.includes('supabase.co') ? '✅ Guardada en Supabase' : 'Vista previa'}
+              </span>
+            </div>
           )}
-        </form>
+        </div>
 
-        {/* Tabs */}
-        <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
-          {TABS.map((tab) => {
-            const count = transfers.filter(t => t.type === tab.id).length
-            const active = activeTab === tab.id
-            return (
-              <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{
-                padding: '8px 16px', borderRadius: 10, border: 'none', cursor: 'pointer',
+        <div className="mb-3.5">
+          <label className={LABEL_CLS}>Nota / contexto (opcional)</label>
+          <input
+            className={INPUT_CLS}
+            value={form.notes}
+            onChange={(e) => setForm({ ...form, notes: e.target.value })}
+            placeholder="ej. Interés confirmado por El Faro"
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={saving}
+          className={`w-full py-[13px] rounded-[12px] border-none font-display text-[14px] font-extrabold uppercase tracking-[0.08em] ${
+            saving
+              ? 'bg-ceuta-bg-mid text-ceuta-muted cursor-default'
+              : editingId
+                ? 'bg-[var(--gold)] text-ceuta-black cursor-pointer'
+                : 'bg-ceuta-black text-white cursor-pointer'
+          }`}
+        >
+          {saving ? 'Guardando...' : editingId ? 'Guardar cambios' : 'Añadir movimiento'}
+        </button>
+
+        {msg && (
+          <p className={`text-center mt-[10px] text-[13px] font-bold ${msg.startsWith('✓') ? 'text-green-700' : 'text-ceuta-red'}`}>
+            {msg}
+          </p>
+        )}
+      </form>
+
+      {/* Tabs */}
+      <div className="flex gap-2 mb-4 flex-wrap">
+        {TABS.map((tab) => {
+          const count = transfers.filter(t => t.type === tab.id).length
+          const active = activeTab === tab.id
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-[10px] border-none cursor-pointer font-display text-[12px] font-extrabold uppercase tracking-[0.08em]"
+              style={{
                 background: active ? tab.color : 'var(--bone)',
                 color: active ? 'var(--white)' : 'var(--muted)',
-                fontFamily: 'var(--font-display)', fontSize: 12, fontWeight: 800,
-                textTransform: 'uppercase', letterSpacing: '0.08em',
-                display: 'flex', alignItems: 'center', gap: 6,
-              }}>
-                {tab.label}
-                <span style={{
+              }}
+            >
+              {tab.label}
+              <span
+                className="rounded-full px-[7px] py-[1px] text-[11px] font-black"
+                style={{
                   background: active ? 'rgba(255,255,255,0.25)' : 'var(--bone-2)',
                   color: active ? 'var(--white)' : 'var(--black)',
-                  borderRadius: 'var(--r-pill)', padding: '1px 7px', fontSize: 11, fontWeight: 900,
-                }}>
-                  {count}
-                </span>
-              </button>
-            )
-          })}
-        </div>
+                }}
+              >
+                {count}
+              </span>
+            </button>
+          )
+        })}
+      </div>
 
-        {/* List */}
-        <div style={secTitle}>
-          {TYPE_LABELS[activeTab]} ({transfers.filter(t => t.type === activeTab).length})
+      {/* List */}
+      <div className={LABEL_CLS}>
+        {TYPE_LABELS[activeTab]} ({transfers.filter(t => t.type === activeTab).length})
+      </div>
+      {transfers.filter(t => t.type === activeTab).length === 0 && (
+        <div className="text-center py-8 text-ceuta-muted text-[13px]">
+          Sin movimientos en esta categoría
         </div>
-        {transfers.filter(t => t.type === activeTab).length === 0 && (
-          <div style={{ textAlign: 'center', padding: '32px 0', color: 'var(--muted)', fontSize: 13 }}>
-            Sin movimientos en esta categoría
-          </div>
-        )}
-        {transfers.filter(t => t.type === activeTab).map((t) => (
-            <div key={t.id} style={{
-              ...C.card,
-              display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px',
-              outline: editingId === t.id ? '2px solid var(--gold)' : 'none',
-            }}>
-              {t.photoUrl && (
-                <div style={{
-                  width: 44, height: 44, borderRadius: 8, overflow: 'hidden',
-                  background: 'var(--bone-2)', position: 'relative', flexShrink: 0,
-                }}>
-                  <Image
-                    src={`/api/proxy/image?url=${encodeURIComponent(t.photoUrl)}&w=88`}
-                    alt={t.name}
-                    fill
-                    sizes="44px"
-                    className="object-cover object-top"
-                    unoptimized
-                  />
-                </div>
-              )}
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 15, fontWeight: 800, textTransform: 'uppercase' }}>
-                  {t.name}
-                </div>
-                <div style={{ display: 'flex', gap: 6, marginTop: 4, flexWrap: 'wrap' }}>
-                  <span style={{
-                    fontSize: 10, fontWeight: 800, padding: '2px 8px',
-                    borderRadius: 'var(--r-pill)', background: TYPE_COLORS[t.type],
-                    color: 'var(--white)',
-                  }}>
-                    {TYPE_LABELS[t.type]}
-                  </span>
-                  <span style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 600 }}>
-                    {t.position}
-                  </span>
-                  {t.clubFrom && <span style={{ fontSize: 11, color: 'var(--muted)' }}>← {t.clubFrom}</span>}
-                  {t.clubTo && <span style={{ fontSize: 11, color: 'var(--muted)' }}>→ {t.clubTo}</span>}
-                  {t.type === 'rumor' && <span style={{ fontSize: 11 }}>{'🔥'.repeat(t.reliability)}</span>}
-                </div>
-              </div>
-              <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
-                <button onClick={() => startEdit(t)}
-                  style={{
-                    background: 'var(--bone)', border: '1px solid var(--border)',
-                    borderRadius: 8, padding: '6px 12px', cursor: 'pointer',
-                    fontSize: 12, color: 'var(--black)', fontFamily: 'var(--font-display)',
-                    fontWeight: 700,
-                  }}>
-                  Editar
-                </button>
-                <button onClick={() => handleDelete(t.id)}
-                  style={{
-                    background: 'none', border: '1px solid var(--border)',
-                    borderRadius: 8, padding: '6px 12px', cursor: 'pointer',
-                    fontSize: 12, color: 'var(--muted)', fontFamily: 'var(--font-display)',
-                    fontWeight: 700,
-                  }}>
-                  Eliminar
-                </button>
-              </div>
+      )}
+      {transfers.filter(t => t.type === activeTab).map((t) => (
+        <div
+          key={t.id}
+          className={`${CARD_CLS} flex items-center gap-3 !p-[14px_16px] ${editingId === t.id ? 'outline outline-2 outline-[var(--gold)]' : ''}`}
+        >
+          {t.photoUrl && (
+            <div className="w-11 h-11 rounded-lg overflow-hidden bg-ceuta-bg-mid relative shrink-0">
+              <Image
+                src={`/api/proxy/image?url=${encodeURIComponent(t.photoUrl)}&w=88`}
+                alt={t.name}
+                fill
+                sizes="44px"
+                className="object-cover object-top"
+                unoptimized
+              />
             </div>
-          ))
-        }
+          )}
+          <div className="flex-1">
+            <div className="text-[15px] font-extrabold uppercase">{t.name}</div>
+            <div className="flex gap-1.5 mt-1 flex-wrap">
+              <span
+                className="text-[10px] font-extrabold px-2 py-[2px] rounded-full text-white"
+                style={{ background: TYPE_COLORS[t.type] }}
+              >
+                {TYPE_LABELS[t.type]}
+              </span>
+              <span className="text-[11px] text-ceuta-muted font-semibold">{t.position}</span>
+              {t.clubFrom && <span className="text-[11px] text-ceuta-muted">← {t.clubFrom}</span>}
+              {t.clubTo && <span className="text-[11px] text-ceuta-muted">→ {t.clubTo}</span>}
+              {t.type === 'rumor' && <span className="text-[11px]">{'🔥'.repeat(t.reliability)}</span>}
+            </div>
+          </div>
+          <div className="flex gap-2 shrink-0">
+            <button
+              onClick={() => startEdit(t)}
+              className="text-[12px] font-bold text-ceuta-black bg-ceuta-bg-soft border border-ceuta-border rounded-lg px-3 py-1.5 cursor-pointer font-display"
+            >
+              Editar
+            </button>
+            <button
+              onClick={() => handleDelete(t.id)}
+              className="text-[12px] font-bold text-ceuta-muted bg-transparent border border-ceuta-border rounded-lg px-3 py-1.5 cursor-pointer font-display"
+            >
+              Eliminar
+            </button>
+          </div>
+        </div>
+      ))}
 
-        {showPicker && (
-          <PlayerPickerModal
-            onSelect={handlePlayerPick}
-            onClose={() => setShowPicker(false)}
-          />
-        )}
+      {showPicker && (
+        <PlayerPickerModal
+          onSelect={handlePlayerPick}
+          onClose={() => setShowPicker(false)}
+        />
+      )}
     </div>
   )
 }
