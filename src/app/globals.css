@@ -154,6 +154,8 @@ img {
   align-items: center;
   justify-content: space-between;
   padding: 0 16px;
+  /* Needed for absolute-positioned centered logo */
+  position: fixed;
 }
 .topbar-logo {
   display: flex;

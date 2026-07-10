@@ -132,10 +132,17 @@ const SSR_ROUTES = ['/clasificacion', '/partidos', '/club', '/noticias', '/aline
 function Topbar({ pathname, router }: { pathname: string; router: ReturnType<typeof useRouter> }) {
   return (
     <div className="topbar">
-      <div className="topbar-logo cursor-pointer" onClick={() => router.push('/')}>
+      {/* Escudo centrado absolutamente — independiente del flex layout */}
+      <div
+        className="absolute left-1/2 -translate-x-1/2 cursor-pointer"
+        onClick={() => router.push('/')}
+      >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/escudo.webp" alt="AD Ceuta" className="w-10 h-10 object-contain" />
-        <span className="topbar-title desktop-only">AD CEUTA <b>INFO</b></span>
+      </div>
+      {/* Título solo en desktop, alineado a la izquierda */}
+      <div className="topbar-logo desktop-only cursor-pointer" onClick={() => router.push('/')}>
+        <span className="topbar-title">AD CEUTA <b>INFO</b></span>
       </div>
       <nav className="top-nav desktop-only">
         {NAV_DESKTOP.map((n) => (
