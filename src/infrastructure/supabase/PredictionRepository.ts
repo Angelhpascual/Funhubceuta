@@ -158,8 +158,10 @@ export async function getPredictionSeasonRanking() {
 
   const totals: Record<string, { points: number; exactos: number; nickname: string | null }> = {}
   for (const row of data) {
-    const prev = totals[row.fingerprint] ?? { points: 0, exactos: 0, nickname: null }
-    totals[row.fingerprint] = {
+    // Agrupar por nickname si existe, si no por fingerprint
+    const key = row.nickname?.trim() || row.fingerprint
+    const prev = totals[key] ?? { points: 0, exactos: 0, nickname: null }
+    totals[key] = {
       points: prev.points + (row.points ?? 0),
       exactos: prev.exactos + (row.points === 50 ? 1 : 0),
       nickname: row.nickname ?? prev.nickname,
@@ -167,7 +169,7 @@ export async function getPredictionSeasonRanking() {
   }
 
   return Object.entries(totals)
-    .map(([fingerprint, stats]) => ({ fingerprint, ...stats }))
+    .map(([key, stats]) => ({ fingerprint: key, ...stats }))
     .sort((a, b) => b.points - a.points || b.exactos - a.exactos)
     .slice(0, 20)
 }

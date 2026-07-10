@@ -217,10 +217,10 @@ describe('getPredictionSeasonRanking', () => {
     } as never)
 
     const ranking = await getPredictionSeasonRanking()
-    expect(ranking[0].fingerprint).toBe('fp1')
+    expect(ranking[0].nickname).toBe('Tito')
     expect(ranking[0].points).toBe(65)
     expect(ranking[0].exactos).toBe(1)
-    expect(ranking[1].fingerprint).toBe('fp2')
+    expect(ranking[1].nickname).toBe('Ana')
     expect(ranking[1].points).toBe(15)
   })
 
