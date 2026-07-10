@@ -43,6 +43,8 @@ export default function AdminLoginPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             autoFocus
+            autoCapitalize="none"
+            autoCorrect="off"
             className={`w-full px-4 py-3 rounded-[12px] border text-[16px] outline-none mb-2 bg-ceuta-bg-soft ${
               error ? 'border-ceuta-red' : 'border-ceuta-border'
             }`}
