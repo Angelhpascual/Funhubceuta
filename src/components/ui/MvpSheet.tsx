@@ -48,6 +48,11 @@ export function MvpSheet({ session, tallies, bannerState, votedId, fingerprint, 
   const [season, setSeason] = useState<SeasonEntry[]>([])
 
   useEffect(() => {
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = '' }
+  }, [])
+
+  useEffect(() => {
     if (tab === 'temporada') {
       fetch('/api/mvp/season')
         .then((r) => r.json())
