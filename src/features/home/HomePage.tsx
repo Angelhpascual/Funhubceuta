@@ -6,6 +6,8 @@ import { NewsItem } from '@/domain/news/News'
 import { SocialLinks } from '@/components/social/TwitterTimeline'
 import { LiveMatchCard } from './LiveMatchCard'
 import { NotificationBanner } from '@/components/ui/NotificationBanner'
+import { MvpBanner } from '@/components/ui/MvpBanner'
+import { PredictionBanner } from '@/components/ui/PredictionBanner'
 import Link from 'next/link'
 import Image, { type ImageLoaderProps } from 'next/image'
 import { proxyImage } from '@/lib/proxyImage'
@@ -252,8 +254,7 @@ export function HomePage({
               sizes="(max-width: 768px) 100vw, 420px"
               quality={70}
               unoptimized={isStoredNewsImage(featuredImage)}
-              className="object-cover"
-              style={{ objectPosition: 'center 20%' }}
+              className="object-cover object-[center_20%]"
               onLoad={(event) => {
                 reportFeaturedImageLoad(event.currentTarget)
                 setFeaturedImageReady(true)
@@ -302,6 +303,8 @@ export function HomePage({
       )}
 
       <NotificationBanner />
+      <PredictionBanner />
+      <MvpBanner />
 
       {/* ── PRÓXIMO PARTIDO ── */}
       <div className="flex items-end justify-between px-4 pb-3 pt-6">

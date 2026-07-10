@@ -4,41 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import type { CareerEntry, Player } from './clubTypes'
 import { getLocalLogo } from '@/lib/teamLogos'
-
-const NAT_FLAGS: Record<string, string> = {
-  españa: '🇪🇸',
-  mali: '🇲🇱',
-  senegal: '🇸🇳',
-  guinea: '🇬🇳',
-  'guinea-bisáu': '🇬🇼',
-  'guinea bisáu': '🇬🇼',
-  argentina: '🇦🇷',
-  uruguay: '🇺🇾',
-  colombia: '🇨🇴',
-  francia: '🇫🇷',
-  marruecos: '🇲🇦',
-  argelia: '🇩🇿',
-  camerún: '🇨🇲',
-  brasil: '🇧🇷',
-  portugal: '🇵🇹',
-  ghana: '🇬🇭',
-  nigeria: '🇳🇬',
-  'costa de marfil': '🇨🇮',
-  'ivory coast': '🇨🇮',
-  'estados unidos': '🇺🇸',
-  'united states': '🇺🇸',
-  usa: '🇺🇸',
-  'burkina faso': '🇧🇫',
-}
-
-function flag(nat: string): string {
-  if (!nat) return ''
-  const key = nat.toLowerCase()
-  for (const [k, v] of Object.entries(NAT_FLAGS)) {
-    if (key.includes(k)) return v
-  }
-  return ''
-}
+import { flag } from '@/lib/nationality'
 
 const NATIONAL_TEAMS = new Set([
   'españa','france','marruecos','argelia','mali','guinea','guinea bisáu','senegal',

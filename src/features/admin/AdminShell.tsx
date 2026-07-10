@@ -13,11 +13,11 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const router = useRouter()
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg-soft)', fontFamily: 'var(--font-display)' }}>
+    <div className="min-h-screen bg-ceuta-bg-soft font-display">
       <nav className="admin-navbar">
         <div className="admin-navbar-logo">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/escudo.webp" alt="AD Ceuta" style={{ width: 28, height: 28, objectFit: 'contain' }} />
+          <img src="/escudo.webp" alt="AD Ceuta" className="w-7 h-7 object-contain" />
           <span>Admin</span>
         </div>
 
@@ -35,7 +35,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         <span className="admin-navbar-brand">AD Ceuta FC Info</span>
       </nav>
 
-      <div style={{ maxWidth: 640, margin: '0 auto', padding: '24px 16px 40px' }}>
+      <div className="max-w-[640px] mx-auto px-4 pt-6 pb-10">
         {children}
       </div>
     </div>

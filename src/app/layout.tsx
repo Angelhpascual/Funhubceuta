@@ -47,7 +47,7 @@ export default function RootLayout({
         <div
           id="html-loader"
           aria-hidden="true"
-          style={{ position: 'fixed', inset: 0, background: '#fff', zIndex: 9999 }}
+          className="fixed inset-0 bg-white z-[9999]"
         />
         <AppShell>{children}</AppShell>
         <Analytics />
