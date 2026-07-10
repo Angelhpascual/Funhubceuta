@@ -132,10 +132,20 @@ const SSR_ROUTES = ['/clasificacion', '/partidos', '/club', '/noticias', '/aline
 function Topbar({ pathname, router }: { pathname: string; router: ReturnType<typeof useRouter> }) {
   return (
     <div className="topbar">
-      <div className="topbar-logo" style={{ cursor: 'pointer' }} onClick={() => router.push('/')}>
+      {/* Desktop: escudo + título a la izquierda */}
+      <div className="topbar-logo desktop-only" style={{ cursor: 'pointer' }} onClick={() => router.push('/')}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/escudo.webp" alt="AD Ceuta" style={{ width: 40, height: 40, objectFit: 'contain' }} />
-        <span className="topbar-title desktop-only">AD CEUTA <b>INFO</b></span>
+        <span className="topbar-title">AD CEUTA <b>INFO</b></span>
+      </div>
+      {/* Móvil: escudo centrado absolutamente */}
+      <div
+        className="mobile-only"
+        style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', cursor: 'pointer' }}
+        onClick={() => router.push('/')}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/escudo.webp" alt="AD Ceuta" style={{ width: 40, height: 40, objectFit: 'contain' }} />
       </div>
       <nav className="top-nav desktop-only">
         {NAV_DESKTOP.map((n) => (

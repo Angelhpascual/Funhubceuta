@@ -2319,6 +2319,7 @@ img {
 
 /* Ocultar/mostrar por viewport */
 .desktop-only { display: none; }
+.mobile-only { display: flex; }
 
 /* Desktop topbar overlay — shown only on desktop, sits above the home page shell */
 .desktop-topbar-overlay { display: none; }
@@ -2348,6 +2349,7 @@ img {
 
 @media (min-width: 768px) {
   .desktop-only { display: flex; }
+  .mobile-only { display: none; }
 
   /* Full-width, sin el "phone frame" oscuro */
   html, body {
