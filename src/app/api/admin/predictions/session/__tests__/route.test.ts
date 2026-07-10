@@ -4,11 +4,18 @@ vi.mock('@/infrastructure/supabase/PredictionRepository', () => ({
   createPredictionSession: vi.fn(),
   openPredictionSession: vi.fn(),
 }))
+vi.mock('@/infrastructure/supabase/adminClient', () => ({ supabaseAdmin: { from: vi.fn() } }))
+vi.mock('@/infrastructure/push/sendPush', () => ({ sendPush: vi.fn().mockResolvedValue({ sent: 0, total: 0 }) }))
 
 import { createPredictionSession, openPredictionSession } from '@/infrastructure/supabase/PredictionRepository'
+import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
+import { sendPush } from '@/infrastructure/push/sendPush'
 import { POST, PUT } from '../route'
 
-beforeEach(() => { vi.resetAllMocks() })
+beforeEach(() => {
+  vi.resetAllMocks()
+  vi.mocked(sendPush).mockResolvedValue({ sent: 0, total: 0 })
+})
 
 function makeReq(method: string, body: unknown) {
   return new Request('http://localhost/api/admin/predictions/session', {
@@ -49,6 +56,8 @@ describe('PUT /api/admin/predictions/session', () => {
 
   it('opens session successfully', async () => {
     vi.mocked(openPredictionSession).mockResolvedValue({ error: null })
+    const single = vi.fn().mockResolvedValue({ data: { match_label: 'Ceuta vs X', jornada: 'J20' } })
+    vi.mocked(supabaseAdmin.from).mockReturnValue({ select: vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ single }) }) } as never)
 
     const res = await PUT(makeReq('PUT', { sessionId: 's1', action: 'open' }))
     const body = await res.json()
