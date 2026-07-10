@@ -60,6 +60,7 @@ const SQUAD_KEYWORDS = [
   'cristian rodríguez',
   'kialy koné',
   'kialy kone',
+  'koné',
   // Presidente y club
   'luhay hamido',
 ]
