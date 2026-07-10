@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createPredictionSession, openPredictionSession } from '@/infrastructure/supabase/PredictionRepository'
 import { apiError } from '@/lib/apiError'
-import { sendPush } from '@/infrastructure/push/sendPush'
-import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
 
 export async function POST(request: Request) {
   try {
@@ -23,22 +21,6 @@ export async function PUT(request: Request) {
     if (action === 'open') {
       const { error } = await openPredictionSession(sessionId)
       if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-
-      const { data: session } = await supabaseAdmin
-        .from('prediction_sessions')
-        .select('match_label, jornada')
-        .eq('id', sessionId)
-        .single()
-
-      sendPush({
-        title: '🔮 Predice el resultado',
-        body: session?.jornada
-          ? `${session.match_label} · ${session.jornada}`
-          : session?.match_label ?? 'Predicción abierta',
-        tag: 'prediccion',
-        url: '/',
-      }).catch(() => {})
-
       return NextResponse.json({ ok: true })
     }
     return NextResponse.json({ error: 'Acción desconocida' }, { status: 400 })

@@ -7,8 +7,6 @@ import {
   type MvpCandidate,
   type MvpMatchMeta,
 } from '@/infrastructure/supabase/MvpRepository'
-import { sendPush } from '@/infrastructure/push/sendPush'
-import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
 
 // POST /api/admin/mvp/session — create a new session
 export async function POST(request: Request) {
@@ -36,22 +34,6 @@ export async function PATCH(request: Request) {
   if (action === 'open') {
     const { error } = await openMvpSession(sessionId)
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-
-    const { data: session } = await supabaseAdmin
-      .from('mvp_sessions')
-      .select('match_label, jornada')
-      .eq('id', sessionId)
-      .single()
-
-    sendPush({
-      title: '⭐ Vota al MVP del partido',
-      body: session?.jornada
-        ? `${session.match_label} · ${session.jornada}`
-        : session?.match_label ?? 'Votación abierta',
-      tag: 'mvp',
-      url: '/',
-    }).catch(() => {})
-
     return NextResponse.json({ ok: true })
   }
 
@@ -71,6 +53,7 @@ export async function DELETE(request: Request) {
   const { sessionId } = await request.json()
   if (!sessionId) return NextResponse.json({ error: 'sessionId required' }, { status: 400 })
 
+  const { supabaseAdmin } = await import('@/infrastructure/supabase/adminClient')
   const { error } = await supabaseAdmin.from('mvp_sessions').delete().eq('id', sessionId)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ ok: true })

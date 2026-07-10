@@ -12,18 +12,15 @@ vi.mock('@/infrastructure/supabase/MvpRepository', () => ({
 vi.mock('@/infrastructure/supabase/adminClient', () => ({
   supabaseAdmin: { from: vi.fn() },
 }))
-vi.mock('@/infrastructure/push/sendPush', () => ({ sendPush: vi.fn().mockResolvedValue({ sent: 0, total: 0 }) }))
 
 import { checkAdminAuth } from '@/infrastructure/admin/auth'
 import { createMvpSession, openMvpSession, closeMvpSession } from '@/infrastructure/supabase/MvpRepository'
 import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
-import { sendPush } from '@/infrastructure/push/sendPush'
 import { POST, PATCH, DELETE } from '../route'
 
 beforeEach(() => {
   vi.resetAllMocks()
   vi.mocked(checkAdminAuth).mockResolvedValue(true)
-  vi.mocked(sendPush).mockResolvedValue({ sent: 0, total: 0 })
 })
 
 function makeReq(method: string, body: unknown) {
@@ -80,9 +77,6 @@ describe('PATCH /api/admin/mvp/session', () => {
 
   it('opens session', async () => {
     vi.mocked(openMvpSession).mockResolvedValue({ error: null })
-    const single = vi.fn().mockResolvedValue({ data: { match_label: 'Ceuta vs X', jornada: 'J20' } })
-    vi.mocked(supabaseAdmin.from).mockReturnValue({ select: vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ single }) }) } as never)
-
     const res = await PATCH(makeReq('PATCH', { sessionId: 's1', action: 'open' }))
     expect(res.status).toBe(200)
     expect(openMvpSession).toHaveBeenCalledWith('s1')
