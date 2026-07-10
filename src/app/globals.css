@@ -2580,174 +2580,203 @@ img {
 
 /* ════════ MVP VOTING ════════ */
 
-/* Bottom sheet */
-.mvp-sheet-overlay {
-  position: fixed; inset: 0; z-index: 100;
-  background: rgba(0,0,0,0.45);
-  display: flex; align-items: flex-end; justify-content: center;
-  animation: mvp-overlay-in 0.2s ease;
-}
-@keyframes mvp-overlay-in { from { opacity: 0; } to { opacity: 1; } }
+/* ——— banner en Inicio ——— */
+.mvp-banner{border-radius:16px;padding:16px 17px;display:flex;align-items:center;gap:14px;cursor:pointer;
+  position:relative;overflow:hidden;transition:transform .12s;border:none;width:100%;text-align:left;}
+.mvp-banner:active{transform:scale(.98);}
+.mvp-banner.st-antes{background:var(--bg-mid);border:1.5px dashed var(--border);}
+.mvp-banner.st-abierta{background:var(--black);color:#fff;box-shadow:0 10px 26px rgba(218,26,34,.22);}
+.mvp-banner.st-votado{background:var(--white);border:1.5px solid var(--border);box-shadow:0 4px 14px rgba(0,0,0,.06);}
+.mvp-banner.st-cerrada{background:linear-gradient(120deg,#1a1815,var(--black));color:#fff;}
+.mvp-banner .mb-strp{position:absolute;top:0;right:0;width:110px;height:100%;
+  background:repeating-linear-gradient(-45deg,#fff 0 12px,transparent 12px 24px);opacity:.06;pointer-events:none;}
+.mvp-banner .mb-ic{width:46px;height:46px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;
+  justify-content:center;position:relative;z-index:2;}
+.mvp-banner.st-antes .mb-ic{background:var(--bg-soft);color:var(--muted-2);}
+.mvp-banner.st-abierta .mb-ic{background:var(--red);color:#fff;}
+.mvp-banner.st-votado .mb-ic{background:#e4f3ea;color:#1e7f47;}
+.mvp-banner.st-cerrada .mb-ic{background:var(--gold);color:#7a6100;}
+.mvp-banner .mb-ic svg{width:24px;height:24px;}
+.mvp-banner .mb-main{flex:1;min-width:0;position:relative;z-index:2;}
+.mvp-banner .mb-eye{font-family:var(--font-display);font-weight:700;font-size:10px;letter-spacing:0.14em;
+  text-transform:uppercase;opacity:.6;}
+.mvp-banner.st-abierta .mb-eye{color:var(--gold);opacity:1;}
+.mvp-banner .mb-title{font-family:var(--font-display);font-weight:800;font-size:17px;letter-spacing:0.01em;
+  text-transform:uppercase;line-height:1.05;margin-top:2px;}
+.mvp-banner .mb-sub{font-family:var(--font-body);font-size:12.5px;margin-top:3px;opacity:.68;}
+.mvp-banner .mb-chev{color:currentColor;opacity:.4;flex-shrink:0;position:relative;z-index:2;}
+.mvp-banner .live-dot{width:7px;height:7px;border-radius:50%;background:var(--red);display:inline-block;
+  margin-right:6px;animation:mvp-pulse-dot 1.4s infinite;}
+.mvp-banner.st-abierta .live-dot{background:#4ade80;}
+@keyframes mvp-pulse-dot{0%,100%{opacity:1;}50%{opacity:.25;}}
 
-.mvp-sheet {
-  width: 100%; max-width: 480px;
-  background: var(--white);
-  border-radius: 20px 20px 0 0;
-  max-height: 92dvh;
-  display: flex; flex-direction: column;
-  animation: mvp-sheet-up 0.28s cubic-bezier(0.32,0.72,0,1);
-  overflow: hidden;
-}
-@keyframes mvp-sheet-up {
-  from { transform: translateY(100%); }
-  to   { transform: translateY(0); }
-}
+/* ——— bottom sheet ——— */
+.mvp-overlay{position:fixed;inset:0;background:rgba(10,9,8,.5);z-index:100;display:flex;
+  align-items:flex-end;justify-content:center;animation:mvp-ol-in .2s ease;}
+@keyframes mvp-ol-in{from{opacity:0}to{opacity:1}}
+.mvp-sheet{width:100%;max-width:480px;background:var(--bg-soft);border-radius:24px 24px 0 0;
+  max-height:92dvh;display:flex;flex-direction:column;
+  animation:mvp-sheet-up .28s cubic-bezier(.2,.8,.3,1);overflow:hidden;
+  box-shadow:0 -20px 50px rgba(0,0,0,.35);}
+@keyframes mvp-sheet-up{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.mvp-sheet-grab{width:38px;height:4px;border-radius:2px;background:var(--border);margin:10px auto 2px;flex-shrink:0;}
+.mvp-sheet-head{padding:6px 20px 0;flex-shrink:0;}
+.mvp-sheet-top{display:flex;align-items:center;justify-content:space-between;}
+.mvp-sheet-title{font-family:var(--font-display);font-weight:900;font-size:21px;letter-spacing:0.01em;
+  text-transform:uppercase;}
+.mvp-sheet-title span{color:var(--red);}
+.mvp-close{width:30px;height:30px;border-radius:50%;background:var(--bg-mid);border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;color:var(--muted);flex-shrink:0;}
+.mvp-sheet-sub{font-family:var(--font-display);font-weight:600;font-size:12px;letter-spacing:0.04em;
+  color:var(--muted);margin-top:2px;text-transform:uppercase;}
+.mvp-tabs{display:flex;gap:6px;margin-top:14px;background:var(--bg-mid);padding:4px;border-radius:11px;}
+.mvp-tab{flex:1;text-align:center;font-family:var(--font-display);font-weight:700;font-size:12.5px;
+  letter-spacing:0.04em;text-transform:uppercase;color:var(--muted);background:none;border:none;
+  cursor:pointer;padding:9px 6px;border-radius:8px;transition:background .12s,color .12s;}
+.mvp-tab.active{background:var(--white);color:var(--black);box-shadow:0 1px 3px rgba(0,0,0,.08);}
+.mvp-sheet-body{flex:1;overflow-y:auto;padding:16px 20px 32px;}
+.mvp-sheet-body::-webkit-scrollbar{width:0;}
 
-.mvp-sheet-handle {
-  width: 36px; height: 4px;
-  background: var(--border); border-radius: 2px;
-  margin: 12px auto 0;
-  flex-shrink: 0;
-}
+/* ——— candidate rows ——— */
+.mvp-row{display:flex;align-items:center;gap:13px;background:var(--white);border:1.5px solid var(--border);
+  border-radius:14px;padding:11px 13px;cursor:pointer;transition:border-color .14s,box-shadow .14s;
+  position:relative;width:100%;}
+.mvp-row.picked{border-color:var(--red);box-shadow:0 0 0 3px var(--red-soft);}
+.mvp-row .rw-av{width:44px;height:44px;border-radius:11px;background:#151412;flex-shrink:0;overflow:hidden;
+  display:flex;align-items:flex-end;justify-content:center;}
+.mvp-row .rw-main{flex:1;min-width:0;}
+.mvp-row .rw-name{font-family:var(--font-display);font-weight:700;font-size:14.5px;letter-spacing:0.01em;
+  text-transform:uppercase;display:flex;align-items:center;gap:6px;}
+.mvp-row .rw-dorsal{font-size:11px;color:var(--muted-2);font-weight:600;}
+.mvp-row .rw-pos{font-size:11.5px;color:var(--muted);margin-top:1px;}
+.mvp-row .rw-bar{height:6px;border-radius:3px;background:var(--bg-mid);margin-top:6px;overflow:hidden;}
+.mvp-row .rw-bar-fill{display:block;height:100%;background:var(--black);border-radius:3px;transition:width .5s ease;}
+.mvp-row.picked .rw-bar-fill{background:var(--red);}
+.mvp-row .rw-pct{font-family:var(--font-display);font-weight:800;font-size:15px;min-width:38px;text-align:right;color:var(--muted);}
+.mvp-row.picked .rw-pct{color:var(--red);}
+.mvp-row .rw-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;color:transparent;transition:all .14s;}
+.mvp-row.picked .rw-check{background:var(--red);border-color:var(--red);color:#fff;}
+.mvp-row .rw-check svg{width:12px;height:12px;}
 
-.mvp-sheet-scroll { overflow-y: auto; flex: 1; padding-bottom: env(safe-area-inset-bottom, 16px); }
+/* ——— mini rows (variant hibrida) ——— */
+.mvp-rowmini{display:flex;align-items:center;gap:11px;background:var(--white);border:1.5px solid var(--border);
+  border-radius:12px;padding:9px 11px;cursor:pointer;transition:border-color .14s,box-shadow .14s;width:100%;}
+.mvp-rowmini.picked{border-color:var(--red);box-shadow:0 0 0 3px var(--red-soft);}
+.mvp-rowmini .rm-av{width:34px;height:34px;border-radius:9px;background:#151412;flex-shrink:0;overflow:hidden;
+  display:flex;align-items:flex-end;justify-content:center;}
+.mvp-rowmini .rm-name{font-family:var(--font-display);font-weight:700;font-size:13px;letter-spacing:0.01em;
+  text-transform:uppercase;flex:1;min-width:0;}
+.mvp-rowmini .rm-pct{font-family:var(--font-display);font-weight:800;font-size:13px;color:var(--muted);min-width:32px;text-align:right;}
+.mvp-rowmini.picked .rm-pct{color:var(--red);}
+.mvp-rowmini .rm-check{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;color:transparent;}
+.mvp-rowmini.picked .rm-check{background:var(--red);border-color:var(--red);color:#fff;}
+.mvp-rowmini .rm-check svg{width:10px;height:10px;}
 
-/* FIFA card */
-.mvp-fifa-card {
-  position: relative;
-  width: 160px; height: 220px;
-  background: linear-gradient(145deg, #c9a227 0%, #f0d060 35%, #b8881c 70%, #e8c040 100%);
-  border-radius: 12px;
-  overflow: hidden;
-  display: flex; flex-direction: column;
-  align-items: center;
-  clip-path: polygon(8% 0%, 92% 0%, 100% 8%, 100% 92%, 92% 100%, 8% 100%, 0% 92%, 0% 8%);
-  box-shadow: 0 8px 32px rgba(180,130,0,0.45), 0 2px 8px rgba(0,0,0,0.2);
-}
+/* ——— FIFA card (líder variante híbrida) ——— */
+.fifa-card{position:relative;width:180px;margin:0 auto 18px;aspect-ratio:3/4.1;overflow:hidden;cursor:pointer;
+  clip-path:polygon(0% 14%,1% 9%,3% 5%,6% 3%,10% 1%,15% 0%,30% 0%,42% 0%,47% 3%,50% 5.5%,53% 3%,58% 0%,70% 0%,85% 0%,90% 1%,94% 3%,97% 5%,99% 9%,100% 14%,100% 55%,100% 70%,98% 80%,94% 88%,88% 93%,80% 96%,70% 98%,60% 99.5%,50% 100%,40% 99.5%,30% 98%,20% 96%,12% 93%,6% 88%,2% 80%,0% 70%,0% 55%);
+  background:linear-gradient(165deg,#FFF3B0 0%,#F4C300 45%,#C9960A 78%,#8A6B06 100%);
+  box-shadow:0 14px 30px rgba(0,0,0,.35);transition:transform .15s,box-shadow .15s;}
+.fifa-card:active{transform:scale(.97);}
+.fifa-card.picked{box-shadow:0 14px 30px rgba(218,26,34,.4);}
+.fifa-card.picked::before{content:'';position:absolute;inset:0;z-index:4;pointer-events:none;
+  box-shadow:0 0 0 4px var(--red) inset;}
+.fifa-card .fc-rays{position:absolute;left:-10%;right:-10%;top:0;height:66%;z-index:0;
+  background:conic-gradient(from 208deg at 22% 102%,#F7E7A0 0deg,#D9A400 9deg,#F9EBB0 18deg,#D2980A 27deg,#F7E7A0 36deg,#C9910A 45deg,#F9EBB0 54deg,#D2980A 63deg,#F7E7A0 72deg,#D9A400 81deg,#F9EBB0 90deg,#C9910A 99deg,#F7E7A0 108deg,#D9A400 117deg);
+  mask-image:linear-gradient(180deg,#000 62%,transparent 100%);}
+.fifa-card .fc-seam{position:absolute;left:0;right:0;top:63%;height:1px;z-index:1;background:rgba(120,90,0,.35);}
+.fifa-card .fc-shine{position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(115deg,transparent 28%,rgba(255,255,255,.5) 47%,transparent 64%);mix-blend-mode:overlay;}
+.fifa-card .fc-ribbon{position:absolute;top:13px;right:-30px;transform:rotate(40deg);
+  background:var(--red);color:#fff;font-family:var(--font-display);font-weight:800;font-size:9px;
+  letter-spacing:0.1em;text-transform:uppercase;padding:3px 34px;z-index:3;box-shadow:0 2px 6px rgba(0,0,0,.25);}
+.fifa-card .fc-top{display:flex;justify-content:space-between;align-items:flex-start;padding:13px 13px 0;position:relative;z-index:2;}
+.fifa-card .fc-rating{font-family:var(--font-display);font-weight:900;font-size:32px;color:#4A3600;line-height:.82;}
+.fifa-card .fc-rating span{display:block;font-size:8.5px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:rgba(74,54,0,.65);margin-top:2px;}
+.fifa-card .fc-pos{font-family:var(--font-display);font-weight:800;font-size:10.5px;letter-spacing:0.05em;text-transform:uppercase;color:#4A3600;margin-top:4px;}
+.fifa-card .fc-photo{position:relative;z-index:2;height:48%;display:flex;align-items:flex-end;justify-content:center;margin-top:-4px;overflow:hidden;}
+.fifa-card .fc-photo img{width:auto;height:118%;object-fit:contain;object-position:top;filter:drop-shadow(0 8px 10px rgba(0,0,0,.22));}
+.fifa-card .fc-photo-bust{width:80px;height:80px;background:rgba(0,0,0,.15);border-radius:50% 50% 0 0;}
+.fifa-card .fc-name-bar{position:relative;z-index:2;text-align:center;padding:4px 8px 0;}
+.fifa-card .fc-name{font-family:var(--font-display);font-weight:900;font-size:15px;letter-spacing:0.02em;
+  text-transform:uppercase;color:#3A2A00;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.fifa-card .fc-divider{width:56%;height:1.5px;background:rgba(74,54,0,.32);margin:6px auto;position:relative;z-index:2;}
+.fifa-card .fc-stats{display:flex;justify-content:center;gap:16px;position:relative;z-index:2;padding-bottom:16px;}
+.fifa-card .fc-stat{text-align:center;}
+.fifa-card .fc-stat b{display:block;font-family:var(--font-display);font-weight:800;font-size:15px;color:#3A2A00;}
+.fifa-card .fc-stat span{font-size:8px;letter-spacing:0.06em;text-transform:uppercase;color:rgba(58,42,0,.6);}
+.fifa-card .fc-check{position:absolute;bottom:11px;right:11px;width:22px;height:22px;border-radius:50%;
+  background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;z-index:3;}
+.fifa-card .fc-check svg{width:12px;height:12px;}
+.mvp-leader-label{text-align:center;font-family:var(--font-display);font-weight:700;font-size:11px;
+  letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
 
-.mvp-fifa-card::before {
-  content: '';
-  position: absolute; inset: 0;
-  background: conic-gradient(
-    from 0deg at 50% 50%,
-    transparent 0deg, rgba(255,255,255,0.12) 20deg,
-    transparent 40deg, rgba(255,255,255,0.06) 60deg,
-    transparent 80deg, rgba(255,255,255,0.12) 100deg,
-    transparent 120deg, rgba(255,255,255,0.06) 140deg,
-    transparent 160deg, rgba(255,255,255,0.1) 180deg,
-    transparent 200deg, rgba(255,255,255,0.06) 220deg,
-    transparent 240deg, rgba(255,255,255,0.1) 260deg,
-    transparent 280deg, rgba(255,255,255,0.06) 300deg,
-    transparent 320deg, rgba(255,255,255,0.1) 340deg,
-    transparent 360deg
-  );
-  mix-blend-mode: overlay;
-  pointer-events: none;
-}
+/* ——— CTA ——— */
+.mvp-ctabar{margin-top:16px;}
+.mvp-cta{width:100%;background:var(--red);color:#fff;border:none;cursor:pointer;font-family:var(--font-display);
+  font-weight:800;font-size:15.5px;letter-spacing:0.06em;text-transform:uppercase;padding:15px;border-radius:12px;
+  transition:background .14s,opacity .14s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.mvp-cta:hover{background:var(--red-dark);}
+.mvp-cta:disabled{background:var(--bg-mid);color:var(--muted-2);cursor:not-allowed;}
+.mvp-cta svg{width:18px;height:18px;}
+.mvp-cta-note{text-align:center;font-size:11.5px;color:var(--muted);margin-top:9px;}
 
-.mvp-fifa-card::after {
-  content: '';
-  position: absolute; top: -30%; left: -30%;
-  width: 60%; height: 80%;
-  background: radial-gradient(ellipse, rgba(255,255,255,0.3) 0%, transparent 70%);
-  pointer-events: none;
-}
+/* ——— voted head ——— */
+.mvp-votedhead{display:flex;align-items:center;gap:11px;background:#e4f3ea;border-radius:13px;padding:12px 14px;margin-bottom:14px;}
+.mvp-votedhead .vh-ic{width:34px;height:34px;border-radius:50%;background:#1e7f47;color:#fff;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;}
+.mvp-votedhead .vh-ic svg{width:18px;height:18px;}
+.mvp-votedhead b{display:block;font-family:var(--font-display);font-weight:800;font-size:13.5px;
+  letter-spacing:0.02em;text-transform:uppercase;color:#1e7f47;}
+.mvp-votedhead span{font-size:12px;color:#2f6b46;}
+.mvp-livelabel{display:flex;align-items:center;gap:6px;font-family:var(--font-display);font-weight:700;
+  font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin:2px 0 10px;}
+.mvp-livelabel .ld{width:6px;height:6px;border-radius:50%;background:var(--red);animation:mvp-pulse-dot 1.4s infinite;}
 
-.mvp-fifa-card-rating {
-  font-family: var(--font-display);
-  font-size: 42px; font-weight: 900;
-  color: rgba(0,0,0,0.75);
-  line-height: 1; margin-top: 10px;
-  text-shadow: 0 1px 0 rgba(255,255,255,0.3);
-  z-index: 1;
-}
+/* ——— winner / cerrada ——— */
+.mvp-winner{position:relative;border-radius:18px;overflow:hidden;
+  background:linear-gradient(155deg,#1c1a16,var(--black));padding:26px 20px 20px;text-align:center;margin-bottom:16px;}
+.mvp-winner .wn-strp{position:absolute;top:0;right:0;width:160px;height:100%;
+  background:repeating-linear-gradient(-45deg,#fff 0 13px,transparent 13px 26px);opacity:.05;pointer-events:none;}
+.mvp-winner .wn-trophy{width:52px;height:52px;border-radius:50%;background:var(--gold);color:#7a6100;
+  margin:0 auto 12px;display:flex;align-items:center;justify-content:center;position:relative;z-index:2;
+  box-shadow:0 0 0 6px rgba(244,195,0,.16);}
+.mvp-winner .wn-trophy svg{width:26px;height:26px;}
+.mvp-winner .wn-eye{font-family:var(--font-display);font-weight:700;font-size:11px;letter-spacing:0.16em;
+  text-transform:uppercase;color:var(--gold);position:relative;z-index:2;}
+.mvp-winner .wn-av{width:88px;height:88px;border-radius:20px;margin:14px auto 10px;
+  background:radial-gradient(120% 80% at 50% 0%,#2A2724,#0C0B0A);overflow:hidden;position:relative;z-index:2;
+  display:flex;align-items:flex-end;justify-content:center;box-shadow:0 0 0 3px var(--gold);}
+.mvp-winner .wn-av img{width:auto;height:118%;object-fit:contain;object-position:top;}
+.mvp-winner .wn-name{font-family:var(--font-display);font-weight:900;font-size:24px;text-transform:uppercase;
+  color:#fff;position:relative;z-index:2;line-height:1;}
+.mvp-winner .wn-pos{font-size:12.5px;color:rgba(255,255,255,.55);margin-top:4px;position:relative;z-index:2;}
+.mvp-winner .wn-pct{font-family:var(--font-display);font-weight:800;font-size:15px;color:var(--gold);
+  margin-top:10px;position:relative;z-index:2;}
+.mvp-final-title{font-family:var(--font-display);font-weight:700;font-size:11px;letter-spacing:0.1em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:9px;}
 
-.mvp-fifa-card-pos {
-  font-family: var(--font-display);
-  font-size: 11px; font-weight: 800;
-  color: rgba(0,0,0,0.6); letter-spacing: 0.1em;
-  margin-top: 1px; z-index: 1;
-}
+/* ——— season ranking ——— */
+.mvp-season{display:flex;flex-direction:column;gap:8px;}
+.mvp-srow{display:flex;align-items:center;gap:12px;background:var(--white);border:1px solid var(--border);
+  border-radius:13px;padding:11px 13px;}
+.mvp-srow .sr-pos{width:26px;font-family:var(--font-display);font-weight:900;font-size:15px;color:var(--muted-2);text-align:center;flex-shrink:0;}
+.mvp-srow.top1 .sr-pos{color:var(--gold);}
+.mvp-srow.top2 .sr-pos{color:#b7b7b7;}
+.mvp-srow.top3 .sr-pos{color:#c08a52;}
+.mvp-srow .sr-main{flex:1;min-width:0;}
+.mvp-srow .sr-name{font-family:var(--font-display);font-weight:700;font-size:13.5px;letter-spacing:0.01em;text-transform:uppercase;}
+.mvp-srow .sr-mvps{font-size:11px;color:var(--muted);margin-top:1px;}
+.mvp-srow .sr-pts{font-family:var(--font-display);font-weight:800;font-size:16px;text-align:right;}
+.mvp-srow .sr-pts span{display:block;font-size:8.5px;font-weight:700;letter-spacing:0.08em;color:var(--muted-2);text-transform:uppercase;}
 
-.mvp-fifa-card-photo {
-  width: 100px; height: 90px;
-  object-fit: cover; object-position: top;
-  margin-top: 4px; z-index: 1;
-  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
-}
-
-.mvp-fifa-card-photo-placeholder {
-  width: 100px; height: 90px;
-  background: rgba(0,0,0,0.12);
-  border-radius: 50% 50% 0 0;
-  margin-top: 4px; z-index: 1;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 40px;
-}
-
-.mvp-fifa-card-name {
-  font-family: var(--font-display);
-  font-size: 13px; font-weight: 900;
-  color: rgba(0,0,0,0.8);
-  text-align: center;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  margin-top: 4px;
-  padding: 0 6px;
-  line-height: 1.1;
-  z-index: 1;
-}
-
-.mvp-fifa-card-divider {
-  width: 80%; height: 1px;
-  background: rgba(0,0,0,0.15);
-  margin: 6px 0 4px; z-index: 1;
-}
-
-.mvp-fifa-card-stats {
-  display: flex; gap: 10px;
-  z-index: 1; padding-bottom: 8px;
-}
-
-.mvp-fifa-stat {
-  display: flex; flex-direction: column;
-  align-items: center; gap: 1px;
-}
-.mvp-fifa-stat-val {
-  font-family: var(--font-display);
-  font-size: 14px; font-weight: 900;
-  color: rgba(0,0,0,0.75); line-height: 1;
-}
-.mvp-fifa-stat-lbl {
-  font-size: 7px; font-weight: 700;
-  color: rgba(0,0,0,0.55); letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-
-/* MVP candidate row */
-.mvp-candidate-row {
-  display: flex; align-items: center; gap: 12px;
-  padding: 12px 16px;
-  border-radius: 14px;
-  background: var(--bg-soft);
-  cursor: pointer;
-  transition: background 0.15s, transform 0.1s;
-  border: 2px solid transparent;
-}
-.mvp-candidate-row:active { transform: scale(0.985); }
-.mvp-candidate-row.selected {
-  border-color: var(--red);
-  background: var(--red-soft, #fce9ea);
-}
-
-.mvp-vote-bar {
-  height: 4px; border-radius: 2px;
-  background: var(--border); overflow: hidden;
-  flex: 1;
-}
-.mvp-vote-bar-fill {
-  height: 100%; border-radius: 2px;
-  background: var(--red);
-  transition: width 0.5s ease;
-}
-
+/* ——— antes state ——— */
+.mvp-before{display:flex;flex-direction:column;align-items:center;text-align:center;padding:26px 10px 8px;}
+.mvp-before .bef-ic{width:64px;height:64px;border-radius:18px;background:var(--bg-mid);color:var(--muted-2);
+  display:flex;align-items:center;justify-content:center;margin-bottom:16px;}
+.mvp-before h3{font-family:var(--font-display);font-weight:800;font-size:19px;text-transform:uppercase;letter-spacing:0.01em;}
+.mvp-before p{font-size:13.5px;color:var(--muted);line-height:1.5;margin-top:8px;max-width:260px;}
+.mvp-before .bef-when{margin-top:18px;background:var(--bg-mid);border-radius:10px;padding:10px 16px;
+  font-family:var(--font-display);font-weight:700;font-size:12.5px;letter-spacing:0.06em;text-transform:uppercase;}
