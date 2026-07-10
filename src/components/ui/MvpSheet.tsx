@@ -60,17 +60,14 @@ export function MvpSheet({ session, tallies, bannerState, votedId, fingerprint, 
   const getCount = (id: string) => tallies.find((t) => t.candidate_id === id)?.count ?? 0
 
   const sorted = [...session.candidates].sort((a, b) => getCount(b.id) - getCount(a.id))
-  const leader = sorted[0]
-  const rest = sorted.slice(1)
-
-  const votable = bannerState === 'abierta'
-  const showResults = bannerState === 'votado' || bannerState === 'cerrada'
 
   const winner = session.status === 'closed'
-    ? session.candidates.find((c) => c.id === session.winner_id) ?? leader
-    : leader
+    ? session.candidates.find((c) => c.id === session.winner_id) ?? sorted[0]
+    : sorted[0]
 
   const votedPlayer = session.candidates.find((c) => c.id === votedId)
+
+  const votable = bannerState === 'abierta'
 
   async function handleConfirm() {
     if (!pickedId) return
@@ -116,8 +113,10 @@ export function MvpSheet({ session, tallies, bannerState, votedId, fingerprint, 
         </div>
 
         <div className="mvp-sheet-body">
+
           {tab === 'temporada' && <SeasonRanking ranking={season} />}
 
+          {/* ANTES */}
           {tab === 'partido' && bannerState === 'antes' && (
             <div className="mvp-before">
               <div className="bef-ic">
@@ -132,17 +131,22 @@ export function MvpSheet({ session, tallies, bannerState, votedId, fingerprint, 
             </div>
           )}
 
+          {/* ABIERTA — lista con fotos */}
           {tab === 'partido' && votable && (
             <>
-              <HybridVariant
-                candidates={session.candidates}
-                total={total}
-                getCount={getCount}
-                pickedId={pickedId}
-                votedId={null}
-                onPick={setPickedId}
-                votable
-              />
+              <div className="mvp-list">
+                {session.candidates.map((c) => (
+                  <PlayerCard
+                    key={c.id}
+                    candidate={c}
+                    picked={pickedId === c.id}
+                    showBar={false}
+                    pctValue={0}
+                    onClick={() => setPickedId(c.id)}
+                    votable
+                  />
+                ))}
+              </div>
               <div className="mvp-ctabar">
                 <button className="mvp-cta" disabled={!pickedId || submitting} onClick={handleConfirm}>
                   <IconCheck /> {submitting ? 'Enviando...' : 'Confirmar mi voto'}
@@ -153,6 +157,7 @@ export function MvpSheet({ session, tallies, bannerState, votedId, fingerprint, 
             </>
           )}
 
+          {/* VOTADO — lista con resultados */}
           {tab === 'partido' && bannerState === 'votado' && (
             <>
               <div className="mvp-votedhead">
@@ -163,150 +168,161 @@ export function MvpSheet({ session, tallies, bannerState, votedId, fingerprint, 
                 </div>
               </div>
               <div className="mvp-livelabel"><span className="ld" />Resultados en directo</div>
-              <HybridVariant
-                candidates={session.candidates}
-                total={total}
-                getCount={getCount}
-                pickedId={null}
-                votedId={votedId}
-                onPick={() => {}}
-                votable={false}
-              />
+              <div className="mvp-list">
+                {sorted.map((c) => (
+                  <PlayerCard
+                    key={c.id}
+                    candidate={c}
+                    picked={votedId === c.id}
+                    showBar
+                    pctValue={pct(getCount(c.id), total)}
+                    onClick={() => {}}
+                    votable={false}
+                  />
+                ))}
+              </div>
             </>
           )}
 
+          {/* CERRADA — FIFA card ganador + lista resultados */}
           {tab === 'partido' && bannerState === 'cerrada' && (
             <>
-              <div className="mvp-winner">
-                <div className="wn-strp" />
-                <div className="wn-trophy"><IconTrophy /></div>
-                <div className="wn-eye">MVP del partido</div>
-                {winner?.photo_url ? (
-                  <div className="wn-av">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={winner.photo_url} alt={winner.name} />
-                  </div>
-                ) : (
-                  <div className="wn-av" />
-                )}
-                <div className="wn-name">{winner?.name}</div>
-                <div className="wn-pos">{winner?.position}</div>
-                <div className="wn-pct">{pct(getCount(winner?.id ?? ''), total)}% de los votos</div>
-              </div>
+              {winner && (
+                <FifaCard
+                  candidate={winner}
+                  votePct={pct(getCount(winner.id), total)}
+                />
+              )}
               <div className="mvp-final-title">Clasificación final del partido</div>
-              <HybridVariant
-                candidates={session.candidates}
-                total={total}
-                getCount={getCount}
-                pickedId={null}
-                votedId={votedId}
-                onPick={() => {}}
-                votable={false}
-              />
+              <div className="mvp-list">
+                {sorted.map((c) => (
+                  <PlayerCard
+                    key={c.id}
+                    candidate={c}
+                    picked={c.id === winner?.id}
+                    showBar
+                    pctValue={pct(getCount(c.id), total)}
+                    onClick={() => {}}
+                    votable={false}
+                  />
+                ))}
+              </div>
             </>
           )}
+
         </div>
       </div>
     </div>
   )
 }
 
-function HybridVariant({
-  candidates,
-  total,
-  getCount,
-  pickedId,
-  votedId,
-  onPick,
+/* ——— tarjeta jugador con foto integrada ——— */
+function PlayerCard({
+  candidate,
+  picked,
+  showBar,
+  pctValue,
+  onClick,
   votable,
 }: {
-  candidates: MvpSession['candidates']
-  total: number
-  getCount: (id: string) => number
-  pickedId: string | null
-  votedId: string | null
-  onPick: (id: string) => void
+  candidate: MvpSession['candidates'][0]
+  picked: boolean
+  showBar: boolean
+  pctValue: number
+  onClick: () => void
   votable: boolean
 }) {
-  const sorted = [...candidates].sort((a, b) => getCount(b.id) - getCount(a.id))
-  const leader = sorted[0]
-  const rest = sorted.slice(1)
-
-  const leaderPct = pct(getCount(leader.id), total)
-  const leaderPicked = votable ? pickedId === leader.id : votedId === leader.id
-
   return (
-    <div>
-      <div className="mvp-leader-label">Líder de la votación</div>
-      <div
-        className={`fifa-card${leaderPicked ? ' picked' : ''}`}
-        onClick={() => votable && onPick(leader.id)}
-        style={{ cursor: votable ? 'pointer' : 'default' }}
-      >
+    <button
+      className={`mvp-row${picked ? ' picked' : ''}`}
+      onClick={onClick}
+      disabled={!votable}
+    >
+      {/* foto integrada con fondo oscuro + gradiente */}
+      <div className="mvp-row-photo">
+        {candidate.photo_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={candidate.photo_url} alt={candidate.name} className="mvp-row-photo-img" />
+        ) : (
+          <svg viewBox="0 0 120 150" className="mvp-row-photo-bust">
+            <circle cx="60" cy="50" r="25" fill="#CFC9BF" />
+            <path d="M6 150v-30c0-30 24-52 54-52s54 22 54 52v30z" fill="#EDEAE4" />
+          </svg>
+        )}
+        <div className="mvp-row-photo-fade" />
+      </div>
+
+      <div className="rw-main">
+        <div className="rw-name">
+          {candidate.name}
+          <span className="rw-dorsal">#{candidate.number}</span>
+        </div>
+        <div className="rw-pos">{candidate.position}</div>
+        {showBar && (
+          <div className="rw-bar">
+            <span className="rw-bar-fill" style={{ width: `${pctValue}%` }} />
+          </div>
+        )}
+      </div>
+
+      {showBar && <div className="rw-pct">{pctValue}%</div>}
+      <div className="rw-check"><IconCheck /></div>
+    </button>
+  )
+}
+
+/* ——— FIFA card solo para el MVP proclamado ——— */
+function FifaCard({
+  candidate,
+  votePct,
+}: {
+  candidate: MvpSession['candidates'][0]
+  votePct: number
+}) {
+  return (
+    <div className="mvp-winner" style={{ marginBottom: 20 }}>
+      <div className="wn-strp" />
+      <div className="wn-trophy"><IconTrophy /></div>
+      <div className="wn-eye">MVP del partido</div>
+
+      <div className="fifa-card" style={{ cursor: 'default', margin: '16px auto 0' }}>
         <div className="fc-rays" />
         <div className="fc-seam" />
         <div className="fc-shine" />
         <div className="fc-ribbon">MVP</div>
         <div className="fc-top">
           <div>
-            <div className="fc-rating">{leaderPct}<span>% votos</span></div>
-            <div className="fc-pos">{leader.position}</div>
+            <div className="fc-rating">{votePct}<span>% votos</span></div>
+            <div className="fc-pos">{candidate.position}</div>
           </div>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/escudo.webp" alt="" width={22} height={26} style={{ objectFit: 'contain', opacity: 0.85 }} />
         </div>
         <div className="fc-photo">
-          {leader.photo_url ? (
+          {candidate.photo_url ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={leader.photo_url} alt={leader.name} />
+            <img src={candidate.photo_url} alt={candidate.name} />
           ) : (
-            <div className="fc-photo-bust" />
+            <svg viewBox="0 0 120 150" style={{ height: '118%', width: 'auto' }}>
+              <circle cx="60" cy="50" r="25" fill="#CFC9BF" />
+              <path d="M6 150v-30c0-30 24-52 54-52s54 22 54 52v30z" fill="#EDEAE4" />
+            </svg>
           )}
         </div>
         <div className="fc-name-bar">
-          <div className="fc-name">{leader.name}</div>
+          <div className="fc-name">{candidate.name}</div>
           <div className="fc-divider" />
         </div>
         <div className="fc-stats">
-          <div className="fc-stat"><b>#{leader.number}</b><span>Dorsal</span></div>
-          <div className="fc-stat"><b>{getCount(leader.id)}</b><span>Votos</span></div>
+          <div className="fc-stat"><b>#{candidate.number}</b><span>Dorsal</span></div>
+          <div className="fc-stat"><b>{votePct}%</b><span>Votos</span></div>
         </div>
-        {leaderPicked && <div className="fc-check"><IconCheck /></div>}
-      </div>
-
-      <div className="flex flex-col gap-2">
-        {rest.map((c) => {
-          const p = pct(getCount(c.id), total)
-          const picked = votable ? pickedId === c.id : votedId === c.id
-          return (
-            <button
-              key={c.id}
-              className={`mvp-rowmini${picked ? ' picked' : ''}`}
-              onClick={() => votable && onPick(c.id)}
-              disabled={!votable}
-            >
-              <div className="rm-av">
-                {c.photo_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={c.photo_url} alt={c.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                ) : (
-                  <svg viewBox="0 0 120 150" style={{ display: 'block', width: '100%' }}>
-                    <circle cx="60" cy="50" r="25" fill="#CFC9BF" />
-                    <path d="M6 150v-30c0-30 24-52 54-52s54 22 54 52v30z" fill="#EDEAE4" />
-                  </svg>
-                )}
-              </div>
-              <div className="rm-name">{c.name}</div>
-              <div className="rm-pct">{p}%</div>
-              <div className="rm-check"><IconCheck /></div>
-            </button>
-          )
-        })}
       </div>
     </div>
   )
 }
 
+/* ——— ranking temporada ——— */
 function SeasonRanking({ ranking }: { ranking: SeasonEntry[] }) {
   if (ranking.length === 0) {
     return (
@@ -317,7 +333,6 @@ function SeasonRanking({ ranking }: { ranking: SeasonEntry[] }) {
       </div>
     )
   }
-
   return (
     <div className="mvp-season">
       {ranking.map((entry, i) => (

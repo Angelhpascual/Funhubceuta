@@ -2638,12 +2638,23 @@ img {
 .mvp-sheet-body::-webkit-scrollbar{width:0;}
 
 /* ——— candidate rows ——— */
+.mvp-list{display:flex;flex-direction:column;gap:9px;}
 .mvp-row{display:flex;align-items:center;gap:13px;background:var(--white);border:1.5px solid var(--border);
   border-radius:14px;padding:11px 13px;cursor:pointer;transition:border-color .14s,box-shadow .14s;
-  position:relative;width:100%;}
+  position:relative;width:100%;text-align:left;}
 .mvp-row.picked{border-color:var(--red);box-shadow:0 0 0 3px var(--red-soft);}
-.mvp-row .rw-av{width:44px;height:44px;border-radius:11px;background:#151412;flex-shrink:0;overflow:hidden;
-  display:flex;align-items:flex-end;justify-content:center;}
+.mvp-row:disabled,.mvp-row[disabled]{cursor:default;}
+
+/* foto de jugador integrada con fondo oscuro */
+.mvp-row-photo{width:52px;height:58px;border-radius:11px;background:#151412;flex-shrink:0;
+  overflow:hidden;position:relative;display:flex;align-items:flex-end;justify-content:center;}
+.mvp-row-photo-img{position:absolute;bottom:0;left:50%;transform:translateX(-50%);
+  height:110%;width:auto;object-fit:contain;object-position:top;}
+.mvp-row-photo-bust{width:auto;height:110%;display:block;}
+.mvp-row-photo-fade{position:absolute;inset:0;
+  background:linear-gradient(to top,#151412 0%,rgba(21,20,18,.5) 40%,transparent 70%);
+  pointer-events:none;}
+
 .mvp-row .rw-main{flex:1;min-width:0;}
 .mvp-row .rw-name{font-family:var(--font-display);font-weight:700;font-size:14.5px;letter-spacing:0.01em;
   text-transform:uppercase;display:flex;align-items:center;gap:6px;}
@@ -2659,20 +2670,8 @@ img {
 .mvp-row.picked .rw-check{background:var(--red);border-color:var(--red);color:#fff;}
 .mvp-row .rw-check svg{width:12px;height:12px;}
 
-/* ——— mini rows (variant hibrida) ——— */
-.mvp-rowmini{display:flex;align-items:center;gap:11px;background:var(--white);border:1.5px solid var(--border);
-  border-radius:12px;padding:9px 11px;cursor:pointer;transition:border-color .14s,box-shadow .14s;width:100%;}
-.mvp-rowmini.picked{border-color:var(--red);box-shadow:0 0 0 3px var(--red-soft);}
-.mvp-rowmini .rm-av{width:34px;height:34px;border-radius:9px;background:#151412;flex-shrink:0;overflow:hidden;
-  display:flex;align-items:flex-end;justify-content:center;}
-.mvp-rowmini .rm-name{font-family:var(--font-display);font-weight:700;font-size:13px;letter-spacing:0.01em;
-  text-transform:uppercase;flex:1;min-width:0;}
-.mvp-rowmini .rm-pct{font-family:var(--font-display);font-weight:800;font-size:13px;color:var(--muted);min-width:32px;text-align:right;}
-.mvp-rowmini.picked .rm-pct{color:var(--red);}
-.mvp-rowmini .rm-check{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;
-  display:flex;align-items:center;justify-content:center;color:transparent;}
-.mvp-rowmini.picked .rm-check{background:var(--red);border-color:var(--red);color:#fff;}
-.mvp-rowmini .rm-check svg{width:10px;height:10px;}
+/* mvp-winner alberga la FIFA card cuando hay ganador */
+.mvp-winner .fifa-card{box-shadow:0 8px 24px rgba(0,0,0,.4);}
 
 /* ——— FIFA card (líder variante híbrida) ——— */
 .fifa-card{position:relative;width:180px;margin:0 auto 18px;aspect-ratio:3/4.1;overflow:hidden;cursor:pointer;
