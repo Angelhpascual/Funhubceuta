@@ -176,6 +176,11 @@ export function PredictionSheet({ session, mine, fingerprint, onClose, onPredict
   const [nicknameInput, setNicknameInput] = useState('')
 
   useEffect(() => {
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = '' }
+  }, [])
+
+  useEffect(() => {
     if (tab === 'ranking') {
       fetch('/api/predictions/season').then(r => r.json()).then(d => setRanking(d.ranking ?? [])).catch(() => {})
     }
