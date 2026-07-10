@@ -6,6 +6,7 @@ import { NewsItem } from '@/domain/news/News'
 import { SocialLinks } from '@/components/social/TwitterTimeline'
 import { LiveMatchCard } from './LiveMatchCard'
 import { NotificationBanner } from '@/components/ui/NotificationBanner'
+import { MvpBanner } from '@/components/ui/MvpBanner'
 import Link from 'next/link'
 import Image, { type ImageLoaderProps } from 'next/image'
 import { proxyImage } from '@/lib/proxyImage'
@@ -315,6 +316,7 @@ export function HomePage({
         </div>
       </div>
       <LiveMatchCard />
+      <MvpBanner />
 
       {/* ── NOTICIAS ── */}
       <div className="flex items-end justify-between px-4 pb-3 pt-6">
