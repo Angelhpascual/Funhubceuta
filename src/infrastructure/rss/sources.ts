@@ -58,7 +58,8 @@ const SQUAD_KEYWORDS = [
   'zalazar',
   'bassinga',
   'cristian rodríguez',
-  'koné ceuta',
+  'kialy koné',
+  'kialy kone',
   // Presidente y club
   'luhay hamido',
 ]
