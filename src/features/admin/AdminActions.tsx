@@ -3,6 +3,8 @@
 import { useState, useRef, useCallback } from 'react'
 import type React from 'react'
 import { useRouter } from 'next/navigation'
+import { MvpAdmin } from './MvpAdmin'
+import { PredictionAdmin } from './PredictionAdmin'
 
 type Status = 'idle' | 'running' | 'ok' | 'error'
 
@@ -461,6 +463,16 @@ export function AdminActions() {
             {logoutLoading ? '⏳ Saliendo…' : '← Cerrar sesión'}
           </button>
         </div>
+      </section>
+
+      {/* MVP Voting */}
+      <section>
+        <MvpAdmin />
+      </section>
+
+      {/* Predicciones */}
+      <section>
+        <PredictionAdmin />
       </section>
 
     </div>

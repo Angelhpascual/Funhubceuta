@@ -12,7 +12,7 @@ vi.mock('@/domain/standings/StandingsService', () => {
 vi.mock('@/infrastructure/supabase/StandingsSupabaseRepository', () => ({
   StandingsSupabaseRepository: class {},
 }))
-vi.mock('@/lib/constants', () => ({ CURRENT_SEASON: '2025-2026' }))
+vi.mock('@/lib/constants', () => ({ CURRENT_SEASON: '2025-2026', STANDINGS_CURRENT_SEASON: '2025-2026' }))
 
 import { StandingsService } from '@/domain/standings/StandingsService'
 import { GET } from '../route'
