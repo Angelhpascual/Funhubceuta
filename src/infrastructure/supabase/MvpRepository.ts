@@ -27,7 +27,7 @@ export async function getActiveMvpSession(): Promise<MvpSession | null> {
   const { data } = await supabaseAdmin
     .from('mvp_sessions')
     .select('*')
-    .in('status', ['open', 'closed'])
+    .in('status', ['pending', 'open', 'closed'])
     .order('created_at', { ascending: false })
     .limit(1)
     .maybeSingle()
