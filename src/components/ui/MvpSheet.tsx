@@ -277,7 +277,7 @@ function PlayerCard({
         <div className="rw-pos">{candidate.position}</div>
         {showBar && (
           <div className="rw-bar">
-            <span className="rw-bar-fill" style={{ width: `${pctValue}%` }} />
+            <span className="rw-bar-fill" style={{ ['--bar-w' as string]: `${pctValue}%` }} />
           </div>
         )}
       </div>
@@ -299,7 +299,7 @@ function FifaCard({
   voteCount: number
 }) {
   return (
-    <div className="mvp-winner" style={{ marginBottom: 20 }}>
+    <div className="mvp-winner mb-5">
       <div className="wn-strp" />
       <div className="wn-trophy"><IconTrophy /></div>
       <div className="wn-eye">MVP del partido</div>

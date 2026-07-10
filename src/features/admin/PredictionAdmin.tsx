@@ -4,6 +4,9 @@ import { useState, useEffect } from 'react'
 import { TEAMS_2627 } from '@/lib/teams2627'
 import type { PredictionSession } from '@/infrastructure/supabase/PredictionRepository'
 
+type Vote = { nickname: string | null; fingerprint: string; home_score: number; away_score: number; points: number | null }
+type HistorySession = { id: string; match_label: string; jornada: string | null; result: { home: number; away: number } | null; closed_at: string | null; votes: Vote[] }
+
 const CEUTA = { name: 'AD Ceuta', logo: '/escudo.webp' }
 
 export function PredictionAdmin() {
@@ -12,6 +15,8 @@ export function PredictionAdmin() {
   const [busy, setBusy] = useState(false)
   const [msg, setMsg] = useState<string | null>(null)
   const [creating, setCreating] = useState(false)
+  const [history, setHistory] = useState<HistorySession[]>([])
+  const [expandedId, setExpandedId] = useState<string | null>(null)
 
   // form state
   const [rivalName, setRivalName] = useState('')
@@ -44,7 +49,13 @@ export function PredictionAdmin() {
     }
   }
 
-  useEffect(() => { load() }, [])
+  useEffect(() => { load(); loadHistory() }, [])
+
+  async function loadHistory() {
+    const res = await fetch('/api/admin/predictions/history')
+    const data = await res.json()
+    setHistory(data.history ?? [])
+  }
 
   async function apiCall(path: string, method: string, body: unknown) {
     setBusy(true); setMsg(null)
@@ -52,7 +63,7 @@ export function PredictionAdmin() {
       const res = await fetch(path, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
       const data = await res.json()
       if (!res.ok) { setMsg(`Error: ${data.error ?? 'desconocido'}`) }
-      else { setMsg('✅ Hecho'); await load(); setCreating(false) }
+      else { setMsg('✅ Hecho'); await load(); await loadHistory(); setCreating(false) }
     } catch { setMsg('Error de red') }
     finally { setBusy(false) }
   }
@@ -273,19 +284,81 @@ export function PredictionAdmin() {
           )}
 
           {activeSession.status === 'closed' && activeSession.result && (
-            <div className="text-center py-2">
+            <div className="text-center py-2 space-y-2">
               <div className="text-[11px] text-ceuta-muted mb-1">Resultado final</div>
               <div className="text-[22px] font-black text-ceuta-black">
                 {activeSession.result.home} — {activeSession.result.away}
               </div>
               <button
-                className="mt-3 w-full py-2.5 rounded-[10px] bg-ceuta-black text-white text-[12px] font-bold uppercase"
+                className="w-full py-2.5 rounded-[10px] bg-ceuta-black text-white text-[12px] font-bold uppercase disabled:opacity-40"
+                disabled={busy}
+                onClick={() => apiCall('/api/admin/predictions/archive', 'POST', { sessionId: activeSession.id })}
+              >
+                Ocultar banner
+              </button>
+              <button
+                className="w-full py-2.5 rounded-[10px] bg-ceuta-bg-mid text-ceuta-black text-[12px] font-bold uppercase"
                 onClick={() => setCreating(true)}
               >
                 + Nueva predicción
               </button>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Historial */}
+      {history.length > 0 && (
+        <div className="space-y-2">
+          <div className="text-[10px] font-bold uppercase tracking-widest text-ceuta-muted pt-2">Historial</div>
+          {history.map(s => (
+            <div key={s.id} className="rounded-[12px] border border-ceuta-border overflow-hidden">
+              <button
+                className="w-full flex items-center justify-between px-4 py-3 text-left bg-white"
+                onClick={() => setExpandedId(expandedId === s.id ? null : s.id)}
+              >
+                <div>
+                  <div className="text-[12px] font-bold text-ceuta-black">{s.match_label}</div>
+                  {s.jornada && <div className="text-[10px] text-ceuta-muted">{s.jornada}</div>}
+                </div>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  {s.result && (
+                    <span className="text-[13px] font-black text-ceuta-black">{s.result.home}—{s.result.away}</span>
+                  )}
+                  <span className="text-[10px] text-ceuta-muted">{s.votes.length} votos</span>
+                  <span className="text-[10px] text-ceuta-muted">{expandedId === s.id ? '▲' : '▼'}</span>
+                </div>
+              </button>
+
+              {expandedId === s.id && (
+                <div className="border-t border-ceuta-border divide-y divide-ceuta-border">
+                  {s.votes.length === 0 && (
+                    <div className="px-4 py-3 text-[11px] text-ceuta-muted">Sin votos registrados</div>
+                  )}
+                  {s.votes.map((v, i) => (
+                    <div key={i} className="flex items-center justify-between px-4 py-2.5 bg-ceuta-bg-soft">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] text-ceuta-muted w-4">{i + 1}</span>
+                        <span className="text-[12px] font-bold text-ceuta-black">
+                          @{v.nickname ?? 'anónimo'}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-[12px] font-black text-ceuta-black">{v.home_score}—{v.away_score}</span>
+                        <span className={`text-[11px] font-bold px-2 py-0.5 rounded-[6px] ${
+                          v.points === 50 ? 'bg-green-100 text-green-700' :
+                          v.points === 15 ? 'bg-yellow-100 text-yellow-700' :
+                          'bg-ceuta-bg-mid text-ceuta-muted'
+                        }`}>
+                          {v.points != null ? `+${v.points}` : '—'}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       )}
     </div>

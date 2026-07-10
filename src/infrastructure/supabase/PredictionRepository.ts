@@ -54,12 +54,13 @@ export async function upsertPrediction(
   sessionId: string,
   fingerprint: string,
   home: number,
-  away: number
+  away: number,
+  nickname?: string
 ) {
   const { data, error } = await supabaseAdmin
     .from('prediction_votes')
     .upsert(
-      { session_id: sessionId, fingerprint, home_score: home, away_score: away },
+      { session_id: sessionId, fingerprint, home_score: home, away_score: away, ...(nickname ? { nickname } : {}) },
       { onConflict: 'session_id,fingerprint' }
     )
     .select()
@@ -125,20 +126,43 @@ export async function closePredictionSession(
   return { error }
 }
 
+export async function getPredictionHistory() {
+  const { data: sessions } = await supabaseAdmin
+    .from('prediction_sessions')
+    .select('id, match_label, jornada, result, closed_at')
+    .in('status', ['closed', 'archived'])
+    .order('closed_at', { ascending: false })
+    .limit(20)
+
+  if (!sessions) return []
+
+  const result = await Promise.all(sessions.map(async (s) => {
+    const { data: votes } = await supabaseAdmin
+      .from('prediction_votes')
+      .select('nickname, fingerprint, home_score, away_score, points')
+      .eq('session_id', s.id)
+      .order('points', { ascending: false })
+    return { ...s, votes: votes ?? [] }
+  }))
+
+  return result
+}
+
 export async function getPredictionSeasonRanking() {
   const { data } = await supabaseAdmin
     .from('prediction_votes')
-    .select('fingerprint, points, home_score, away_score')
+    .select('fingerprint, points, home_score, away_score, nickname')
     .not('points', 'is', null)
 
   if (!data) return []
 
-  const totals: Record<string, { points: number; exactos: number }> = {}
+  const totals: Record<string, { points: number; exactos: number; nickname: string | null }> = {}
   for (const row of data) {
-    const prev = totals[row.fingerprint] ?? { points: 0, exactos: 0 }
+    const prev = totals[row.fingerprint] ?? { points: 0, exactos: 0, nickname: null }
     totals[row.fingerprint] = {
       points: prev.points + (row.points ?? 0),
       exactos: prev.exactos + (row.points === 50 ? 1 : 0),
+      nickname: row.nickname ?? prev.nickname,
     }
   }
 

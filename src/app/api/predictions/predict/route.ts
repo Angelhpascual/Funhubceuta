@@ -4,7 +4,7 @@ import { apiError } from '@/lib/apiError'
 
 export async function POST(request: Request) {
   try {
-    const { sessionId, fingerprint, home, away } = await request.json()
+    const { sessionId, fingerprint, home, away, nickname } = await request.json()
 
     if (!sessionId || !fingerprint || home == null || away == null) {
       return NextResponse.json({ error: 'Faltan datos' }, { status: 400 })
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'La predicción no está abierta' }, { status: 400 })
     }
 
-    const { error } = await upsertPrediction(sessionId, fingerprint, home, away)
+    const { error } = await upsertPrediction(sessionId, fingerprint, home, away, nickname)
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
     return NextResponse.json({ ok: true })

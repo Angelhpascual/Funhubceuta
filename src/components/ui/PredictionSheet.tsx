@@ -4,7 +4,14 @@ import { useState, useEffect, useCallback } from 'react'
 import type { PredictionSession, UserPrediction } from '@/infrastructure/supabase/PredictionRepository'
 
 type Tab = 'partido' | 'ranking'
-type SeasonEntry = { fingerprint: string; points: number; exactos: number }
+type SeasonEntry = { fingerprint: string; nickname: string | null; points: number; exactos: number }
+
+function getNickname(): string | null {
+  return typeof window !== 'undefined' ? localStorage.getItem('pred_nickname') : null
+}
+function saveNickname(n: string) {
+  localStorage.setItem('pred_nickname', n)
+}
 
 const IconClose = () => (
   <svg viewBox="0 0 24 24" fill="none" width="15" height="15">
@@ -146,11 +153,8 @@ function SeasonRanking({ ranking }: { ranking: SeasonEntry[] }) {
       {ranking.map((entry, i) => (
         <div key={entry.fingerprint} className={`pred-srow${i === 0 ? ' top1' : i === 1 ? ' top2' : i === 2 ? ' top3' : ''}`}>
           <div className="pred-sr-pos">{i + 1}</div>
-          <div className="pred-sr-av">
-            <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8.5" r="4" stroke="currentColor" strokeWidth="1.8"/><path d="M4.5 20a7.5 7.5 0 0115 0" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
-          </div>
           <div className="pred-sr-main">
-            <div className="pred-sr-name">Aficionado #{i + 1}</div>
+            <div className="pred-sr-name">@{entry.nickname ?? `aficionado${i + 1}`}</div>
             <div className="pred-sr-exact">{entry.exactos} {entry.exactos === 1 ? 'exacto' : 'exactos'} esta temporada</div>
           </div>
           <div className="pred-sr-pts">{entry.points}<span>puntos</span></div>
@@ -168,6 +172,8 @@ export function PredictionSheet({ session, mine, fingerprint, onClose, onPredict
   const [error, setError] = useState<string | null>(null)
   const [ranking, setRanking] = useState<SeasonEntry[]>([])
   const [editing, setEditing] = useState(false)
+  const [askNickname, setAskNickname] = useState(false)
+  const [nicknameInput, setNicknameInput] = useState('')
 
   useEffect(() => {
     if (tab === 'ranking') {
@@ -187,23 +193,41 @@ export function PredictionSheet({ session, mine, fingerprint, onClose, onPredict
   )
   const points = exact ? 50 : correctWinner ? 15 : 0
 
-  async function handleSubmit() {
+  async function doSubmit(nickname: string) {
     setSubmitting(true)
     setError(null)
     try {
       const res = await fetch('/api/predictions/predict', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId: session.id, fingerprint, home: pickerHome, away: pickerAway }),
+        body: JSON.stringify({ sessionId: session.id, fingerprint, home: pickerHome, away: pickerAway, nickname }),
       })
       const data = await res.json()
       if (!res.ok) { setError(data.error ?? 'Error al enviar'); setSubmitting(false); return }
       onPredicted(pickerHome, pickerAway)
       setEditing(false)
+      setAskNickname(false)
     } catch {
       setError('Error de red')
+    } finally {
       setSubmitting(false)
     }
+  }
+
+  function handleSubmit() {
+    const saved = getNickname()
+    if (saved) {
+      doSubmit(saved)
+    } else {
+      setAskNickname(true)
+    }
+  }
+
+  function handleNicknameConfirm() {
+    const n = nicknameInput.trim()
+    if (!n) return
+    saveNickname(n)
+    doSubmit(n)
   }
 
   const showPicker = votable && (!hasMine || editing)
@@ -255,7 +279,7 @@ export function PredictionSheet({ session, mine, fingerprint, onClose, onPredict
             </div>
           )}
 
-          {tab === 'partido' && showPicker && (
+          {tab === 'partido' && showPicker && !askNickname && (
             <>
               <ScorePicker home={pickerHome} setHome={setPickerHome} away={pickerAway} setAway={setPickerAway} session={session} />
               <button
@@ -268,6 +292,35 @@ export function PredictionSheet({ session, mine, fingerprint, onClose, onPredict
               <p className="pred-note">Una predicción por jornada · se cierra al pitido inicial</p>
               {error && <p className="pred-error">{error}</p>}
             </>
+          )}
+
+          {tab === 'partido' && askNickname && (
+            <div className="pred-nickname-wrap">
+              <div className="pred-nickname-ic"><IconDice /></div>
+              <h3 className="pred-nickname-title">¿Cómo te llamas?</h3>
+              <p className="pred-nickname-sub">Tu apodo aparecerá en el ranking de la temporada</p>
+              <input
+                className="pred-nickname-input"
+                placeholder="Tu apodo…"
+                maxLength={24}
+                value={nicknameInput}
+                onChange={e => setNicknameInput(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleNicknameConfirm()}
+                // eslint-disable-next-line jsx-a11y/no-autofocus
+                autoFocus
+              />
+              <button
+                className="pred-cta-btn"
+                disabled={!nicknameInput.trim() || submitting}
+                onClick={handleNicknameConfirm}
+              >
+                <IconCheck /> {submitting ? 'Enviando...' : 'Confirmar y enviar'}
+              </button>
+              <button className="pred-cta-btn ghost mt-2" onClick={() => setAskNickname(false)}>
+                Volver
+              </button>
+              {error && <p className="pred-error">{error}</p>}
+            </div>
           )}
 
           {tab === 'partido' && votable && hasMine && !editing && (

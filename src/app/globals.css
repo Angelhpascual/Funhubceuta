@@ -2671,7 +2671,7 @@ img {
 .mvp-row .rw-dorsal{font-size:11px;color:var(--muted-2);font-weight:600;}
 .mvp-row .rw-pos{font-size:11.5px;color:var(--muted);margin-top:1px;}
 .mvp-row .rw-bar{height:6px;border-radius:3px;background:var(--bg-mid);margin-top:6px;overflow:hidden;}
-.mvp-row .rw-bar-fill{display:block;height:100%;background:var(--black);border-radius:3px;transition:width .5s ease;}
+.mvp-row .rw-bar-fill{display:block;height:100%;width:var(--bar-w,0%);background:var(--black);border-radius:3px;transition:width .5s ease;}
 .mvp-row.picked .rw-bar-fill{background:var(--red);}
 .mvp-row .rw-pct{font-family:var(--font-display);font-weight:800;font-size:15px;min-width:38px;text-align:right;color:var(--muted);padding-right:4px;}
 .mvp-row.picked .rw-pct{color:var(--red);}
@@ -2847,6 +2847,9 @@ img {
   font-family:var(--font-display);font-weight:800;font-size:13px;letter-spacing:0.06em;text-transform:uppercase;
   color:#fff;text-align:center;position:relative;z-index:2;}
 .pred-banner-chev{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,.3);z-index:2;}
+.pred-banner-dismiss{position:absolute;right:12px;top:12px;width:24px;height:24px;border-radius:50%;
+  background:rgba(255,255,255,.1);border:none;cursor:pointer;z-index:3;
+  display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.5);}
 
 /* ——— overlay + sheet ——— */
 .pred-overlay{position:fixed;inset:0;background:rgba(10,9,8,.5);z-index:50;
@@ -2948,9 +2951,6 @@ img {
 .pred-srow.top1 .pred-sr-pos{color:var(--gold);}
 .pred-srow.top2 .pred-sr-pos{color:#B7B7B7;}
 .pred-srow.top3 .pred-sr-pos{color:#C08A52;}
-.pred-sr-av{width:36px;height:36px;border-radius:50%;background:var(--black);flex-shrink:0;
-  display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.4);}
-.pred-sr-av svg{width:18px;height:18px;}
 .pred-sr-main{flex:1;min-width:0;}
 .pred-sr-name{font-family:var(--font-display);font-weight:700;font-size:13px;letter-spacing:0.01em;
   text-transform:uppercase;}
@@ -2966,3 +2966,15 @@ img {
 .pred-empty-ic svg{width:26px;height:26px;}
 .pred-empty h3{font-family:var(--font-display);font-weight:800;font-size:18px;text-transform:uppercase;}
 .pred-empty p{font-size:13px;color:var(--muted);line-height:1.5;margin-top:7px;max-width:260px;}
+
+/* ——— pantalla apodo ——— */
+.pred-nickname-wrap{display:flex;flex-direction:column;align-items:center;text-align:center;padding:10px 4px;}
+.pred-nickname-ic{width:56px;height:56px;border-radius:16px;background:var(--bg-mid);color:var(--gold);
+  display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
+.pred-nickname-ic svg{width:26px;height:26px;}
+.pred-nickname-title{font-family:var(--font-display);font-weight:800;font-size:20px;text-transform:uppercase;letter-spacing:0.01em;}
+.pred-nickname-sub{font-size:13px;color:var(--muted);line-height:1.45;margin-top:7px;max-width:260px;}
+.pred-nickname-input{margin-top:20px;width:100%;padding:13px 16px;border-radius:12px;border:2px solid var(--border);
+  background:var(--white);font-family:var(--font-display);font-weight:700;font-size:16px;text-align:center;
+  letter-spacing:0.02em;outline:none;transition:border-color .15s;}
+.pred-nickname-input:focus{border-color:var(--red);}
