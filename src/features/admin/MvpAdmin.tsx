@@ -160,6 +160,17 @@ export function MvpAdmin() {
                 <span className="admin-btn-label">Cerrar y proclamar MVP</span>
               </button>
             )}
+            <button
+              className="admin-btn admin-btn-light"
+              disabled={busy}
+              onClick={() => {
+                if (!confirm('¿Quitar el banner del MVP? Se borrará la sesión y sus votos.')) return
+                apiCall('/api/admin/mvp/session', 'DELETE', { sessionId: activeSession.id })
+              }}
+            >
+              <span className="admin-btn-emoji">🗑️</span>
+              <span className="admin-btn-label">Quitar banner</span>
+            </button>
           </div>
 
           {activeSession.status !== 'closed' && (

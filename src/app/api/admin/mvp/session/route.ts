@@ -44,3 +44,16 @@ export async function PATCH(request: Request) {
 
   return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
 }
+
+// DELETE /api/admin/mvp/session — remove session and hide banner
+export async function DELETE(request: Request) {
+  if (!(await checkAdminAuth())) return unauthorizedResponse()
+
+  const { sessionId } = await request.json()
+  if (!sessionId) return NextResponse.json({ error: 'sessionId required' }, { status: 400 })
+
+  const { supabaseAdmin } = await import('@/infrastructure/supabase/adminClient')
+  const { error } = await supabaseAdmin.from('mvp_sessions').delete().eq('id', sessionId)
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ ok: true })
+}
