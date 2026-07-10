@@ -13,14 +13,14 @@ type Session = {
   opened_at: string | null
   closed_at: string | null
 }
-
-const POSITIONS = ['POR', 'DEF', 'MED', 'DEL']
-
-const DEFAULT_CANDIDATES: Candidate[] = [
-  { id: 'c1', name: '', number: 1, position: 'POR' },
-  { id: 'c2', name: '', number: 10, position: 'MED' },
-  { id: 'c3', name: '', number: 9, position: 'DEL' },
-]
+type SquadPlayer = {
+  id: string
+  name: string
+  dorsal: number
+  position: string
+  position_group: string
+  photo_url?: string
+}
 
 export function MvpAdmin() {
   const [activeSession, setActiveSession] = useState<Session | null>(null)
@@ -29,7 +29,8 @@ export function MvpAdmin() {
   const [msg, setMsg] = useState<string | null>(null)
   const [creating, setCreating] = useState(false)
   const [matchLabel, setMatchLabel] = useState('')
-  const [candidates, setCandidates] = useState<Candidate[]>(DEFAULT_CANDIDATES)
+  const [squad, setSquad] = useState<SquadPlayer[]>([])
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
 
   async function load() {
     try {
@@ -41,7 +42,19 @@ export function MvpAdmin() {
     }
   }
 
+  async function loadSquad() {
+    try {
+      const res = await fetch('/api/squad')
+      const data = await res.json()
+      const players: SquadPlayer[] = (data.grouped ?? []).flatMap(
+        (g: { players: SquadPlayer[] }) => g.players
+      )
+      setSquad(players)
+    } catch { /* ignore */ }
+  }
+
   useEffect(() => { load() }, [])
+  useEffect(() => { if (creating) loadSquad() }, [creating])
 
   async function apiCall(path: string, method: string, body: unknown) {
     setBusy(true)
@@ -59,6 +72,8 @@ export function MvpAdmin() {
         setMsg('✅ Hecho')
         await load()
         setCreating(false)
+        setSelectedIds(new Set())
+        setMatchLabel('')
       }
     } catch {
       setMsg('Error de red')
@@ -67,24 +82,31 @@ export function MvpAdmin() {
     }
   }
 
-  function updateCandidate(idx: number, field: keyof Candidate, value: string | number) {
-    setCandidates((prev) => {
-      const next = [...prev]
-      next[idx] = { ...next[idx], [field]: value }
+  function togglePlayer(id: string) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
       return next
     })
   }
 
-  function addCandidate() {
-    setCandidates((prev) => [
-      ...prev,
-      { id: `c${Date.now()}`, name: '', number: 0, position: 'DEL' },
-    ])
+  function buildCandidates(): Candidate[] {
+    return squad
+      .filter((p) => selectedIds.has(p.id))
+      .map((p) => ({
+        id: p.id,
+        name: p.name,
+        number: p.dorsal,
+        position: p.position_group.slice(0, 3).toUpperCase(),
+        photo_url: p.photo_url,
+      }))
   }
 
-  function removeCandidate(idx: number) {
-    setCandidates((prev) => prev.filter((_, i) => i !== idx))
-  }
+  const posOrder = ['Porteros', 'Defensas', 'Centrocampistas', 'Delanteros']
+  const grouped = posOrder
+    .map((pos) => ({ pos, players: squad.filter((p) => p.position_group === pos) }))
+    .filter((g) => g.players.length > 0)
 
   if (loading) return <div className="text-[12px] text-ceuta-muted">Cargando...</div>
 
@@ -144,7 +166,7 @@ export function MvpAdmin() {
             <div>
               <div className="text-[10px] font-bold uppercase tracking-widest text-ceuta-muted mb-2">Candidatos</div>
               {activeSession.candidates.map((c) => (
-                <div key={c.id} className="flex items-center gap-2 py-1">
+                <div key={c.id} className="flex items-center gap-2 py-1 border-b border-ceuta-border last:border-0">
                   <span className="text-[12px] font-black text-ceuta-black w-6 shrink-0">#{c.number}</span>
                   <span className="text-[12px] font-bold text-ceuta-black flex-1">{c.name}</span>
                   <span className="text-[10px] text-ceuta-muted">{c.position}</span>
@@ -162,11 +184,12 @@ export function MvpAdmin() {
       )}
 
       {/* Create new session */}
-      {!activeSession || activeSession.status === 'closed' ? (
+      {(!activeSession || activeSession.status === 'closed') && (
         creating ? (
-          <div className="rounded-[14px] border border-ceuta-border p-4 space-y-3">
-            <div className="text-[12px] font-bold text-ceuta-black">Nueva sesión MVP</div>
+          <div className="rounded-[14px] border border-ceuta-border p-4 space-y-4">
+            <div className="text-[13px] font-bold text-ceuta-black">Nueva sesión MVP</div>
 
+            {/* Match label */}
             <div>
               <label className="text-[10px] font-bold uppercase tracking-widest text-ceuta-muted block mb-1">Partido</label>
               <input
@@ -178,52 +201,62 @@ export function MvpAdmin() {
               />
             </div>
 
+            {/* Player picker */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-ceuta-muted">Candidatos</label>
-                <button onClick={addCandidate} className="text-[10px] font-bold text-ceuta-red">+ Añadir</button>
+                <label className="text-[10px] font-bold uppercase tracking-widest text-ceuta-muted">
+                  Candidatos ({selectedIds.size} seleccionados)
+                </label>
+                {selectedIds.size > 0 && (
+                  <button onClick={() => setSelectedIds(new Set())} className="text-[10px] text-ceuta-muted">
+                    Limpiar
+                  </button>
+                )}
               </div>
-              {candidates.map((c, i) => (
-                <div key={c.id} className="flex gap-2 mb-2">
-                  <input
-                    type="number"
-                    placeholder="#"
-                    value={c.number || ''}
-                    onChange={(e) => updateCandidate(i, 'number', parseInt(e.target.value) || 0)}
-                    className="w-14 px-2 py-1.5 rounded-[8px] border border-ceuta-border text-[12px] bg-ceuta-bg-soft text-center"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Nombre"
-                    value={c.name}
-                    onChange={(e) => updateCandidate(i, 'name', e.target.value)}
-                    className="flex-1 px-2 py-1.5 rounded-[8px] border border-ceuta-border text-[12px] bg-ceuta-bg-soft"
-                  />
-                  <select
-                    value={c.position}
-                    onChange={(e) => updateCandidate(i, 'position', e.target.value)}
-                    className="w-16 px-1 py-1.5 rounded-[8px] border border-ceuta-border text-[11px] bg-ceuta-bg-soft"
-                  >
-                    {POSITIONS.map((p) => <option key={p}>{p}</option>)}
-                  </select>
-                  {candidates.length > 2 && (
-                    <button onClick={() => removeCandidate(i)} className="text-ceuta-red text-[14px] w-6 shrink-0">✕</button>
-                  )}
+
+              {squad.length === 0 ? (
+                <div className="text-[12px] text-ceuta-muted">Cargando plantilla...</div>
+              ) : (
+                <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
+                  {grouped.map(({ pos, players }) => (
+                    <div key={pos}>
+                      <div className="text-[9px] font-bold uppercase tracking-widest text-ceuta-muted mb-1">{pos}</div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {players.map((p) => {
+                          const sel = selectedIds.has(p.id)
+                          return (
+                            <button
+                              key={p.id}
+                              onClick={() => togglePlayer(p.id)}
+                              className={`flex items-center gap-1.5 px-2 py-1 rounded-[8px] text-[11px] font-bold border transition-colors ${
+                                sel
+                                  ? 'bg-ceuta-red text-white border-ceuta-red'
+                                  : 'bg-ceuta-bg-soft text-ceuta-black border-ceuta-border'
+                              }`}
+                            >
+                              <span className="opacity-60">#{p.dorsal}</span>
+                              {p.name}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
 
             <div className="flex gap-2">
               <button
                 className="flex-1 py-2.5 rounded-[10px] bg-ceuta-red text-white text-[12px] font-bold uppercase disabled:opacity-40"
-                disabled={busy || !matchLabel || candidates.some((c) => !c.name)}
-                onClick={() => apiCall('/api/admin/mvp/session', 'POST', { matchLabel, candidates })}
+                disabled={busy || !matchLabel || selectedIds.size < 2}
+                onClick={() => apiCall('/api/admin/mvp/session', 'POST', { matchLabel, candidates: buildCandidates() })}
               >
-                Crear sesión
+                Crear ({selectedIds.size} jugadores)
               </button>
               <button
                 className="px-4 py-2.5 rounded-[10px] bg-ceuta-bg-mid text-ceuta-black text-[12px] font-bold"
-                onClick={() => setCreating(false)}
+                onClick={() => { setCreating(false); setSelectedIds(new Set()) }}
               >
                 Cancelar
               </button>
@@ -238,7 +271,7 @@ export function MvpAdmin() {
             <span className="admin-btn-label">Nueva votación MVP</span>
           </button>
         )
-      ) : null}
+      )}
     </div>
   )
 }
