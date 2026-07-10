@@ -8,9 +8,15 @@ export type MvpCandidate = {
   photo_url?: string
 }
 
+export type MvpMatchMeta = {
+  home: { name: string; logo: string | null }
+  away: { name: string; logo: string | null }
+}
+
 export type MvpSession = {
   id: string
   match_label: string
+  match_meta: MvpMatchMeta | null
   candidates: MvpCandidate[]
   status: 'pending' | 'open' | 'closed'
   winner_id: string | null
@@ -64,10 +70,10 @@ export async function hasVoted(sessionId: string, fingerprint: string): Promise<
   return !!data
 }
 
-export async function createMvpSession(matchLabel: string, candidates: MvpCandidate[]) {
+export async function createMvpSession(matchLabel: string, candidates: MvpCandidate[], matchMeta?: MvpMatchMeta) {
   const { data, error } = await supabaseAdmin
     .from('mvp_sessions')
-    .insert({ match_label: matchLabel, candidates, status: 'pending' })
+    .insert({ match_label: matchLabel, candidates, status: 'pending', match_meta: matchMeta ?? null })
     .select()
     .single()
   return { data, error }
@@ -128,18 +134,22 @@ export async function getMvpHistory(limit = 10) {
 export async function getMvpSeasonRanking() {
   const { data } = await supabaseAdmin
     .from('mvp_sessions')
-    .select('winner_name, winner_votes')
+    .select('winner_name, winner_id, winner_votes, candidates')
     .eq('status', 'closed')
     .not('winner_name', 'is', null)
 
   if (!data) return []
-  const totals: Record<string, { wins: number; votes: number }> = {}
+  const totals: Record<string, { wins: number; votes: number; photo_url: string | null }> = {}
   for (const row of data) {
     if (!row.winner_name) continue
-    const prev = totals[row.winner_name] ?? { wins: 0, votes: 0 }
+    const prev = totals[row.winner_name] ?? { wins: 0, votes: 0, photo_url: null }
+    const photo = prev.photo_url
+      ?? (row.candidates as MvpCandidate[])?.find(c => c.id === row.winner_id)?.photo_url
+      ?? null
     totals[row.winner_name] = {
       wins: prev.wins + 1,
       votes: prev.votes + (row.winner_votes ?? 0),
+      photo_url: photo,
     }
   }
   return Object.entries(totals)

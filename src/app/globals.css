@@ -2605,6 +2605,11 @@ img {
   text-transform:uppercase;line-height:1.05;margin-top:2px;}
 .mvp-banner .mb-sub{font-family:var(--font-body);font-size:12.5px;margin-top:3px;opacity:.68;}
 .mvp-banner .mb-chev{color:currentColor;opacity:.4;flex-shrink:0;position:relative;z-index:2;}
+.mvp-banner .mb-match{display:flex;align-items:center;gap:5px;margin-bottom:6px;flex-wrap:nowrap;overflow:hidden;}
+.mvp-banner .mb-match img{width:16px;height:16px;object-fit:contain;flex-shrink:0;}
+.mvp-banner .mb-match-name{font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:0.01em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80px;}
+.mvp-banner .mb-match-vs{font-family:var(--font-display);font-size:8.5px;font-weight:800;opacity:.45;letter-spacing:0.06em;flex-shrink:0;}
 .mvp-banner .live-dot{width:7px;height:7px;border-radius:50%;background:var(--red);display:inline-block;
   margin-right:6px;animation:mvp-pulse-dot 1.4s infinite;}
 .mvp-banner.st-abierta .live-dot{background:#4ade80;}
@@ -2628,7 +2633,10 @@ img {
 .mvp-close{width:30px;height:30px;border-radius:50%;background:var(--bg-mid);border:none;cursor:pointer;
   display:flex;align-items:center;justify-content:center;color:var(--muted);flex-shrink:0;}
 .mvp-sheet-sub{font-family:var(--font-display);font-weight:600;font-size:12px;letter-spacing:0.04em;
-  color:var(--muted);margin-top:2px;text-transform:uppercase;}
+  color:var(--muted);margin-top:4px;text-transform:uppercase;
+  display:flex;align-items:center;gap:5px;}
+.mvp-sheet-sub img{width:16px;height:16px;object-fit:contain;flex-shrink:0;}
+.mvp-sheet-sub .sub-vs{font-size:9px;opacity:.55;}
 .mvp-tabs{display:flex;gap:6px;margin-top:14px;background:var(--bg-mid);padding:4px;border-radius:11px;}
 .mvp-tab{flex:1;text-align:center;font-family:var(--font-display);font-weight:700;font-size:12.5px;
   letter-spacing:0.04em;text-transform:uppercase;color:var(--muted);background:none;border:none;
@@ -2639,23 +2647,25 @@ img {
 
 /* ——— candidate rows ——— */
 .mvp-list{display:flex;flex-direction:column;gap:9px;}
-.mvp-row{display:flex;align-items:center;gap:13px;background:var(--white);border:1.5px solid var(--border);
-  border-radius:14px;padding:11px 13px;cursor:pointer;transition:border-color .14s,box-shadow .14s;
-  position:relative;width:100%;text-align:left;}
+.mvp-row{display:flex;align-items:center;gap:0;background:var(--white);border:1.5px solid var(--border);
+  border-radius:14px;padding:0;cursor:pointer;transition:border-color .14s,box-shadow .14s;
+  position:relative;width:100%;text-align:left;overflow:hidden;}
 .mvp-row.picked{border-color:var(--red);box-shadow:0 0 0 3px var(--red-soft);}
 .mvp-row:disabled,.mvp-row[disabled]{cursor:default;}
 
-/* foto de jugador integrada con fondo oscuro */
-.mvp-row-photo{width:52px;height:58px;border-radius:11px;background:#151412;flex-shrink:0;
-  overflow:hidden;position:relative;display:flex;align-items:flex-end;justify-content:center;}
-.mvp-row-photo-img{position:absolute;bottom:0;left:50%;transform:translateX(-50%);
-  height:110%;width:auto;object-fit:contain;object-position:top;}
-.mvp-row-photo-bust{width:auto;height:110%;display:block;}
+/* foto de jugador — columna izquierda integrada */
+.mvp-row-photo{width:64px;height:80px;flex-shrink:0;
+  background:linear-gradient(180deg,#dedad4 0%,#c8c3bc 100%);
+  position:relative;overflow:hidden;}
+.mvp-row-photo-img{position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;object-position:top center;}
+.mvp-row-photo-bust{position:absolute;bottom:0;left:50%;transform:translateX(-50%);
+  width:44px;height:auto;opacity:.25;}
 .mvp-row-photo-fade{position:absolute;inset:0;
-  background:linear-gradient(to top,#151412 0%,rgba(21,20,18,.5) 40%,transparent 70%);
+  background:linear-gradient(to right,transparent 55%,var(--white) 100%);
   pointer-events:none;}
 
-.mvp-row .rw-main{flex:1;min-width:0;}
+.mvp-row .rw-main{flex:1;min-width:0;padding:12px 10px 12px 12px;}
 .mvp-row .rw-name{font-family:var(--font-display);font-weight:700;font-size:14.5px;letter-spacing:0.01em;
   text-transform:uppercase;display:flex;align-items:center;gap:6px;}
 .mvp-row .rw-dorsal{font-size:11px;color:var(--muted-2);font-weight:600;}
@@ -2663,9 +2673,9 @@ img {
 .mvp-row .rw-bar{height:6px;border-radius:3px;background:var(--bg-mid);margin-top:6px;overflow:hidden;}
 .mvp-row .rw-bar-fill{display:block;height:100%;background:var(--black);border-radius:3px;transition:width .5s ease;}
 .mvp-row.picked .rw-bar-fill{background:var(--red);}
-.mvp-row .rw-pct{font-family:var(--font-display);font-weight:800;font-size:15px;min-width:38px;text-align:right;color:var(--muted);}
+.mvp-row .rw-pct{font-family:var(--font-display);font-weight:800;font-size:15px;min-width:38px;text-align:right;color:var(--muted);padding-right:4px;}
 .mvp-row.picked .rw-pct{color:var(--red);}
-.mvp-row .rw-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;
+.mvp-row .rw-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;margin-right:13px;
   display:flex;align-items:center;justify-content:center;color:transparent;transition:all .14s;}
 .mvp-row.picked .rw-check{background:var(--red);border-color:var(--red);color:#fff;}
 .mvp-row .rw-check svg{width:12px;height:12px;}
@@ -2673,12 +2683,14 @@ img {
 /* mvp-winner alberga la FIFA card cuando hay ganador */
 .mvp-winner .fifa-card{box-shadow:0 8px 24px rgba(0,0,0,.4);}
 
-/* ——— FIFA card (líder variante híbrida) ——— */
+/* ——— FIFA card ——— */
 .fifa-card{position:relative;width:180px;margin:0 auto 18px;aspect-ratio:3/4.1;overflow:hidden;cursor:pointer;
-  clip-path:polygon(0% 14%,1% 9%,3% 5%,6% 3%,10% 1%,15% 0%,30% 0%,42% 0%,47% 3%,50% 5.5%,53% 3%,58% 0%,70% 0%,85% 0%,90% 1%,94% 3%,97% 5%,99% 9%,100% 14%,100% 55%,100% 70%,98% 80%,94% 88%,88% 93%,80% 96%,70% 98%,60% 99.5%,50% 100%,40% 99.5%,30% 98%,20% 96%,12% 93%,6% 88%,2% 80%,0% 70%,0% 55%);
+  border-radius:16px;
   background:linear-gradient(165deg,#FFF3B0 0%,#F4C300 45%,#C9960A 78%,#8A6B06 100%);
-  box-shadow:0 14px 30px rgba(0,0,0,.35);transition:transform .15s,box-shadow .15s;}
+  box-shadow:0 14px 30px rgba(0,0,0,.35),0 0 0 1px rgba(255,220,60,.3);transition:transform .15s,box-shadow .15s;}
 .fifa-card:active{transform:scale(.97);}
+.fifa-card.fc-no-cursor{cursor:default;}
+.fifa-card .fc-escudo{width:22px;height:26px;object-fit:contain;opacity:.85;flex-shrink:0;}
 .fifa-card.picked{box-shadow:0 14px 30px rgba(218,26,34,.4);}
 .fifa-card.picked::before{content:'';position:absolute;inset:0;z-index:4;pointer-events:none;
   box-shadow:0 0 0 4px var(--red) inset;}
@@ -2688,24 +2700,32 @@ img {
 .fifa-card .fc-seam{position:absolute;left:0;right:0;top:63%;height:1px;z-index:1;background:rgba(120,90,0,.35);}
 .fifa-card .fc-shine{position:absolute;inset:0;z-index:1;pointer-events:none;
   background:linear-gradient(115deg,transparent 28%,rgba(255,255,255,.5) 47%,transparent 64%);mix-blend-mode:overlay;}
-.fifa-card .fc-ribbon{position:absolute;top:13px;right:-30px;transform:rotate(40deg);
-  background:var(--red);color:#fff;font-family:var(--font-display);font-weight:800;font-size:9px;
-  letter-spacing:0.1em;text-transform:uppercase;padding:3px 34px;z-index:3;box-shadow:0 2px 6px rgba(0,0,0,.25);}
+.fifa-card .fc-ribbon{position:absolute;top:0;right:0;width:68px;height:68px;overflow:hidden;z-index:4;border-radius:0 16px 0 0;}
+.fifa-card .fc-ribbon::before{content:'';position:absolute;top:0;right:0;
+  border-style:solid;border-width:0 68px 68px 0;border-color:transparent var(--red) transparent transparent;}
+.fifa-card .fc-ribbon span{position:absolute;top:16px;right:4px;transform:rotate(45deg);
+  font-family:var(--font-display);font-weight:900;font-size:9px;letter-spacing:0.12em;
+  text-transform:uppercase;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.3);}
+.fifa-card .fc-escudo{position:absolute;top:12px;right:14px;width:28px;height:33px;object-fit:contain;opacity:.9;z-index:3;flex-shrink:0;}
 .fifa-card .fc-top{display:flex;justify-content:space-between;align-items:flex-start;padding:13px 13px 0;position:relative;z-index:2;}
 .fifa-card .fc-rating{font-family:var(--font-display);font-weight:900;font-size:32px;color:#4A3600;line-height:.82;}
 .fifa-card .fc-rating span{display:block;font-size:8.5px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:rgba(74,54,0,.65);margin-top:2px;}
 .fifa-card .fc-pos{font-family:var(--font-display);font-weight:800;font-size:10.5px;letter-spacing:0.05em;text-transform:uppercase;color:#4A3600;margin-top:4px;}
-.fifa-card .fc-photo{position:relative;z-index:2;height:48%;display:flex;align-items:flex-end;justify-content:center;margin-top:-4px;overflow:hidden;}
-.fifa-card .fc-photo img{width:auto;height:118%;object-fit:contain;object-position:top;filter:drop-shadow(0 8px 10px rgba(0,0,0,.22));}
+/* Photo — sin overflow:hidden para que la cabeza no se corte por el clip-path del contenedor */
+.fifa-card .fc-photo{position:relative;z-index:2;height:64%;display:flex;align-items:flex-end;justify-content:center;margin-top:-8px;}
+.fifa-card .fc-photo img{width:auto;height:125%;object-fit:contain;object-position:bottom center;filter:drop-shadow(0 10px 14px rgba(0,0,0,.28));}
 .fifa-card .fc-photo-bust{width:80px;height:80px;background:rgba(0,0,0,.15);border-radius:50% 50% 0 0;}
-.fifa-card .fc-name-bar{position:relative;z-index:2;text-align:center;padding:4px 8px 0;}
+.fifa-card .fc-bottom{position:relative;z-index:3;
+  background:linear-gradient(to bottom,rgba(15,8,0,0) 0%,rgba(15,8,0,.86) 30%,rgba(10,5,0,.97) 100%);
+  margin-top:-44px;padding:44px 12px 16px;}
+.fifa-card .fc-name-bar{text-align:center;padding:0 0 2px;}
 .fifa-card .fc-name{font-family:var(--font-display);font-weight:900;font-size:15px;letter-spacing:0.02em;
-  text-transform:uppercase;color:#3A2A00;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.fifa-card .fc-divider{width:56%;height:1.5px;background:rgba(74,54,0,.32);margin:6px auto;position:relative;z-index:2;}
-.fifa-card .fc-stats{display:flex;justify-content:center;gap:16px;position:relative;z-index:2;padding-bottom:16px;}
+  text-transform:uppercase;color:#FFE87A;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.fifa-card .fc-divider{width:56%;height:1px;background:rgba(255,220,60,.3);margin:7px auto;}
+.fifa-card .fc-stats{display:flex;justify-content:center;gap:20px;padding-bottom:4px;}
 .fifa-card .fc-stat{text-align:center;}
-.fifa-card .fc-stat b{display:block;font-family:var(--font-display);font-weight:800;font-size:15px;color:#3A2A00;}
-.fifa-card .fc-stat span{font-size:8px;letter-spacing:0.06em;text-transform:uppercase;color:rgba(58,42,0,.6);}
+.fifa-card .fc-stat b{display:block;font-family:var(--font-display);font-weight:800;font-size:15px;color:#FFE87A;}
+.fifa-card .fc-stat span{font-size:8px;letter-spacing:0.06em;text-transform:uppercase;color:rgba(255,210,80,.6);}
 .fifa-card .fc-check{position:absolute;bottom:11px;right:11px;width:22px;height:22px;border-radius:50%;
   background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;z-index:3;}
 .fifa-card .fc-check svg{width:12px;height:12px;}
@@ -2765,11 +2785,17 @@ img {
 .mvp-srow.top1 .sr-pos{color:var(--gold);}
 .mvp-srow.top2 .sr-pos{color:#b7b7b7;}
 .mvp-srow.top3 .sr-pos{color:#c08a52;}
+.mvp-srow .sr-photo{width:44px;height:44px;border-radius:10px;overflow:hidden;background:var(--bg-soft);flex-shrink:0;}
+.mvp-srow .sr-photo img{width:100%;height:100%;object-fit:contain;object-position:top center;}
+.mvp-srow .sr-photo-placeholder{width:100%;height:100%;background:var(--bg-mid);}
+.mvp-srow.top1 .sr-photo{box-shadow:0 0 0 2px var(--gold);}
 .mvp-srow .sr-main{flex:1;min-width:0;}
-.mvp-srow .sr-name{font-family:var(--font-display);font-weight:700;font-size:13.5px;letter-spacing:0.01em;text-transform:uppercase;}
-.mvp-srow .sr-mvps{font-size:11px;color:var(--muted);margin-top:1px;}
-.mvp-srow .sr-pts{font-family:var(--font-display);font-weight:800;font-size:16px;text-align:right;}
-.mvp-srow .sr-pts span{display:block;font-size:8.5px;font-weight:700;letter-spacing:0.08em;color:var(--muted-2);text-transform:uppercase;}
+.mvp-srow .sr-name{font-family:var(--font-display);font-weight:700;font-size:13px;letter-spacing:0.01em;text-transform:uppercase;line-height:1.1;}
+.mvp-srow .sr-mvps{display:flex;align-items:center;gap:3px;margin-top:3px;}
+.mvp-srow .sr-star{font-size:10px;line-height:1;}
+.mvp-srow .sr-wins-label{font-size:10px;color:var(--muted);font-weight:600;}
+.mvp-srow .sr-pts{font-family:var(--font-display);font-weight:800;font-size:15px;text-align:right;flex-shrink:0;}
+.mvp-srow .sr-pts span{display:block;font-size:8px;font-weight:700;letter-spacing:0.08em;color:var(--muted-2);text-transform:uppercase;}
 
 /* ——— antes state ——— */
 .mvp-before{display:flex;flex-direction:column;align-items:center;text-align:center;padding:26px 10px 8px;}

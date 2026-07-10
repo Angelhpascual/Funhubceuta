@@ -17,7 +17,7 @@ type Props = {
 }
 
 type Tab = 'partido' | 'temporada'
-type SeasonEntry = { name: string; wins: number; votes: number }
+type SeasonEntry = { name: string; wins: number; votes: number; photo_url: string | null }
 
 const IconCheck = () => (
   <svg viewBox="0 0 24 24" fill="none">
@@ -102,7 +102,23 @@ export function MvpSheet({ session, tallies, bannerState, votedId, fingerprint, 
           <div className="mvp-sheet-top">
             <div>
               <div className="mvp-sheet-title">MVP DEL <span>PARTIDO</span></div>
-              <div className="mvp-sheet-sub">{session.match_label}</div>
+              <div className="mvp-sheet-sub">
+              {session.match_meta ? (
+                <>
+                  {session.match_meta.home.logo && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={session.match_meta.home.logo} alt={session.match_meta.home.name} />
+                  )}
+                  {session.match_meta.home.name}
+                  <span className="sub-vs">VS</span>
+                  {session.match_meta.away.logo && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={session.match_meta.away.logo} alt={session.match_meta.away.name} />
+                  )}
+                  {session.match_meta.away.name}
+                </>
+              ) : session.match_label}
+            </div>
             </div>
             <button className="mvp-close" onClick={onClose}><IconClose /></button>
           </div>
@@ -191,6 +207,7 @@ export function MvpSheet({ session, tallies, bannerState, votedId, fingerprint, 
                 <FifaCard
                   candidate={winner}
                   votePct={pct(getCount(winner.id), total)}
+                  voteCount={getCount(winner.id)}
                 />
               )}
               <div className="mvp-final-title">Clasificación final del partido</div>
@@ -275,9 +292,11 @@ function PlayerCard({
 function FifaCard({
   candidate,
   votePct,
+  voteCount,
 }: {
   candidate: MvpSession['candidates'][0]
   votePct: number
+  voteCount: number
 }) {
   return (
     <div className="mvp-winner" style={{ marginBottom: 20 }}>
@@ -285,37 +304,35 @@ function FifaCard({
       <div className="wn-trophy"><IconTrophy /></div>
       <div className="wn-eye">MVP del partido</div>
 
-      <div className="fifa-card" style={{ cursor: 'default', margin: '16px auto 0' }}>
+      <div className="fifa-card fc-no-cursor">
         <div className="fc-rays" />
         <div className="fc-seam" />
         <div className="fc-shine" />
-        <div className="fc-ribbon">MVP</div>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/escudo.webp" alt="" width={28} height={33} className="fc-escudo" />
         <div className="fc-top">
           <div>
             <div className="fc-rating">{votePct}<span>% votos</span></div>
             <div className="fc-pos">{candidate.position}</div>
           </div>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/escudo.webp" alt="" width={22} height={26} style={{ objectFit: 'contain', opacity: 0.85 }} />
         </div>
         <div className="fc-photo">
           {candidate.photo_url ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={candidate.photo_url} alt={candidate.name} />
           ) : (
-            <svg viewBox="0 0 120 150" style={{ height: '118%', width: 'auto' }}>
-              <circle cx="60" cy="50" r="25" fill="#CFC9BF" />
-              <path d="M6 150v-30c0-30 24-52 54-52s54 22 54 52v30z" fill="#EDEAE4" />
-            </svg>
+            <div className="fc-photo-bust" />
           )}
         </div>
-        <div className="fc-name-bar">
-          <div className="fc-name">{candidate.name}</div>
-          <div className="fc-divider" />
-        </div>
-        <div className="fc-stats">
-          <div className="fc-stat"><b>#{candidate.number}</b><span>Dorsal</span></div>
-          <div className="fc-stat"><b>{votePct}%</b><span>Votos</span></div>
+        <div className="fc-bottom">
+          <div className="fc-name-bar">
+            <div className="fc-name">{candidate.name}</div>
+            <div className="fc-divider" />
+          </div>
+          <div className="fc-stats">
+            <div className="fc-stat"><b>#{candidate.number}</b><span>Dorsal</span></div>
+            <div className="fc-stat"><b>Votos: {voteCount}</b><span>{votePct}% del total</span></div>
+          </div>
         </div>
       </div>
     </div>
@@ -338,9 +355,21 @@ function SeasonRanking({ ranking }: { ranking: SeasonEntry[] }) {
       {ranking.map((entry, i) => (
         <div key={entry.name} className={`mvp-srow${i === 0 ? ' top1' : i === 1 ? ' top2' : i === 2 ? ' top3' : ''}`}>
           <div className="sr-pos">{i + 1}</div>
+          <div className="sr-photo">
+            {entry.photo_url
+              // eslint-disable-next-line @next/next/no-img-element
+              ? <img src={entry.photo_url} alt={entry.name} />
+              : <div className="sr-photo-placeholder" />
+            }
+          </div>
           <div className="sr-main">
             <div className="sr-name">{entry.name}</div>
-            <div className="sr-mvps">{entry.wins} {entry.wins === 1 ? 'MVP' : 'MVPs'} de partido</div>
+            <div className="sr-mvps">
+              {Array.from({ length: entry.wins }).map((_, j) => (
+                <span key={j} className="sr-star">⭐</span>
+              ))}
+              <span className="sr-wins-label">{entry.wins} {entry.wins === 1 ? 'MVP' : 'MVPs'}</span>
+            </div>
           </div>
           <div className="sr-pts">{entry.votes}<span>votos</span></div>
         </div>

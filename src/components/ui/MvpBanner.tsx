@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { MvpSheet, type BannerState as SheetState } from './MvpSheet'
-import type { MvpSession, MvpVoteTally } from '@/infrastructure/supabase/MvpRepository'
+import type { MvpSession, MvpVoteTally, MvpMatchMeta } from '@/infrastructure/supabase/MvpRepository'
+import { supabase } from '@/infrastructure/supabase/client'
 
 type BannerState = 'none' | SheetState
 
@@ -81,9 +82,24 @@ export function MvpBanner() {
 
   useEffect(() => {
     load()
-    const id = setInterval(load, 30_000)
-    return () => clearInterval(id)
+
+    // Realtime: actualización instantánea si la tabla tiene replicación activada en Supabase
+    const channel = supabase
+      .channel('mvp_sessions_status')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'mvp_sessions' }, () => {
+        load()
+      })
+      .subscribe()
+
+    return () => { supabase.removeChannel(channel) }
   }, [load])
+
+  // Polling: 5s siempre salvo cuando la sesión ya está cerrada
+  useEffect(() => {
+    const interval = session?.status === 'closed' ? 30_000 : 5_000
+    const id = setInterval(load, interval)
+    return () => clearInterval(id)
+  }, [load, session?.status])
 
   const handleVoted = useCallback((sessionId: string, candidateId: string) => {
     localStorage.setItem('mvp_voted_session', sessionId)
@@ -103,7 +119,7 @@ export function MvpBanner() {
 
   const configs: Record<SheetState, { eye: string; title: string; sub: string; icon: React.ReactNode }> = {
     antes: { eye: 'MVP del partido', title: 'Vota al mejor del Ceuta', sub: 'Se abre al pitido final', icon: <IconClock /> },
-    abierta: { eye: 'Votación abierta ahora', title: '¡Vota ya al MVP!', sub: '¿Quién brilló hoy en el Murube?', icon: <IconVote /> },
+    abierta: { eye: 'Votación abierta ahora', title: '¿Quién fue el mejor de la jornada?', sub: 'Vota al MVP del partido', icon: <IconVote /> },
     votado: { eye: 'Tu voto', title: `Has votado a ${votedPlayer?.name ?? ''}`, sub: 'Mira cómo evolucionan los resultados', icon: <IconCheck /> },
     cerrada: { eye: 'MVP del partido', title: `${winner?.name ?? 'Sin ganador'}, mejor jugador`, sub: 'Ver resultados completos', icon: <IconTrophy /> },
   }
@@ -116,6 +132,23 @@ export function MvpBanner() {
           <div className="mb-strp" />
           <div className="mb-ic">{cfg.icon}</div>
           <div className="mb-main">
+            {session.match_meta && (
+              <div className="mb-match">
+                {session.match_meta.home.logo
+                  // eslint-disable-next-line @next/next/no-img-element
+                  ? <img src={session.match_meta.home.logo} alt={session.match_meta.home.name} width={16} height={16} className="object-contain" />
+                  : null
+                }
+                <span className="mb-match-name">{session.match_meta.home.name}</span>
+                <span className="mb-match-vs">vs</span>
+                {session.match_meta.away.logo
+                  // eslint-disable-next-line @next/next/no-img-element
+                  ? <img src={session.match_meta.away.logo} alt={session.match_meta.away.name} width={16} height={16} className="object-contain" />
+                  : null
+                }
+                <span className="mb-match-name">{session.match_meta.away.name}</span>
+              </div>
+            )}
             <div className="mb-eye">
               {bannerState === 'abierta' && <span className="live-dot" />}
               {cfg.eye}

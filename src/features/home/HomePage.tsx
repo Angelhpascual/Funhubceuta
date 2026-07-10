@@ -303,6 +303,7 @@ export function HomePage({
       )}
 
       <NotificationBanner />
+      <MvpBanner />
 
       {/* ── PRÓXIMO PARTIDO ── */}
       <div className="flex items-end justify-between px-4 pb-3 pt-6">
@@ -316,7 +317,6 @@ export function HomePage({
         </div>
       </div>
       <LiveMatchCard />
-      <MvpBanner />
 
       {/* ── NOTICIAS ── */}
       <div className="flex items-end justify-between px-4 pb-3 pt-6">

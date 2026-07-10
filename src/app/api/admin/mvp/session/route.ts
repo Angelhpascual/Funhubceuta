@@ -5,18 +5,19 @@ import {
   openMvpSession,
   closeMvpSession,
   type MvpCandidate,
+  type MvpMatchMeta,
 } from '@/infrastructure/supabase/MvpRepository'
 
 // POST /api/admin/mvp/session — create a new session
 export async function POST(request: Request) {
   if (!(await checkAdminAuth())) return unauthorizedResponse()
 
-  const { matchLabel, candidates } = await request.json()
+  const { matchLabel, candidates, matchMeta } = await request.json()
   if (!matchLabel || !Array.isArray(candidates) || candidates.length < 2) {
     return NextResponse.json({ error: 'matchLabel and at least 2 candidates required' }, { status: 400 })
   }
 
-  const { data, error } = await createMvpSession(matchLabel, candidates as MvpCandidate[])
+  const { data, error } = await createMvpSession(matchLabel, candidates as MvpCandidate[], matchMeta as MvpMatchMeta | undefined)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ session: data })
 }
