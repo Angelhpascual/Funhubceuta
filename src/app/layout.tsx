@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Barlow, Barlow_Condensed } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { SpeedInsights } from '@vercel/speed-insights/next'
+import Script from 'next/script'
 import { AppShell } from '@/components/layout/AppShell'
 import './globals.css'
 
@@ -51,6 +52,11 @@ export default function RootLayout({
         <AppShell>{children}</AppShell>
         <Analytics />
         <SpeedInsights />
+        <Script
+          src="https://cloud.umami.is/script.js"
+          data-website-id="04ea7445-a0f4-4488-9831-86b17b4e71fc"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   )
