@@ -16,8 +16,9 @@ export async function sendPush(payload: PushPayload): Promise<{ sent: number; to
     process.env.VAPID_PRIVATE_KEY!
   )
 
-  const env = process.env.VERCEL_ENV === 'production' ? 'production' : 'development'
-  const subs = await getAllSubscriptions({ environment: env })
+  if (process.env.VERCEL_ENV !== 'production') return { sent: 0, total: 0 }
+
+  const subs = await getAllSubscriptions()
   if (subs.length === 0) return { sent: 0, total: 0 }
 
   const results = await Promise.allSettled(
