@@ -36,10 +36,17 @@ export async function POST(request: Request) {
     payload?: { title: string; body: string; tag: string; url: string }
   }
 
-  // Custom push notification — call internally to avoid cross-origin issues
+  // Custom push notification — production subscribers
   if (action === 'push' && payload) {
     const { sendPush } = await import('@/infrastructure/push/sendPush')
     const result = await sendPush(payload)
+    return NextResponse.json({ ok: true, ...result })
+  }
+
+  // Custom push notification — develop/test subscribers only
+  if (action === 'push-dev' && payload) {
+    const { sendPushDev } = await import('@/infrastructure/push/sendPush')
+    const result = await sendPushDev(payload)
     return NextResponse.json({ ok: true, ...result })
   }
 

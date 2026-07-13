@@ -201,6 +201,12 @@ export function AdminActions() {
   const [customStatus, setCustomStatus] = useState<Status>('idle')
   const [customResult, setCustomResult] = useState('')
 
+  const [devTitle, setDevTitle] = useState('')
+  const [devBody, setDevBody] = useState('')
+  const [devUrl, setDevUrl] = useState('/')
+  const [devStatus, setDevStatus] = useState<Status>('idle')
+  const [devResult, setDevResult] = useState('')
+
   const [logoutLoading, setLogoutLoading] = useState(false)
   const [deviceStatus, setDeviceStatus] = useState<'idle' | 'running' | 'ok' | 'error' | 'unsupported'>('idle')
   const [deviceMsg, setDeviceMsg] = useState('')
@@ -281,6 +287,25 @@ export function AdminActions() {
       setCustomStatus('error')
     }
     setTimeout(() => setCustomStatus('idle'), 6000)
+  }
+
+  async function sendDevPush() {
+    if (!devTitle.trim() || !devBody.trim()) return
+    setDevStatus('running')
+    try {
+      const result = await callTrigger('push-dev', {
+        title: devTitle, body: devBody, tag: 'dev-test', url: devUrl || '/',
+      })
+      setDevResult(`Enviada a ${result?.sent ?? 0} suscriptores`)
+      setDevStatus('ok')
+      setDevTitle('')
+      setDevBody('')
+      setDevUrl('/')
+    } catch (e) {
+      setDevResult((e as Error).message)
+      setDevStatus('error')
+    }
+    setTimeout(() => setDevStatus('idle'), 6000)
   }
 
   async function registerDevice() {
@@ -379,9 +404,9 @@ export function AdminActions() {
         </div>
       </section>
 
-      {/* Notificación manual */}
+      {/* Notificación manual — PRODUCCIÓN */}
       <section>
-        <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-ceuta-muted mb-3">Notificación manual</p>
+        <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-ceuta-muted mb-3">Notificación producción</p>
         <div className="bg-white rounded-[14px] border-2 border-ceuta-border p-4 space-y-3">
           <input
             type="text"
@@ -416,7 +441,49 @@ export function AdminActions() {
             {customStatus === 'running' ? '⏳ Enviando…' :
              customStatus === 'ok' ? `✓ ${customResult}` :
              customStatus === 'error' ? `✗ ${customResult}` :
-             '🔔 Enviar a todos los suscriptores'}
+             '🔔 Enviar a suscriptores de producción'}
+          </button>
+        </div>
+      </section>
+
+      {/* Notificación manual — DEVELOP */}
+      <section>
+        <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-ceuta-muted mb-3">Notificación develop (pruebas)</p>
+        <div className="bg-white rounded-[14px] border-2 border-amber-300 p-4 space-y-3">
+          <input
+            type="text"
+            placeholder="Título"
+            value={devTitle}
+            onChange={(e) => setDevTitle(e.target.value)}
+            className="w-full bg-ceuta-bg-soft border border-ceuta-border rounded-xl px-3 py-2 text-[13px] outline-none focus:border-ceuta-black"
+          />
+          <textarea
+            placeholder="Mensaje"
+            value={devBody}
+            onChange={(e) => setDevBody(e.target.value)}
+            rows={2}
+            className="w-full bg-ceuta-bg-soft border border-ceuta-border rounded-xl px-3 py-2 text-[13px] outline-none focus:border-ceuta-black resize-none"
+          />
+          <input
+            type="text"
+            placeholder="URL destino (ej: /partidos)"
+            value={devUrl}
+            onChange={(e) => setDevUrl(e.target.value)}
+            className="w-full bg-ceuta-bg-soft border border-ceuta-border rounded-xl px-3 py-2 text-[13px] outline-none focus:border-ceuta-black"
+          />
+          <button
+            onClick={sendDevPush}
+            disabled={devStatus === 'running' || !devTitle.trim() || !devBody.trim()}
+            className={`w-full rounded-xl py-3 text-[13px] font-bold transition-colors disabled:opacity-50 ${
+              devStatus === 'ok' ? 'bg-green-600 text-white' :
+              devStatus === 'error' ? 'bg-ceuta-red text-white' :
+              'bg-amber-500 text-white'
+            }`}
+          >
+            {devStatus === 'running' ? '⏳ Enviando…' :
+             devStatus === 'ok' ? `✓ ${devResult}` :
+             devStatus === 'error' ? `✗ ${devResult}` :
+             '🧪 Enviar a suscriptores de develop'}
           </button>
         </div>
       </section>

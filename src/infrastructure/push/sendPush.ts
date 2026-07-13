@@ -9,16 +9,14 @@ export interface PushPayload {
   icon?: string
 }
 
-export async function sendPush(payload: PushPayload): Promise<{ sent: number; total: number }> {
+async function sendPushToEnvironment(payload: PushPayload, environment: string): Promise<{ sent: number; total: number }> {
   webpush.setVapidDetails(
     'mailto:angelhpascual@gmail.com',
     process.env.VAPID_PUBLIC_KEY!,
     process.env.VAPID_PRIVATE_KEY!
   )
 
-  if (process.env.VERCEL_ENV !== 'production') return { sent: 0, total: 0 }
-
-  const subs = await getAllSubscriptions()
+  const subs = await getAllSubscriptions({ environment })
   if (subs.length === 0) return { sent: 0, total: 0 }
 
   const results = await Promise.allSettled(
@@ -41,4 +39,13 @@ export async function sendPush(payload: PushPayload): Promise<{ sent: number; to
     sent: results.filter((r) => r.status === 'fulfilled').length,
     total: subs.length,
   }
+}
+
+export async function sendPush(payload: PushPayload): Promise<{ sent: number; total: number }> {
+  if (process.env.VERCEL_ENV !== 'production') return { sent: 0, total: 0 }
+  return sendPushToEnvironment(payload, 'production')
+}
+
+export async function sendPushDev(payload: PushPayload): Promise<{ sent: number; total: number }> {
+  return sendPushToEnvironment(payload, 'development')
 }
