@@ -18,7 +18,7 @@ export async function POST(request: Request) {
       p256dh: keys.p256dh,
       auth: keys.auth,
       user_agent: request.headers.get('user-agent'),
-      environment: process.env.NODE_ENV === 'production' ? 'production' : 'development',
+      environment: process.env.VERCEL_ENV === 'production' ? 'production' : 'development',
     })
     return NextResponse.json({ ok: true })
   } catch (err) {
