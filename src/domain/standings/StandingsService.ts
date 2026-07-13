@@ -9,6 +9,9 @@ export class StandingsService {
     const cached = await this.repository.getBySeason(season)
     if (cached) return cached
 
+    // Don't scrape during build (no Chrome available in Vercel build environment)
+    if (process.env.NEXT_PHASE === 'phase-production-build') return null
+
     return this.syncFromApi(season)
   }
 
