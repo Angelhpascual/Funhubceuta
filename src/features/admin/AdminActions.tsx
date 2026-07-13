@@ -310,13 +310,13 @@ export function AdminActions() {
         const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
         if (!vapidKey) { setDeviceStatus('error'); setDeviceMsg('Falta VAPID key'); return }
         sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: vapidKey })
-        setDeviceMsg('Guardando suscripción…')
-        await fetch('/api/push/subscribe', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(sub.toJSON()),
-        })
       }
+      setDeviceMsg('Guardando suscripción…')
+      await fetch('/api/push/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(sub.toJSON()),
+      })
       const res = await fetch('/api/admin/register-device', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
