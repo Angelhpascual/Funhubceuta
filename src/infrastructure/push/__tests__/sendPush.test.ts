@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
 vi.mock('@/infrastructure/supabase/PushSubscriptionsRepository', () => ({
   getAllSubscriptions: vi.fn(),
@@ -15,7 +15,14 @@ import { getAllSubscriptions, deleteSubscription } from '@/infrastructure/supaba
 import webpush from 'web-push'
 import { sendPush } from '../sendPush'
 
-beforeEach(() => { vi.resetAllMocks() })
+beforeEach(() => {
+  vi.resetAllMocks()
+  process.env.VERCEL_ENV = 'production'
+})
+
+afterEach(() => {
+  delete process.env.VERCEL_ENV
+})
 
 const sub = { endpoint: 'https://push.example.com/1', p256dh: 'k', auth: 'a' }
 const payload = { title: 'Test', body: 'Mensaje' }
