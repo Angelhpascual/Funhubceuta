@@ -204,6 +204,56 @@ export function AdminDashboard({ stats }: { stats: AdminStats }) {
                 <AdminActions deviceOnly />
               </div>
             </Module>
+
+            {/* Suscriptores por dispositivo */}
+            {Object.keys(stats.deviceCount).length > 0 && (
+              <Module>
+                <div className="flex items-center justify-between gap-3 px-5 pt-5">
+                  <ModuleTitle>Suscriptores</ModuleTitle>
+                  <span className="font-display text-[11px] font-bold text-ceuta-muted">{stats.subscribers} total</span>
+                </div>
+                <div className="px-5 pb-5 mt-4 space-y-2">
+                  {Object.entries(stats.deviceCount)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([key, count]) => {
+                      const pct = stats.subscribers > 0 ? Math.round((count / stats.subscribers) * 100) : 0
+                      return (
+                        <div key={key}>
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="font-display text-[12px] font-bold text-ceuta-black">{key}</span>
+                            <span className="font-display text-[11px] text-ceuta-muted">{count} · {pct}%</span>
+                          </div>
+                          <div className="h-1.5 bg-ceuta-bg-mid rounded-full overflow-hidden">
+                            <div className="h-full bg-ceuta-black rounded-full" style={{ width: `${pct}%` }} />
+                          </div>
+                        </div>
+                      )
+                    })}
+                  {stats.subsList.length > 0 && (
+                    <div className="pt-2 border-t border-ceuta-border">
+                      <div className="font-display text-[10px] font-bold tracking-[0.12em] uppercase text-ceuta-muted mb-2">Recientes</div>
+                      <div className="space-y-1.5">
+                        {stats.subsList.slice(0, 4).map((s, i) => (
+                          <div key={i} className="flex items-center gap-2.5">
+                            <span className="text-[14px] shrink-0">{s.device.icon}</span>
+                            <div className="flex-1 min-w-0">
+                              <div className="font-display text-[11px] font-bold text-ceuta-black truncate">
+                                {s.device.os} · {s.device.browser}
+                              </div>
+                            </div>
+                            {s.createdAt && (
+                              <span className="font-display text-[10px] text-ceuta-muted shrink-0">
+                                {timeAgo(s.createdAt)}
+                              </span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </Module>
+            )}
           </div>
         </div>
       </div>

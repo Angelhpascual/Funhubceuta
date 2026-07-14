@@ -192,6 +192,7 @@ export function AdminActions({ syncOnly, notifOnly, deviceOnly }: { syncOnly?: b
   const elapsedRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const [syncNews, setSyncNews] = useState<SyncState>(IDLE)
+  const [syncWebp, setSyncWebp] = useState<SyncState>(IDLE)
 
   const [pushTitle, setPushTitle] = useState('')
   const [pushBody, setPushBody] = useState('')
@@ -360,6 +361,17 @@ export function AdminActions({ syncOnly, notifOnly, deviceOnly }: { syncOnly?: b
               'Finalizando…',
             ])}
           />
+          <SyncCard
+            emoji="🖼️"
+            label="Optimizar fotos"
+            description="Convierte imágenes pendientes a WebP."
+            state={syncWebp}
+            onClick={() => triggerSync(setSyncWebp, 'backfill-images', 'backfill-images', [
+              'Buscando imágenes sin optimizar…',
+              'Convirtiendo a WebP…',
+              'Finalizando…',
+            ])}
+          />
         </div>
       </section>}
 
@@ -409,6 +421,25 @@ export function AdminActions({ syncOnly, notifOnly, deviceOnly }: { syncOnly?: b
             onChange={(e) => setPushUrl(e.target.value)}
             className="w-full bg-ceuta-bg-soft border border-ceuta-border rounded-xl px-3 py-2 text-[13px] outline-none focus:border-ceuta-black"
           />
+
+          {/* Preview notificación */}
+          {(pushTitle || pushBody) && (
+            <div className="rounded-xl bg-ceuta-bg-mid border border-ceuta-border p-3">
+              <div className="font-display text-[9px] font-bold tracking-[0.14em] uppercase text-ceuta-muted mb-2">Vista previa</div>
+              <div className="flex items-start gap-2.5 bg-white rounded-lg px-3 py-2.5 shadow-sm">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/escudo.webp" alt="" width={28} height={28} className="object-contain shrink-0 mt-0.5" />
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold text-[12px] text-ceuta-black leading-tight truncate">
+                    {pushTitle || 'Título de la notificación'}
+                  </div>
+                  <div className="text-[11px] text-ceuta-muted mt-0.5 line-clamp-2 leading-tight">
+                    {pushBody || 'Cuerpo del mensaje…'}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
           <button
             onClick={sendPush}
             disabled={pushStatus === 'running' || !pushTitle.trim() || !pushBody.trim()}
