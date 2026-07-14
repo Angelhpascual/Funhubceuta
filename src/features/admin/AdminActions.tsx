@@ -79,11 +79,18 @@ function buildResult(log: CronLog): { lines: string[]; ok: boolean } {
   // Matches
   if (typeof d.count === 'number') lines.push(`${d.count} partidos sincronizados`)
 
-  // Images / stats
+  // Player stats
   if (typeof d.updated === 'number') lines.push(`${d.updated} jugadores actualizados`)
+  // Backfill news images
+  if (typeof d.optimized === 'number') lines.push(`${d.optimized} fotos optimizadas`)
+  if (typeof d.recovered === 'number' && d.recovered > 0) lines.push(`${d.recovered} fotos recuperadas`)
+  if (typeof d.pending === 'number' && d.pending > 0) lines.push(`${d.pending} pendientes`)
+  // Legacy field name
   if (typeof d.optimizedNewImages === 'number' && d.optimizedNewImages > 0) {
     lines.push(`${d.optimizedNewImages} fotos optimizadas`)
   }
+  // Squad photos
+  if (typeof d.failed === 'number' && d.failed > 0) lines.push(`⚠️ ${d.failed} fallidas`)
   if (d.warning) lines.push(`⚠️ ${d.warning}`)
 
   // Duration
@@ -192,7 +199,8 @@ export function AdminActions({ syncOnly, notifOnly, deviceOnly }: { syncOnly?: b
   const elapsedRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const [syncNews, setSyncNews] = useState<SyncState>(IDLE)
-  const [syncWebp, setSyncWebp] = useState<SyncState>(IDLE)
+  const [syncNewsImages, setSyncNewsImages] = useState<SyncState>(IDLE)
+  const [syncSquadPhotos, setSyncSquadPhotos] = useState<SyncState>(IDLE)
 
   const [pushTitle, setPushTitle] = useState('')
   const [pushBody, setPushBody] = useState('')
@@ -222,7 +230,8 @@ export function AdminActions({ syncOnly, notifOnly, deviceOnly }: { syncOnly?: b
     set: React.Dispatch<React.SetStateAction<SyncState>>,
     action: string,
     cronType: string,
-    phases: string[]
+    phases: string[],
+    opts: { direct?: boolean } = {}
   ) {
     set({ status: 'running', phase: phases[0], result: null, elapsed: 0 })
     startElapsed(set)
@@ -235,13 +244,30 @@ export function AdminActions({ syncOnly, notifOnly, deviceOnly }: { syncOnly?: b
       set((prev) => ({ ...prev, phase: phases[phaseIdx] }))
     }, 4000)
 
+    let directResult: Record<string, unknown> | undefined
     try {
-      await callTrigger(action)
+      directResult = await callTrigger(action)
     } catch (e) {
       clearInterval(phaseInterval)
       stopElapsed()
       set({ status: 'error', phase: '', result: { lines: [(e as Error).message], ok: false }, elapsed: 0 })
       setTimeout(() => set(IDLE), 8000)
+      return
+    }
+
+    // For direct actions the job already ran — use the response directly
+    if (opts.direct && directResult) {
+      clearInterval(phaseInterval)
+      stopElapsed()
+      const lines: string[] = []
+      const d = directResult as Record<string, number | string>
+      if (typeof d.optimized === 'number') lines.push(`${d.optimized} fotos optimizadas`)
+      if (typeof d.recovered === 'number' && d.recovered > 0) lines.push(`${d.recovered} fotos recuperadas`)
+      if (typeof d.pending === 'number' && d.pending > 0) lines.push(`${d.pending} pendientes`)
+      if (typeof d.failed === 'number' && d.failed > 0) lines.push(`⚠️ ${d.failed} fallidas`)
+      if (lines.length === 0) lines.push('OK')
+      set({ status: 'ok', phase: '', result: { lines, ok: true }, elapsed: 0 })
+      setTimeout(() => set(IDLE), 10000)
       return
     }
 
@@ -363,14 +389,25 @@ export function AdminActions({ syncOnly, notifOnly, deviceOnly }: { syncOnly?: b
           />
           <SyncCard
             emoji="🖼️"
-            label="Optimizar fotos"
-            description="Convierte imágenes pendientes a WebP."
-            state={syncWebp}
-            onClick={() => triggerSync(setSyncWebp, 'backfill-images', 'backfill-images', [
-              'Buscando imágenes sin optimizar…',
-              'Convirtiendo a WebP…',
-              'Finalizando…',
-            ])}
+            label="Optimizar fotos noticias"
+            description="Migra y convierte a WebP las imágenes externas de noticias."
+            state={syncNewsImages}
+            onClick={() => triggerSync(setSyncNewsImages, 'backfill-news-images', 'backfill-images', [
+              'Buscando fotos externas en noticias…',
+              'Descargando y convirtiendo a WebP…',
+              'Actualizando base de datos…',
+            ], { direct: true })}
+          />
+          <SyncCard
+            emoji="👤"
+            label="Optimizar fotos jugadores"
+            description="Migra y convierte a WebP las fotos externas de la plantilla."
+            state={syncSquadPhotos}
+            onClick={() => triggerSync(setSyncSquadPhotos, 'backfill-squad-photos', 'backfill-squad-photos', [
+              'Buscando fotos externas en plantilla…',
+              'Descargando y convirtiendo a WebP…',
+              'Actualizando base de datos…',
+            ], { direct: true })}
           />
         </div>
       </section>}

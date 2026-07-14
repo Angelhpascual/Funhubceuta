@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { checkAdminAuth, unauthorizedResponse } from '@/infrastructure/admin/auth'
 
+export const maxDuration = 60
+
 // Enqueue via QStash so Vercel timeout doesn't cut the response
 async function enqueueViaQStash(path: string): Promise<{ queued: boolean }> {
   const base = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://adceutainfo.vercel.app'
@@ -18,11 +20,31 @@ async function enqueueViaQStash(path: string): Promise<{ queued: boolean }> {
   return { queued: res.ok }
 }
 
+// Call a cron endpoint directly (bypasses QStash signature requirement)
+async function callDirect(path: string): Promise<Record<string, unknown>> {
+  const base = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://adceutainfo.vercel.app'
+  const secret = process.env.TEST_SECRET
+  if (!secret) throw new Error('TEST_SECRET no configurado')
+
+  const res = await fetch(`${base}${path}?secret=${secret}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: '{}',
+  })
+  if (!res.ok) {
+    const text = await res.text().catch(() => res.statusText)
+    throw new Error(`Error ${res.status}: ${text.slice(0, 200)}`)
+  }
+  return res.json()
+}
+
 const ACTIONS: Record<string, () => Promise<Record<string, unknown>>> = {
   news: async () => enqueueViaQStash('/api/cron/news'),
   matches: async () => enqueueViaQStash('/api/cron/matches'),
   'match-day': async () => enqueueViaQStash('/api/cron/match-day'),
-  'backfill-images': async () => enqueueViaQStash('/api/cron/backfill-images'),
+  // Image backfills run directly — QStash signature fails on preview URLs
+  'backfill-news-images': async () => callDirect('/api/cron/backfill-images'),
+  'backfill-squad-photos': async () => callDirect('/api/cron/backfill-squad-photos'),
 }
 
 export async function POST(request: Request) {
@@ -71,6 +93,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: `Unknown action: ${action}` }, { status: 400 })
   }
 
-  const result = await handler()
-  return NextResponse.json({ ok: true, action, result })
+  try {
+    const result = await handler()
+    return NextResponse.json({ ok: true, action, result })
+  } catch (err) {
+    return NextResponse.json({ ok: false, error: (err as Error).message }, { status: 500 })
+  }
 }
