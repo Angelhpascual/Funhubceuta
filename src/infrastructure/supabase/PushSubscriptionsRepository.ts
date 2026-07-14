@@ -8,7 +8,7 @@ export interface PushSubscription {
 }
 
 export async function getAllSubscriptions(options: { adminOnly?: boolean; environment?: string } = {}): Promise<PushSubscription[]> {
-  let query = supabase.from('push_subscriptions').select('endpoint, p256dh, auth')
+  let query = supabaseAdmin.from('push_subscriptions').select('endpoint, p256dh, auth')
     .eq('environment', options.environment ?? 'production')
   if (options.adminOnly) query = query.eq('is_admin', true)
   const { data } = await query
