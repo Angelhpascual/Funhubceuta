@@ -192,20 +192,13 @@ export function AdminActions({ syncOnly, notifOnly, deviceOnly }: { syncOnly?: b
   const elapsedRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const [syncNews, setSyncNews] = useState<SyncState>(IDLE)
-  const [syncMatches, setSyncMatches] = useState<SyncState>(IDLE)
-  const [syncImages, setSyncImages] = useState<SyncState>(IDLE)
 
-  const [customTitle, setCustomTitle] = useState('')
-  const [customBody, setCustomBody] = useState('')
-  const [customUrl, setCustomUrl] = useState('/')
-  const [customStatus, setCustomStatus] = useState<Status>('idle')
-  const [customResult, setCustomResult] = useState('')
-
-  const [devTitle, setDevTitle] = useState('')
-  const [devBody, setDevBody] = useState('')
-  const [devUrl, setDevUrl] = useState('/')
-  const [devStatus, setDevStatus] = useState<Status>('idle')
-  const [devResult, setDevResult] = useState('')
+  const [pushTitle, setPushTitle] = useState('')
+  const [pushBody, setPushBody] = useState('')
+  const [pushUrl, setPushUrl] = useState('/')
+  const [pushEnv, setPushEnv] = useState<'production' | 'development'>('production')
+  const [pushStatus, setPushStatus] = useState<Status>('idle')
+  const [pushResult, setPushResult] = useState('')
 
   const [logoutLoading, setLogoutLoading] = useState(false)
   const [deviceStatus, setDeviceStatus] = useState<'idle' | 'running' | 'ok' | 'error' | 'unsupported'>('idle')
@@ -270,42 +263,24 @@ export function AdminActions({ syncOnly, notifOnly, deviceOnly }: { syncOnly?: b
     )
   }
 
-  async function sendCustomPush() {
-    if (!customTitle.trim() || !customBody.trim()) return
-    setCustomStatus('running')
+  async function sendPush() {
+    if (!pushTitle.trim() || !pushBody.trim()) return
+    setPushStatus('running')
     try {
-      const result = await callTrigger('push', {
-        title: customTitle, body: customBody, tag: 'custom', url: customUrl || '/',
+      const action = pushEnv === 'production' ? 'push' : 'push-dev'
+      const result = await callTrigger(action, {
+        title: pushTitle, body: pushBody, tag: pushEnv === 'development' ? 'dev-test' : 'custom', url: pushUrl || '/',
       })
-      setCustomResult(`Enviada a ${result?.sent ?? 0} suscriptores`)
-      setCustomStatus('ok')
-      setCustomTitle('')
-      setCustomBody('')
-      setCustomUrl('/')
+      setPushResult(`Enviada a ${result?.sent ?? 0} suscriptores`)
+      setPushStatus('ok')
+      setPushTitle('')
+      setPushBody('')
+      setPushUrl('/')
     } catch (e) {
-      setCustomResult((e as Error).message)
-      setCustomStatus('error')
+      setPushResult((e as Error).message)
+      setPushStatus('error')
     }
-    setTimeout(() => setCustomStatus('idle'), 6000)
-  }
-
-  async function sendDevPush() {
-    if (!devTitle.trim() || !devBody.trim()) return
-    setDevStatus('running')
-    try {
-      const result = await callTrigger('push-dev', {
-        title: devTitle, body: devBody, tag: 'dev-test', url: devUrl || '/',
-      })
-      setDevResult(`Enviada a ${result?.sent ?? 0} suscriptores`)
-      setDevStatus('ok')
-      setDevTitle('')
-      setDevBody('')
-      setDevUrl('/')
-    } catch (e) {
-      setDevResult((e as Error).message)
-      setDevStatus('error')
-    }
-    setTimeout(() => setDevStatus('idle'), 6000)
+    setTimeout(() => setPushStatus('idle'), 6000)
   }
 
   async function registerDevice() {
@@ -385,107 +360,69 @@ export function AdminActions({ syncOnly, notifOnly, deviceOnly }: { syncOnly?: b
               'Finalizando…',
             ])}
           />
-          <SyncCard
-            emoji="⚽"
-            label="Partidos"
-            description="Actualiza próximos partidos y resultados."
-            state={syncMatches}
-            onClick={() => triggerSync(setSyncMatches, 'matches', 'matches', [
-              'Consultando calendario…',
-              'Actualizando resultados…',
-            ])}
-          />
-          <SyncCard
-            emoji="🖼️"
-            label="Fotos de plantilla"
-            description="Optimiza fotos de jugadores pendientes."
-            state={syncImages}
-            onClick={() => triggerSync(setSyncImages, 'backfill-images', 'backfill-images', [
-              'Buscando fotos sin optimizar…',
-              'Procesando y guardando…',
-            ])}
-          />
         </div>
       </section>}
 
-      {/* Notificación manual — PRODUCCIÓN */}
+      {/* Notificación manual — formulario unificado */}
       {showNotif && <section>
-        <div className="bg-white rounded-[14px] border-2 border-ceuta-border p-4 space-y-3">
+        <div className={`bg-white rounded-[14px] border-2 p-4 space-y-3 transition-colors ${pushEnv === 'development' ? 'border-amber-300' : 'border-ceuta-border'}`}>
+          {/* Toggle entorno */}
+          <div className="flex gap-1 p-1 bg-ceuta-bg-soft rounded-xl">
+            <button
+              type="button"
+              onClick={() => setPushEnv('production')}
+              className={`flex-1 py-2 rounded-lg font-display text-[11px] font-bold tracking-[0.08em] uppercase transition-all ${
+                pushEnv === 'production' ? 'bg-ceuta-black text-white shadow-sm' : 'text-ceuta-muted'
+              }`}
+            >
+              🔔 Producción
+            </button>
+            <button
+              type="button"
+              onClick={() => setPushEnv('development')}
+              className={`flex-1 py-2 rounded-lg font-display text-[11px] font-bold tracking-[0.08em] uppercase transition-all ${
+                pushEnv === 'development' ? 'bg-amber-500 text-white shadow-sm' : 'text-ceuta-muted'
+              }`}
+            >
+              🧪 Develop
+            </button>
+          </div>
+
           <input
             type="text"
             placeholder="Título"
-            value={customTitle}
-            onChange={(e) => setCustomTitle(e.target.value)}
+            value={pushTitle}
+            onChange={(e) => setPushTitle(e.target.value)}
             className="w-full bg-ceuta-bg-soft border border-ceuta-border rounded-xl px-3 py-2 text-[13px] outline-none focus:border-ceuta-black"
           />
           <textarea
             placeholder="Mensaje"
-            value={customBody}
-            onChange={(e) => setCustomBody(e.target.value)}
+            value={pushBody}
+            onChange={(e) => setPushBody(e.target.value)}
             rows={2}
             className="w-full bg-ceuta-bg-soft border border-ceuta-border rounded-xl px-3 py-2 text-[13px] outline-none focus:border-ceuta-black resize-none"
           />
           <input
             type="text"
             placeholder="URL destino (ej: /partidos)"
-            value={customUrl}
-            onChange={(e) => setCustomUrl(e.target.value)}
+            value={pushUrl}
+            onChange={(e) => setPushUrl(e.target.value)}
             className="w-full bg-ceuta-bg-soft border border-ceuta-border rounded-xl px-3 py-2 text-[13px] outline-none focus:border-ceuta-black"
           />
           <button
-            onClick={sendCustomPush}
-            disabled={customStatus === 'running' || !customTitle.trim() || !customBody.trim()}
+            onClick={sendPush}
+            disabled={pushStatus === 'running' || !pushTitle.trim() || !pushBody.trim()}
             className={`w-full rounded-xl py-3 text-[13px] font-bold transition-colors disabled:opacity-50 ${
-              customStatus === 'ok' ? 'bg-green-600 text-white' :
-              customStatus === 'error' ? 'bg-ceuta-red text-white' :
+              pushStatus === 'ok' ? 'bg-[#1E9E4B] text-white' :
+              pushStatus === 'error' ? 'bg-ceuta-red text-white' :
+              pushEnv === 'development' ? 'bg-amber-500 text-white' :
               'bg-ceuta-black text-white'
             }`}
           >
-            {customStatus === 'running' ? '⏳ Enviando…' :
-             customStatus === 'ok' ? `✓ ${customResult}` :
-             customStatus === 'error' ? `✗ ${customResult}` :
-             '🔔 Enviar a suscriptores de producción'}
-          </button>
-        </div>
-      </section>}
-
-      {/* Notificación develop (pruebas) */}
-      {showNotif && <section>
-        <div className="bg-white rounded-[14px] border-2 border-amber-300 p-4 space-y-3">
-          <input
-            type="text"
-            placeholder="Título"
-            value={devTitle}
-            onChange={(e) => setDevTitle(e.target.value)}
-            className="w-full bg-ceuta-bg-soft border border-ceuta-border rounded-xl px-3 py-2 text-[13px] outline-none focus:border-ceuta-black"
-          />
-          <textarea
-            placeholder="Mensaje"
-            value={devBody}
-            onChange={(e) => setDevBody(e.target.value)}
-            rows={2}
-            className="w-full bg-ceuta-bg-soft border border-ceuta-border rounded-xl px-3 py-2 text-[13px] outline-none focus:border-ceuta-black resize-none"
-          />
-          <input
-            type="text"
-            placeholder="URL destino (ej: /partidos)"
-            value={devUrl}
-            onChange={(e) => setDevUrl(e.target.value)}
-            className="w-full bg-ceuta-bg-soft border border-ceuta-border rounded-xl px-3 py-2 text-[13px] outline-none focus:border-ceuta-black"
-          />
-          <button
-            onClick={sendDevPush}
-            disabled={devStatus === 'running' || !devTitle.trim() || !devBody.trim()}
-            className={`w-full rounded-xl py-3 text-[13px] font-bold transition-colors disabled:opacity-50 ${
-              devStatus === 'ok' ? 'bg-green-600 text-white' :
-              devStatus === 'error' ? 'bg-ceuta-red text-white' :
-              'bg-amber-500 text-white'
-            }`}
-          >
-            {devStatus === 'running' ? '⏳ Enviando…' :
-             devStatus === 'ok' ? `✓ ${devResult}` :
-             devStatus === 'error' ? `✗ ${devResult}` :
-             '🧪 Enviar a suscriptores de develop'}
+            {pushStatus === 'running' ? '⏳ Enviando…' :
+             pushStatus === 'ok' ? `✓ ${pushResult}` :
+             pushStatus === 'error' ? `✗ ${pushResult}` :
+             pushEnv === 'development' ? '🧪 Enviar a develop' : '🔔 Enviar a producción'}
           </button>
         </div>
       </section>}

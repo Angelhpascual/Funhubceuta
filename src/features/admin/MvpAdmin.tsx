@@ -15,20 +15,17 @@ type Session = {
   opened_at: string | null
   closed_at: string | null
 }
-type SquadPlayer = {
-  id: string
-  name: string
-  dorsal: number
-  position: string
-  position_group: string
-  photo_url?: string
-}
+type VoteTally = { candidate_id: string; count: number }
+type HistoryEntry = { id: string; match_label: string; winner_name: string | null; winner_votes: number | null; closed_at: string | null }
+type SquadPlayer = { id: string; name: string; dorsal: number; position: string; position_group: string; photo_url?: string }
 type StandingTeam = { name: string; logo: string | null }
 
 const CEUTA = { name: 'AD Ceuta', logo: '/escudo.webp' }
 
 export function MvpAdmin() {
   const [activeSession, setActiveSession] = useState<Session | null>(null)
+  const [tallies, setTallies] = useState<VoteTally[]>([])
+  const [history, setHistory] = useState<HistoryEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState(false)
   const [msg, setMsg] = useState<string | null>(null)
@@ -44,9 +41,15 @@ export function MvpAdmin() {
 
   async function load() {
     try {
-      const res = await fetch('/api/mvp/active')
-      const data = await res.json()
-      setActiveSession(data.session)
+      const [activeRes, histRes] = await Promise.all([
+        fetch('/api/mvp/active'),
+        fetch('/api/mvp/history'),
+      ])
+      const activeData = await activeRes.json()
+      const histData = await histRes.json()
+      setActiveSession(activeData.session)
+      setTallies(activeData.tallies ?? [])
+      setHistory(histData.history ?? [])
     } finally {
       setLoading(false)
     }
@@ -56,9 +59,7 @@ export function MvpAdmin() {
     try {
       const res = await fetch('/api/squad')
       const data = await res.json()
-      const players: SquadPlayer[] = (data.grouped ?? []).flatMap(
-        (g: { players: SquadPlayer[] }) => g.players
-      )
+      const players: SquadPlayer[] = (data.grouped ?? []).flatMap((g: { players: SquadPlayer[] }) => g.players)
       setSquad(players)
     } catch { /* ignore */ }
   }
@@ -70,180 +71,193 @@ export function MvpAdmin() {
     setBusy(true)
     setMsg(null)
     try {
-      const res = await fetch(path, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      })
+      const res = await fetch(path, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
       const data = await res.json()
       if (!res.ok) {
-        setMsg(`Error: ${data.error ?? 'desconocido'}`)
+        setMsg(`✗ ${data.error ?? 'Error desconocido'}`)
       } else {
-        setMsg('✅ Hecho')
+        setMsg('✓ Hecho')
         await load()
         setCreating(false)
         setSelectedIds(new Set())
-        setMatchLabel('')
-        setAwayName('')
-        setAwayLogo(null)
-        setShowLogoPicker(false)
+        setMatchLabel(''); setAwayName(''); setAwayLogo(null); setShowLogoPicker(false)
+        setTimeout(() => setMsg(null), 3000)
       }
     } catch {
-      setMsg('Error de red')
+      setMsg('✗ Error de red')
     } finally {
       setBusy(false)
     }
   }
 
   function togglePlayer(id: string) {
-    setSelectedIds((prev) => {
-      const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
-      return next
-    })
+    setSelectedIds((prev) => { const next = new Set(prev); next.has(id) ? next.delete(id) : next.add(id); return next })
   }
 
   function buildCandidates(): Candidate[] {
-    return squad
-      .filter((p) => selectedIds.has(p.id))
-      .map((p) => ({
-        id: p.id,
-        name: p.name,
-        number: p.dorsal,
-        position: p.position_group.slice(0, 3).toUpperCase(),
-        photo_url: p.photo_url,
-      }))
+    return squad.filter(p => selectedIds.has(p.id)).map(p => ({
+      id: p.id, name: p.name, number: p.dorsal,
+      position: p.position_group.slice(0, 3).toUpperCase(),
+      photo_url: p.photo_url,
+    }))
   }
 
   const posOrder = ['Porteros', 'Defensas', 'Centrocampistas', 'Delanteros']
-  const grouped = posOrder
-    .map((pos) => ({ pos, players: squad.filter((p) => p.position_group === pos) }))
-    .filter((g) => g.players.length > 0)
+  const grouped = posOrder.map(pos => ({ pos, players: squad.filter(p => p.position_group === pos) })).filter(g => g.players.length > 0)
+  const totalVotes = tallies.reduce((a, t) => a + t.count, 0)
 
-  if (loading) return <div className="text-[12px] text-ceuta-muted">Cargando...</div>
+  if (loading) return <div className="text-[12px] text-ceuta-muted py-4 text-center">Cargando...</div>
 
   return (
     <div className="space-y-4">
-      <div className="sec-title-small">MVP del Partido</div>
 
-      {/* Active session */}
+      {/* Sesión activa — tarjeta negra */}
       {activeSession && (
-        <div className="rounded-[14px] bg-ceuta-bg-soft p-4 space-y-3">
-          <div className="flex items-start justify-between gap-2">
-            <div>
-              <div className="text-[11px] font-bold uppercase tracking-widest text-ceuta-muted">Sesión activa</div>
-              <div className="text-[16px] font-black uppercase text-ceuta-black leading-tight">{activeSession.match_label}</div>
-              <div className={`inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wide ${
-                activeSession.status === 'open' ? 'bg-ceuta-red text-white' :
-                activeSession.status === 'closed' ? 'bg-ceuta-black text-white' :
-                'bg-ceuta-bg-mid text-ceuta-muted'
-              }`}>
-                {activeSession.status === 'open' && <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />}
-                {activeSession.status === 'pending' ? 'Pendiente' : activeSession.status === 'open' ? 'Votación abierta' : 'Cerrada'}
+        <div className={`rounded-[14px] p-4 space-y-3 ${
+          activeSession.status === 'open' ? 'bg-ceuta-black text-white' :
+          activeSession.status === 'closed' ? 'bg-ceuta-black text-white' :
+          'bg-ceuta-bg-soft border border-ceuta-border'
+        }`}>
+          {/* Header */}
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex-1 min-w-0">
+              <div className={`font-display text-[10px] font-bold tracking-[0.14em] uppercase mb-0.5 ${activeSession.status !== 'pending' ? 'text-white/50' : 'text-ceuta-muted'}`}>
+                Sesión activa
+              </div>
+              <div className={`font-display font-black text-[18px] uppercase leading-tight truncate ${activeSession.status !== 'pending' ? 'text-white' : 'text-ceuta-black'}`}>
+                {activeSession.match_label}
               </div>
             </div>
-            {activeSession.status === 'closed' && activeSession.winner_name && (
-              <div className="text-right">
-                <div className="text-[9px] font-bold uppercase tracking-widest text-ceuta-gold">MVP</div>
-                <div className="text-[14px] font-black text-ceuta-black">{activeSession.winner_name}</div>
-                <div className="text-[10px] text-ceuta-muted">{activeSession.winner_votes} votos</div>
-              </div>
-            )}
+            <span className={`shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-full font-display text-[10px] font-bold tracking-[0.1em] uppercase ${
+              activeSession.status === 'open' ? 'bg-[#1E9E4B] text-white' :
+              activeSession.status === 'closed' ? 'bg-white/10 text-white/70' :
+              'bg-ceuta-bg-mid text-ceuta-muted'
+            }`}>
+              {activeSession.status === 'open' && <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />}
+              {activeSession.status === 'pending' ? 'Pendiente' : activeSession.status === 'open' ? 'Abierta' : 'Cerrada'}
+            </span>
           </div>
 
-          <div className="flex gap-2 flex-wrap">
+          {/* Ganador (closed) */}
+          {activeSession.status === 'closed' && activeSession.winner_name && (
+            <div className="flex items-center gap-3 bg-white/8 rounded-[10px] px-3 py-2.5">
+              <div className="w-8 h-8 rounded-full bg-ceuta-gold flex items-center justify-center font-display text-[12px] font-black text-ceuta-black shrink-0">
+                ★
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="font-display text-[10px] font-bold tracking-[0.12em] uppercase text-ceuta-gold">MVP</div>
+                <div className="font-display font-black text-[16px] text-white truncate">{activeSession.winner_name}</div>
+              </div>
+              <div className="text-right shrink-0">
+                <div className="font-display font-black text-[20px] text-white">{activeSession.winner_votes}</div>
+                <div className="font-display text-[9px] text-white/50 uppercase tracking-wide">votos</div>
+              </div>
+            </div>
+          )}
+
+          {/* Candidatos con barras de voto (open) */}
+          {activeSession.status === 'open' && activeSession.candidates.length > 0 && (
+            <div className="space-y-1.5">
+              {activeSession.candidates.map((c) => {
+                const votes = tallies.find(t => t.candidate_id === c.id)?.count ?? 0
+                const pct = totalVotes > 0 ? Math.round((votes / totalVotes) * 100) : 0
+                return (
+                  <div key={c.id} className="flex items-center gap-2">
+                    <span className="font-display text-[10px] font-bold text-white/50 w-5 shrink-0">#{c.number}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-0.5">
+                        <span className="font-display text-[12px] font-bold text-white truncate">{c.name}</span>
+                        <span className="font-display text-[10px] text-white/60 shrink-0 ml-2">{votes} ({pct}%)</span>
+                      </div>
+                      <div className="h-1 bg-white/10 rounded-full overflow-hidden">
+                        <div className="h-full bg-ceuta-red rounded-full transition-all" style={{ width: `${pct}%` }} />
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+              <div className="font-display text-[10px] text-white/40 text-right pt-1">{totalVotes} votos totales</div>
+            </div>
+          )}
+
+          {/* Candidatos (pending) */}
+          {activeSession.status === 'pending' && (
+            <div className="flex flex-wrap gap-1.5">
+              {activeSession.candidates.map(c => (
+                <span key={c.id} className="font-display text-[11px] font-bold px-2.5 py-1 rounded-full bg-ceuta-bg-mid text-ceuta-black border border-ceuta-border">
+                  #{c.number} {c.name}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Acciones */}
+          <div className="flex gap-2 pt-1">
             {activeSession.status === 'pending' && (
               <button
-                className="admin-btn admin-btn-red flex-1"
                 disabled={busy}
                 onClick={() => apiCall('/api/admin/mvp/session', 'PATCH', { sessionId: activeSession.id, action: 'open' })}
+                className="flex-1 py-2.5 rounded-xl font-display text-[12px] font-bold tracking-[0.08em] uppercase bg-[#1E9E4B] text-white disabled:opacity-40 transition-opacity"
               >
-                <span className="admin-btn-emoji">🟢</span>
-                <span className="admin-btn-label">Abrir votación</span>
+                {busy ? '⏳' : '▶ Abrir votación'}
               </button>
             )}
             {activeSession.status === 'open' && (
               <button
-                className="admin-btn admin-btn-dark flex-1"
                 disabled={busy}
                 onClick={() => apiCall('/api/admin/mvp/session', 'PATCH', { sessionId: activeSession.id, action: 'close' })}
+                className="flex-1 py-2.5 rounded-xl font-display text-[12px] font-bold tracking-[0.08em] uppercase bg-ceuta-red text-white disabled:opacity-40 transition-opacity"
               >
-                <span className="admin-btn-emoji">🔴</span>
-                <span className="admin-btn-label">Cerrar y proclamar MVP</span>
+                {busy ? '⏳' : '■ Cerrar y proclamar MVP'}
               </button>
             )}
             <button
-              className="admin-btn admin-btn-light"
               disabled={busy}
               onClick={() => {
                 if (!confirm('¿Quitar el banner del MVP? Se borrará la sesión y sus votos.')) return
                 apiCall('/api/admin/mvp/session', 'DELETE', { sessionId: activeSession.id })
               }}
+              className={`px-4 py-2.5 rounded-xl font-display text-[12px] font-bold tracking-[0.08em] uppercase disabled:opacity-40 transition-opacity ${
+                activeSession.status !== 'pending' ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-ceuta-bg-mid text-ceuta-black border border-ceuta-border hover:border-ceuta-black'
+              }`}
             >
-              <span className="admin-btn-emoji">🗑️</span>
-              <span className="admin-btn-label">Quitar banner</span>
+              Quitar
             </button>
           </div>
-
-          {activeSession.status !== 'closed' && (
-            <div>
-              <div className="text-[10px] font-bold uppercase tracking-widest text-ceuta-muted mb-2">Candidatos</div>
-              {activeSession.candidates.map((c) => (
-                <div key={c.id} className="flex items-center gap-2 py-1 border-b border-ceuta-border last:border-0">
-                  <span className="text-[12px] font-black text-ceuta-black w-6 shrink-0">#{c.number}</span>
-                  <span className="text-[12px] font-bold text-ceuta-black flex-1">{c.name}</span>
-                  <span className="text-[10px] text-ceuta-muted">{c.position}</span>
-                </div>
-              ))}
-            </div>
-          )}
         </div>
       )}
 
+      {/* Feedback */}
       {msg && (
-        <div className={`text-[12px] font-semibold px-3 py-2 rounded-[10px] ${msg.startsWith('✅') ? 'bg-green-50 text-green-700' : 'bg-red-50 text-ceuta-red'}`}>
+        <div className={`text-[12px] font-semibold px-3 py-2 rounded-xl ${msg.startsWith('✓') ? 'bg-[#E7F6EC] text-[#1E9E4B]' : 'bg-red-50 text-ceuta-red'}`}>
           {msg}
         </div>
       )}
 
-      {/* Create new session */}
+      {/* Formulario nueva sesión */}
       {(!activeSession || activeSession.status === 'closed') && (
         creating ? (
           <div className="rounded-[14px] border border-ceuta-border p-4 space-y-4">
-            <div className="text-[13px] font-bold text-ceuta-black">Nueva sesión MVP</div>
+            <div className="font-display font-bold text-[14px] uppercase tracking-[0.06em] text-ceuta-black">Nueva sesión MVP</div>
 
-            {/* Team selector */}
-            <div className="space-y-3">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-ceuta-muted block">Partido</label>
+            {/* Toggle casa/fuera */}
+            <div>
+              <label className="font-display text-[10px] font-bold tracking-[0.12em] uppercase text-ceuta-muted block mb-2">Partido</label>
+              <button type="button" onClick={() => { const next = !ceutaHome; setCeutaHome(next); if (awayName) setMatchLabel(next ? `AD Ceuta vs ${awayName}` : `${awayName} vs AD Ceuta`) }}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-ceuta-border bg-ceuta-bg-soft text-[11px] font-bold text-ceuta-black mb-3">
+                {ceutaHome ? '🏠 Local' : '✈️ Visitante'} <span className="text-ceuta-muted text-[10px]">(cambiar)</span>
+              </button>
 
-              {/* Toggle casa/fuera */}
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    const next = !ceutaHome
-                    setCeutaHome(next)
-                    if (awayName) setMatchLabel(next ? `AD Ceuta vs ${awayName}` : `${awayName} vs AD Ceuta`)
-                  }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] border border-ceuta-border bg-ceuta-bg-soft text-[10px] font-bold text-ceuta-black"
-                >
-                  <span>{ceutaHome ? '🏠 Local' : '✈️ Visitante'}</span>
-                  <span className="text-ceuta-muted text-[9px]">(cambiar)</span>
-                </button>
-                <span className="text-[9px] text-ceuta-muted">AD Ceuta juega de {ceutaHome ? 'local' : 'visitante'}</span>
-              </div>
-
-              {/* Preview del partido */}
-              <div className="flex items-center justify-center gap-3 py-3 rounded-[12px] bg-ceuta-bg-soft border border-ceuta-border">
+              {/* Preview partido */}
+              <div className="flex items-center justify-center gap-4 py-3 rounded-xl bg-ceuta-bg-soft border border-ceuta-border mb-3">
                 {ceutaHome ? (
                   <>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={CEUTA.logo} alt="AD Ceuta" width={32} height={32} className="object-contain" />
                     <div className="text-center">
-                      <div className="text-[10px] font-bold text-ceuta-black">AD Ceuta</div>
-                      <div className="text-[9px] text-ceuta-muted font-bold uppercase tracking-widest">vs</div>
-                      <div className="text-[10px] font-bold text-ceuta-black">{awayName || 'Rival'}</div>
+                      <div className="font-display text-[11px] font-bold text-ceuta-black">AD Ceuta</div>
+                      <div className="font-display text-[9px] text-ceuta-muted font-bold uppercase tracking-widest">vs</div>
+                      <div className="font-display text-[11px] font-bold text-ceuta-black">{awayName || 'Rival'}</div>
                     </div>
                     {awayLogo
                       // eslint-disable-next-line @next/next/no-img-element
@@ -259,9 +273,9 @@ export function MvpAdmin() {
                       : <div className="w-8 h-8 rounded-full bg-ceuta-bg-mid flex items-center justify-center text-[9px] font-black text-ceuta-muted">{awayName ? awayName.slice(0,3).toUpperCase() : '?'}</div>
                     }
                     <div className="text-center">
-                      <div className="text-[10px] font-bold text-ceuta-black">{awayName || 'Rival'}</div>
-                      <div className="text-[9px] text-ceuta-muted font-bold uppercase tracking-widest">vs</div>
-                      <div className="text-[10px] font-bold text-ceuta-black">AD Ceuta</div>
+                      <div className="font-display text-[11px] font-bold text-ceuta-black">{awayName || 'Rival'}</div>
+                      <div className="font-display text-[9px] text-ceuta-muted font-bold uppercase tracking-widest">vs</div>
+                      <div className="font-display text-[11px] font-bold text-ceuta-black">AD Ceuta</div>
                     </div>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={CEUTA.logo} alt="AD Ceuta" width={32} height={32} className="object-contain" />
@@ -269,109 +283,72 @@ export function MvpAdmin() {
                 )}
               </div>
 
-              {/* Selector de equipo rival */}
-              <div>
-                <div className="text-[9px] font-bold uppercase tracking-widest text-ceuta-muted mb-1">Equipo rival</div>
-                <select
-                  className="w-full px-3 py-2 rounded-[10px] border border-ceuta-border text-[12px] bg-white text-ceuta-black"
-                  value={awayName}
-                  onChange={(e) => {
-                    const name = e.target.value
-                    setAwayName(name)
-                    setMatchLabel(name ? (ceutaHome ? `AD Ceuta vs ${name}` : `${name} vs AD Ceuta`) : '')
-                    const found = teams.find(t => t.name === name)
-                    if (found) setAwayLogo(found.logo)
-                  }}
-                >
-                  <option value="">Selecciona el rival...</option>
-                  {teams.map(t => (
-                    <option key={t.name} value={t.name}>{t.name}</option>
-                  ))}
-                </select>
-              </div>
+              {/* Selector rival */}
+              <select
+                className="w-full px-3 py-2 rounded-xl border border-ceuta-border text-[13px] bg-white text-ceuta-black mb-2"
+                value={awayName}
+                onChange={(e) => {
+                  const name = e.target.value
+                  setAwayName(name)
+                  setMatchLabel(name ? (ceutaHome ? `AD Ceuta vs ${name}` : `${name} vs AD Ceuta`) : '')
+                  const found = teams.find(t => t.name === name)
+                  if (found) setAwayLogo(found.logo)
+                }}
+              >
+                <option value="">Selecciona el rival...</option>
+                {teams.map(t => <option key={t.name} value={t.name}>{t.name}</option>)}
+              </select>
 
-              {/* Selector de escudo rival */}
-              <div>
-                <div className="text-[9px] font-bold uppercase tracking-widest text-ceuta-muted mb-1">
-                  Escudo del rival {awayLogo ? '✓' : '(opcional)'}
-                </div>
-                <button
-                  type="button"
-                  className="w-full px-3 py-2 rounded-[10px] border border-ceuta-border text-[11px] text-ceuta-muted bg-ceuta-bg-soft text-left"
-                  onClick={() => setShowLogoPicker(p => !p)}
-                >
-                  {awayLogo ? 'Cambiar escudo' : 'Elegir escudo de la clasificación →'}
-                </button>
-                {showLogoPicker && (
-                  <div className="mt-2 grid grid-cols-5 gap-2 max-h-40 overflow-y-auto p-2 rounded-[10px] bg-ceuta-bg-soft border border-ceuta-border">
-                    <button
-                      type="button"
-                      className={`flex flex-col items-center gap-1 p-1.5 rounded-[8px] border ${!awayLogo ? 'border-ceuta-red bg-red-50' : 'border-transparent'}`}
-                      onClick={() => { setAwayLogo(null); setShowLogoPicker(false) }}
-                    >
-                      <div className="w-8 h-8 rounded-full bg-ceuta-bg-mid flex items-center justify-center text-[8px] text-ceuta-muted font-bold">–</div>
-                      <span className="text-[8px] text-ceuta-muted text-center leading-tight">Sin escudo</span>
+              {/* Logo picker */}
+              <button type="button" className="w-full px-3 py-2 rounded-xl border border-ceuta-border text-[11px] text-ceuta-muted bg-ceuta-bg-soft text-left mb-2"
+                onClick={() => setShowLogoPicker(p => !p)}>
+                {awayLogo ? '✓ Escudo seleccionado — cambiar' : 'Elegir escudo →'}
+              </button>
+              {showLogoPicker && (
+                <div className="grid grid-cols-5 gap-2 max-h-40 overflow-y-auto p-2 rounded-xl bg-ceuta-bg-soft border border-ceuta-border mb-2">
+                  {teams.filter(t => t.logo).map(t => (
+                    <button key={t.logo} type="button"
+                      className={`flex flex-col items-center gap-1 p-1.5 rounded-lg border ${awayLogo === t.logo ? 'border-ceuta-red bg-red-50' : 'border-transparent'}`}
+                      onClick={() => { setAwayLogo(t.logo); setShowLogoPicker(false) }}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={t.logo!} alt={t.name} width={28} height={28} className="object-contain" />
+                      <span className="text-[7px] text-ceuta-muted text-center leading-tight line-clamp-2">{t.name}</span>
                     </button>
-                    {teams.filter(t => t.logo).map(t => (
-                      <button
-                        key={t.logo}
-                        type="button"
-                        className={`flex flex-col items-center gap-1 p-1.5 rounded-[8px] border ${awayLogo === t.logo ? 'border-ceuta-red bg-red-50' : 'border-transparent'}`}
-                        onClick={() => { setAwayLogo(t.logo); setShowLogoPicker(false) }}
-                      >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={t.logo!} alt={t.name} width={32} height={32} className="object-contain" />
-                        <span className="text-[7px] text-ceuta-muted text-center leading-tight line-clamp-2">{t.name}</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
+                  ))}
+                </div>
+              )}
 
-              <input
-                type="text"
-                placeholder="Etiqueta del partido (ej: J1 · 12 Jul)"
-                value={matchLabel}
+              <input type="text" placeholder="Etiqueta (ej: J1 · 12 Jul)" value={matchLabel}
                 onChange={(e) => setMatchLabel(e.target.value)}
-                className="w-full px-3 py-2 rounded-[10px] border border-ceuta-border text-[13px] bg-ceuta-bg-soft"
-              />
+                className="w-full px-3 py-2 rounded-xl border border-ceuta-border text-[13px] bg-ceuta-bg-soft" />
             </div>
 
-            {/* Player picker */}
+            {/* Selector jugadores */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-ceuta-muted">
-                  Candidatos ({selectedIds.size} seleccionados)
+                <label className="font-display text-[10px] font-bold tracking-[0.12em] uppercase text-ceuta-muted">
+                  Candidatos ({selectedIds.size})
                 </label>
                 {selectedIds.size > 0 && (
-                  <button onClick={() => setSelectedIds(new Set())} className="text-[10px] text-ceuta-muted">
-                    Limpiar
-                  </button>
+                  <button onClick={() => setSelectedIds(new Set())} className="text-[10px] text-ceuta-muted">Limpiar</button>
                 )}
               </div>
-
               {squad.length === 0 ? (
                 <div className="text-[12px] text-ceuta-muted">Cargando plantilla...</div>
               ) : (
                 <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
                   {grouped.map(({ pos, players }) => (
                     <div key={pos}>
-                      <div className="text-[9px] font-bold uppercase tracking-widest text-ceuta-muted mb-1">{pos}</div>
+                      <div className="font-display text-[9px] font-bold uppercase tracking-widest text-ceuta-muted mb-1">{pos}</div>
                       <div className="flex flex-wrap gap-1.5">
-                        {players.map((p) => {
+                        {players.map(p => {
                           const sel = selectedIds.has(p.id)
                           return (
-                            <button
-                              key={p.id}
-                              onClick={() => togglePlayer(p.id)}
-                              className={`flex items-center gap-1.5 px-2 py-1 rounded-[8px] text-[11px] font-bold border transition-colors ${
-                                sel
-                                  ? 'bg-ceuta-red text-white border-ceuta-red'
-                                  : 'bg-ceuta-bg-soft text-ceuta-black border-ceuta-border'
-                              }`}
-                            >
-                              <span className="opacity-60">#{p.dorsal}</span>
-                              {p.name}
+                            <button key={p.id} onClick={() => togglePlayer(p.id)}
+                              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-display text-[11px] font-bold border transition-colors ${
+                                sel ? 'bg-ceuta-red text-white border-ceuta-red' : 'bg-ceuta-bg-soft text-ceuta-black border-ceuta-border'
+                              }`}>
+                              <span className="opacity-60">#{p.dorsal}</span>{p.name}
                             </button>
                           )
                         })}
@@ -384,35 +361,50 @@ export function MvpAdmin() {
 
             <div className="flex gap-2">
               <button
-                className="flex-1 py-2.5 rounded-[10px] bg-ceuta-red text-white text-[12px] font-bold uppercase disabled:opacity-40"
                 disabled={busy || !matchLabel || !awayName || selectedIds.size < 2}
                 onClick={() => apiCall('/api/admin/mvp/session', 'POST', {
-                  matchLabel,
-                  candidates: buildCandidates(),
+                  matchLabel, candidates: buildCandidates(),
                   matchMeta: ceutaHome
                     ? { home: CEUTA, away: { name: awayName, logo: awayLogo } }
                     : { home: { name: awayName, logo: awayLogo }, away: CEUTA },
                 })}
+                className="flex-1 py-2.5 rounded-xl bg-ceuta-red text-white font-display text-[12px] font-bold uppercase tracking-[0.08em] disabled:opacity-40"
               >
                 Crear ({selectedIds.size} jugadores)
               </button>
-              <button
-                className="px-4 py-2.5 rounded-[10px] bg-ceuta-bg-mid text-ceuta-black text-[12px] font-bold"
-                onClick={() => { setCreating(false); setSelectedIds(new Set()) }}
-              >
+              <button onClick={() => { setCreating(false); setSelectedIds(new Set()) }}
+                className="px-4 py-2.5 rounded-xl bg-ceuta-bg-mid text-ceuta-black font-display text-[12px] font-bold border border-ceuta-border">
                 Cancelar
               </button>
             </div>
           </div>
         ) : (
-          <button
-            className="admin-btn admin-btn-light w-full"
-            onClick={() => { setCreating(true); setMsg(null) }}
-          >
-            <span className="admin-btn-emoji">⭐</span>
-            <span className="admin-btn-label">Nueva votación MVP</span>
+          <button onClick={() => { setCreating(true); setMsg(null) }}
+            className="w-full py-3 rounded-xl border-[1.5px] border-dashed border-ceuta-border font-display text-[12px] font-bold tracking-[0.1em] uppercase text-ceuta-muted hover:border-ceuta-black hover:text-ceuta-black transition-colors">
+            + Nueva votación MVP
           </button>
         )
+      )}
+
+      {/* Historial */}
+      {history.length > 0 && (
+        <div>
+          <div className="font-display text-[10px] font-bold tracking-[0.14em] uppercase text-ceuta-muted mb-2">Últimas sesiones</div>
+          <div className="space-y-1.5">
+            {history.map(h => (
+              <div key={h.id} className="flex items-center gap-3 px-3 py-2.5 bg-ceuta-bg-soft rounded-xl border border-ceuta-border">
+                <div className="w-5 h-5 rounded-full bg-ceuta-gold flex items-center justify-center font-display text-[9px] font-black text-ceuta-black shrink-0">★</div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-display text-[12px] font-bold text-ceuta-black truncate">{h.match_label}</div>
+                  <div className="font-display text-[10px] text-ceuta-muted">{h.winner_name ?? '—'}</div>
+                </div>
+                {h.winner_votes != null && (
+                  <div className="font-display text-[11px] font-bold text-ceuta-black shrink-0">{h.winner_votes} votos</div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
       )}
     </div>
   )

@@ -1,4 +1,5 @@
 import { supabase } from './client'
+import { getActiveMvpSession } from './MvpRepository'
 import type { AdminStats } from '@/features/admin/AdminDashboard'
 
 function parseDevice(ua: string | null): { os: string; browser: string; icon: string } {
@@ -27,6 +28,7 @@ export async function getAdminStats(): Promise<AdminStats> {
     { data: matchRun },
     newsBySourceRaw,
     { data: subsList },
+    mvpSession,
   ] = await Promise.all([
     supabase.from('push_subscriptions').select('*', { count: 'exact', head: true }),
     supabase.from('news').select('*', { count: 'exact', head: true }),
@@ -39,6 +41,7 @@ export async function getAdminStats(): Promise<AdminStats> {
       ).sort((a, b) => b[1] - a[1]) : [],
     })),
     supabase.from('push_subscriptions').select('endpoint, user_agent, created_at').order('created_at', { ascending: false }),
+    getActiveMvpSession(),
   ])
 
   const runs = newsRuns ?? []
@@ -78,6 +81,7 @@ export async function getAdminStats(): Promise<AdminStats> {
     subsHistory,
     subsList: parsedSubs,
     deviceCount,
+    mvpSession: mvpSession ? { status: mvpSession.status, match_label: mvpSession.match_label } : null,
   }
 }
 

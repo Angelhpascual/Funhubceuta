@@ -75,7 +75,7 @@ export function PredictionAdmin() {
       <div className="text-[13px] font-bold uppercase tracking-widest text-ceuta-muted">Predicción de resultado</div>
 
       {msg && (
-        <div className={`text-[12px] font-semibold rounded-[10px] px-3 py-2 ${msg.startsWith('✅') ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+        <div className={`text-[12px] font-semibold rounded-xl px-3 py-2 ${msg.startsWith('✅') ? 'bg-[#E7F6EC] text-[#1E9E4B]' : 'bg-red-50 text-ceuta-red'}`}>
           {msg}
         </div>
       )}
@@ -83,7 +83,7 @@ export function PredictionAdmin() {
       {/* Sin sesión activa */}
       {!activeSession && !creating && (
         <button
-          className="w-full py-3 rounded-[12px] bg-ceuta-black text-white text-[13px] font-bold uppercase tracking-wide"
+          className="w-full py-3 rounded-xl border-[1.5px] border-dashed border-ceuta-border font-display text-[12px] font-bold tracking-[0.1em] uppercase text-ceuta-muted hover:border-ceuta-black hover:text-ceuta-black transition-colors"
           onClick={() => setCreating(true)}
         >
           + Nueva predicción
@@ -224,30 +224,32 @@ export function PredictionAdmin() {
         </div>
       )}
 
-      {/* Sesión activa — controles */}
+      {/* Sesión activa — tarjeta negra */}
       {activeSession && (
-        <div className="rounded-[14px] border border-ceuta-border p-4 space-y-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-[13px] font-bold text-ceuta-black">{activeSession.match_label}</div>
-              {activeSession.jornada && <div className="text-[10px] text-ceuta-muted mt-0.5">{activeSession.jornada}</div>}
+        <div className={`rounded-[14px] p-4 space-y-3 ${activeSession.status !== 'pending' ? 'bg-ceuta-black text-white' : 'bg-ceuta-bg-soft border border-ceuta-border'}`}>
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex-1 min-w-0">
+              <div className={`font-display text-[10px] font-bold tracking-[0.14em] uppercase mb-0.5 ${activeSession.status !== 'pending' ? 'text-white/50' : 'text-ceuta-muted'}`}>Quiniela activa</div>
+              <div className={`font-display font-black text-[18px] uppercase leading-tight truncate ${activeSession.status !== 'pending' ? 'text-white' : 'text-ceuta-black'}`}>{activeSession.match_label}</div>
+              {activeSession.jornada && <div className={`font-display text-[11px] mt-0.5 ${activeSession.status !== 'pending' ? 'text-white/50' : 'text-ceuta-muted'}`}>{activeSession.jornada}</div>}
             </div>
-            <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-[6px] ${
-              activeSession.status === 'open' ? 'bg-green-100 text-green-700' :
-              activeSession.status === 'closed' ? 'bg-ceuta-bg-mid text-ceuta-muted' :
-              'bg-yellow-100 text-yellow-700'
+            <span className={`shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-full font-display text-[10px] font-bold tracking-[0.1em] uppercase ${
+              activeSession.status === 'open' ? 'bg-[#1E9E4B] text-white' :
+              activeSession.status === 'closed' ? 'bg-white/10 text-white/70' :
+              'bg-ceuta-bg-mid text-ceuta-muted'
             }`}>
+              {activeSession.status === 'open' && <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />}
               {activeSession.status === 'pending' ? 'Pendiente' : activeSession.status === 'open' ? 'Abierta' : 'Cerrada'}
             </span>
           </div>
 
           {activeSession.status === 'pending' && (
             <button
-              className="w-full py-2.5 rounded-[10px] bg-green-600 text-white text-[12px] font-bold uppercase disabled:opacity-40"
+              className="w-full py-2.5 rounded-xl font-display text-[12px] font-bold tracking-[0.08em] uppercase bg-[#1E9E4B] text-white disabled:opacity-40 transition-opacity"
               disabled={busy}
               onClick={() => apiCall('/api/admin/predictions/session', 'PUT', { sessionId: activeSession.id, action: 'open' })}
             >
-              Abrir predicción
+              {busy ? '⏳' : '▶ Abrir predicción'}
             </button>
           )}
 
@@ -274,33 +276,28 @@ export function PredictionAdmin() {
                 </div>
               </div>
               <button
-                className="w-full py-2.5 rounded-[10px] bg-ceuta-red text-white text-[12px] font-bold uppercase disabled:opacity-40"
+                className="w-full py-2.5 rounded-xl font-display text-[12px] font-bold tracking-[0.08em] uppercase bg-ceuta-red text-white disabled:opacity-40 transition-opacity"
                 disabled={busy}
                 onClick={() => apiCall('/api/admin/predictions/close', 'POST', { sessionId: activeSession.id, homeResult, awayResult })}
               >
-                Cerrar con resultado {homeResult}-{awayResult}
+                {busy ? '⏳' : `■ Cerrar con resultado ${homeResult}-${awayResult}`}
               </button>
             </div>
           )}
 
           {activeSession.status === 'closed' && activeSession.result && (
-            <div className="text-center py-2 space-y-2">
-              <div className="text-[11px] text-ceuta-muted mb-1">Resultado final</div>
-              <div className="text-[22px] font-black text-ceuta-black">
-                {activeSession.result.home} — {activeSession.result.away}
+            <div className="space-y-2">
+              <div className="flex items-center justify-center gap-4 bg-white/8 rounded-[10px] py-3">
+                <div className="font-display text-[10px] font-bold tracking-[0.1em] uppercase text-white/50">{activeSession.match_meta?.home.name ?? 'Local'}</div>
+                <div className="font-display font-black text-[28px] text-white">{activeSession.result.home} — {activeSession.result.away}</div>
+                <div className="font-display text-[10px] font-bold tracking-[0.1em] uppercase text-white/50">{activeSession.match_meta?.away.name ?? 'Visitante'}</div>
               </div>
               <button
-                className="w-full py-2.5 rounded-[10px] bg-ceuta-black text-white text-[12px] font-bold uppercase disabled:opacity-40"
+                className="w-full py-2.5 rounded-xl font-display text-[12px] font-bold tracking-[0.08em] uppercase bg-white/10 text-white hover:bg-white/20 disabled:opacity-40 transition-all"
                 disabled={busy}
                 onClick={() => apiCall('/api/admin/predictions/archive', 'POST', { sessionId: activeSession.id })}
               >
                 Ocultar banner
-              </button>
-              <button
-                className="w-full py-2.5 rounded-[10px] bg-ceuta-bg-mid text-ceuta-black text-[12px] font-bold uppercase"
-                onClick={() => setCreating(true)}
-              >
-                + Nueva predicción
               </button>
             </div>
           )}
@@ -309,56 +306,54 @@ export function PredictionAdmin() {
 
       {/* Historial */}
       {history.length > 0 && (
-        <div className="space-y-2">
-          <div className="text-[10px] font-bold uppercase tracking-widest text-ceuta-muted pt-2">Historial</div>
-          {history.map(s => (
-            <div key={s.id} className="rounded-[12px] border border-ceuta-border overflow-hidden">
-              <button
-                className="w-full flex items-center justify-between px-4 py-3 text-left bg-white"
-                onClick={() => setExpandedId(expandedId === s.id ? null : s.id)}
-              >
-                <div>
-                  <div className="text-[12px] font-bold text-ceuta-black">{s.match_label}</div>
-                  {s.jornada && <div className="text-[10px] text-ceuta-muted">{s.jornada}</div>}
-                </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  {s.result && (
-                    <span className="text-[13px] font-black text-ceuta-black">{s.result.home}—{s.result.away}</span>
-                  )}
-                  <span className="text-[10px] text-ceuta-muted">{s.votes.length} votos</span>
-                  <span className="text-[10px] text-ceuta-muted">{expandedId === s.id ? '▲' : '▼'}</span>
-                </div>
-              </button>
+        <div>
+          <div className="font-display text-[10px] font-bold tracking-[0.14em] uppercase text-ceuta-muted mb-2">Historial</div>
+          <div className="space-y-1.5">
+            {history.map(s => (
+              <div key={s.id} className="rounded-xl border border-ceuta-border overflow-hidden">
+                <button
+                  className="w-full flex items-center justify-between px-3 py-2.5 text-left bg-ceuta-bg-soft hover:bg-ceuta-bg-mid transition-colors"
+                  onClick={() => setExpandedId(expandedId === s.id ? null : s.id)}
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="font-display text-[12px] font-bold text-ceuta-black truncate">{s.match_label}</div>
+                    {s.jornada && <div className="font-display text-[10px] text-ceuta-muted">{s.jornada}</div>}
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0 ml-3">
+                    {s.result && <span className="font-display font-black text-[13px] text-ceuta-black">{s.result.home}—{s.result.away}</span>}
+                    <span className="font-display text-[10px] text-ceuta-muted">{s.votes.length} votos</span>
+                    <span className="text-ceuta-muted text-[10px]">{expandedId === s.id ? '▲' : '▼'}</span>
+                  </div>
+                </button>
 
-              {expandedId === s.id && (
-                <div className="border-t border-ceuta-border divide-y divide-ceuta-border">
-                  {s.votes.length === 0 && (
-                    <div className="px-4 py-3 text-[11px] text-ceuta-muted">Sin votos registrados</div>
-                  )}
-                  {s.votes.map((v, i) => (
-                    <div key={i} className="flex items-center justify-between px-4 py-2.5 bg-ceuta-bg-soft">
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] text-ceuta-muted w-4">{i + 1}</span>
-                        <span className="text-[12px] font-bold text-ceuta-black">
-                          @{v.nickname ?? 'anónimo'}
-                        </span>
+                {expandedId === s.id && (
+                  <div className="border-t border-ceuta-border divide-y divide-ceuta-border bg-white">
+                    {s.votes.length === 0 && (
+                      <div className="px-4 py-3 font-display text-[11px] text-ceuta-muted">Sin votos registrados</div>
+                    )}
+                    {s.votes.map((v, i) => (
+                      <div key={i} className="flex items-center justify-between px-4 py-2">
+                        <div className="flex items-center gap-2">
+                          <span className="font-display text-[10px] text-ceuta-muted w-4">{i + 1}</span>
+                          <span className="font-display text-[12px] font-bold text-ceuta-black">@{v.nickname ?? 'anónimo'}</span>
+                        </div>
+                        <div className="flex items-center gap-2.5">
+                          <span className="font-display font-black text-[12px] text-ceuta-black">{v.home_score}—{v.away_score}</span>
+                          <span className={`font-display text-[11px] font-bold px-2 py-0.5 rounded-lg ${
+                            v.points === 50 ? 'bg-[#E7F6EC] text-[#1E9E4B]' :
+                            v.points === 15 ? 'bg-amber-50 text-amber-700' :
+                            'bg-ceuta-bg-mid text-ceuta-muted'
+                          }`}>
+                            {v.points != null ? `+${v.points}` : '—'}
+                          </span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <span className="text-[12px] font-black text-ceuta-black">{v.home_score}—{v.away_score}</span>
-                        <span className={`text-[11px] font-bold px-2 py-0.5 rounded-[6px] ${
-                          v.points === 50 ? 'bg-green-100 text-green-700' :
-                          v.points === 15 ? 'bg-yellow-100 text-yellow-700' :
-                          'bg-ceuta-bg-mid text-ceuta-muted'
-                        }`}>
-                          {v.points != null ? `+${v.points}` : '—'}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>

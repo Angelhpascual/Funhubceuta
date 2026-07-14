@@ -27,6 +27,7 @@ export type AdminStats = {
   subsHistory: { date: string; count: number }[]
   subsList: Sub[]
   deviceCount: Record<string, number>
+  mvpSession: { status: 'pending' | 'open' | 'closed'; match_label: string } | null
 }
 
 function ModuleTitle({ children }: { children: React.ReactNode }) {
@@ -110,8 +111,18 @@ export function AdminDashboard({ stats }: { stats: AdminStats }) {
           </div>
           <div className="bg-white border border-ceuta-border rounded-[14px] p-5">
             <div className="font-display font-black text-[42px] leading-none text-ceuta-black">MVP</div>
-            <div className="font-display text-[11.5px] font-bold tracking-[0.12em] uppercase text-ceuta-muted mt-1.5">Votación activa</div>
-            <div className="text-[12px] text-ceuta-muted font-semibold mt-1.5">ver módulo →</div>
+            <div className="font-display text-[11.5px] font-bold tracking-[0.12em] uppercase text-ceuta-muted mt-1.5">
+              {stats.mvpSession
+                ? stats.mvpSession.status === 'open' ? 'Votación abierta'
+                  : stats.mvpSession.status === 'closed' ? 'Cerrada'
+                  : 'Pendiente'
+                : 'Sin sesión'}
+            </div>
+            <div className="text-[12px] font-semibold mt-1.5 truncate" title={stats.mvpSession?.match_label}>
+              {stats.mvpSession
+                ? <span className={stats.mvpSession.status === 'open' ? 'text-[#1E9E4B]' : 'text-ceuta-muted'}>{stats.mvpSession.match_label}</span>
+                : <span className="text-ceuta-muted">ver módulo →</span>}
+            </div>
           </div>
         </div>
 
