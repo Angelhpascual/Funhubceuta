@@ -2,10 +2,11 @@
 
 import { useState } from 'react'
 import { AdminActions } from './AdminActions'
-import { NotifQueue } from './NotifQueue'
+import { MvpAdmin } from './MvpAdmin'
+import { PredictionAdmin } from './PredictionAdmin'
 import { ActivityTimeline } from './ActivityTimeline'
-import { SOURCE_LABELS } from '@/lib/constants'
-import { timeAgo, fmtDate, fmtDuration } from '@/lib/formatters'
+import { NotifQueue } from './NotifQueue'
+import { timeAgo } from '@/lib/formatters'
 
 type RunLog = {
   id: number; created_at: string; status: string; duration_ms: number; cron_type?: string
@@ -28,240 +29,173 @@ export type AdminStats = {
   deviceCount: Record<string, number>
 }
 
-const TABS = [
-  { id: 'acciones', label: 'Acciones' },
-  { id: 'noticias', label: 'Scraper' },
-  { id: 'notifs', label: 'Notifs' },
-  { id: 'subs', label: 'Suscriptores' },
-] as const
-type Tab = (typeof TABS)[number]['id']
+function ModuleTitle({ children }: { children: React.ReactNode }) {
+  return (
+    <h2 className="font-display font-extrabold text-xl tracking-[0.03em] uppercase text-ceuta-black flex items-center gap-2.5">
+      <span className="w-1 h-5 bg-ceuta-red shrink-0 rounded-[2px]" />
+      {children}
+    </h2>
+  )
+}
+
+function Module({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+  return (
+    <section className={`bg-white border border-ceuta-border rounded-[14px] overflow-hidden ${className}`}>
+      {children}
+    </section>
+  )
+}
 
 export function AdminDashboard({ stats }: { stats: AdminStats }) {
-  const [tab, setTab] = useState<Tab>('acciones')
-
   const newsOk = stats.lastNewsRun?.status === 'success'
   const matchOk = stats.lastMatchRun?.status === 'success'
 
   return (
-    <div className="space-y-4">
-      {/* Header */}
-      <div className="flex items-end justify-between">
-        <div>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-ceuta-red">Admin</p>
-          <h1 className="text-[22px] font-black uppercase tracking-tight text-ceuta-black leading-none">AD Ceuta FC</h1>
-        </div>
-        <div className="flex gap-2 items-center">
-          <div className={`flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-full ${newsOk ? 'bg-green-50 text-green-700' : 'bg-red-50 text-ceuta-red'}`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${newsOk ? 'bg-green-500' : 'bg-ceuta-red'}`} />
-            📰 {timeAgo(stats.lastNewsRun?.created_at ?? null)}
+    <>
+      {/* Hero */}
+      <section className="bg-ceuta-black text-white relative overflow-hidden">
+        <div
+          className="absolute top-0 right-[-40px] bottom-0 w-[420px] opacity-[0.08]"
+          style={{
+            background: 'repeating-linear-gradient(-45deg, #fff 0 14px, #000 14px 28px)',
+            clipPath: 'polygon(120px 0, 100% 0, 100% 100%, 0 100%)',
+          }}
+        />
+        <div className="max-w-[1240px] mx-auto px-8 py-9 relative flex items-end justify-between gap-6 flex-wrap">
+          <div>
+            <div className="font-display text-[12.5px] font-bold tracking-[0.16em] uppercase text-ceuta-red flex items-center gap-2.5">
+              <span className="w-6 h-0.5 bg-ceuta-red" />
+              Panel de control
+            </div>
+            <h1 className="font-display font-black text-[46px] leading-[0.95] uppercase mt-2">
+              Buenos días, <em className="not-italic text-ceuta-gold">míster.</em>
+            </h1>
           </div>
-          <div className={`flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-full ${matchOk ? 'bg-green-50 text-green-700' : 'bg-red-50 text-ceuta-red'}`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${matchOk ? 'bg-green-500' : 'bg-ceuta-red'}`} />
-            ⚽ {timeAgo(stats.lastMatchRun?.created_at ?? null)}
+          <div className="flex gap-2.5 flex-wrap">
+            <span className="flex items-center gap-2 bg-white/7 border border-white/14 rounded-full px-3.5 py-2 font-display text-[12.5px] font-semibold tracking-[0.06em] uppercase text-white/75">
+              <span className={`w-[7px] h-[7px] rounded-full ${newsOk ? 'bg-[#1E9E4B]' : 'bg-ceuta-red'}`} />
+              Noticias · <b className="text-white">{timeAgo(stats.lastNewsRun?.created_at ?? null)}</b>
+            </span>
+            <span className="flex items-center gap-2 bg-white/7 border border-white/14 rounded-full px-3.5 py-2 font-display text-[12.5px] font-semibold tracking-[0.06em] uppercase text-white/75">
+              <span className={`w-[7px] h-[7px] rounded-full ${matchOk ? 'bg-[#1E9E4B]' : 'bg-ceuta-gold'}`} />
+              Partidos · <b className="text-white">{timeAgo(stats.lastMatchRun?.created_at ?? null)}</b>
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <div className="max-w-[1240px] mx-auto px-4 md:px-8">
+        {/* KPI Strip */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5 pt-6">
+          <div className="bg-ceuta-red border border-ceuta-red rounded-[14px] p-5 relative overflow-hidden">
+            <div className="absolute top-0 right-0 bottom-0 w-20 opacity-[0.06]"
+              style={{ background: 'repeating-linear-gradient(-45deg, transparent 0 7px, #fff 7px 14px)' }} />
+            <div className="font-display font-black text-[42px] leading-none text-white">{stats.subscribers}</div>
+            <div className="font-display text-[11.5px] font-bold tracking-[0.12em] uppercase text-white/75 mt-1.5">Suscriptores</div>
+            <div className="text-[12px] text-white/85 font-semibold mt-1.5">activos</div>
+          </div>
+          <div className="bg-ceuta-black border border-ceuta-black rounded-[14px] p-5 relative overflow-hidden">
+            <div className="absolute top-0 right-0 bottom-0 w-20 opacity-[0.06]"
+              style={{ background: 'repeating-linear-gradient(-45deg, transparent 0 7px, #fff 7px 14px)' }} />
+            <div className="font-display font-black text-[42px] leading-none text-white">{stats.totalNews}</div>
+            <div className="font-display text-[11.5px] font-bold tracking-[0.12em] uppercase text-white/75 mt-1.5">Noticias publicadas</div>
+            <div className="text-[12px] text-white/85 font-semibold mt-1.5">esta temporada</div>
+          </div>
+          <div className="bg-white border border-ceuta-border rounded-[14px] p-5">
+            <div className="font-display font-black text-[42px] leading-none text-ceuta-black">
+              {stats.deliveryRate !== null ? `${stats.deliveryRate}` : '—'}<span className="text-[26px]">%</span>
+            </div>
+            <div className="font-display text-[11.5px] font-bold tracking-[0.12em] uppercase text-ceuta-muted mt-1.5">Entrega de notificaciones</div>
+            <div className="text-[12px] text-[#1E9E4B] font-semibold mt-1.5">Estable</div>
+          </div>
+          <div className="bg-white border border-ceuta-border rounded-[14px] p-5">
+            <div className="font-display font-black text-[42px] leading-none text-ceuta-black">MVP</div>
+            <div className="font-display text-[11.5px] font-bold tracking-[0.12em] uppercase text-ceuta-muted mt-1.5">Votación activa</div>
+            <div className="text-[12px] text-ceuta-muted font-semibold mt-1.5">ver módulo →</div>
+          </div>
+        </div>
+
+        {/* Cola notificaciones */}
+        <div className="mt-5">
+          <NotifQueue />
+        </div>
+
+        {/* Main 2-col layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-5 pt-6 pb-16">
+
+          {/* Left column */}
+          <div className="flex flex-col gap-5">
+
+            {/* Sincronización */}
+            <Module>
+              <div className="flex items-center justify-between gap-3 px-5 pt-5">
+                <ModuleTitle>Sincronización de datos</ModuleTitle>
+              </div>
+              <div className="px-5 pb-5 mt-4">
+                <AdminActions syncOnly />
+              </div>
+            </Module>
+
+            {/* Notificación manual */}
+            <Module>
+              <div className="flex items-center justify-between gap-3 px-5 pt-5">
+                <ModuleTitle>Notificación manual</ModuleTitle>
+              </div>
+              <p className="text-[13px] text-ceuta-muted px-5 pt-1 pl-[34px]">
+                Se enviará a los {stats.subscribers} suscriptores con alertas activas.
+              </p>
+              <div className="px-5 pb-5 mt-4">
+                <AdminActions notifOnly />
+              </div>
+            </Module>
+
+            {/* Actividad reciente */}
+            <Module>
+              <div className="flex items-center justify-between gap-3 px-5 pt-5">
+                <ModuleTitle>Actividad reciente</ModuleTitle>
+              </div>
+              <div className="px-5 pb-5 mt-4">
+                <ActivityTimeline />
+              </div>
+            </Module>
+          </div>
+
+          {/* Right column */}
+          <div className="flex flex-col gap-5">
+
+            {/* MVP */}
+            <Module>
+              <div className="flex items-center justify-between gap-3 px-5 pt-5">
+                <ModuleTitle>MVP del partido</ModuleTitle>
+              </div>
+              <div className="px-5 pb-5 mt-4">
+                <MvpAdmin />
+              </div>
+            </Module>
+
+            {/* Quiniela */}
+            <Module>
+              <div className="flex items-center justify-between gap-3 px-5 pt-5">
+                <ModuleTitle>Quiniela</ModuleTitle>
+              </div>
+              <p className="text-[13px] text-ceuta-muted px-5 pt-1 pl-[34px]">Historial de predicciones de resultado.</p>
+              <div className="px-5 pb-5 mt-4">
+                <PredictionAdmin />
+              </div>
+            </Module>
+
+            {/* Este dispositivo */}
+            <Module>
+              <div className="flex items-center justify-between gap-3 px-5 pt-5">
+                <ModuleTitle>Este dispositivo</ModuleTitle>
+              </div>
+              <div className="px-5 pb-5 mt-4">
+                <AdminActions deviceOnly />
+              </div>
+            </Module>
           </div>
         </div>
       </div>
-
-      {/* KPIs */}
-      <div className="grid grid-cols-3 gap-2">
-        <div className="bg-ceuta-red rounded-[14px] p-3">
-          <div className="text-[32px] font-black text-white leading-none">{stats.subscribers}</div>
-          <div className="text-[8px] font-bold uppercase tracking-widest text-white/70 mt-1">Suscriptores</div>
-        </div>
-        <div className="bg-ceuta-black rounded-[14px] p-3">
-          <div className="text-[32px] font-black text-white leading-none">{stats.totalNews}</div>
-          <div className="text-[8px] font-bold uppercase tracking-widest text-white/70 mt-1">Noticias</div>
-        </div>
-        <div className="bg-ceuta-bg-soft rounded-[14px] p-3">
-          <div className="text-[32px] font-black text-ceuta-black leading-none">
-            {stats.deliveryRate !== null ? `${stats.deliveryRate}%` : '—'}
-          </div>
-          <div className="text-[8px] font-bold uppercase tracking-widest text-ceuta-muted mt-1">Entrega</div>
-        </div>
-      </div>
-
-      {/* Cola de notificaciones */}
-      <NotifQueue />
-
-      {/* Timeline de actividad */}
-      <ActivityTimeline />
-
-      {/* Tabs */}
-      <div className="chips">
-        {TABS.map((t) => (
-          <button key={t.id} className={`chip ${tab === t.id ? 'active' : ''}`} onClick={() => setTab(t.id)}>
-            {t.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Tab: Acciones */}
-      {tab === 'acciones' && <AdminActions />}
-
-      {/* Tab: Scraper noticias */}
-      {tab === 'noticias' && (
-        <div className="space-y-3">
-          {/* Último run por fuente */}
-          {stats.lastNewsRun?.details?.summary && (
-            <div className="bg-ceuta-bg-soft rounded-[14px] p-4">
-              <p className="text-[9px] font-bold uppercase tracking-widest text-ceuta-muted mb-3">Último run — fuentes</p>
-              <div className="space-y-2">
-                {(stats.lastNewsRun.details.summary as { source?: string; new?: number; count?: number; error?: string }[]).map((s, i) => (
-                  <div key={i} className="flex items-center justify-between">
-                    <span className="text-[12px] text-ceuta-black">{SOURCE_LABELS[s.source ?? ''] ?? s.source}</span>
-                    {s.error
-                      ? <span className="text-[11px] text-ceuta-red">✗ Error</span>
-                      : <div className="flex items-center gap-3">
-                          <span className="text-[11px] text-ceuta-muted">{s.count ?? 0}</span>
-                          <span className={`text-[11px] font-bold ${(s.new ?? 0) > 0 ? 'text-green-700' : 'text-ceuta-muted'}`}>+{s.new ?? 0}</span>
-                        </div>}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Historial 10 runs */}
-          <div className="bg-ceuta-bg-soft rounded-[14px] p-4">
-            <p className="text-[9px] font-bold uppercase tracking-widest text-ceuta-muted mb-3">Últimas 10 ejecuciones</p>
-            <table className="w-full border-collapse">
-              <thead>
-                <tr>
-                  <th className="text-left text-[9px] font-bold uppercase tracking-wide text-ceuta-muted pb-2">Fecha</th>
-                  <th className="text-right text-[9px] font-bold uppercase tracking-wide text-ceuta-muted pb-2">Total</th>
-                  <th className="text-right text-[9px] font-bold uppercase tracking-wide text-ceuta-muted pb-2">Nuevas</th>
-                  <th className="text-right text-[9px] font-bold uppercase tracking-wide text-ceuta-muted pb-2">Dur.</th>
-                </tr>
-              </thead>
-              <tbody>
-                {stats.newsRuns.map((run: RunLog) => (
-                  <tr key={run.id} className="border-t border-ceuta-border">
-                    <td className="py-2 text-[11px] text-ceuta-muted whitespace-nowrap">{fmtDate(run.created_at)}</td>
-                    <td className="py-2 text-[12px] text-right text-ceuta-black font-bold">
-                      {run.status === 'success' ? run.details?.articlesFound ?? '—' : <span className="text-ceuta-red">✗</span>}
-                    </td>
-                    <td className="py-2 text-[12px] text-right">
-                      {run.status === 'success'
-                        ? <span className={(run.details?.newArticles ?? 0) > 0 ? 'text-green-700 font-bold' : 'text-ceuta-muted'}>{run.details?.newArticles ?? 0}</span>
-                        : '—'}
-                    </td>
-                    <td className="py-2 text-[11px] text-right text-ceuta-muted">{fmtDuration(run.duration_ms)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Noticias por fuente */}
-          <div className="bg-ceuta-bg-soft rounded-[14px] p-4">
-            <p className="text-[9px] font-bold uppercase tracking-widest text-ceuta-muted mb-3">BD por fuente</p>
-            <div className="space-y-2">
-              {stats.newsBySource.map(([src, count]) => {
-                const pct = stats.totalNews > 0 ? (count / stats.totalNews) * 100 : 0
-                return (
-                  <div key={src} className="flex items-center gap-2">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex justify-between mb-0.5">
-                        <span className="text-[11px] text-ceuta-black truncate">{SOURCE_LABELS[src] ?? src}</span>
-                        <span className="text-[11px] font-bold text-ceuta-black ml-2">{count}</span>
-                      </div>
-                      <div className="h-1 bg-ceuta-border rounded-full overflow-hidden">
-                        <div className="h-full bg-ceuta-red rounded-full" style={{ width: `${pct}%` }} />
-                      </div>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Tab: Notificaciones */}
-      {tab === 'notifs' && (
-        <div className="bg-ceuta-bg-soft rounded-[14px] p-4 space-y-3">
-          <p className="text-[9px] font-bold uppercase tracking-widest text-ceuta-muted mb-1">Historial de notificaciones</p>
-          {stats.notifLogs.length === 0
-            ? <p className="text-[12px] text-ceuta-muted">Sin notificaciones aún</p>
-            : stats.notifLogs.map((n: NotifLog) => {
-                const rate = n.recipients > 0 ? Math.round((n.sent_ok / n.recipients) * 100) : 0
-                const rateColor = rate >= 90 ? 'text-green-700' : rate >= 70 ? 'text-yellow-600' : 'text-ceuta-red'
-                return (
-                  <div key={n.id} className="border-b border-ceuta-border pb-3 last:border-0 last:pb-0">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1 min-w-0">
-                        <div className="text-[9px] font-bold text-ceuta-red mb-0.5 uppercase tracking-wide">{SOURCE_LABELS[n.article_source] ?? n.article_source}</div>
-                        <div className="text-[12px] font-semibold text-ceuta-black leading-tight line-clamp-2">{n.article_title}</div>
-                      </div>
-                      <div className="text-right shrink-0">
-                        <div className={`text-[16px] font-black ${rateColor}`}>{rate}%</div>
-                        <div className="text-[9px] text-ceuta-muted">{n.sent_ok}/{n.recipients}</div>
-                      </div>
-                    </div>
-                    <div className="text-[10px] text-ceuta-muted mt-1">{fmtDate(n.created_at)}</div>
-                  </div>
-                )
-              })}
-        </div>
-      )}
-
-      {/* Tab: Suscriptores */}
-      {tab === 'subs' && (
-        <div className="space-y-3">
-          {/* Dispositivos */}
-          <div className="bg-ceuta-bg-soft rounded-[14px] p-4">
-            <p className="text-[9px] font-bold uppercase tracking-widest text-ceuta-muted mb-3">Por dispositivo</p>
-            <div className="flex gap-2 flex-wrap">
-              {Object.entries(stats.deviceCount).map(([key, count]) => (
-                <div key={key} className="bg-white rounded-full px-3 py-1.5 text-[12px] font-bold text-ceuta-black border border-ceuta-border">
-                  {key} · {count}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Gráfico evolución */}
-          {stats.subsHistory.length >= 2 && (
-            <div className="bg-ceuta-bg-soft rounded-[14px] p-4">
-              <p className="text-[9px] font-bold uppercase tracking-widest text-ceuta-muted mb-3">Evolución</p>
-              <div className="flex items-end gap-1 h-12">
-                {stats.subsHistory.map((p, i) => {
-                  const max = Math.max(...stats.subsHistory.map((s) => s.count))
-                  const pct = max > 0 ? (p.count / max) * 100 : 0
-                  return (
-                    <div key={i} className="flex-1">
-                      <div className="w-full bg-ceuta-red rounded-sm" style={{ height: `${Math.max(pct, 4)}%` }} />
-                    </div>
-                  )
-                })}
-              </div>
-              <div className="flex justify-between mt-1">
-                <span className="text-[9px] text-ceuta-muted">{stats.subsHistory[0]?.count}</span>
-                <span className="text-[9px] text-ceuta-muted">{stats.subsHistory[stats.subsHistory.length - 1]?.count}</span>
-              </div>
-            </div>
-          )}
-
-          {/* Lista */}
-          <div className="bg-ceuta-bg-soft rounded-[14px] p-4">
-            <p className="text-[9px] font-bold uppercase tracking-widest text-ceuta-muted mb-3">Lista ({stats.subscribers})</p>
-            <div className="space-y-2">
-              {stats.subsList.map((sub, i) => (
-                <div key={i} className="flex items-center justify-between py-1.5 border-b border-ceuta-border last:border-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[16px]">{sub.device.icon}</span>
-                    <div>
-                      <div className="text-[12px] font-semibold text-ceuta-black">{sub.device.os}</div>
-                      <div className="text-[10px] text-ceuta-muted">{sub.device.browser}</div>
-                    </div>
-                  </div>
-                  <span className="text-[10px] text-ceuta-muted">{fmtDate(sub.createdAt)}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+    </>
   )
 }

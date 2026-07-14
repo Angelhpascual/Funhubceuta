@@ -186,7 +186,7 @@ function SyncCard({
   )
 }
 
-export function AdminActions() {
+export function AdminActions({ syncOnly, notifOnly, deviceOnly }: { syncOnly?: boolean; notifOnly?: boolean; deviceOnly?: boolean } = {}) {
   const router = useRouter()
   const poll = useCronPoller()
   const elapsedRef = useRef<ReturnType<typeof setInterval> | null>(null)
@@ -362,12 +362,16 @@ export function AdminActions() {
     router.replace('/admin/login')
   }
 
+  const showSync = !notifOnly && !deviceOnly
+  const showNotif = !syncOnly && !deviceOnly
+  const showDevice = !syncOnly && !notifOnly
+  const showMvp = !syncOnly && !notifOnly && !deviceOnly
+
   return (
     <div className="space-y-6">
 
       {/* Sincronización */}
-      <section>
-        <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-ceuta-muted mb-3">Sincronización de datos</p>
+      {showSync && <section>
         <div className="space-y-2">
           <SyncCard
             emoji="📰"
@@ -402,11 +406,10 @@ export function AdminActions() {
             ])}
           />
         </div>
-      </section>
+      </section>}
 
       {/* Notificación manual — PRODUCCIÓN */}
-      <section>
-        <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-ceuta-muted mb-3">Notificación producción</p>
+      {showNotif && <section>
         <div className="bg-white rounded-[14px] border-2 border-ceuta-border p-4 space-y-3">
           <input
             type="text"
@@ -444,11 +447,10 @@ export function AdminActions() {
              '🔔 Enviar a suscriptores de producción'}
           </button>
         </div>
-      </section>
+      </section>}
 
-      {/* Notificación manual — DEVELOP */}
-      <section>
-        <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-ceuta-muted mb-3">Notificación develop (pruebas)</p>
+      {/* Notificación develop (pruebas) */}
+      {showNotif && <section>
         <div className="bg-white rounded-[14px] border-2 border-amber-300 p-4 space-y-3">
           <input
             type="text"
@@ -486,11 +488,10 @@ export function AdminActions() {
              '🧪 Enviar a suscriptores de develop'}
           </button>
         </div>
-      </section>
+      </section>}
 
       {/* Este dispositivo + logout */}
-      <section>
-        <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-ceuta-muted mb-3">Este dispositivo</p>
+      {showDevice && <section>
         <div className="space-y-2">
           <button
             onClick={registerDevice}
@@ -530,17 +531,13 @@ export function AdminActions() {
             {logoutLoading ? '⏳ Saliendo…' : '← Cerrar sesión'}
           </button>
         </div>
-      </section>
+      </section>}
 
       {/* MVP Voting */}
-      <section>
-        <MvpAdmin />
-      </section>
+      {showMvp && <section><MvpAdmin /></section>}
 
       {/* Predicciones */}
-      <section>
-        <PredictionAdmin />
-      </section>
+      {showMvp && <section><PredictionAdmin /></section>}
 
     </div>
   )
