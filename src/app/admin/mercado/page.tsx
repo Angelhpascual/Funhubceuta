@@ -7,17 +7,17 @@ import { STAFF as STAFF_DATA } from '@/lib/staff'
 
 const POSITIONS = ['POR', 'DEF', 'MED', 'DEL', 'ENT']
 const TYPE_LABELS: Record<TransferType, string> = { in: 'Fichaje', out: 'Salida', rumor: 'Rumor', renew: 'Renovación' }
-const TYPE_COLORS: Record<TransferType, string> = {
-  in: '#166534',
-  out: 'var(--red)',
-  rumor: 'var(--muted)',
-  renew: '#92700a',
+const TYPE_BADGE: Record<TransferType, string> = {
+  in:    'bg-[#E7F6EC] text-[#166534]',
+  out:   'bg-ceuta-red-soft text-ceuta-red',
+  rumor: 'bg-ceuta-bg-mid text-ceuta-muted',
+  renew: 'bg-ceuta-gold-soft text-[#8A6D00]',
 }
-const TABS: { id: TransferType; label: string; color: string }[] = [
-  { id: 'renew', label: 'Renovados', color: '#166534' },
-  { id: 'in',    label: 'Fichados',  color: '#166534' },
-  { id: 'out',   label: 'Salidas',   color: 'var(--red)' },
-  { id: 'rumor', label: 'Rumores',   color: 'var(--muted)' },
+const TABS: { id: TransferType; label: string }[] = [
+  { id: 'renew', label: 'Renovados' },
+  { id: 'in',    label: 'Fichados'  },
+  { id: 'out',   label: 'Salidas'   },
+  { id: 'rumor', label: 'Rumores'   },
 ]
 
 const EMPTY_FORM = {
@@ -149,7 +149,7 @@ function PlayerPickerModal({
 
 const INPUT_CLS = 'w-full px-3 py-[10px] rounded-[10px] border border-ceuta-border text-[14px] bg-ceuta-bg-soft outline-none'
 const LABEL_CLS = 'block text-[10px] font-extrabold uppercase tracking-[0.1em] text-ceuta-muted mb-1.5 font-display'
-const CARD_CLS = 'bg-white rounded-[14px] p-5 mb-4 shadow-[var(--shadow-card)]'
+const CARD_CLS = 'bg-white rounded-[14px] p-5 mb-4 border border-ceuta-border'
 
 export default function AdminMercadoPage() {
   const [transfers, setTransfers] = useState<Transfer[]>([])
@@ -314,7 +314,7 @@ export default function AdminMercadoPage() {
       <form
         ref={formRef}
         onSubmit={handleSubmit}
-        className={`${CARD_CLS} border-t-[3px] ${editingId ? 'border-t-[var(--gold)]' : 'border-t-ceuta-black'}`}
+        className={`${CARD_CLS} border-t-[3px] ${editingId ? 'border-t-ceuta-gold' : 'border-t-ceuta-black'}`}
       >
         <div className="flex justify-between items-center mb-3.5">
           <span className={LABEL_CLS}>{editingId ? '✏️ Editando jugador' : 'Añadir movimiento'}</span>
@@ -489,7 +489,7 @@ export default function AdminMercadoPage() {
             saving
               ? 'bg-ceuta-bg-mid text-ceuta-muted cursor-default'
               : editingId
-                ? 'bg-[var(--gold)] text-ceuta-black cursor-pointer'
+                ? 'bg-ceuta-gold text-ceuta-black cursor-pointer'
                 : 'bg-ceuta-black text-white cursor-pointer'
           }`}
         >
@@ -516,7 +516,7 @@ export default function AdminMercadoPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 mb-4 flex-wrap overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
+      <div className="flex gap-2 mb-4 flex-wrap overflow-x-auto pb-1 [scrollbar-width:none]">
         {TABS.map((tab) => {
           const count = transfers.filter(t => t.type === tab.id).length
           const active = activeTab === tab.id
@@ -570,13 +570,7 @@ export default function AdminMercadoPage() {
             <div className="flex-1 min-w-0">
               <div className="font-display font-extrabold text-[18px] tracking-[0.02em] uppercase text-ceuta-black truncate">{t.name}</div>
               <div className="flex items-center gap-2 mt-1 flex-wrap text-[12px] text-ceuta-muted">
-                <span
-                  className="font-display text-[10px] font-extrabold tracking-[0.1em] uppercase px-2 py-0.5 rounded-full"
-                  style={{
-                    background: t.type === 'renew' ? '#FFF6CC' : t.type === 'in' ? '#E7F6EC' : t.type === 'out' ? '#FFE9EA' : '#ECEAE4',
-                    color: t.type === 'renew' ? '#8A6D00' : t.type === 'in' ? '#166534' : t.type === 'out' ? '#D62027' : '#6E6E6E',
-                  }}
-                >
+                <span className={`font-display text-[10px] font-extrabold tracking-[0.1em] uppercase px-2 py-0.5 rounded-full ${TYPE_BADGE[t.type]}`}>
                   {TYPE_LABELS[t.type]}
                 </span>
                 <span className="font-display font-extrabold text-[11px] text-ceuta-black">{t.position}</span>

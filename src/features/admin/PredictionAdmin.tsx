@@ -72,7 +72,7 @@ export function PredictionAdmin() {
 
   return (
     <div className="space-y-4">
-      <div className="text-[13px] font-bold uppercase tracking-widest text-ceuta-muted">Predicción de resultado</div>
+      <div className="font-display text-[13px] font-bold uppercase tracking-widest text-ceuta-muted">Predicción de resultado</div>
 
       {msg && (
         <div className={`text-[12px] font-semibold rounded-xl px-3 py-2 ${msg.startsWith('✅') ? 'bg-[#E7F6EC] text-[#1E9E4B]' : 'bg-red-50 text-ceuta-red'}`}>
