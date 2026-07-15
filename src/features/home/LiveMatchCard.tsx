@@ -140,13 +140,8 @@ function Competition() {
   return (
     <div className="flex items-center gap-2">
       <span className="inline-block size-[6px] rounded-full bg-ceuta-red" />
-      <Image
-        src="/liga-hypermotion-white.webp"
-        alt="Liga Hypermotion"
-        width={100}
-        height={12}
-        className="h-[12px] w-auto opacity-70"
-      />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/liga-hypermotion-white.webp" alt="Liga Hypermotion" className="h-[12px] w-auto opacity-70" />
     </div>
   )
 }
@@ -249,13 +244,8 @@ export function LiveMatchCard() {
           </div>
         </div>
         <div className="mt-[18px] border-t border-white/10 pt-[14px]">
-          <Image
-            src="/liga-hypermotion-white.webp"
-            alt="Liga Hypermotion"
-            width={80}
-            height={10}
-            className="h-[10px] w-auto opacity-40"
-          />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/liga-hypermotion-white.webp" alt="Liga Hypermotion" className="h-[10px] w-auto opacity-40" />
         </div>
       </MatchCardShell>
     )
