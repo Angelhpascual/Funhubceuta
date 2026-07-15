@@ -128,7 +128,7 @@ export function NoticiasClient({
 
   const FILTERS: { id: StatusFilter; label: string }[] = [
     { id: 'all', label: `Todas` },
-    { id: 'queued', label: 'Notificadas' },
+    { id: 'queued', label: 'En cola' },
     { id: 'pending', label: 'Pendientes' },
     { id: 'published', label: 'Publicadas' },
   ]
@@ -207,10 +207,10 @@ export function NoticiasClient({
                     {sourceLabels[n.source] ?? n.source}
                   </span>
                   {isQueued && (
-                    <span className="font-display text-[10px] font-extrabold tracking-[0.1em] uppercase px-2 py-0.5 rounded bg-ceuta-gold-soft text-[#8A6D00]">Pendiente</span>
+                    <span className="font-display text-[10px] font-extrabold tracking-[0.1em] uppercase px-2 py-0.5 rounded bg-ceuta-gold-soft text-[#8A6D00]">En cola</span>
                   )}
                   {!isQueued && n.published && (
-                    <span className="font-display text-[10px] font-extrabold tracking-[0.1em] uppercase px-2 py-0.5 rounded bg-[#E7F6EC] text-[#1E9E4B]">Notificada</span>
+                    <span className="font-display text-[10px] font-extrabold tracking-[0.1em] uppercase px-2 py-0.5 rounded bg-[#E7F6EC] text-[#1E9E4B]">Publicada</span>
                   )}
                   {!isQueued && !n.published && (
                     <span className="font-display text-[10px] font-extrabold tracking-[0.1em] uppercase px-2 py-0.5 rounded bg-ceuta-bg-mid text-ceuta-muted">Sin publicar</span>
@@ -226,7 +226,7 @@ export function NoticiasClient({
                 </div>
                 <div className="text-[12px] text-ceuta-muted mt-0.5">
                   {SOURCE_COLORS[n.source] ? sourceLabels[n.source] ?? n.source : n.source}
-                  {n.published && !n.notify_queued && ' · Notificada a suscriptores'}
+                  {n.published && !n.notify_queued && ' · Publicada en el feed'}
                 </div>
               </div>
 
