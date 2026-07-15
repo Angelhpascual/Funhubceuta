@@ -4,12 +4,36 @@ import { useEffect, useState } from 'react'
 
 type Status = 'idle' | 'loading' | 'active' | 'error'
 
+const SCENARIOS = [
+  { id: 'pre',            label: 'Previo' },
+  { id: 'live_0_0',       label: 'En vivo 0-0' },
+  { id: 'live_goal_ceuta',label: 'Gol Ceuta 0-1' },
+  { id: 'live_goal_rival', label: 'Gol rival 1-0' },
+  { id: 'live_events',    label: 'Múltiples eventos' },
+  { id: 'win',            label: 'Victoria 0-2' },
+  { id: 'draw',           label: 'Empate 1-1' },
+  { id: 'loss',           label: 'Derrota 2-0' },
+]
+
 export function LiveControl() {
   const [status, setStatus] = useState<Status>('loading')
   const [scheduleId, setScheduleId] = useState<string | null>(null)
   const [acting, setActing] = useState(false)
+  const [mockLoading, setMockLoading] = useState<string | null>(null)
+  const [mockActive, setMockActive] = useState<string | null>(null)
 
   const fetch_ = (url: string, opts?: RequestInit) => fetch(url, opts)
+
+  async function setMock(scenario: string) {
+    setMockLoading(scenario)
+    await fetch_('/api/admin/live-mock', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ scenario }),
+    })
+    setMockActive(scenario === 'clear' ? null : scenario)
+    setMockLoading(null)
+  }
 
   async function load() {
     setStatus('loading')
@@ -87,6 +111,41 @@ export function LiveControl() {
 
         {status === 'error' && (
           <p className="mt-2 text-[11px] text-white/60">Error al cargar estado</p>
+        )}
+      </div>
+
+      {/* ── Simulador de escenarios (solo preview/dev) ── */}
+      <div className="mt-4">
+        <div className="mb-2 font-display text-[11px] font-bold uppercase tracking-[0.12em] text-ceuta-muted">
+          Simular escenario (preview)
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {SCENARIOS.map((s) => (
+            <button
+              key={s.id}
+              onClick={() => setMock(s.id)}
+              disabled={mockLoading !== null}
+              className={`rounded-[8px] px-3 py-1.5 font-display text-[11px] font-bold uppercase tracking-[0.08em] transition-all disabled:opacity-40 ${
+                mockActive === s.id
+                  ? 'bg-ceuta-black text-white'
+                  : 'bg-ceuta-bg-soft text-ceuta-black'
+              }`}
+            >
+              {mockLoading === s.id ? '...' : s.label}
+            </button>
+          ))}
+          <button
+            onClick={() => setMock('clear')}
+            disabled={mockLoading !== null || mockActive === null}
+            className="rounded-[8px] bg-ceuta-red/10 px-3 py-1.5 font-display text-[11px] font-bold uppercase tracking-[0.08em] text-ceuta-red disabled:opacity-30"
+          >
+            Limpiar mock
+          </button>
+        </div>
+        {mockActive && (
+          <p className="mt-2 text-[11px] text-ceuta-muted">
+            Mock activo: <strong>{mockActive}</strong> — abre <a href="/live" target="_blank" className="text-ceuta-red underline">/live</a> para verlo
+          </p>
         )}
       </div>
     </section>
