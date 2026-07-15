@@ -245,9 +245,16 @@ export function HomePage({
             clipPath: 'polygon(60px 0, 100% 0, 100% 100%, 0 100%)',
           }}
         />
-        <div className="flex items-center gap-2 font-display text-[11px] font-bold uppercase tracking-[0.16em] text-ceuta-red">
+        <div className="flex items-center gap-2">
           <div className="h-0.5 w-[18px] bg-ceuta-red" />
-          Temporada 2025–26 · Liga Hypermotion
+          <span className="font-display text-[11px] font-bold uppercase tracking-[0.16em] text-ceuta-red">Temporada 2026–27 ·</span>
+          <Image
+            src="/liga-hypermotion.webp"
+            alt="Liga Hypermotion"
+            width={80}
+            height={10}
+            className="h-[10px] w-auto"
+          />
         </div>
         <div className="mt-2 font-display text-[38px] font-black uppercase leading-[0.95]">
           AD CEUTA,<br /><em className="not-italic text-ceuta-gold">AL DÍA</em>

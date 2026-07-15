@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import Image from 'next/image'
 import { LiveMatch } from '@/domain/match/LiveMatch'
 import { usePushNotifications } from '@/hooks/usePushNotifications'
 import { getLocalLogo } from '@/lib/teamLogos'
@@ -137,9 +138,15 @@ function MatchCardShell({ children, relative }: { children: React.ReactNode; rel
 
 function Competition() {
   return (
-    <div className="flex items-center gap-2 font-display text-[10.5px] font-bold uppercase tracking-[0.14em] text-ceuta-red">
+    <div className="flex items-center gap-2">
       <span className="inline-block size-[6px] rounded-full bg-ceuta-red" />
-      Liga Hypermotion
+      <Image
+        src="/liga-hypermotion-white.webp"
+        alt="Liga Hypermotion"
+        width={100}
+        height={12}
+        className="h-[12px] w-auto opacity-70"
+      />
     </div>
   )
 }
@@ -240,9 +247,13 @@ export function LiveMatchCard() {
           </div>
         </div>
         <div className="mt-[18px] border-t border-white/10 pt-[14px]">
-          <span className="font-display text-[11px] font-semibold uppercase tracking-[0.1em] text-white/50">
-            Liga Hypermotion
-          </span>
+          <Image
+            src="/liga-hypermotion-white.webp"
+            alt="Liga Hypermotion"
+            width={80}
+            height={10}
+            className="h-[10px] w-auto opacity-40"
+          />
         </div>
       </MatchCardShell>
     )
