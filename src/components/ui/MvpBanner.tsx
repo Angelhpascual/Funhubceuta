@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useState, useEffect, useCallback } from 'react'
 import { MvpSheet, type BannerState as SheetState } from './MvpSheet'
 import type { MvpSession, MvpVoteTally, MvpMatchMeta } from '@/infrastructure/supabase/MvpRepository'
@@ -130,7 +131,19 @@ export function MvpBanner() {
       <div className="px-4 pt-3">
         <button className={`mvp-banner st-${bannerState}`} onClick={() => setSheetOpen(true)}>
           <div className="mb-strp" />
-          <div className="mb-ic">{cfg.icon}</div>
+          {bannerState === 'cerrada' && winner?.photo_url ? (
+            <div className="mb-ic !p-0 overflow-hidden rounded-[12px]">
+              <Image
+                src={winner.photo_url}
+                alt={winner.name}
+                width={46}
+                height={46}
+                className="w-full h-full object-cover object-top"
+              />
+            </div>
+          ) : (
+            <div className="mb-ic">{cfg.icon}</div>
+          )}
           <div className="mb-main">
             {session.match_meta && (
               <div className="mb-match">
