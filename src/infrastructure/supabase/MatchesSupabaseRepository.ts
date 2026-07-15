@@ -1,4 +1,5 @@
 import { supabase } from './client'
+import { supabaseAdmin } from './adminClient'
 import type { ScrapedMatch, ScrapedResult } from '@/infrastructure/scrapers/adceutaScraper'
 import { CURRENT_MATCH_SEASON, COMPETITION } from '@/lib/constants'
 import { deduplicateMatches } from '@/lib/deduplicateMatches'
@@ -110,6 +111,25 @@ export class MatchesSupabaseRepository {
       ticketsUrl: data.tickets_url,
       espnEventId: data.espn_event_id ?? null,
     }
+  }
+
+  async updateMatchSchedule(id: string, date: string, time: string, weekday: string): Promise<void> {
+    const { error } = await supabaseAdmin
+      .from('matches')
+      .update({ date, time, weekday })
+      .eq('id', id)
+    if (error) throw new Error(error.message)
+  }
+
+  async fetchScheduled(): Promise<Array<{ id: string; home_team: string; away_team: string; date: string; time: string; weekday: string; is_home: boolean }>> {
+    const today = new Date().toISOString().split('T')[0]
+    const { data } = await supabaseAdmin
+      .from('matches')
+      .select('id, home_team, away_team, date, time, weekday, is_home')
+      .eq('status', 'scheduled')
+      .gte('date', today)
+      .order('date', { ascending: true })
+    return (data ?? []) as Array<{ id: string; home_team: string; away_team: string; date: string; time: string; weekday: string; is_home: boolean }>
   }
 
   async fetchRecentForm(limit = 5): Promise<string[]> {
