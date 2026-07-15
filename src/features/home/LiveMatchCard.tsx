@@ -177,7 +177,7 @@ export function LiveMatchCard() {
 
   useEffect(() => {
     fetchLive()
-    fetch('/api/matches/next')
+    fetch('/api/matches/next', { cache: 'no-store' })
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
         if (d?.match) setNextMatch(d.match)

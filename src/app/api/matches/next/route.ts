@@ -7,7 +7,7 @@ const repo = new MatchesSupabaseRepository()
 export async function GET() {
   try {
     const match = await repo.getNextMatch()
-    return NextResponse.json({ match }, { headers: { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=120" } })
+    return NextResponse.json({ match }, { headers: { "Cache-Control": "no-cache, no-store" } })
   } catch (err) {
     return apiError(err)
   }
