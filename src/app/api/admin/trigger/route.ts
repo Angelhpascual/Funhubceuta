@@ -22,9 +22,11 @@ async function enqueueViaQStash(path: string): Promise<{ queued: boolean }> {
 
 // Call a cron endpoint directly (bypasses QStash signature requirement)
 async function callDirect(path: string): Promise<Record<string, unknown>> {
-  const base =
-    process.env.NEXT_PUBLIC_BASE_URL ??
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://adceutainfo.vercel.app')
+  const base = process.env.VERCEL_ENV === 'production'
+    ? (process.env.NEXT_PUBLIC_BASE_URL ?? 'https://adceutainfo.vercel.app')
+    : process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : (process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000')
   const secret = process.env.TEST_SECRET
   if (!secret) throw new Error('TEST_SECRET no configurado')
 
