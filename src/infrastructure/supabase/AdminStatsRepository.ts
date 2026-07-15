@@ -1,4 +1,5 @@
 import { supabase } from './client'
+import { supabaseAdmin } from './adminClient'
 import { getActiveMvpSession } from './MvpRepository'
 import type { AdminStats } from '@/features/admin/AdminDashboard'
 
@@ -86,7 +87,7 @@ export async function getAdminStats(): Promise<AdminStats> {
 }
 
 export async function getRecentCronLogs(limit = 30) {
-  const { data } = await supabase
+  const { data } = await supabaseAdmin
     .from('cron_logs')
     .select('id, created_at, cron_type, status, duration_ms, details')
     .order('created_at', { ascending: false })

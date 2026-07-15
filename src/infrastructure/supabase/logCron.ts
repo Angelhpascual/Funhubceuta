@@ -1,4 +1,4 @@
-import { supabase } from './client'
+import { supabaseAdmin } from './adminClient'
 
 export async function logCron(
   cronType: string,
@@ -6,7 +6,7 @@ export async function logCron(
   durationMs: number,
   details: Record<string, unknown>
 ) {
-  await supabase
+  await supabaseAdmin
     .from('cron_logs')
     .insert({ cron_type: cronType, status, duration_ms: durationMs, details })
     .then(
@@ -23,7 +23,7 @@ export async function logNotification(opts: {
   sentOk: number
   sentFail: number
 }) {
-  await supabase
+  await supabaseAdmin
     .from('notification_logs')
     .insert({
       article_title: opts.articleTitle,

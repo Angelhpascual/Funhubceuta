@@ -341,28 +341,49 @@ export function MvpAdmin() {
             <div>
               <div className="flex items-center justify-between mb-2">
                 <div className="text-[9px] font-bold uppercase tracking-widest text-ceuta-muted">
-                  Candidatos ({selectedIds.size})
+                  Candidatos {selectedIds.size > 0 && <span className="text-ceuta-black">({selectedIds.size} seleccionados)</span>}
                 </div>
                 {selectedIds.size > 0 && (
-                  <button onClick={() => setSelectedIds(new Set())} className="text-[10px] text-ceuta-muted">Limpiar</button>
+                  <button onClick={() => setSelectedIds(new Set())} className="text-[10px] text-ceuta-red font-bold">Limpiar</button>
                 )}
               </div>
               {squad.length === 0 ? (
                 <div className="text-[12px] text-ceuta-muted">Cargando plantilla...</div>
               ) : (
-                <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
+                <div className="space-y-3 max-h-72 overflow-y-auto">
                   {grouped.map(({ pos, players }) => (
                     <div key={pos}>
-                      <div className="text-[9px] font-bold uppercase tracking-widest text-ceuta-muted mb-1">{pos}</div>
-                      <div className="flex flex-wrap gap-1.5">
+                      <div className="text-[9px] font-bold uppercase tracking-widest text-ceuta-muted mb-1.5 px-0.5">{pos}</div>
+                      <div className="grid grid-cols-3 gap-1.5">
                         {players.map(p => {
                           const sel = selectedIds.has(p.id)
                           return (
                             <button key={p.id} onClick={() => togglePlayer(p.id)}
-                              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-[8px] font-display text-[11px] font-bold border transition-colors ${
-                                sel ? 'bg-ceuta-black text-white border-ceuta-black' : 'bg-ceuta-bg-soft text-ceuta-black border-ceuta-border'
+                              className={`relative flex flex-col items-center gap-1 py-2.5 px-1 rounded-[10px] border-2 transition-all text-center ${
+                                sel
+                                  ? 'bg-ceuta-black border-ceuta-black text-white'
+                                  : 'bg-ceuta-bg-soft border-ceuta-border text-ceuta-black hover:border-ceuta-black/30'
                               }`}>
-                              <span className="opacity-60">#{p.dorsal}</span>{p.name}
+                              {sel && (
+                                <div className="absolute top-1.5 right-1.5 w-3.5 h-3.5 rounded-full bg-ceuta-red flex items-center justify-center">
+                                  <span className="text-white text-[7px] font-black leading-none">✓</span>
+                                </div>
+                              )}
+                              {p.photo_url ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img src={p.photo_url} alt={p.name} width={36} height={36}
+                                  className={`w-9 h-9 rounded-full object-cover object-top border-2 ${sel ? 'border-white/20' : 'border-ceuta-border'}`} />
+                              ) : (
+                                <div className={`w-9 h-9 rounded-full flex items-center justify-center font-display font-black text-[15px] ${sel ? 'bg-white/10 text-white' : 'bg-ceuta-bg-mid text-ceuta-muted'}`}>
+                                  {p.dorsal}
+                                </div>
+                              )}
+                              <div className={`font-display text-[10px] font-bold leading-tight line-clamp-2 w-full px-0.5 ${sel ? 'text-white' : 'text-ceuta-black'}`}>
+                                {p.name.split(' ')[0]}
+                              </div>
+                              <div className={`font-display text-[8px] font-bold tracking-wider ${sel ? 'text-white/50' : 'text-ceuta-muted'}`}>
+                                #{p.dorsal}
+                              </div>
                             </button>
                           )
                         })}
