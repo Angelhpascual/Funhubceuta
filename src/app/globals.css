@@ -2608,7 +2608,7 @@ img {
 .mvp-banner .mb-sub{font-family:var(--font-body);font-size:12.5px;margin-top:3px;opacity:.68;}
 .mvp-banner .mb-chev{color:currentColor;opacity:.4;flex-shrink:0;position:relative;z-index:2;}
 .mvp-banner .mb-match{display:flex;align-items:center;gap:5px;margin-bottom:6px;flex-wrap:nowrap;overflow:hidden;}
-.mvp-banner .mb-match img{width:20px;height:20px;object-fit:contain;flex-shrink:0;background:#fff;border-radius:4px;padding:1.5px;box-shadow:0 1px 3px rgba(0,0,0,.18);}
+.mvp-banner .mb-match img{width:16px;height:16px;object-fit:contain;flex-shrink:0;}
 .mvp-banner .mb-match-name{font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:0.01em;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80px;}
 .mvp-banner .mb-match-vs{font-family:var(--font-display);font-size:8.5px;font-weight:800;opacity:.45;letter-spacing:0.06em;flex-shrink:0;}
@@ -2823,7 +2823,7 @@ img {
 .pred-banner-tag span{font-family:var(--font-display);font-weight:700;font-size:11px;letter-spacing:0.1em;
   text-transform:uppercase;color:var(--red);}
 .pred-banner-match{display:flex;align-items:center;gap:4px;margin-top:4px;position:relative;z-index:2;}
-.pred-banner-match img{width:18px;height:18px;object-fit:contain;flex-shrink:0;background:#fff;border-radius:3px;padding:1.5px;box-shadow:0 1px 3px rgba(0,0,0,.18);}
+.pred-banner-match img{width:14px;height:14px;object-fit:contain;flex-shrink:0;}
 .pred-banner-match span{font-family:var(--font-display);font-weight:600;font-size:11px;letter-spacing:0.02em;
   color:rgba(255,255,255,.45);}
 .pred-banner-vs{font-size:9px!important;opacity:.55;font-weight:800!important;}
@@ -2841,7 +2841,6 @@ img {
 .pred-banner-box{width:36px;height:40px;border-radius:8px;background:rgba(255,255,255,.1);
   display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:900;
   font-size:20px;color:var(--gold);}
-.pred-banner-box--empty{font-size:18px!important;color:rgba(255,255,255,.35)!important;}
 .pred-banner-colon{font-family:var(--font-display);font-weight:800;font-size:16px;color:rgba(255,255,255,.35);}
 .pred-banner-main{flex:1;min-width:0;}
 .pred-banner-main b{display:block;font-family:var(--font-display);font-weight:800;font-size:15px;
