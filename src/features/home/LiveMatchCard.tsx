@@ -239,16 +239,10 @@ export function LiveMatchCard() {
             </div>
           </div>
         </div>
-        <div className="mt-[18px] flex items-center justify-between border-t border-white/10 pt-[14px]">
+        <div className="mt-[18px] border-t border-white/10 pt-[14px]">
           <span className="font-display text-[11px] font-semibold uppercase tracking-[0.1em] text-white/50">
             Liga Hypermotion
           </span>
-          {nextMatch.espnEventId && (
-            <LineupButton
-              eventId={nextMatch.espnEventId}
-              match={`${nextMatch.homeTeam} vs ${nextMatch.awayTeam}`}
-            />
-          )}
         </div>
       </MatchCardShell>
     )
@@ -319,24 +313,10 @@ export function LiveMatchCard() {
 
       <MatchEvents events={match.events} />
 
-      <div className="mt-[18px] flex items-center justify-between border-t border-white/10 pt-[14px]">
+      <div className="mt-[18px] border-t border-white/10 pt-[14px]">
         <span className="font-display text-[11px] font-semibold uppercase tracking-[0.1em] text-white/50">
           {match.venue || 'Liga Hypermotion'}
         </span>
-        {match.espnId && (() => {
-          const kickoff = nextMatch
-            ? new Date(`${nextMatch.date}T${nextMatch.time}:00`)
-            : new Date(match.startDate)
-          const minutesUntil = (kickoff.getTime() - Date.now()) / 60_000
-          const showLineup = isLive || isFinished || minutesUntil <= 20
-          return showLineup ? (
-            <LineupButton
-              eventId={match.espnId}
-              match={`${match.homeTeam} vs ${match.awayTeam}`}
-              score={(isLive || isFinished) ? `${match.homeScore}-${match.awayScore}` : undefined}
-            />
-          ) : null
-        })()}
       </div>
     </MatchCardShell>
   )
