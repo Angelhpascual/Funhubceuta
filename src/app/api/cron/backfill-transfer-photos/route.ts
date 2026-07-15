@@ -13,21 +13,32 @@ async function backfillTransferPhotos() {
   const batch = transfers.slice(0, BATCH_SIZE)
 
   let optimized = 0
-  let failed = 0
+  const errors: string[] = []
 
   await Promise.all(
     batch.map(async ({ id, photo_url }) => {
-      const stored = await downloadAndUploadImage(photo_url, `transfers/${id}`, {
-        bucket: PLAYER_BUCKET,
-        maxWidth: 220,
-        maxHeight: 240,
-        quality: 80,
-      })
-      if (stored) {
-        await updateTransferPhotoUrl(id, stored)
-        optimized++
-      } else {
-        failed++
+      try {
+        // Check URL is reachable before passing to sharp
+        const headRes = await fetch(photo_url, { method: 'HEAD' }).catch(() => null)
+        if (!headRes?.ok) {
+          errors.push(`${id}: HTTP ${headRes?.status ?? 'ERR'} — ${photo_url.slice(0, 60)}`)
+          return
+        }
+
+        const stored = await downloadAndUploadImage(photo_url, `transfers/${id}`, {
+          bucket: PLAYER_BUCKET,
+          maxWidth: 220,
+          maxHeight: 240,
+          quality: 80,
+        })
+        if (stored) {
+          await updateTransferPhotoUrl(id, stored)
+          optimized++
+        } else {
+          errors.push(`${id}: upload falló — ${photo_url.slice(0, 60)}`)
+        }
+      } catch (err) {
+        errors.push(`${id}: ${String(err).slice(0, 80)}`)
       }
     })
   )
@@ -35,10 +46,11 @@ async function backfillTransferPhotos() {
   await logCron('backfill-transfer-photos', 'success', Date.now() - t0, {
     pending: transfers.length,
     optimized,
-    failed,
+    failed: errors.length,
+    errors,
   })
 
-  return { pending: transfers.length, optimized, failed }
+  return { pending: transfers.length, optimized, failed: errors.length, errors }
 }
 
 export async function POST(request: Request) {
