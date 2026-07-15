@@ -82,6 +82,14 @@ export function PredictionBanner() {
 
   return (
     <>
+      <div className="px-4 pt-5 pb-1">
+        <div className="font-display text-[11px] font-bold uppercase tracking-[0.14em] text-ceuta-red mb-1">
+          Tu predicción
+        </div>
+        <div className="font-display text-[22px] font-black uppercase leading-tight text-ceuta-black">
+          Predice el resultado
+        </div>
+      </div>
       <div className="px-4 pt-3">
         <button className="pred-banner" onClick={() => setSheetOpen(true)}>
           <div className="pred-banner-strp" />
