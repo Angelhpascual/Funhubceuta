@@ -130,7 +130,7 @@ export function NoticiasClient({
     { id: 'all', label: `Todas` },
     { id: 'queued', label: 'Notificadas' },
     { id: 'pending', label: 'Pendientes' },
-    { id: 'published', label: 'Ocultas' },
+    { id: 'published', label: 'Publicadas' },
   ]
 
   return (
@@ -261,12 +261,12 @@ export function NoticiasClient({
                   </button>
                 )}
                 <button
-                  onClick={() => deleteNews(n.id)}
+                  onClick={() => n.published ? doAction(n.id, 'discard') : deleteNews(n.id)}
                   disabled={!!busy}
                   className="w-[38px] h-[38px] rounded-lg border-[1.5px] border-ceuta-border text-ceuta-muted flex items-center justify-center hover:border-ceuta-red hover:text-ceuta-red hover:bg-ceuta-red-soft transition-all disabled:opacity-40"
-                  title="Ocultar"
+                  title={n.published ? 'Ocultar del feed' : 'Eliminar'}
                 >
-                  {busy === 'delete' ? <span className="text-[14px]">⏳</span> : <HideIcon />}
+                  {(busy === 'delete' || busy === 'discard') ? <span className="text-[14px]">⏳</span> : <HideIcon />}
                 </button>
               </div>
             </div>

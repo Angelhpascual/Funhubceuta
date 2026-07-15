@@ -67,6 +67,19 @@ export async function deleteTransfer(id: string): Promise<void> {
   await supabaseAdmin.from('transfers').delete().eq('id', id)
 }
 
+export async function getTransfersWithExternalPhotos(): Promise<{ id: string; photo_url: string }[]> {
+  const { data } = await supabaseAdmin
+    .from('transfers')
+    .select('id, photo_url')
+    .not('photo_url', 'is', null)
+    .not('photo_url', 'like', '%supabase.co%')
+  return (data ?? []) as { id: string; photo_url: string }[]
+}
+
+export async function updateTransferPhotoUrl(id: string, photoUrl: string): Promise<void> {
+  await supabaseAdmin.from('transfers').update({ photo_url: photoUrl }).eq('id', id)
+}
+
 export async function updateTransfer(
   id: string,
   input: Partial<Omit<Transfer, 'id' | 'createdAt'>>

@@ -27,7 +27,9 @@ const CRON_META: Record<string, { label: string }> = {
   matches:           { label: 'Partidos' },
   live:              { label: 'En vivo' },
   'match-day':       { label: 'Día de partido' },
-  'backfill-images': { label: 'Sync fotos' },
+  'backfill-images':          { label: 'Sync fotos noticias' },
+  'backfill-squad-photos':    { label: 'Sync fotos plantilla' },
+  'backfill-transfer-photos': { label: 'Sync fotos mercado' },
 }
 
 function dotColor(log: LogEntry) {

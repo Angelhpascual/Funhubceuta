@@ -47,6 +47,7 @@ const ACTIONS: Record<string, () => Promise<Record<string, unknown>>> = {
   // Image backfills run directly — QStash signature fails on preview URLs
   'backfill-news-images': async () => callDirect('/api/cron/backfill-images'),
   'backfill-squad-photos': async () => callDirect('/api/cron/backfill-squad-photos'),
+  'backfill-transfer-photos': async () => callDirect('/api/cron/backfill-transfer-photos'),
 }
 
 export async function POST(request: Request) {
