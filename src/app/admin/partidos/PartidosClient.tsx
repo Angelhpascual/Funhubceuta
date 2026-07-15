@@ -83,19 +83,18 @@ export function PartidosClient({ matches }: { matches: Match[] }) {
                   type="date"
                   value={row.date}
                   onChange={(e) => update(m.id, 'date', e.target.value)}
-                  className="flex-1 rounded-[8px] bg-white/[0.08] px-3 py-2 font-display text-[13px] text-white outline-none focus:ring-1 focus:ring-[#E63329]"
+                  className="flex-1 rounded-[8px] border border-white/10 bg-white/10 px-3 py-2 text-[13px] text-white outline-none focus:ring-1 focus:ring-[#E63329] [color-scheme:dark]"
                 />
                 <input
                   type="time"
                   value={row.time}
                   onChange={(e) => update(m.id, 'time', e.target.value)}
-                  placeholder="--:--"
-                  className="w-[90px] rounded-[8px] bg-white/[0.08] px-3 py-2 font-display text-[13px] text-white outline-none focus:ring-1 focus:ring-[#E63329]"
+                  className="w-[90px] rounded-[8px] border border-white/10 bg-white/10 px-3 py-2 text-[13px] text-white outline-none focus:ring-1 focus:ring-[#E63329] [color-scheme:dark]"
                 />
                 <button
                   onClick={() => save(m.id)}
                   disabled={row.saving}
-                  className="rounded-[8px] bg-[#E63329] px-4 py-2 font-display text-[12px] font-black uppercase text-white disabled:opacity-50"
+                  className="rounded-[8px] bg-[#E63329] px-4 py-2 font-display text-[12px] font-black uppercase text-white disabled:opacity-50 shrink-0"
                 >
                   {row.saving ? '...' : row.saved ? '✓' : 'Guardar'}
                 </button>
