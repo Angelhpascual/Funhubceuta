@@ -247,10 +247,10 @@ export function HomePage({
         />
         <div className="flex items-center gap-2 font-display text-[11px] font-bold uppercase tracking-[0.16em] text-ceuta-red">
           <div className="h-0.5 w-[18px] bg-ceuta-red" />
-          AD Ceuta FC · Temporada 2025–26
+          Temporada 2025–26 · Liga Hypermotion
         </div>
         <div className="mt-2 font-display text-[38px] font-black uppercase leading-[0.95]">
-          AL <em className="not-italic text-ceuta-gold">DÍA</em>
+          AD CEUTA,<br /><em className="not-italic text-ceuta-gold">AL DÍA</em>
         </div>
       </div>
 
