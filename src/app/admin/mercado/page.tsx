@@ -7,17 +7,17 @@ import { STAFF as STAFF_DATA } from '@/lib/staff'
 
 const POSITIONS = ['POR', 'DEF', 'MED', 'DEL', 'ENT']
 const TYPE_LABELS: Record<TransferType, string> = { in: 'Fichaje', out: 'Salida', rumor: 'Rumor', renew: 'Renovación' }
-const TYPE_COLORS: Record<TransferType, string> = {
-  in: '#166534',
-  out: 'var(--red)',
-  rumor: 'var(--muted)',
-  renew: '#92700a',
+const TYPE_BADGE: Record<TransferType, string> = {
+  in:    'bg-[#E7F6EC] text-[#166534]',
+  out:   'bg-ceuta-red-soft text-ceuta-red',
+  rumor: 'bg-ceuta-bg-mid text-ceuta-muted',
+  renew: 'bg-ceuta-gold-soft text-[#8A6D00]',
 }
-const TABS: { id: TransferType; label: string; color: string }[] = [
-  { id: 'renew', label: 'Renovados', color: '#166534' },
-  { id: 'in',    label: 'Fichados',  color: '#166534' },
-  { id: 'out',   label: 'Salidas',   color: 'var(--red)' },
-  { id: 'rumor', label: 'Rumores',   color: 'var(--muted)' },
+const TABS: { id: TransferType; label: string }[] = [
+  { id: 'renew', label: 'Renovados' },
+  { id: 'in',    label: 'Fichados'  },
+  { id: 'out',   label: 'Salidas'   },
+  { id: 'rumor', label: 'Rumores'   },
 ]
 
 const EMPTY_FORM = {
@@ -149,7 +149,7 @@ function PlayerPickerModal({
 
 const INPUT_CLS = 'w-full px-3 py-[10px] rounded-[10px] border border-ceuta-border text-[14px] bg-ceuta-bg-soft outline-none'
 const LABEL_CLS = 'block text-[10px] font-extrabold uppercase tracking-[0.1em] text-ceuta-muted mb-1.5 font-display'
-const CARD_CLS = 'bg-white rounded-[14px] p-5 mb-4 shadow-[var(--shadow-card)]'
+const CARD_CLS = 'bg-white rounded-[14px] p-5 mb-4 border border-ceuta-border'
 
 export default function AdminMercadoPage() {
   const [transfers, setTransfers] = useState<Transfer[]>([])
@@ -277,16 +277,44 @@ export default function AdminMercadoPage() {
   const showPlayerPicker = form.type === 'out' || form.type === 'renew'
 
   return (
-    <div className="font-display">
-      <div className="text-[22px] font-black uppercase tracking-[-0.01em] mb-5">
-        Mercado de Fichajes
-      </div>
+    <div className="font-display min-h-screen">
+      {/* Hero */}
+      <section className="bg-ceuta-black text-white relative overflow-hidden mb-8">
+        <div
+          className="absolute top-0 right-[-40px] bottom-0 w-[420px] opacity-[0.08]"
+          style={{
+            background: 'repeating-linear-gradient(-45deg, #fff 0 14px, #000 14px 28px)',
+            clipPath: 'polygon(120px 0, 100% 0, 100% 100%, 0 100%)',
+          }}
+        />
+        <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-9 relative flex items-end justify-between gap-6 flex-wrap">
+          <div>
+            <div className="font-display text-[12.5px] font-bold tracking-[0.16em] uppercase text-ceuta-red flex items-center gap-2.5">
+              <span className="w-6 h-0.5 bg-ceuta-red" />
+              Gestión de contenido
+            </div>
+            <h1 className="font-display font-black text-[46px] leading-[0.95] uppercase mt-2">
+              Mercado de <em className="not-italic text-ceuta-gold">fichajes.</em>
+            </h1>
+          </div>
+          <div className="flex gap-2.5 flex-wrap">
+            <span className="flex items-center gap-2 bg-white/7 border border-white/14 rounded-full px-3.5 py-2 font-display text-[12.5px] font-semibold tracking-[0.06em] uppercase text-white/75">
+              <span className="w-[7px] h-[7px] rounded-full bg-[#1E9E4B]" />
+              Movimientos publicados · <b className="text-white">{transfers.length}</b>
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <div className="max-w-[1240px] mx-auto px-4 md:px-8">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.5fr] gap-6">
 
       {/* Form */}
+      <div>
       <form
         ref={formRef}
         onSubmit={handleSubmit}
-        className={`${CARD_CLS} border-t-[3px] ${editingId ? 'border-t-[var(--gold)]' : 'border-t-ceuta-black'}`}
+        className={`${CARD_CLS} border-t-[3px] ${editingId ? 'border-t-ceuta-gold' : 'border-t-ceuta-black'}`}
       >
         <div className="flex justify-between items-center mb-3.5">
           <span className={LABEL_CLS}>{editingId ? '✏️ Editando jugador' : 'Añadir movimiento'}</span>
@@ -461,7 +489,7 @@ export default function AdminMercadoPage() {
             saving
               ? 'bg-ceuta-bg-mid text-ceuta-muted cursor-default'
               : editingId
-                ? 'bg-[var(--gold)] text-ceuta-black cursor-pointer'
+                ? 'bg-ceuta-gold text-ceuta-black cursor-pointer'
                 : 'bg-ceuta-black text-white cursor-pointer'
           }`}
         >
@@ -474,9 +502,21 @@ export default function AdminMercadoPage() {
           </p>
         )}
       </form>
+      </div>
+
+      {/* Right column — list */}
+      <div>
+
+      {/* Module header */}
+      <div className="flex items-center justify-between gap-3 mb-4">
+        <h2 className="font-display font-extrabold text-xl tracking-[0.03em] uppercase text-ceuta-black flex items-center gap-2.5">
+          <span className="w-1 h-5 bg-ceuta-red shrink-0 rounded-[2px]" />
+          Movimientos
+        </h2>
+      </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 mb-4 flex-wrap">
+      <div className="flex gap-2 mb-4 flex-wrap overflow-x-auto pb-1 [scrollbar-width:none]">
         {TABS.map((tab) => {
           const count = transfers.filter(t => t.type === tab.id).length
           const active = activeTab === tab.id
@@ -484,84 +524,88 @@ export default function AdminMercadoPage() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-[10px] border-none cursor-pointer font-display text-[12px] font-extrabold uppercase tracking-[0.08em]"
-              style={{
-                background: active ? tab.color : 'var(--bone)',
-                color: active ? 'var(--white)' : 'var(--muted)',
-              }}
+              className={`shrink-0 flex items-center gap-1.5 px-4 py-2.5 rounded-full font-display text-[12.5px] font-bold tracking-[0.08em] uppercase border-[1.5px] transition-all
+                ${active
+                  ? 'bg-ceuta-black text-white border-ceuta-black'
+                  : 'bg-white text-ceuta-muted border-ceuta-border hover:border-ceuta-black hover:text-ceuta-black'}`}
             >
               {tab.label}
-              <span
-                className="rounded-full px-[7px] py-[1px] text-[11px] font-black"
-                style={{
-                  background: active ? 'rgba(255,255,255,0.25)' : 'var(--bone-2)',
-                  color: active ? 'var(--white)' : 'var(--black)',
-                }}
-              >
-                {count}
-              </span>
+              <b className={`font-extrabold text-[12px] opacity-70 ${active ? 'text-white' : 'text-ceuta-black'}`}>{count}</b>
             </button>
           )
         })}
       </div>
 
       {/* List */}
-      <div className={LABEL_CLS}>
-        {TYPE_LABELS[activeTab]} ({transfers.filter(t => t.type === activeTab).length})
-      </div>
-      {transfers.filter(t => t.type === activeTab).length === 0 && (
-        <div className="text-center py-8 text-ceuta-muted text-[13px]">
-          Sin movimientos en esta categoría
-        </div>
-      )}
-      {transfers.filter(t => t.type === activeTab).map((t) => (
-        <div
-          key={t.id}
-          className={`${CARD_CLS} flex items-center gap-3 !p-[14px_16px] ${editingId === t.id ? 'outline outline-2 outline-[var(--gold)]' : ''}`}
-        >
-          {t.photoUrl && (
-            <div className="w-11 h-11 rounded-lg overflow-hidden bg-ceuta-bg-mid relative shrink-0">
-              <Image
-                src={`/api/proxy/image?url=${encodeURIComponent(t.photoUrl)}&w=88`}
-                alt={t.name}
-                fill
-                sizes="44px"
-                className="object-cover object-top"
-                unoptimized
-              />
+      <div className="bg-white border border-ceuta-border rounded-[14px] overflow-hidden">
+        {transfers.filter(t => t.type === activeTab).length === 0 && (
+          <div className="py-12 text-center font-display text-[14px] text-ceuta-muted uppercase tracking-[0.08em]">
+            Sin movimientos en esta categoría
+          </div>
+        )}
+        {transfers.filter(t => t.type === activeTab).map((t, idx, arr) => (
+          <div
+            key={t.id}
+            className={`flex items-center gap-3.5 px-5 py-3.5 transition-colors hover:bg-ceuta-bg-soft
+              ${editingId === t.id ? 'bg-ceuta-gold-soft' : ''}
+              ${idx < arr.length - 1 ? 'border-b border-ceuta-border' : ''}`}
+          >
+            {/* Avatar */}
+            <div className="w-[46px] h-[46px] rounded-full overflow-hidden bg-ceuta-bg-mid relative shrink-0 flex items-center justify-center font-display font-extrabold text-[14px] text-ceuta-muted">
+              {t.photoUrl ? (
+                <Image
+                  src={`/api/proxy/image?url=${encodeURIComponent(t.photoUrl)}&w=88`}
+                  alt={t.name}
+                  fill
+                  sizes="46px"
+                  className="object-cover object-top"
+                  unoptimized
+                />
+              ) : (
+                t.name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()
+              )}
             </div>
-          )}
-          <div className="flex-1">
-            <div className="text-[15px] font-extrabold uppercase">{t.name}</div>
-            <div className="flex gap-1.5 mt-1 flex-wrap">
-              <span
-                className="text-[10px] font-extrabold px-2 py-[2px] rounded-full text-white"
-                style={{ background: TYPE_COLORS[t.type] }}
+
+            {/* Info */}
+            <div className="flex-1 min-w-0">
+              <div className="font-display font-extrabold text-[18px] tracking-[0.02em] uppercase text-ceuta-black truncate">{t.name}</div>
+              <div className="flex items-center gap-2 mt-1 flex-wrap text-[12px] text-ceuta-muted">
+                <span className={`font-display text-[10px] font-extrabold tracking-[0.1em] uppercase px-2 py-0.5 rounded-full ${TYPE_BADGE[t.type]}`}>
+                  {TYPE_LABELS[t.type]}
+                </span>
+                <span className="font-display font-extrabold text-[11px] text-ceuta-black">{t.position}</span>
+                {t.clubFrom && <span>← {t.clubFrom}</span>}
+                {t.clubTo && <span>→ {t.clubTo}</span>}
+                {t.type === 'rumor' && <span>{'🔥'.repeat(t.reliability)}</span>}
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-2 shrink-0">
+              <button
+                onClick={() => startEdit(t)}
+                className="font-display text-[12.5px] font-bold tracking-[0.1em] uppercase px-3.5 py-2 rounded-lg border-[1.5px] border-ceuta-border text-ceuta-black bg-white hover:border-ceuta-black transition-colors"
               >
-                {TYPE_LABELS[t.type]}
-              </span>
-              <span className="text-[11px] text-ceuta-muted font-semibold">{t.position}</span>
-              {t.clubFrom && <span className="text-[11px] text-ceuta-muted">← {t.clubFrom}</span>}
-              {t.clubTo && <span className="text-[11px] text-ceuta-muted">→ {t.clubTo}</span>}
-              {t.type === 'rumor' && <span className="text-[11px]">{'🔥'.repeat(t.reliability)}</span>}
+                Editar
+              </button>
+              <button
+                onClick={() => handleDelete(t.id)}
+                className="w-[38px] h-[38px] rounded-lg border-[1.5px] border-ceuta-border text-ceuta-muted flex items-center justify-center hover:border-ceuta-red hover:text-ceuta-red hover:bg-ceuta-red-soft transition-all"
+                title="Eliminar"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4">
+                  <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z" />
+                </svg>
+              </button>
             </div>
           </div>
-          <div className="flex gap-2 shrink-0">
-            <button
-              onClick={() => startEdit(t)}
-              className="text-[12px] font-bold text-ceuta-black bg-ceuta-bg-soft border border-ceuta-border rounded-lg px-3 py-1.5 cursor-pointer font-display"
-            >
-              Editar
-            </button>
-            <button
-              onClick={() => handleDelete(t.id)}
-              className="text-[12px] font-bold text-ceuta-muted bg-transparent border border-ceuta-border rounded-lg px-3 py-1.5 cursor-pointer font-display"
-            >
-              Eliminar
-            </button>
-          </div>
-        </div>
-      ))}
+        ))}
+      </div>
+      <div className="pb-16" />
+
+      </div>
+      </div>{/* end 2-col grid */}
+      </div>{/* end max-w wrapper */}
 
       {showPicker && (
         <PlayerPickerModal

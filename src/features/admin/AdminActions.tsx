@@ -79,11 +79,18 @@ function buildResult(log: CronLog): { lines: string[]; ok: boolean } {
   // Matches
   if (typeof d.count === 'number') lines.push(`${d.count} partidos sincronizados`)
 
-  // Images / stats
+  // Player stats
   if (typeof d.updated === 'number') lines.push(`${d.updated} jugadores actualizados`)
+  // Backfill news images
+  if (typeof d.optimized === 'number') lines.push(`${d.optimized} fotos optimizadas`)
+  if (typeof d.recovered === 'number' && d.recovered > 0) lines.push(`${d.recovered} fotos recuperadas`)
+  if (typeof d.pending === 'number' && d.pending > 0) lines.push(`${d.pending} pendientes`)
+  // Legacy field name
   if (typeof d.optimizedNewImages === 'number' && d.optimizedNewImages > 0) {
     lines.push(`${d.optimizedNewImages} fotos optimizadas`)
   }
+  // Squad photos
+  if (typeof d.failed === 'number' && d.failed > 0) lines.push(`⚠️ ${d.failed} fallidas`)
   if (d.warning) lines.push(`⚠️ ${d.warning}`)
 
   // Duration
@@ -186,20 +193,22 @@ function SyncCard({
   )
 }
 
-export function AdminActions() {
+export function AdminActions({ syncOnly, notifOnly, deviceOnly }: { syncOnly?: boolean; notifOnly?: boolean; deviceOnly?: boolean } = {}) {
   const router = useRouter()
   const poll = useCronPoller()
   const elapsedRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const [syncNews, setSyncNews] = useState<SyncState>(IDLE)
-  const [syncMatches, setSyncMatches] = useState<SyncState>(IDLE)
-  const [syncImages, setSyncImages] = useState<SyncState>(IDLE)
+  const [syncNewsImages, setSyncNewsImages] = useState<SyncState>(IDLE)
+  const [syncSquadPhotos, setSyncSquadPhotos] = useState<SyncState>(IDLE)
+  const [syncTransferPhotos, setSyncTransferPhotos] = useState<SyncState>(IDLE)
 
-  const [customTitle, setCustomTitle] = useState('')
-  const [customBody, setCustomBody] = useState('')
-  const [customUrl, setCustomUrl] = useState('/')
-  const [customStatus, setCustomStatus] = useState<Status>('idle')
-  const [customResult, setCustomResult] = useState('')
+  const [pushTitle, setPushTitle] = useState('')
+  const [pushBody, setPushBody] = useState('')
+  const [pushUrl, setPushUrl] = useState('/')
+  const [pushEnv, setPushEnv] = useState<'production' | 'development'>('production')
+  const [pushStatus, setPushStatus] = useState<Status>('idle')
+  const [pushResult, setPushResult] = useState('')
 
   const [logoutLoading, setLogoutLoading] = useState(false)
   const [deviceStatus, setDeviceStatus] = useState<'idle' | 'running' | 'ok' | 'error' | 'unsupported'>('idle')
@@ -222,7 +231,8 @@ export function AdminActions() {
     set: React.Dispatch<React.SetStateAction<SyncState>>,
     action: string,
     cronType: string,
-    phases: string[]
+    phases: string[],
+    opts: { direct?: boolean } = {}
   ) {
     set({ status: 'running', phase: phases[0], result: null, elapsed: 0 })
     startElapsed(set)
@@ -235,13 +245,36 @@ export function AdminActions() {
       set((prev) => ({ ...prev, phase: phases[phaseIdx] }))
     }, 4000)
 
+    let directResult: Record<string, unknown> | undefined
     try {
-      await callTrigger(action)
+      directResult = await callTrigger(action)
     } catch (e) {
       clearInterval(phaseInterval)
       stopElapsed()
       set({ status: 'error', phase: '', result: { lines: [(e as Error).message], ok: false }, elapsed: 0 })
       setTimeout(() => set(IDLE), 8000)
+      return
+    }
+
+    // For direct actions the job already ran — use the response directly
+    if (opts.direct && directResult) {
+      clearInterval(phaseInterval)
+      stopElapsed()
+      const lines: string[] = []
+      // Trigger wraps the cron result under `result`
+      const raw = directResult as Record<string, unknown>
+      const d = (raw.result ?? raw) as Record<string, unknown>
+      if (typeof d.optimized === 'number') lines.push(`${d.optimized} fotos optimizadas`)
+      if (typeof d.recovered === 'number' && d.recovered > 0) lines.push(`${d.recovered} fotos recuperadas`)
+      if (typeof d.pending === 'number' && d.pending > 0) lines.push(`${d.pending} pendientes`)
+      if (typeof d.failed === 'number' && d.failed > 0) lines.push(`⚠️ ${d.failed} fallidas`)
+      if (Array.isArray(d.errors) && d.errors.length > 0) {
+        d.errors.slice(0, 3).forEach((e: unknown) => lines.push(`· ${String(e).slice(0, 70)}`))
+      }
+      if (lines.length === 0) lines.push('OK')
+      const hasError = typeof d.failed === 'number' && d.failed > 0
+      set({ status: hasError ? 'error' : 'ok', phase: '', result: { lines, ok: !hasError }, elapsed: 0 })
+      setTimeout(() => set(IDLE), 15000)
       return
     }
 
@@ -264,23 +297,24 @@ export function AdminActions() {
     )
   }
 
-  async function sendCustomPush() {
-    if (!customTitle.trim() || !customBody.trim()) return
-    setCustomStatus('running')
+  async function sendPush() {
+    if (!pushTitle.trim() || !pushBody.trim()) return
+    setPushStatus('running')
     try {
-      const result = await callTrigger('push', {
-        title: customTitle, body: customBody, tag: 'custom', url: customUrl || '/',
+      const action = pushEnv === 'production' ? 'push' : 'push-dev'
+      const result = await callTrigger(action, {
+        title: pushTitle, body: pushBody, tag: pushEnv === 'development' ? 'dev-test' : 'custom', url: pushUrl || '/',
       })
-      setCustomResult(`Enviada a ${result?.sent ?? 0} suscriptores`)
-      setCustomStatus('ok')
-      setCustomTitle('')
-      setCustomBody('')
-      setCustomUrl('/')
+      setPushResult(`Enviada a ${result?.sent ?? 0} suscriptores`)
+      setPushStatus('ok')
+      setPushTitle('')
+      setPushBody('')
+      setPushUrl('/')
     } catch (e) {
-      setCustomResult((e as Error).message)
-      setCustomStatus('error')
+      setPushResult((e as Error).message)
+      setPushStatus('error')
     }
-    setTimeout(() => setCustomStatus('idle'), 6000)
+    setTimeout(() => setPushStatus('idle'), 6000)
   }
 
   async function registerDevice() {
@@ -310,13 +344,13 @@ export function AdminActions() {
         const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
         if (!vapidKey) { setDeviceStatus('error'); setDeviceMsg('Falta VAPID key'); return }
         sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: vapidKey })
-        setDeviceMsg('Guardando suscripción…')
-        await fetch('/api/push/subscribe', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(sub.toJSON()),
-        })
       }
+      setDeviceMsg('Guardando suscripción…')
+      await fetch('/api/push/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(sub.toJSON()),
+      })
       const res = await fetch('/api/admin/register-device', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -337,12 +371,16 @@ export function AdminActions() {
     router.replace('/admin/login')
   }
 
+  const showSync = !notifOnly && !deviceOnly
+  const showNotif = !syncOnly && !deviceOnly
+  const showDevice = !syncOnly && !notifOnly
+  const showMvp = !syncOnly && !notifOnly && !deviceOnly
+
   return (
     <div className="space-y-6">
 
       {/* Sincronización */}
-      <section>
-        <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-ceuta-muted mb-3">Sincronización de datos</p>
+      {showSync && <section>
         <div className="space-y-2">
           <SyncCard
             emoji="📰"
@@ -357,73 +395,126 @@ export function AdminActions() {
             ])}
           />
           <SyncCard
-            emoji="⚽"
-            label="Partidos"
-            description="Actualiza próximos partidos y resultados."
-            state={syncMatches}
-            onClick={() => triggerSync(setSyncMatches, 'matches', 'matches', [
-              'Consultando calendario…',
-              'Actualizando resultados…',
-            ])}
+            emoji="🖼️"
+            label="Optimizar fotos noticias"
+            description="Migra y convierte a WebP las imágenes externas de noticias."
+            state={syncNewsImages}
+            onClick={() => triggerSync(setSyncNewsImages, 'backfill-news-images', 'backfill-images', [
+              'Buscando fotos externas en noticias…',
+              'Descargando y convirtiendo a WebP…',
+              'Actualizando base de datos…',
+            ], { direct: true })}
           />
           <SyncCard
-            emoji="🖼️"
-            label="Fotos de plantilla"
-            description="Optimiza fotos de jugadores pendientes."
-            state={syncImages}
-            onClick={() => triggerSync(setSyncImages, 'backfill-images', 'backfill-images', [
-              'Buscando fotos sin optimizar…',
-              'Procesando y guardando…',
-            ])}
+            emoji="👤"
+            label="Optimizar fotos jugadores"
+            description="Migra y convierte a WebP las fotos externas de la plantilla."
+            state={syncSquadPhotos}
+            onClick={() => triggerSync(setSyncSquadPhotos, 'backfill-squad-photos', 'backfill-squad-photos', [
+              'Buscando fotos externas en plantilla…',
+              'Descargando y convirtiendo a WebP…',
+              'Actualizando base de datos…',
+            ], { direct: true })}
+          />
+          <SyncCard
+            emoji="🔄"
+            label="Optimizar fotos mercado"
+            description="Migra fotos de transferencias/mercado a Supabase en WebP."
+            state={syncTransferPhotos}
+            onClick={() => triggerSync(setSyncTransferPhotos, 'backfill-transfer-photos', 'backfill-transfer-photos', [
+              'Buscando fotos externas en mercado…',
+              'Descargando y convirtiendo a WebP…',
+              'Actualizando base de datos…',
+            ], { direct: true })}
           />
         </div>
-      </section>
+      </section>}
 
-      {/* Notificación manual */}
-      <section>
-        <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-ceuta-muted mb-3">Notificación manual</p>
-        <div className="bg-white rounded-[14px] border-2 border-ceuta-border p-4 space-y-3">
+      {/* Notificación manual — formulario unificado */}
+      {showNotif && <section>
+        <div className={`bg-white rounded-[14px] border-2 p-4 space-y-3 transition-colors ${pushEnv === 'development' ? 'border-amber-300' : 'border-ceuta-border'}`}>
+          {/* Toggle entorno */}
+          <div className="flex gap-1 p-1 bg-ceuta-bg-soft rounded-xl">
+            <button
+              type="button"
+              onClick={() => setPushEnv('production')}
+              className={`flex-1 py-2 rounded-lg font-display text-[11px] font-bold tracking-[0.08em] uppercase transition-all ${
+                pushEnv === 'production' ? 'bg-ceuta-black text-white shadow-sm' : 'text-ceuta-muted'
+              }`}
+            >
+              🔔 Producción
+            </button>
+            <button
+              type="button"
+              onClick={() => setPushEnv('development')}
+              className={`flex-1 py-2 rounded-lg font-display text-[11px] font-bold tracking-[0.08em] uppercase transition-all ${
+                pushEnv === 'development' ? 'bg-amber-500 text-white shadow-sm' : 'text-ceuta-muted'
+              }`}
+            >
+              🧪 Develop
+            </button>
+          </div>
+
           <input
             type="text"
             placeholder="Título"
-            value={customTitle}
-            onChange={(e) => setCustomTitle(e.target.value)}
+            value={pushTitle}
+            onChange={(e) => setPushTitle(e.target.value)}
             className="w-full bg-ceuta-bg-soft border border-ceuta-border rounded-xl px-3 py-2 text-[13px] outline-none focus:border-ceuta-black"
           />
           <textarea
             placeholder="Mensaje"
-            value={customBody}
-            onChange={(e) => setCustomBody(e.target.value)}
+            value={pushBody}
+            onChange={(e) => setPushBody(e.target.value)}
             rows={2}
             className="w-full bg-ceuta-bg-soft border border-ceuta-border rounded-xl px-3 py-2 text-[13px] outline-none focus:border-ceuta-black resize-none"
           />
           <input
             type="text"
             placeholder="URL destino (ej: /partidos)"
-            value={customUrl}
-            onChange={(e) => setCustomUrl(e.target.value)}
+            value={pushUrl}
+            onChange={(e) => setPushUrl(e.target.value)}
             className="w-full bg-ceuta-bg-soft border border-ceuta-border rounded-xl px-3 py-2 text-[13px] outline-none focus:border-ceuta-black"
           />
+
+          {/* Preview notificación */}
+          {(pushTitle || pushBody) && (
+            <div className="rounded-xl bg-ceuta-bg-mid border border-ceuta-border p-3">
+              <div className="font-display text-[9px] font-bold tracking-[0.14em] uppercase text-ceuta-muted mb-2">Vista previa</div>
+              <div className="flex items-start gap-2.5 bg-white rounded-lg px-3 py-2.5 shadow-sm">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/escudo.webp" alt="" width={28} height={28} className="object-contain shrink-0 mt-0.5" />
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold text-[12px] text-ceuta-black leading-tight truncate">
+                    {pushTitle || 'Título de la notificación'}
+                  </div>
+                  <div className="text-[11px] text-ceuta-muted mt-0.5 line-clamp-2 leading-tight">
+                    {pushBody || 'Cuerpo del mensaje…'}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
           <button
-            onClick={sendCustomPush}
-            disabled={customStatus === 'running' || !customTitle.trim() || !customBody.trim()}
+            onClick={sendPush}
+            disabled={pushStatus === 'running' || !pushTitle.trim() || !pushBody.trim()}
             className={`w-full rounded-xl py-3 text-[13px] font-bold transition-colors disabled:opacity-50 ${
-              customStatus === 'ok' ? 'bg-green-600 text-white' :
-              customStatus === 'error' ? 'bg-ceuta-red text-white' :
+              pushStatus === 'ok' ? 'bg-[#1E9E4B] text-white' :
+              pushStatus === 'error' ? 'bg-ceuta-red text-white' :
+              pushEnv === 'development' ? 'bg-amber-500 text-white' :
               'bg-ceuta-black text-white'
             }`}
           >
-            {customStatus === 'running' ? '⏳ Enviando…' :
-             customStatus === 'ok' ? `✓ ${customResult}` :
-             customStatus === 'error' ? `✗ ${customResult}` :
-             '🔔 Enviar a todos los suscriptores'}
+            {pushStatus === 'running' ? '⏳ Enviando…' :
+             pushStatus === 'ok' ? `✓ ${pushResult}` :
+             pushStatus === 'error' ? `✗ ${pushResult}` :
+             pushEnv === 'development' ? '🧪 Enviar a develop' : '🔔 Enviar a producción'}
           </button>
         </div>
-      </section>
+      </section>}
 
       {/* Este dispositivo + logout */}
-      <section>
-        <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-ceuta-muted mb-3">Este dispositivo</p>
+      {showDevice && <section>
         <div className="space-y-2">
           <button
             onClick={registerDevice}
@@ -463,17 +554,13 @@ export function AdminActions() {
             {logoutLoading ? '⏳ Saliendo…' : '← Cerrar sesión'}
           </button>
         </div>
-      </section>
+      </section>}
 
       {/* MVP Voting */}
-      <section>
-        <MvpAdmin />
-      </section>
+      {showMvp && <section><MvpAdmin /></section>}
 
       {/* Predicciones */}
-      <section>
-        <PredictionAdmin />
-      </section>
+      {showMvp && <section><PredictionAdmin /></section>}
 
     </div>
   )

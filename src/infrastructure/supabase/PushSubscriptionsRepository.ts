@@ -7,20 +7,27 @@ export interface PushSubscription {
   auth: string
 }
 
-export async function getAllSubscriptions(options: { adminOnly?: boolean } = {}): Promise<PushSubscription[]> {
-  let query = supabase.from('push_subscriptions').select('endpoint, p256dh, auth')
+export async function getAllSubscriptions(options: { adminOnly?: boolean; environment?: string } = {}): Promise<PushSubscription[]> {
+  let query = supabaseAdmin.from('push_subscriptions').select('endpoint, p256dh, auth')
+    .eq('environment', options.environment ?? 'production')
   if (options.adminOnly) query = query.eq('is_admin', true)
   const { data } = await query
   return data ?? []
 }
 
 export async function upsertSubscription(
-  sub: PushSubscription & { user_agent?: string | null }
+  sub: PushSubscription & { user_agent?: string | null; environment?: string }
 ): Promise<void> {
   await supabase
     .from('push_subscriptions')
     .upsert(
-      { endpoint: sub.endpoint, p256dh: sub.p256dh, auth: sub.auth, user_agent: sub.user_agent },
+      {
+        endpoint: sub.endpoint,
+        p256dh: sub.p256dh,
+        auth: sub.auth,
+        user_agent: sub.user_agent,
+        environment: sub.environment ?? 'production',
+      },
       { onConflict: 'endpoint' }
     )
 }

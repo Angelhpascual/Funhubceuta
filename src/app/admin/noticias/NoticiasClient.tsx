@@ -25,12 +25,13 @@ const SOURCE_COLORS: Record<string, string> = {
   mundodeportivo: 'bg-yellow-100 text-yellow-800',
 }
 
-function StatusBadge({ item }: { item: NewsItem }) {
-  if (item.notify_queued)
-    return <span className="text-[9px] font-bold uppercase tracking-[0.06em] px-1.5 py-0.5 rounded-full bg-orange-100 text-orange-700">En cola</span>
-  if (item.published)
-    return <span className="text-[9px] font-bold uppercase tracking-[0.06em] px-1.5 py-0.5 rounded-full bg-green-100 text-green-700">Publicada</span>
-  return <span className="text-[9px] font-bold uppercase tracking-[0.06em] px-1.5 py-0.5 rounded-full bg-ceuta-bg-mid text-ceuta-muted">Pendiente</span>
+function HideIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4">
+      <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19M14.12 14.12a3 3 0 11-4.24-4.24" />
+      <path d="M1 1l22 22" />
+    </svg>
+  )
 }
 
 export function NoticiasClient({
@@ -41,7 +42,6 @@ export function NoticiasClient({
   sourceLabels: Record<string, string>
 }) {
   const [news, setNews] = useState(initialNews)
-  const [sourceFilter, setSourceFilter] = useState<string>('all')
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
   const [acting, setActing] = useState<Record<string, string>>({})
   const [actionResult, setActionResult] = useState<Record<string, string>>({})
@@ -61,20 +61,18 @@ export function NoticiasClient({
     }
   }, [])
 
-  const sources = [...new Set(initialNews.map((n) => n.source))].sort()
-
   const filtered = news.filter((n) => {
-    const matchSource = sourceFilter === 'all' || n.source === sourceFilter
     const matchSearch = !search || n.title.toLowerCase().includes(search.toLowerCase())
     const matchStatus =
       statusFilter === 'all' ||
       (statusFilter === 'queued' && n.notify_queued) ||
       (statusFilter === 'published' && n.published && !n.notify_queued) ||
       (statusFilter === 'pending' && !n.published && !n.notify_queued)
-    return matchSource && matchSearch && matchStatus
+    return matchSearch && matchStatus
   })
 
   const counts = {
+    all: news.length,
     queued: news.filter((n) => n.notify_queued).length,
     published: news.filter((n) => n.published && !n.notify_queued).length,
     pending: news.filter((n) => !n.published && !n.notify_queued).length,
@@ -98,7 +96,6 @@ export function NoticiasClient({
         setNews((prev) => prev.map((n) => {
           if (n.id !== id) return n
           if (action === 'discard') return { ...n, published: false, notify_queued: false }
-          if (action === 'publish') return { ...n, published: true, notify_queued: false }
           return { ...n, published: true, notify_queued: false }
         }))
         setTimeout(() => setActionResult((r) => { const next = { ...r }; delete next[id]; return next }), 3000)
@@ -129,136 +126,170 @@ export function NoticiasClient({
     }
   }
 
+  const FILTERS: { id: StatusFilter; label: string }[] = [
+    { id: 'all', label: `Todas` },
+    { id: 'queued', label: 'En cola' },
+    { id: 'pending', label: 'Pendientes' },
+    { id: 'published', label: 'Publicadas' },
+  ]
+
   return (
     <div>
-      {/* Filtros */}
-      <div className="flex gap-2 flex-wrap mb-3">
-        <input
-          type="text"
-          placeholder="Buscar..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 min-w-[160px] bg-ceuta-bg-soft border border-ceuta-border rounded-xl px-3 py-2 text-[13px] outline-none focus:border-ceuta-red"
-        />
-        <select
-          value={sourceFilter}
-          onChange={(e) => setSourceFilter(e.target.value)}
-          className="bg-ceuta-bg-soft border border-ceuta-border rounded-xl px-3 py-2 text-[13px] outline-none"
-        >
-          <option value="all">Todas las fuentes</option>
-          {sources.map((s) => (
-            <option key={s} value={s}>{sourceLabels[s] ?? s}</option>
+      {/* Toolbar */}
+      <div className="flex items-center gap-3.5 flex-wrap py-6">
+        {/* Search */}
+        <div className="flex items-center gap-2.5 bg-white border-[1.5px] border-ceuta-border rounded-full px-4 py-2.5 flex-1 min-w-[240px] focus-within:border-ceuta-black transition-colors">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4 text-ceuta-muted shrink-0">
+            <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" />
+          </svg>
+          <input
+            type="text"
+            placeholder="Buscar por título…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="border-none outline-none bg-transparent font-body text-[14px] text-ceuta-black w-full placeholder:text-[#A9A69E]"
+          />
+          {search && (
+            <button onClick={() => setSearch('')} className="text-ceuta-muted hover:text-ceuta-black text-[16px] leading-none">×</button>
+          )}
+        </div>
+
+        {/* Chips */}
+        <div className="flex gap-2 flex-wrap overflow-x-auto pb-0.5" style={{ scrollbarWidth: 'none' }}>
+          {FILTERS.map((f) => (
+            <button
+              key={f.id}
+              onClick={() => setStatusFilter(f.id)}
+              className={`shrink-0 flex items-center gap-1.5 px-4 py-2.5 rounded-full font-display text-[12.5px] font-bold tracking-[0.08em] uppercase border-[1.5px] transition-all
+                ${statusFilter === f.id
+                  ? 'bg-ceuta-black text-white border-ceuta-black'
+                  : 'bg-white text-ceuta-muted border-ceuta-border hover:border-ceuta-black hover:text-ceuta-black'}`}
+            >
+              {f.label}
+              <b className={`font-extrabold opacity-70 text-[12px] ${statusFilter === f.id ? 'text-white' : 'text-ceuta-black'}`}>
+                {counts[f.id]}
+              </b>
+            </button>
           ))}
-        </select>
-        <button
-          onClick={refresh}
-          disabled={refreshing}
-          className="bg-ceuta-bg-soft border border-ceuta-border rounded-xl px-3 py-2 text-[13px] text-ceuta-black disabled:opacity-50 transition-opacity"
-        >
-          {refreshing ? '⏳' : '↻'}
-        </button>
-      </div>
 
-      {/* Filtro de estado */}
-      <div className="flex gap-2 flex-wrap mb-4">
-        {([
-          { id: 'all', label: 'Todas', count: news.length },
-          { id: 'queued', label: '📬 En cola', count: counts.queued },
-          { id: 'pending', label: '⏳ Pendiente', count: counts.pending },
-          { id: 'published', label: '✅ Publicadas', count: counts.published },
-        ] as { id: StatusFilter; label: string; count: number }[]).map((f) => (
           <button
-            key={f.id}
-            onClick={() => setStatusFilter(f.id)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold uppercase tracking-[0.06em] border transition-colors ${
-              statusFilter === f.id
-                ? 'bg-ceuta-black text-white border-ceuta-black'
-                : 'bg-ceuta-bg-soft text-ceuta-muted border-ceuta-border'
-            }`}
+            onClick={refresh}
+            disabled={refreshing}
+            className="shrink-0 flex items-center gap-1.5 px-4 py-2.5 rounded-full font-display text-[12.5px] font-bold tracking-[0.08em] uppercase border-[1.5px] border-ceuta-border text-ceuta-muted bg-white hover:border-ceuta-black hover:text-ceuta-black transition-all disabled:opacity-40"
           >
-            {f.label}
-            <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-black ${statusFilter === f.id ? 'bg-white/20 text-white' : 'bg-ceuta-bg-mid text-ceuta-black'}`}>
-              {f.count}
-            </span>
+            {refreshing ? '⏳' : '↻'} Actualizar
           </button>
-        ))}
+        </div>
       </div>
-
-      <p className="text-[11px] text-ceuta-muted mb-3">{filtered.length} artículos</p>
 
       {/* Lista */}
-      <div className="space-y-2">
-        {filtered.map((n) => {
+      <div className="bg-white border border-ceuta-border rounded-[14px] overflow-hidden">
+        {filtered.map((n, idx) => {
           const busy = acting[n.id]
           const result = actionResult[n.id]
+          const isPending = !n.published && !n.notify_queued
+          const isQueued = n.notify_queued
+
           return (
-            <div key={n.id} className="bg-ceuta-bg-soft rounded-[14px] p-3 flex gap-3 items-start">
-              {n.image_url && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={n.image_url}
-                  alt=""
-                  className="w-14 h-14 rounded-lg object-cover shrink-0"
-                />
-              )}
+            <div
+              key={n.id}
+              className={`flex items-center gap-4 px-5 py-4 transition-colors hover:bg-ceuta-bg-soft ${idx < filtered.length - 1 ? 'border-b border-ceuta-border' : ''}`}
+            >
+              {/* Thumb */}
+              <div className={`w-[92px] h-[60px] rounded-lg shrink-0 relative overflow-hidden bg-ceuta-bg-mid ${!n.image_url ? (isQueued ? 'bg-ceuta-gold' : isPending ? 'bg-ceuta-black' : 'bg-ceuta-bg-mid') : ''}`}
+                style={{ backgroundImage: n.image_url ? `url(${n.image_url})` : undefined, backgroundSize: 'cover', backgroundPosition: 'center' }}
+              />
+
+              {/* Body */}
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1 flex-wrap">
-                  <span className={`text-[9px] font-bold uppercase tracking-[0.08em] px-2 py-0.5 rounded-full ${SOURCE_COLORS[n.source] ?? 'bg-ceuta-bg-mid text-ceuta-muted'}`}>
+                <div className="flex items-center gap-2.5 mb-1 flex-wrap">
+                  <span className={`font-display text-[11px] font-bold tracking-[0.12em] uppercase text-ceuta-red`}>
                     {sourceLabels[n.source] ?? n.source}
                   </span>
-                  <StatusBadge item={n} />
-                  <span className="text-[10px] text-ceuta-muted">{fmtDate(n.published_at)}</span>
+                  {isQueued && (
+                    <span className="font-display text-[10px] font-extrabold tracking-[0.1em] uppercase px-2 py-0.5 rounded bg-ceuta-gold-soft text-[#8A6D00]">En cola</span>
+                  )}
+                  {!isQueued && n.published && (
+                    <span className="font-display text-[10px] font-extrabold tracking-[0.1em] uppercase px-2 py-0.5 rounded bg-[#E7F6EC] text-[#1E9E4B]">Publicada</span>
+                  )}
+                  {!isQueued && !n.published && (
+                    <span className="font-display text-[10px] font-extrabold tracking-[0.1em] uppercase px-2 py-0.5 rounded bg-ceuta-bg-mid text-ceuta-muted">Sin publicar</span>
+                  )}
+                  <span className="text-[11.5px] text-ceuta-muted">{fmtDate(n.published_at)}</span>
                 </div>
-                <p className="text-[13px] font-semibold text-ceuta-black leading-tight line-clamp-2 mb-2">
+                <div className="font-display font-bold text-[18px] tracking-[0.01em] uppercase text-ceuta-black leading-[1.1] truncate">
                   {n.url ? (
-                    <a href={n.url} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                    <a href={n.url} target="_blank" rel="noopener noreferrer" className="hover:text-ceuta-red transition-colors">
                       {n.title}
                     </a>
                   ) : n.title}
-                </p>
+                </div>
+                <div className="text-[12px] text-ceuta-muted mt-0.5">
+                  {SOURCE_COLORS[n.source] ? sourceLabels[n.source] ?? n.source : n.source}
+                  {n.published && !n.notify_queued && ' · Publicada en el feed'}
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex items-center gap-2 shrink-0">
                 {result ? (
-                  <span className="text-[11px] font-bold text-ceuta-black">{result}</span>
-                ) : !n.published && !n.notify_queued ? (
-                  /* Pendiente — mostrar acciones rápidas */
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => doAction(n.id, 'publish')}
-                      disabled={!!busy}
-                      className="text-[10px] font-bold uppercase tracking-[0.06em] px-2.5 py-1 rounded-lg bg-ceuta-black text-white disabled:opacity-40"
-                    >
-                      {busy === 'publish' ? '⏳' : 'Publicar'}
-                    </button>
+                  <span className="font-display text-[11px] font-bold text-ceuta-black">{result}</span>
+                ) : isPending ? (
+                  <>
                     <button
                       onClick={() => doAction(n.id, 'send')}
                       disabled={!!busy}
-                      className="text-[10px] font-bold uppercase tracking-[0.06em] px-2.5 py-1 rounded-lg bg-ceuta-red text-white disabled:opacity-40"
+                      className="font-display text-[12.5px] font-bold tracking-[0.1em] uppercase px-4 py-2.5 rounded-lg bg-ceuta-red text-white disabled:opacity-40 hover:bg-ceuta-red-dark transition-colors"
                     >
-                      {busy === 'send' ? '⏳' : 'Pub. + notif.'}
+                      {busy === 'send' ? '⏳' : 'Notificar'}
                     </button>
                     <button
-                      onClick={() => doAction(n.id, 'discard')}
+                      onClick={() => doAction(n.id, 'publish')}
                       disabled={!!busy}
-                      className="text-[10px] font-bold uppercase tracking-[0.06em] px-2.5 py-1 rounded-lg border border-ceuta-border text-ceuta-muted disabled:opacity-40"
+                      className="font-display text-[12.5px] font-bold tracking-[0.1em] uppercase px-4 py-2.5 rounded-lg border-[1.5px] border-ceuta-border text-ceuta-black bg-white hover:border-ceuta-black transition-colors disabled:opacity-40"
                     >
-                      {busy === 'discard' ? '⏳' : 'Descartar'}
+                      {busy === 'publish' ? '⏳' : 'Editar'}
                     </button>
-                  </div>
-                ) : null}
+                  </>
+                ) : (
+                  <button
+                    onClick={() => doAction(n.id, 'publish')}
+                    disabled={!!busy}
+                    className="font-display text-[12.5px] font-bold tracking-[0.1em] uppercase px-4 py-2.5 rounded-lg border-[1.5px] border-ceuta-border text-ceuta-black bg-white hover:border-ceuta-black transition-colors disabled:opacity-40"
+                  >
+                    {busy === 'publish' ? '⏳' : 'Editar'}
+                  </button>
+                )}
+                <button
+                  onClick={() => n.published ? doAction(n.id, 'discard') : deleteNews(n.id)}
+                  disabled={!!busy}
+                  className="w-[38px] h-[38px] rounded-lg border-[1.5px] border-ceuta-border text-ceuta-muted flex items-center justify-center hover:border-ceuta-red hover:text-ceuta-red hover:bg-ceuta-red-soft transition-all disabled:opacity-40"
+                  title={n.published ? 'Ocultar del feed' : 'Eliminar'}
+                >
+                  {(busy === 'delete' || busy === 'discard') ? <span className="text-[14px]">⏳</span> : <HideIcon />}
+                </button>
               </div>
-              <button
-                onClick={() => deleteNews(n.id)}
-                disabled={!!busy}
-                className="text-ceuta-muted hover:text-ceuta-red text-[16px] leading-none disabled:opacity-40 transition-colors shrink-0"
-                title="Eliminar"
-              >
-                {busy === 'delete' ? '⏳' : '🗑'}
-              </button>
             </div>
           )
         })}
+
         {filtered.length === 0 && (
-          <p className="text-[13px] text-ceuta-muted text-center py-8">Sin noticias que coincidan</p>
+          <div className="py-16 text-center font-display text-[14px] text-ceuta-muted uppercase tracking-[0.08em]">
+            Sin noticias que coincidan
+          </div>
         )}
+      </div>
+
+      {/* Footer */}
+      <div className="flex items-center justify-between pt-5 pb-16 text-[13px] text-ceuta-muted">
+        <span>Mostrando {filtered.length} de {news.length} noticias</span>
+        <button
+          onClick={refresh}
+          disabled={refreshing}
+          className="font-display text-[12.5px] font-bold tracking-[0.1em] uppercase px-4 py-2.5 rounded-lg border-[1.5px] border-ceuta-border text-ceuta-black bg-white hover:border-ceuta-black transition-colors disabled:opacity-40"
+        >
+          {refreshing ? '⏳' : 'Cargar más'}
+        </button>
       </div>
     </div>
   )

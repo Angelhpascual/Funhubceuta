@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { checkAdminAuth, unauthorizedResponse } from '@/infrastructure/admin/auth'
 
+export const maxDuration = 60
+
 // Enqueue via QStash so Vercel timeout doesn't cut the response
 async function enqueueViaQStash(path: string): Promise<{ queued: boolean }> {
   const base = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://adceutainfo.vercel.app'
@@ -18,11 +20,36 @@ async function enqueueViaQStash(path: string): Promise<{ queued: boolean }> {
   return { queued: res.ok }
 }
 
+// Call a cron endpoint directly (bypasses QStash signature requirement)
+async function callDirect(path: string): Promise<Record<string, unknown>> {
+  const base = process.env.VERCEL_ENV === 'production'
+    ? (process.env.NEXT_PUBLIC_BASE_URL ?? 'https://adceutainfo.vercel.app')
+    : process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : (process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000')
+  const secret = process.env.TEST_SECRET
+  if (!secret) throw new Error('TEST_SECRET no configurado')
+
+  const res = await fetch(`${base}${path}?secret=${secret}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: '{}',
+  })
+  if (!res.ok) {
+    const text = await res.text().catch(() => res.statusText)
+    throw new Error(`Error ${res.status}: ${text.slice(0, 200)}`)
+  }
+  return res.json()
+}
+
 const ACTIONS: Record<string, () => Promise<Record<string, unknown>>> = {
   news: async () => enqueueViaQStash('/api/cron/news'),
   matches: async () => enqueueViaQStash('/api/cron/matches'),
   'match-day': async () => enqueueViaQStash('/api/cron/match-day'),
-  'backfill-images': async () => enqueueViaQStash('/api/cron/backfill-images'),
+  // Image backfills run directly — QStash signature fails on preview URLs
+  'backfill-news-images': async () => callDirect('/api/cron/backfill-images'),
+  'backfill-squad-photos': async () => callDirect('/api/cron/backfill-squad-photos'),
+  'backfill-transfer-photos': async () => callDirect('/api/cron/backfill-transfer-photos'),
 }
 
 export async function POST(request: Request) {
@@ -36,10 +63,17 @@ export async function POST(request: Request) {
     payload?: { title: string; body: string; tag: string; url: string }
   }
 
-  // Custom push notification — call internally to avoid cross-origin issues
+  // Custom push notification — production subscribers
   if (action === 'push' && payload) {
     const { sendPush } = await import('@/infrastructure/push/sendPush')
     const result = await sendPush(payload)
+    return NextResponse.json({ ok: true, ...result })
+  }
+
+  // Custom push notification — develop/test subscribers only
+  if (action === 'push-dev' && payload) {
+    const { sendPushDev } = await import('@/infrastructure/push/sendPush')
+    const result = await sendPushDev(payload)
     return NextResponse.json({ ok: true, ...result })
   }
 
@@ -64,6 +98,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: `Unknown action: ${action}` }, { status: 400 })
   }
 
-  const result = await handler()
-  return NextResponse.json({ ok: true, action, result })
+  try {
+    const result = await handler()
+    return NextResponse.json({ ok: true, action, result })
+  } catch (err) {
+    return NextResponse.json({ ok: false, error: (err as Error).message }, { status: 500 })
+  }
 }
