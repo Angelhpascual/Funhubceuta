@@ -236,7 +236,9 @@ export function LiveMatchCard() {
               <br />
               {new Date(dateStr).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', timeZone: 'UTC' })}
               <br />
-              <span className="text-[16px] text-white/60">Por confirmar</span>
+              <span className="text-[16px] text-white/60">
+                {nextMatch.time && nextMatch.time !== '00:00' ? nextMatch.time : 'Por confirmar'}
+              </span>
             </div>
           </div>
           <div className="flex flex-col items-center gap-2">
@@ -306,7 +308,7 @@ export function LiveMatchCard() {
                     {d.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', timeZone: 'UTC' })}
                     <br />
                     <span className="text-[16px] text-white/60">
-                      Por confirmar
+                      {nextMatch?.time && nextMatch.time !== '00:00' ? nextMatch.time : 'Por confirmar'}
                     </span>
                   </div>
                 )
