@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import Image from 'next/image'
 import { LiveMatch } from '@/domain/match/LiveMatch'
 import { usePushNotifications } from '@/hooks/usePushNotifications'
 import { getLocalLogo } from '@/lib/teamLogos'
@@ -137,9 +138,15 @@ function MatchCardShell({ children, relative }: { children: React.ReactNode; rel
 
 function Competition() {
   return (
-    <div className="flex items-center gap-2 font-display text-[10.5px] font-bold uppercase tracking-[0.14em] text-ceuta-red">
+    <div className="flex items-center gap-2">
       <span className="inline-block size-[6px] rounded-full bg-ceuta-red" />
-      Liga Hypermotion
+      <Image
+        src="/liga-hypermotion-white.webp"
+        alt="Liga Hypermotion"
+        width={100}
+        height={12}
+        className="h-[12px] w-auto opacity-70"
+      />
     </div>
   )
 }
@@ -170,7 +177,7 @@ export function LiveMatchCard() {
 
   useEffect(() => {
     fetchLive()
-    fetch('/api/matches/next')
+    fetch('/api/matches/next', { cache: 'no-store' })
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
         if (d?.match) setNextMatch(d.match)
@@ -229,7 +236,9 @@ export function LiveMatchCard() {
               <br />
               {new Date(dateStr).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', timeZone: 'UTC' })}
               <br />
-              <span className="text-[16px] text-white/60">Por confirmar</span>
+              <span className="text-[16px] text-white/60">
+                {nextMatch.time && nextMatch.time !== '00:00' ? nextMatch.time : 'Por confirmar'}
+              </span>
             </div>
           </div>
           <div className="flex flex-col items-center gap-2">
@@ -239,16 +248,14 @@ export function LiveMatchCard() {
             </div>
           </div>
         </div>
-        <div className="mt-[18px] flex items-center justify-between border-t border-white/10 pt-[14px]">
-          <span className="font-display text-[11px] font-semibold uppercase tracking-[0.1em] text-white/50">
-            Liga Hypermotion
-          </span>
-          {nextMatch.espnEventId && (
-            <LineupButton
-              eventId={nextMatch.espnEventId}
-              match={`${nextMatch.homeTeam} vs ${nextMatch.awayTeam}`}
-            />
-          )}
+        <div className="mt-[18px] border-t border-white/10 pt-[14px]">
+          <Image
+            src="/liga-hypermotion-white.webp"
+            alt="Liga Hypermotion"
+            width={80}
+            height={10}
+            className="h-[10px] w-auto opacity-40"
+          />
         </div>
       </MatchCardShell>
     )
@@ -301,7 +308,7 @@ export function LiveMatchCard() {
                     {d.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', timeZone: 'UTC' })}
                     <br />
                     <span className="text-[16px] text-white/60">
-                      Por confirmar
+                      {nextMatch?.time && nextMatch.time !== '00:00' ? nextMatch.time : 'Por confirmar'}
                     </span>
                   </div>
                 )
@@ -319,24 +326,10 @@ export function LiveMatchCard() {
 
       <MatchEvents events={match.events} />
 
-      <div className="mt-[18px] flex items-center justify-between border-t border-white/10 pt-[14px]">
+      <div className="mt-[18px] border-t border-white/10 pt-[14px]">
         <span className="font-display text-[11px] font-semibold uppercase tracking-[0.1em] text-white/50">
           {match.venue || 'Liga Hypermotion'}
         </span>
-        {match.espnId && (() => {
-          const kickoff = nextMatch
-            ? new Date(`${nextMatch.date}T${nextMatch.time}:00`)
-            : new Date(match.startDate)
-          const minutesUntil = (kickoff.getTime() - Date.now()) / 60_000
-          const showLineup = isLive || isFinished || minutesUntil <= 20
-          return showLineup ? (
-            <LineupButton
-              eventId={match.espnId}
-              match={`${match.homeTeam} vs ${match.awayTeam}`}
-              score={(isLive || isFinished) ? `${match.homeScore}-${match.awayScore}` : undefined}
-            />
-          ) : null
-        })()}
       </div>
     </MatchCardShell>
   )

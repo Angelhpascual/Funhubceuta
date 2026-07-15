@@ -237,12 +237,27 @@ export function HomePage({
   return (
     <div className="page">
       {/* ── CABECERA ── */}
-      <div className="px-4 pt-5 pb-3">
-        <div className="font-display text-[11px] font-bold uppercase tracking-[0.14em] text-ceuta-red mb-1">
-          AD Ceuta FC
+      <div className="page-hero-full relative mt-2 overflow-hidden bg-ceuta-black px-[18px] pb-[52px] pt-[22px] text-white">
+        <div
+          className="pointer-events-none absolute bottom-0 right-[-40px] top-0 w-[180px]"
+          style={{
+            background: 'repeating-linear-gradient(-45deg, white 0 14px, #0A0A0A 14px 28px)',
+            clipPath: 'polygon(60px 0, 100% 0, 100% 100%, 0 100%)',
+          }}
+        />
+        <div className="flex items-center gap-2">
+          <div className="h-0.5 w-[18px] bg-ceuta-red" />
+          <span className="font-display text-[11px] font-bold uppercase tracking-[0.16em] text-ceuta-red">Temporada 2026–27 ·</span>
+          <Image
+            src="/liga-hypermotion.webp"
+            alt="Liga Hypermotion"
+            width={80}
+            height={10}
+            className="h-[10px] w-auto"
+          />
         </div>
-        <div className="font-display text-[26px] font-black uppercase leading-tight text-ceuta-black">
-          Al día
+        <div className="mt-2 font-display text-[38px] font-black uppercase leading-[0.95]">
+          AD CEUTA,<br /><em className="not-italic text-ceuta-gold">AL DÍA</em>
         </div>
       </div>
 

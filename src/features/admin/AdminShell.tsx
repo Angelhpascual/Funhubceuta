@@ -6,6 +6,7 @@ const ADMIN_NAV = [
   { id: '/admin', label: 'Dashboard' },
   { id: '/admin/noticias', label: 'Noticias' },
   { id: '/admin/mercado', label: 'Mercado' },
+  { id: '/admin/partidos', label: 'Partidos' },
 ]
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
