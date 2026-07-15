@@ -261,14 +261,20 @@ export function AdminActions({ syncOnly, notifOnly, deviceOnly }: { syncOnly?: b
       clearInterval(phaseInterval)
       stopElapsed()
       const lines: string[] = []
-      const d = directResult as Record<string, number | string>
+      // Trigger wraps the cron result under `result`
+      const raw = directResult as Record<string, unknown>
+      const d = (raw.result ?? raw) as Record<string, unknown>
       if (typeof d.optimized === 'number') lines.push(`${d.optimized} fotos optimizadas`)
       if (typeof d.recovered === 'number' && d.recovered > 0) lines.push(`${d.recovered} fotos recuperadas`)
       if (typeof d.pending === 'number' && d.pending > 0) lines.push(`${d.pending} pendientes`)
       if (typeof d.failed === 'number' && d.failed > 0) lines.push(`⚠️ ${d.failed} fallidas`)
+      if (Array.isArray(d.errors) && d.errors.length > 0) {
+        d.errors.slice(0, 3).forEach((e: unknown) => lines.push(`· ${String(e).slice(0, 70)}`))
+      }
       if (lines.length === 0) lines.push('OK')
-      set({ status: 'ok', phase: '', result: { lines, ok: true }, elapsed: 0 })
-      setTimeout(() => set(IDLE), 10000)
+      const hasError = typeof d.failed === 'number' && d.failed > 0
+      set({ status: hasError ? 'error' : 'ok', phase: '', result: { lines, ok: !hasError }, elapsed: 0 })
+      setTimeout(() => set(IDLE), 15000)
       return
     }
 
