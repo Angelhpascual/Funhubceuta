@@ -238,97 +238,111 @@ export function MvpAdmin() {
       {(!activeSession || activeSession.status === 'closed') && (
         creating ? (
           <div className="rounded-[14px] border border-ceuta-border p-4 space-y-4">
-            <div className="font-display font-bold text-[14px] uppercase tracking-[0.06em] text-ceuta-black">Nueva sesión MVP</div>
+            <div className="text-[13px] font-bold text-ceuta-black">Nueva sesión MVP</div>
 
             {/* Toggle casa/fuera */}
-            <div>
-              <label className="font-display text-[10px] font-bold tracking-[0.12em] uppercase text-ceuta-muted block mb-2">Partido</label>
+            <div className="flex items-center gap-2">
               <button type="button" onClick={() => { const next = !ceutaHome; setCeutaHome(next); if (awayName) setMatchLabel(next ? `AD Ceuta vs ${awayName}` : `${awayName} vs AD Ceuta`) }}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-ceuta-border bg-ceuta-bg-soft text-[11px] font-bold text-ceuta-black mb-3">
-                {ceutaHome ? '🏠 Local' : '✈️ Visitante'} <span className="text-ceuta-muted text-[10px]">(cambiar)</span>
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] border border-ceuta-border bg-ceuta-bg-soft text-[10px] font-bold text-ceuta-black">
+                {ceutaHome ? '🏠 Local' : '✈️ Visitante'} <span className="text-ceuta-muted text-[9px]">(cambiar)</span>
               </button>
+            </div>
 
-              {/* Preview partido */}
-              <div className="flex items-center justify-center gap-4 py-3 rounded-xl bg-ceuta-bg-soft border border-ceuta-border mb-3">
-                {ceutaHome ? (
-                  <>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={CEUTA.logo} alt="AD Ceuta" width={32} height={32} className="object-contain" />
-                    <div className="text-center">
-                      <div className="font-display text-[11px] font-bold text-ceuta-black">AD Ceuta</div>
-                      <div className="font-display text-[9px] text-ceuta-muted font-bold uppercase tracking-widest">vs</div>
-                      <div className="font-display text-[11px] font-bold text-ceuta-black">{awayName || 'Rival'}</div>
-                    </div>
-                    {awayLogo
-                      // eslint-disable-next-line @next/next/no-img-element
-                      ? <img src={awayLogo} alt="" width={32} height={32} className="object-contain" />
-                      : <div className="w-8 h-8 rounded-full bg-ceuta-bg-mid flex items-center justify-center text-[9px] font-black text-ceuta-muted">{awayName ? awayName.slice(0,3).toUpperCase() : '?'}</div>
-                    }
-                  </>
-                ) : (
-                  <>
-                    {awayLogo
-                      // eslint-disable-next-line @next/next/no-img-element
-                      ? <img src={awayLogo} alt="" width={32} height={32} className="object-contain" />
-                      : <div className="w-8 h-8 rounded-full bg-ceuta-bg-mid flex items-center justify-center text-[9px] font-black text-ceuta-muted">{awayName ? awayName.slice(0,3).toUpperCase() : '?'}</div>
-                    }
-                    <div className="text-center">
-                      <div className="font-display text-[11px] font-bold text-ceuta-black">{awayName || 'Rival'}</div>
-                      <div className="font-display text-[9px] text-ceuta-muted font-bold uppercase tracking-widest">vs</div>
-                      <div className="font-display text-[11px] font-bold text-ceuta-black">AD Ceuta</div>
-                    </div>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={CEUTA.logo} alt="AD Ceuta" width={32} height={32} className="object-contain" />
-                  </>
-                )}
+            {/* Preview partido */}
+            <div className="flex items-center justify-center gap-3 py-3 rounded-[12px] bg-ceuta-bg-soft border border-ceuta-border">
+              {ceutaHome ? (
+                <>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={CEUTA.logo} alt="AD Ceuta" width={32} height={32} className="object-contain" />
+                  <div className="text-center">
+                    <div className="text-[10px] font-bold text-ceuta-black">AD Ceuta</div>
+                    <div className="text-[9px] text-ceuta-muted font-bold uppercase tracking-widest">vs</div>
+                    <div className="text-[10px] font-bold text-ceuta-black">{awayName || 'Rival'}</div>
+                  </div>
+                  {awayLogo
+                    // eslint-disable-next-line @next/next/no-img-element
+                    ? <img src={awayLogo} alt="" width={32} height={32} className="object-contain" />
+                    : <div className="w-8 h-8 rounded-full bg-ceuta-bg-mid flex items-center justify-center text-[9px] font-black text-ceuta-muted">{awayName ? awayName.slice(0,3).toUpperCase() : '?'}</div>
+                  }
+                </>
+              ) : (
+                <>
+                  {awayLogo
+                    // eslint-disable-next-line @next/next/no-img-element
+                    ? <img src={awayLogo} alt="" width={32} height={32} className="object-contain" />
+                    : <div className="w-8 h-8 rounded-full bg-ceuta-bg-mid flex items-center justify-center text-[9px] font-black text-ceuta-muted">{awayName ? awayName.slice(0,3).toUpperCase() : '?'}</div>
+                  }
+                  <div className="text-center">
+                    <div className="text-[10px] font-bold text-ceuta-black">{awayName || 'Rival'}</div>
+                    <div className="text-[9px] text-ceuta-muted font-bold uppercase tracking-widest">vs</div>
+                    <div className="text-[10px] font-bold text-ceuta-black">AD Ceuta</div>
+                  </div>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={CEUTA.logo} alt="AD Ceuta" width={32} height={32} className="object-contain" />
+                </>
+              )}
+            </div>
+
+            {/* Selector rival */}
+            <select
+              className="w-full px-3 py-2 rounded-[10px] border border-ceuta-border text-[12px] bg-white text-ceuta-black"
+              value={awayName}
+              onChange={(e) => {
+                const name = e.target.value
+                setAwayName(name)
+                setMatchLabel(name ? (ceutaHome ? `AD Ceuta vs ${name}` : `${name} vs AD Ceuta`) : '')
+                const found = teams.find(t => t.name === name)
+                if (found) setAwayLogo(found.logo)
+              }}
+            >
+              <option value="">Selecciona el rival…</option>
+              {teams.map(t => <option key={t.name} value={t.name}>{t.name}</option>)}
+            </select>
+
+            {/* Logo picker */}
+            <div>
+              <div className="text-[9px] font-bold uppercase tracking-widest text-ceuta-muted mb-1">
+                Escudo del rival {awayLogo ? '✓' : '(opcional)'}
               </div>
-
-              {/* Selector rival */}
-              <select
-                className="w-full px-3 py-2 rounded-xl border border-ceuta-border text-[13px] bg-white text-ceuta-black mb-2"
-                value={awayName}
-                onChange={(e) => {
-                  const name = e.target.value
-                  setAwayName(name)
-                  setMatchLabel(name ? (ceutaHome ? `AD Ceuta vs ${name}` : `${name} vs AD Ceuta`) : '')
-                  const found = teams.find(t => t.name === name)
-                  if (found) setAwayLogo(found.logo)
-                }}
-              >
-                <option value="">Selecciona el rival...</option>
-                {teams.map(t => <option key={t.name} value={t.name}>{t.name}</option>)}
-              </select>
-
-              {/* Logo picker */}
-              <button type="button" className="w-full px-3 py-2 rounded-xl border border-ceuta-border text-[11px] text-ceuta-muted bg-ceuta-bg-soft text-left mb-2"
+              <button type="button" className="w-full px-3 py-2 rounded-[10px] border border-ceuta-border text-[11px] text-ceuta-muted bg-ceuta-bg-soft text-left"
                 onClick={() => setShowLogoPicker(p => !p)}>
-                {awayLogo ? '✓ Escudo seleccionado — cambiar' : 'Elegir escudo →'}
+                {awayLogo ? 'Cambiar escudo' : 'Elegir escudo →'}
               </button>
               {showLogoPicker && (
-                <div className="grid grid-cols-5 gap-2 max-h-40 overflow-y-auto p-2 rounded-xl bg-ceuta-bg-soft border border-ceuta-border mb-2">
+                <div className="mt-2 grid grid-cols-5 gap-2 max-h-40 overflow-y-auto p-2 rounded-[10px] bg-ceuta-bg-soft border border-ceuta-border">
+                  <button type="button"
+                    className={`flex flex-col items-center gap-1 p-1.5 rounded-[8px] border ${!awayLogo ? 'border-ceuta-red bg-red-50' : 'border-transparent'}`}
+                    onClick={() => { setAwayLogo(null); setShowLogoPicker(false) }}>
+                    <div className="w-8 h-8 rounded-full bg-ceuta-bg-mid flex items-center justify-center text-[8px] font-black text-ceuta-muted">?</div>
+                    <span className="text-[8px] text-ceuta-muted">Sin escudo</span>
+                  </button>
                   {teams.filter(t => t.logo).map(t => (
-                    <button key={t.logo} type="button"
-                      className={`flex flex-col items-center gap-1 p-1.5 rounded-lg border ${awayLogo === t.logo ? 'border-ceuta-red bg-red-50' : 'border-transparent'}`}
+                    <button key={t.name} type="button"
+                      className={`flex flex-col items-center gap-1 p-1.5 rounded-[8px] border ${awayLogo === t.logo ? 'border-ceuta-red bg-red-50' : 'border-transparent'}`}
                       onClick={() => { setAwayLogo(t.logo); setShowLogoPicker(false) }}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={t.logo!} alt={t.name} width={28} height={28} className="object-contain" />
-                      <span className="text-[7px] text-ceuta-muted text-center leading-tight line-clamp-2">{t.name}</span>
+                      <img src={t.logo!} alt={t.name} width={32} height={32} className="object-contain" />
+                      <span className="text-[8px] text-ceuta-muted text-center leading-tight">{t.name.split(' ').slice(-1)[0]}</span>
                     </button>
                   ))}
                 </div>
               )}
+            </div>
 
-              <input type="text" placeholder="Etiqueta (ej: J1 · 12 Jul)" value={matchLabel}
+            {/* Etiqueta */}
+            <div>
+              <div className="text-[9px] font-bold uppercase tracking-widest text-ceuta-muted mb-1">Etiqueta (opcional)</div>
+              <input type="text" placeholder="Ej: J1 · 12 Jul" value={matchLabel}
                 onChange={(e) => setMatchLabel(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-ceuta-border text-[13px] bg-ceuta-bg-soft" />
+                className="w-full px-3 py-2 rounded-[10px] border border-ceuta-border text-[12px] bg-white text-ceuta-black" />
             </div>
 
             {/* Selector jugadores */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="font-display text-[10px] font-bold tracking-[0.12em] uppercase text-ceuta-muted">
+                <div className="text-[9px] font-bold uppercase tracking-widest text-ceuta-muted">
                   Candidatos ({selectedIds.size})
-                </label>
+                </div>
                 {selectedIds.size > 0 && (
                   <button onClick={() => setSelectedIds(new Set())} className="text-[10px] text-ceuta-muted">Limpiar</button>
                 )}
@@ -339,14 +353,14 @@ export function MvpAdmin() {
                 <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
                   {grouped.map(({ pos, players }) => (
                     <div key={pos}>
-                      <div className="font-display text-[9px] font-bold uppercase tracking-widest text-ceuta-muted mb-1">{pos}</div>
+                      <div className="text-[9px] font-bold uppercase tracking-widest text-ceuta-muted mb-1">{pos}</div>
                       <div className="flex flex-wrap gap-1.5">
                         {players.map(p => {
                           const sel = selectedIds.has(p.id)
                           return (
                             <button key={p.id} onClick={() => togglePlayer(p.id)}
-                              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-display text-[11px] font-bold border transition-colors ${
-                                sel ? 'bg-ceuta-red text-white border-ceuta-red' : 'bg-ceuta-bg-soft text-ceuta-black border-ceuta-border'
+                              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-[8px] font-display text-[11px] font-bold border transition-colors ${
+                                sel ? 'bg-ceuta-black text-white border-ceuta-black' : 'bg-ceuta-bg-soft text-ceuta-black border-ceuta-border'
                               }`}>
                               <span className="opacity-60">#{p.dorsal}</span>{p.name}
                             </button>
@@ -361,19 +375,20 @@ export function MvpAdmin() {
 
             <div className="flex gap-2">
               <button
-                disabled={busy || !matchLabel || !awayName || selectedIds.size < 2}
+                disabled={busy || !awayName || selectedIds.size < 2}
                 onClick={() => apiCall('/api/admin/mvp/session', 'POST', {
-                  matchLabel, candidates: buildCandidates(),
+                  matchLabel: matchLabel || (ceutaHome ? `AD Ceuta vs ${awayName}` : `${awayName} vs AD Ceuta`),
+                  candidates: buildCandidates(),
                   matchMeta: ceutaHome
                     ? { home: CEUTA, away: { name: awayName, logo: awayLogo } }
                     : { home: { name: awayName, logo: awayLogo }, away: CEUTA },
                 })}
-                className="flex-1 py-2.5 rounded-xl bg-ceuta-red text-white font-display text-[12px] font-bold uppercase tracking-[0.08em] disabled:opacity-40"
+                className="flex-1 py-2.5 rounded-[10px] bg-ceuta-black text-white text-[12px] font-bold uppercase disabled:opacity-40"
               >
                 Crear ({selectedIds.size} jugadores)
               </button>
               <button onClick={() => { setCreating(false); setSelectedIds(new Set()) }}
-                className="px-4 py-2.5 rounded-xl bg-ceuta-bg-mid text-ceuta-black font-display text-[12px] font-bold border border-ceuta-border">
+                className="px-4 py-2.5 rounded-[10px] bg-ceuta-bg-mid text-ceuta-black text-[12px] font-bold">
                 Cancelar
               </button>
             </div>
