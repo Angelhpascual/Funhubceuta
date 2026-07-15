@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { MatchesSupabaseRepository } from '@/infrastructure/supabase/MatchesSupabaseRepository'
 
 const repo = new MatchesSupabaseRepository()
@@ -13,5 +14,9 @@ export async function PATCH(req: NextRequest) {
   const weekday = WEEKDAYS[d.getUTCDay()] ?? 'DOM'
 
   await repo.updateMatchSchedule(id, date, time ?? '', weekday)
+
+  revalidatePath('/')
+  revalidatePath('/partidos')
+
   return NextResponse.json({ ok: true })
 }
