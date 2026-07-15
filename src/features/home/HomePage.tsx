@@ -236,6 +236,16 @@ export function HomePage({
 
   return (
     <div className="page">
+      {/* ── CABECERA ── */}
+      <div className="px-4 pt-5 pb-3">
+        <div className="font-display text-[11px] font-bold uppercase tracking-[0.14em] text-ceuta-red mb-1">
+          AD Ceuta FC
+        </div>
+        <div className="font-display text-[26px] font-black uppercase leading-tight text-ceuta-black">
+          Al día
+        </div>
+      </div>
+
       {/* ── HERO ── */}
       {featured ? (
         <a
