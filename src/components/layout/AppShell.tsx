@@ -1,7 +1,7 @@
 'use client'
 
 import { usePathname, useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { InstallModal } from '@/components/ui/InstallModal'
 
 const NAV_MOBILE = [
@@ -170,9 +170,24 @@ function removeHtmlLoader() {
   el.style.transition = 'opacity 0.3s ease'
 }
 
+const LIVE_ICON = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" />
+    <polygon points="10 8 16 12 10 16 10 8" fill="currentColor" stroke="none" />
+  </svg>
+)
+
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
+  const [liveActive, setLiveActive] = useState(false)
+
+  useEffect(() => {
+    fetch('/api/admin/live-control', { cache: 'no-store' })
+      .then((r) => r.ok ? r.json() : null)
+      .then((d) => { if (d?.active) setLiveActive(true) })
+      .catch(() => {})
+  }, [])
 
   // SSR routes + admin: remove loader immediately on hydration (page is ready)
   useEffect(() => {
@@ -208,16 +223,30 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       {/* Bottom nav: mobile only */}
       <div className="bottom-nav">
-        {NAV_MOBILE.map((n) => (
-          <button
-            key={n.id}
-            className={`nav-item ${pathname === n.id ? 'active' : ''}`}
-            onClick={() => router.push(n.id)}
-          >
-            {n.icon}
-            <span className="nav-label">{n.label}</span>
-          </button>
-        ))}
+        {NAV_MOBILE.map((n) => {
+          const isLiveTab = n.id === '/mercado' && liveActive
+          const href = isLiveTab ? '/live' : n.id
+          const label = isLiveTab ? 'Live' : n.label
+          const icon = isLiveTab ? LIVE_ICON : n.icon
+          return (
+            <button
+              key={n.id}
+              className={`nav-item ${pathname === href ? 'active' : ''} ${isLiveTab ? 'text-ceuta-red' : ''}`}
+              onClick={() => router.push(href)}
+            >
+              {isLiveTab ? (
+                <span className="relative">
+                  {icon}
+                  <span className="absolute -right-0.5 -top-0.5 flex size-2 items-center justify-center">
+                    <span className="absolute inline-flex size-full animate-ping rounded-full bg-ceuta-red opacity-75" />
+                    <span className="relative inline-flex size-1.5 rounded-full bg-ceuta-red" />
+                  </span>
+                </span>
+              ) : icon}
+              <span className="nav-label">{label}</span>
+            </button>
+          )
+        })}
       </div>
     </div>
   )

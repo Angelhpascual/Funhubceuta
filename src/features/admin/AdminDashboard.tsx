@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { AdminActions } from './AdminActions'
+import { LiveControl } from './LiveControl'
 import { MvpAdmin } from './MvpAdmin'
 import { PredictionAdmin } from './PredictionAdmin'
 import { ActivityTimeline } from './ActivityTimeline'
@@ -173,6 +174,16 @@ export function AdminDashboard({ stats }: { stats: AdminStats }) {
 
           {/* Right column */}
           <div className="flex flex-col gap-5">
+
+            {/* Live */}
+            <Module>
+              <div className="flex items-center justify-between gap-3 px-5 pt-5">
+                <ModuleTitle>Partido en vivo</ModuleTitle>
+              </div>
+              <div className="px-5 pb-5 mt-4">
+                <LiveControl />
+              </div>
+            </Module>
 
             {/* MVP */}
             <Module>
