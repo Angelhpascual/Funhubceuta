@@ -108,9 +108,13 @@ export function PredictionBanner() {
           <div className="pred-banner-body">
             {session.status === 'open' && !hasMine && (
               <>
-                <div className="pred-banner-ic"><IconDice /></div>
+                <div className="pred-banner-score">
+                  <div className="pred-banner-box pred-banner-box--empty">?</div>
+                  <div className="pred-banner-colon">:</div>
+                  <div className="pred-banner-box pred-banner-box--empty">?</div>
+                </div>
                 <div className="pred-banner-main">
-                  <b>¿Qué crees que pasará?</b>
+                  <b>Haz tu predicción</b>
                   <span>Predice el marcador y suma puntos</span>
                 </div>
               </>
@@ -149,10 +153,6 @@ export function PredictionBanner() {
               </>
             )}
           </div>
-
-          {session.status === 'open' && !hasMine && (
-            <div className="pred-banner-cta">Hacer mi predicción</div>
-          )}
 
           <div className="pred-banner-chev"><IconChevron /></div>
         </button>
