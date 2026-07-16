@@ -206,9 +206,16 @@ export default function LivePage() {
             {loading ? (
               <div className="h-12 w-20 animate-pulse rounded bg-white/10 mx-auto" />
             ) : isLive || isPost ? (
-              <div className="font-display text-[52px] font-black leading-none tracking-[-0.02em]">
-                {match!.homeScore} <span className="text-white/30">–</span> {match!.awayScore}
-              </div>
+              <>
+                <div className="font-display text-[52px] font-black leading-none tracking-[-0.02em]">
+                  {match!.homeScore} <span className="text-white/30">–</span> {match!.awayScore}
+                </div>
+                {isLive && match!.clock && (
+                  <div className="mt-1 font-display text-[13px] font-black text-white/50 tracking-[0.06em]">
+                    {match!.clock}&apos;
+                  </div>
+                )}
+              </>
             ) : (
               <div className="font-display text-[16px] font-black tracking-[0.16em] text-white/40">VS</div>
             )}
