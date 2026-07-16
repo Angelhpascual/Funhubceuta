@@ -1,6 +1,25 @@
 import { NextResponse } from 'next/server'
 import { setConfig, deleteConfig } from '@/infrastructure/supabase/AppConfigRepository'
+import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
 import type { LiveMatch, LineupPlayer, MatchStat } from '@/domain/match/LiveMatch'
+
+async function getNextMatch(): Promise<{ homeTeam: string; awayTeam: string; venue: string; startDate: string }> {
+  const { data } = await supabaseAdmin
+    .from('matches')
+    .select('home_team, away_team, venue, date')
+    .gte('date', new Date().toISOString().split('T')[0])
+    .order('date', { ascending: true })
+    .limit(1)
+    .single()
+
+  if (!data) return { homeTeam: 'FC Andorra', awayTeam: 'AD Ceuta FC', venue: 'Estadio de la FAF, Encamp', startDate: new Date().toISOString() }
+  return {
+    homeTeam: data.home_team,
+    awayTeam: data.away_team,
+    venue: data.venue ?? 'Por confirmar',
+    startDate: new Date(data.date).toISOString(),
+  }
+}
 
 const CEUTA_LINEUP: LineupPlayer[] = [
   { name: 'Bernabé Barragán', jersey: '1',  position: 'GK', starter: true },
@@ -39,21 +58,22 @@ function stats(homePoss: number, homeShots: number, awayShots: number, homeCorne
   ]
 }
 
-const BASE: LiveMatch = {
-  espnId: 'mock-001',
-  homeTeam: 'FC Andorra',
-  awayTeam: 'AD Ceuta FC',
-  homeScore: 0,
-  awayScore: 0,
-  events: [],
-  venue: 'Estadio de la FAF, Encamp',
-  startDate: new Date().toISOString(),
-  clock: '',
-  status: '',
-  state: 'pre',
-}
+function buildScenarios(homeTeam: string, awayTeam: string, venue: string, startDate: string): Record<string, LiveMatch> {
+  const BASE: LiveMatch = {
+    espnId: 'mock-001',
+    homeTeam,
+    awayTeam,
+    homeScore: 0,
+    awayScore: 0,
+    events: [],
+    venue,
+    startDate,
+    clock: '',
+    status: '',
+    state: 'pre',
+  }
 
-const SCENARIOS: Record<string, LiveMatch> = {
+  return {
   pre: { ...BASE, state: 'pre', homeLineup: RIVAL_LINEUP, awayLineup: CEUTA_LINEUP },
   live_0_0: { ...BASE, state: 'in', clock: "23'", status: '1st Half', homeLineup: RIVAL_LINEUP, awayLineup: CEUTA_LINEUP },
   live_goal_ceuta: {
@@ -195,6 +215,7 @@ const SCENARIOS: Record<string, LiveMatch> = {
     { type: 'goal', minute: "10'", team: 'home', playerName: 'García' },
     { type: 'goal', minute: "82'", team: 'home', playerName: 'Ramos' },
   ]},
+  }
 }
 
 export async function POST(req: Request) {
@@ -204,6 +225,9 @@ export async function POST(req: Request) {
     await deleteConfig('live_match_mock')
     return NextResponse.json({ ok: true, cleared: true })
   }
+
+  const { homeTeam, awayTeam, venue, startDate } = await getNextMatch()
+  const SCENARIOS = buildScenarios(homeTeam, awayTeam, venue, startDate)
 
   const mock = SCENARIOS[scenario]
   if (!mock) return NextResponse.json({ error: 'Unknown scenario' }, { status: 400 })
