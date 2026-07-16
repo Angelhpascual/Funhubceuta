@@ -300,7 +300,7 @@ export function PartidosPage({ upcoming = [], results = [], previousSeason = [] 
   return (
     <div className="page">
       {/* ── HERO ── */}
-      <div className="page-hero-full relative mt-2 overflow-hidden bg-[var(--black)] px-[18px] pb-[14px] pt-[22px] text-white">
+      <div className="page-hero-full relative mt-2 overflow-hidden bg-ceuta-black px-[18px] pb-[52px] pt-[22px] text-white">
         <div
           className="pointer-events-none absolute bottom-0 right-[-40px] top-0 w-[180px]"
           style={{
@@ -308,12 +308,14 @@ export function PartidosPage({ upcoming = [], results = [], previousSeason = [] 
             clipPath: 'polygon(60px 0, 100% 0, 100% 100%, 0 100%)',
           }}
         />
-        <div className="relative z-[1] flex items-center gap-2 font-display text-[11px] font-bold uppercase tracking-[0.16em] text-[var(--red)]">
-          <div className="h-0.5 w-[18px] bg-[var(--red)]" />
+        <div className="flex items-center gap-2 font-display text-[11px] font-bold uppercase tracking-[0.16em] text-ceuta-red">
+          <div className="h-0.5 w-[18px] bg-ceuta-red" />
           Temporada 2026–27 · Liga Hypermotion
         </div>
-        <div className="relative z-[1] mt-[6px] font-display text-[32px] font-black uppercase leading-[0.95]">
-          Partidos<span className="text-[var(--gold)]">.</span>
+        <div className="mt-2 font-display text-[38px] font-black uppercase leading-[0.95]">
+          PARTIDOS <em className="not-italic text-ceuta-gold">Y</em>
+          <br />
+          <em className="not-italic text-ceuta-gold">RESULTADOS</em>
         </div>
       </div>
 
