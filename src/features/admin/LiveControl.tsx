@@ -37,11 +37,15 @@ export function LiveControl() {
 
   async function load() {
     setStatus('loading')
-    const res = await fetch_('/api/admin/live-control')
-    if (!res.ok) { setStatus('error'); return }
-    const data = await res.json()
-    setStatus(data.active ? 'active' : 'idle')
-    setScheduleId(data.scheduleId ?? null)
+    try {
+      const res = await fetch_('/api/admin/live-control')
+      if (!res.ok) { setStatus('error'); return }
+      const data = await res.json()
+      setStatus(data.active ? 'active' : 'idle')
+      setScheduleId(data.scheduleId ?? null)
+    } catch {
+      setStatus('error')
+    }
   }
 
   useEffect(() => { load() }, [])
@@ -78,10 +82,10 @@ export function LiveControl() {
         )}
 
         <div className="mb-3">
-          <div className="text-[11px] font-bold uppercase tracking-[0.14em] opacity-70">
+          <div className="text-[11px] font-bold uppercase tracking-[0.14em] opacity-70 text-white">
             {status === 'loading' ? 'Cargando...' : isActive ? 'EN VIVO' : 'INACTIVO'}
           </div>
-          <div className="mt-1 font-display text-[22px] font-black uppercase leading-tight">
+          <div className="mt-1 font-display text-[22px] font-black uppercase leading-tight text-white">
             {isActive ? 'Partido activo' : 'Sin partido'}
           </div>
           {isActive && scheduleId && (
@@ -97,8 +101,8 @@ export function LiveControl() {
             disabled={acting}
             className={`w-full rounded-[10px] py-2.5 font-display text-[12px] font-black uppercase tracking-[0.08em] transition-opacity disabled:opacity-40 ${
               isActive
-                ? 'bg-white text-ceuta-red'
-                : 'bg-ceuta-red text-white'
+                ? 'bg-white text-[var(--red)]'
+                : 'bg-[var(--red)] text-white'
             }`}
           >
             {acting

@@ -1,7 +1,7 @@
 'use client'
 
 import { usePathname, useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { InstallModal } from '@/components/ui/InstallModal'
 
 const NAV_MOBILE = [
@@ -177,17 +177,9 @@ const LIVE_ICON = (
   </svg>
 )
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+export function AppShell({ children, liveActive }: { children: React.ReactNode; liveActive: boolean }) {
   const pathname = usePathname()
   const router = useRouter()
-  const [liveActive, setLiveActive] = useState(false)
-
-  useEffect(() => {
-    fetch('/api/admin/live-control', { cache: 'no-store' })
-      .then((r) => r.ok ? r.json() : null)
-      .then((d) => { if (d?.active) setLiveActive(true) })
-      .catch(() => {})
-  }, [])
 
   // SSR routes + admin: remove loader immediately on hydration (page is ready)
   useEffect(() => {
