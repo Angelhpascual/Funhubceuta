@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { setConfig, deleteConfig } from '@/infrastructure/supabase/AppConfigRepository'
-import type { LiveMatch, LineupPlayer } from '@/domain/match/LiveMatch'
+import type { LiveMatch, LineupPlayer, MatchStat } from '@/domain/match/LiveMatch'
 
 const CEUTA_LINEUP: LineupPlayer[] = [
   { name: 'Bernabé Barragán', jersey: '1',  position: 'GK', starter: true },
@@ -29,6 +29,15 @@ const RIVAL_LINEUP: LineupPlayer[] = [
   { name: 'Fernández',jersey: '11', position: 'LW', starter: true },
   { name: 'Pérez',    jersey: '9',  position: 'ST', starter: true },
 ]
+
+function stats(homePoss: number, homeShots: number, awayShots: number, homeCorners: number, awayCorners: number, homePass: number, awayPass: number): MatchStat[] {
+  return [
+    { name: 'possessionPct', displayName: 'Posesión', home: String(homePoss), away: String(100 - homePoss) },
+    { name: 'shotsOnTarget', displayName: 'Tiros a puerta', home: String(homeShots), away: String(awayShots) },
+    { name: 'wonCorners',    displayName: 'Córners',        home: String(homeCorners), away: String(awayCorners) },
+    { name: 'passPct',       displayName: 'Precisión pases', home: String(homePass), away: String(awayPass) },
+  ]
+}
 
 const BASE: LiveMatch = {
   espnId: 'mock-001',
@@ -75,6 +84,105 @@ const SCENARIOS: Record<string, LiveMatch> = {
       { type: 'goal', minute: "74'", team: 'away', playerName: 'Hassan' },
     ],
   },
+  // ── Full simulation steps ──
+  sim_pre: {
+    ...BASE, state: 'pre',
+    homeLineup: RIVAL_LINEUP, awayLineup: CEUTA_LINEUP,
+    stats: stats(50, 0, 0, 0, 0, 0, 0),
+  },
+  sim_kickoff: {
+    ...BASE, state: 'in', clock: "1'",
+    homeLineup: RIVAL_LINEUP, awayLineup: CEUTA_LINEUP,
+    stats: stats(52, 0, 1, 0, 0, 78, 74),
+  },
+  sim_amarilla: {
+    ...BASE, state: 'in', clock: "15'",
+    homeLineup: RIVAL_LINEUP, awayLineup: CEUTA_LINEUP,
+    events: [{ type: 'yellowCard', minute: "15'", team: 'home', playerName: 'García' }],
+    stats: stats(44, 1, 2, 1, 1, 76, 81),
+  },
+  sim_goal1: {
+    ...BASE, state: 'in', clock: "23'", awayScore: 1,
+    homeLineup: RIVAL_LINEUP, awayLineup: CEUTA_LINEUP,
+    events: [
+      { type: 'yellowCard', minute: "15'", team: 'home', playerName: 'García' },
+      { type: 'goal',       minute: "23'", team: 'away', playerName: 'Zalazar' },
+    ],
+    stats: stats(41, 1, 4, 1, 2, 75, 83),
+  },
+  sim_mid1: {
+    ...BASE, state: 'in', clock: "38'", awayScore: 1,
+    homeLineup: RIVAL_LINEUP, awayLineup: CEUTA_LINEUP,
+    events: [
+      { type: 'yellowCard', minute: "15'", team: 'home', playerName: 'García' },
+      { type: 'goal',       minute: "23'", team: 'away', playerName: 'Zalazar' },
+    ],
+    stats: stats(39, 2, 6, 2, 4, 74, 84),
+  },
+  sim_halftime: {
+    ...BASE, state: 'in', clock: "45+2'", awayScore: 1,
+    homeLineup: RIVAL_LINEUP, awayLineup: CEUTA_LINEUP,
+    events: [
+      { type: 'yellowCard', minute: "15'", team: 'home', playerName: 'García' },
+      { type: 'goal',       minute: "23'", team: 'away', playerName: 'Zalazar' },
+    ],
+    stats: stats(38, 2, 7, 3, 4, 73, 85),
+  },
+  sim_2half: {
+    ...BASE, state: 'in', clock: "50'", awayScore: 1,
+    homeLineup: RIVAL_LINEUP, awayLineup: CEUTA_LINEUP,
+    events: [
+      { type: 'yellowCard', minute: "15'", team: 'home', playerName: 'García' },
+      { type: 'goal',       minute: "23'", team: 'away', playerName: 'Zalazar' },
+    ],
+    stats: stats(41, 3, 7, 3, 5, 75, 84),
+  },
+  sim_goal_rival: {
+    ...BASE, state: 'in', clock: "58'", homeScore: 1, awayScore: 1,
+    homeLineup: RIVAL_LINEUP, awayLineup: CEUTA_LINEUP,
+    events: [
+      { type: 'yellowCard', minute: "15'", team: 'home', playerName: 'García' },
+      { type: 'goal',       minute: "23'", team: 'away', playerName: 'Zalazar' },
+      { type: 'goal',       minute: "58'", team: 'home', playerName: 'Molina' },
+    ],
+    stats: stats(43, 4, 8, 4, 6, 76, 83),
+  },
+  sim_roja: {
+    ...BASE, state: 'in', clock: "65'", homeScore: 1, awayScore: 1,
+    homeLineup: RIVAL_LINEUP, awayLineup: CEUTA_LINEUP,
+    events: [
+      { type: 'yellowCard', minute: "15'", team: 'home', playerName: 'García' },
+      { type: 'goal',       minute: "23'", team: 'away', playerName: 'Zalazar' },
+      { type: 'goal',       minute: "58'", team: 'home', playerName: 'Molina' },
+      { type: 'redCard',    minute: "65'", team: 'home', playerName: 'Torres' },
+    ],
+    stats: stats(45, 5, 9, 5, 7, 78, 82),
+  },
+  sim_goal2: {
+    ...BASE, state: 'in', clock: "74'", homeScore: 1, awayScore: 2,
+    homeLineup: RIVAL_LINEUP, awayLineup: CEUTA_LINEUP,
+    events: [
+      { type: 'yellowCard', minute: "15'", team: 'home', playerName: 'García' },
+      { type: 'goal',       minute: "23'", team: 'away', playerName: 'Zalazar' },
+      { type: 'goal',       minute: "58'", team: 'home', playerName: 'Molina' },
+      { type: 'redCard',    minute: "65'", team: 'home', playerName: 'Torres' },
+      { type: 'goal',       minute: "74'", team: 'away', playerName: 'Hassan' },
+    ],
+    stats: stats(47, 6, 11, 6, 7, 80, 81),
+  },
+  sim_final: {
+    ...BASE, state: 'post', homeScore: 1, awayScore: 2,
+    homeLineup: RIVAL_LINEUP, awayLineup: CEUTA_LINEUP,
+    events: [
+      { type: 'yellowCard', minute: "15'", team: 'home', playerName: 'García' },
+      { type: 'goal',       minute: "23'", team: 'away', playerName: 'Zalazar' },
+      { type: 'goal',       minute: "58'", team: 'home', playerName: 'Molina' },
+      { type: 'redCard',    minute: "65'", team: 'home', playerName: 'Torres' },
+      { type: 'goal',       minute: "74'", team: 'away', playerName: 'Hassan' },
+    ],
+    stats: stats(47, 7, 13, 7, 8, 80, 80),
+  },
+
   win: { ...BASE, state: 'post', homeScore: 0, awayScore: 2, homeLineup: RIVAL_LINEUP, awayLineup: CEUTA_LINEUP, events: [
     { type: 'goal', minute: "55'", team: 'away', playerName: 'Zalazar' },
     { type: 'goal', minute: "88'", team: 'away', playerName: 'Marín' },

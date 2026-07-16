@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { ESPN_SCOREBOARD, ESPN_SUMMARY } from '@/lib/constants'
 import { getConfig } from '@/infrastructure/supabase/AppConfigRepository'
 import { MatchesSupabaseRepository } from '@/infrastructure/supabase/MatchesSupabaseRepository'
-import type { LiveEvent, LiveMatch, LineupPlayer } from '@/domain/match/LiveMatch'
+import type { LiveEvent, LiveMatch, LineupPlayer, MatchStat } from '@/domain/match/LiveMatch'
 
 const matchesRepo = new MatchesSupabaseRepository()
 
@@ -81,6 +81,7 @@ export async function GET() {
   let liveEvents: LiveEvent[] = []
   let homeLineup: LineupPlayer[] | undefined
   let awayLineup: LineupPlayer[] | undefined
+  let stats: MatchStat[] | undefined
 
   if (guardedState === 'pre' || guardedState === 'in' || guardedState === 'post') {
     const summary = await fetchEspn(`${ESPN_SUMMARY}?event=${ceutaEvent.id}`)
@@ -102,6 +103,36 @@ export async function GET() {
       }).filter((p) => p.name)
       if (teamId === homeTeamData?.id) homeLineup = players
       else awayLineup = players
+    }
+
+    // Extract boxscore stats: possession, shots on target, corners, pass accuracy
+    const STAT_KEYS = ['possessionPct', 'shotsOnTarget', 'wonCorners', 'passPct'] as const
+    const STAT_LABELS: Record<string, string> = {
+      possessionPct: 'Posesión',
+      shotsOnTarget: 'Tiros a puerta',
+      wonCorners: 'Córners',
+      passPct: 'Precisión pases',
+    }
+    const boxTeams: unknown[] = summary?.boxscore?.teams ?? []
+    if (boxTeams.length === 2) {
+      const getTeamStats = (t: unknown) => {
+        const team = t as Record<string, unknown>
+        const arr = (team.statistics as Record<string, unknown>[]) ?? []
+        const map: Record<string, string> = {}
+        for (const s of arr) map[s.name as string] = String(s.displayValue ?? '')
+        return { map, isHome: team.homeAway === 'home' }
+      }
+      const t0 = getTeamStats(boxTeams[0])
+      const t1 = getTeamStats(boxTeams[1])
+      const homeStats = t0.isHome ? t0.map : t1.map
+      const awayStats = t0.isHome ? t1.map : t0.map
+      stats = STAT_KEYS.map((key) => ({
+        name: key,
+        displayName: STAT_LABELS[key],
+        home: homeStats[key] ?? '0',
+        away: awayStats[key] ?? '0',
+      })).filter(s => s.home !== '0' || s.away !== '0')
+      if (stats.length === 0) stats = undefined
     }
 
     if (guardedState !== 'pre') {
@@ -153,6 +184,7 @@ export async function GET() {
     startDate: (ceutaEvent.date as string) ?? '',
     homeLineup: homeLineup?.length ? homeLineup : undefined,
     awayLineup: awayLineup?.length ? awayLineup : undefined,
+    stats,
   }
 
   // Don't show a finished match that ended more than 3 hours ago

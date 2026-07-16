@@ -12,6 +12,13 @@ export interface LineupPlayer {
   starter: boolean
 }
 
+export interface MatchStat {
+  name: string
+  displayName: string
+  home: string
+  away: string
+}
+
 export interface LiveMatch {
   espnId: string
   state: 'pre' | 'in' | 'post'
@@ -26,4 +33,5 @@ export interface LiveMatch {
   startDate: string
   homeLineup?: LineupPlayer[]
   awayLineup?: LineupPlayer[]
+  stats?: MatchStat[]
 }

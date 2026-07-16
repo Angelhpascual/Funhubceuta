@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { LiveSimulator } from './LiveSimulator'
 
 type Status = 'idle' | 'loading' | 'active' | 'error'
 
@@ -95,38 +96,38 @@ export function LiveControl() {
           )}
         </div>
 
-        {status !== 'loading' && (
-          <button
-            onClick={isActive ? deactivate : activate}
-            disabled={acting}
-            className={`w-full rounded-[10px] py-2.5 font-display text-[12px] font-black uppercase tracking-[0.08em] transition-opacity disabled:opacity-40 ${
-              isActive
-                ? 'bg-white text-[var(--red)]'
-                : 'bg-[var(--red)] text-white'
-            }`}
-          >
-            {acting
-              ? '...'
+        <button
+          onClick={isActive ? deactivate : activate}
+          disabled={acting || status === 'loading'}
+          className={`w-full rounded-[10px] py-2.5 font-display text-[12px] font-black uppercase tracking-[0.08em] transition-opacity disabled:opacity-40 ${
+            isActive
+              ? 'bg-white text-[var(--red)]'
+              : 'bg-[var(--red)] text-white'
+          }`}
+        >
+          {acting
+            ? '...'
+            : status === 'loading'
+              ? 'Cargando...'
               : isActive
                 ? 'Desactivar modo live'
                 : 'Activar modo live'}
-          </button>
-        )}
+        </button>
 
         {status === 'error' && (
           <p className="mt-2 text-[11px] text-white/60">Error al cargar estado</p>
         )}
       </div>
 
-      {/* ── Simulador de escenarios (solo local / preview — nunca producción) ── */}
+      {/* ── Simulador de escenarios individuales ── */}
       {process.env.NEXT_PUBLIC_VERCEL_ENV !== 'production' && (
-        <div className="mt-5 rounded-[12px] border border-dashed border-ceuta-border p-4">
+        <div className="mt-5 rounded-[12px] border border-dashed border-[var(--border)] p-4">
           <div className="mb-3 flex items-center gap-2">
             <span className="rounded bg-amber-100 px-1.5 py-0.5 font-display text-[10px] font-black uppercase tracking-[0.1em] text-amber-700">
               Solo local / preview
             </span>
-            <span className="font-display text-[11px] font-bold uppercase tracking-[0.12em] text-ceuta-muted">
-              Simular escenario
+            <span className="font-display text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--muted)]">
+              Escenario manual
             </span>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -137,8 +138,8 @@ export function LiveControl() {
                 disabled={mockLoading !== null}
                 className={`rounded-[8px] border px-3 py-1.5 font-display text-[11px] font-bold uppercase tracking-[0.08em] transition-all disabled:opacity-40 ${
                   mockActive === s.id
-                    ? 'border-ceuta-black bg-ceuta-black text-white'
-                    : 'border-ceuta-border bg-white text-ceuta-black hover:border-ceuta-black'
+                    ? 'border-[var(--black)] bg-[var(--black)] text-white'
+                    : 'border-[var(--border)] bg-white text-[var(--black)] hover:border-[var(--black)]'
                 }`}
               >
                 {mockLoading === s.id ? '...' : s.label}
@@ -147,17 +148,20 @@ export function LiveControl() {
             <button
               onClick={() => setMock('clear')}
               disabled={mockLoading !== null || mockActive === null}
-              className="rounded-[8px] border border-ceuta-red/30 bg-ceuta-red/5 px-3 py-1.5 font-display text-[11px] font-bold uppercase tracking-[0.08em] text-ceuta-red disabled:opacity-30"
+              className="rounded-[8px] border border-[var(--red)]/30 bg-[var(--red)]/5 px-3 py-1.5 font-display text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--red)] disabled:opacity-30"
             >
               Limpiar mock
             </button>
           </div>
           {mockActive && (
-            <p className="mt-2.5 text-[11px] text-ceuta-muted">
-              Mock activo: <strong className="text-ceuta-black">{mockActive}</strong> —{' '}
-              <a href="/live" target="_blank" className="text-ceuta-red underline">ver /live</a>
+            <p className="mt-2.5 text-[11px] text-[var(--muted)]">
+              Mock activo: <strong className="text-[var(--black)]">{mockActive}</strong> —{' '}
+              <a href="/live" target="_blank" className="text-[var(--red)] underline">ver /live</a>
             </p>
           )}
+
+          {/* Simulación automática completa */}
+          <LiveSimulator />
         </div>
       )}
     </section>

@@ -3,10 +3,48 @@
 import { usePathname, useRouter } from 'next/navigation'
 
 const ADMIN_NAV = [
-  { id: '/admin', label: 'Dashboard' },
-  { id: '/admin/noticias', label: 'Noticias' },
-  { id: '/admin/mercado', label: 'Mercado' },
-  { id: '/admin/partidos', label: 'Partidos' },
+  {
+    id: '/admin',
+    label: 'Dashboard',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 20, height: 20 }}>
+        <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" />
+        <rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" />
+      </svg>
+    ),
+  },
+  {
+    id: '/admin/noticias',
+    label: 'Noticias',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 20, height: 20 }}>
+        <path d="M4 22h16a2 2 0 002-2V4a2 2 0 00-2-2H8a2 2 0 00-2 2v16a2 2 0 01-2 2zm0 0a2 2 0 01-2-2v-9c0-1.1.9-2 2-2h2" />
+        <line x1="10" y1="7" x2="16" y2="7" /><line x1="10" y1="11" x2="16" y2="11" /><line x1="10" y1="15" x2="13" y2="15" />
+      </svg>
+    ),
+  },
+  {
+    id: '/admin/mercado',
+    label: 'Mercado',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 20, height: 20 }}>
+        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+        <line x1="3" y1="6" x2="21" y2="6" />
+        <path d="M16 10a4 4 0 01-8 0" />
+      </svg>
+    ),
+  },
+  {
+    id: '/admin/partidos',
+    label: 'Partidos',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 20, height: 20 }}>
+        <circle cx="12" cy="12" r="10" />
+        <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
+        <line x1="2" y1="12" x2="22" y2="12" />
+      </svg>
+    ),
+  },
 ]
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
@@ -14,51 +52,53 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const router = useRouter()
 
   return (
-    <div className="min-h-screen bg-ceuta-bg-soft font-body">
+    <div style={{ minHeight: '100svh', background: 'var(--bg-soft)', fontFamily: 'var(--font-barlow)' }}>
       {/* Topbar */}
-      <header className="sticky top-0 z-50 bg-ceuta-black text-white">
-        <div className="max-w-[1240px] mx-auto px-4 md:px-8 h-16 flex items-center gap-3 md:gap-7">
+      <header style={{ position: 'sticky', top: 0, zIndex: 50, background: 'var(--black)', color: '#fff' }}>
+        <div style={{ maxWidth: 1240, margin: '0 auto', padding: '0 16px', height: 56, display: 'flex', alignItems: 'center', gap: 12 }}>
           {/* Logo */}
-          <div className="flex items-center gap-2 shrink-0">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/escudo.webp" alt="AD Ceuta FC" className="w-8 h-8 md:w-[38px] md:h-[38px] object-contain" />
-            <span className="hidden sm:block font-display font-extrabold text-xl tracking-widest uppercase leading-none">
-              AD Ceuta <b className="text-ceuta-red">Info</b>
+            <img src="/escudo.webp" alt="AD Ceuta FC" style={{ width: 32, height: 32, objectFit: 'contain' }} />
+            <span style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 13, letterSpacing: '0.12em', textTransform: 'uppercase', display: 'none' }} className="sm:!inline">
+              AD Ceuta <b style={{ color: 'var(--red)' }}>Info</b>
             </span>
-            <span className="font-display font-extrabold text-[11px] tracking-[0.14em] uppercase bg-ceuta-red text-white px-2 py-1 rounded-[4px]">
+            <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', background: 'var(--red)', color: '#fff', padding: '3px 7px', borderRadius: 4 }}>
               Admin
             </span>
           </div>
 
-          {/* Nav */}
-          <nav className="hidden md:flex items-stretch h-16 gap-1 flex-1">
+          {/* Desktop nav */}
+          <nav style={{ display: 'none', alignItems: 'stretch', height: 56, gap: 2, flex: 1 }} className="md:!flex">
             {ADMIN_NAV.map((n) => {
               const active = pathname === n.id
               return (
                 <button
                   key={n.id}
                   onClick={() => router.push(n.id)}
-                  className={`relative flex items-center px-4 font-display text-[13.5px] font-bold tracking-[0.1em] uppercase transition-colors
-                    ${active ? 'text-white' : 'text-white/55 hover:text-white'}`}
+                  style={{
+                    position: 'relative', display: 'flex', alignItems: 'center', padding: '0 16px',
+                    fontFamily: 'var(--font-display)', fontSize: 13, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase',
+                    color: active ? '#fff' : 'rgba(255,255,255,0.5)', background: 'none', border: 'none', cursor: 'pointer',
+                    transition: 'color 0.15s',
+                  }}
                 >
                   {n.label}
-                  {active && (
-                    <span className="absolute bottom-0 left-3 right-3 h-[3px] bg-ceuta-red rounded-t-[3px]" />
-                  )}
+                  {active && <span style={{ position: 'absolute', bottom: 0, left: 12, right: 12, height: 3, background: 'var(--red)', borderRadius: '3px 3px 0 0' }} />}
                 </button>
               )
             })}
           </nav>
 
-          {/* Right */}
-          <div className="hidden md:flex items-center gap-4 shrink-0 ml-auto">
-            <span className="flex items-center gap-2 font-display text-[12.5px] font-semibold tracking-[0.08em] uppercase text-white/65">
-              <span className="w-[7px] h-[7px] rounded-full bg-[#1E9E4B] shadow-[0_0_0_3px_rgba(30,158,75,0.25)]" />
+          {/* Desktop right */}
+          <div style={{ display: 'none', alignItems: 'center', gap: 12, flexShrink: 0, marginLeft: 'auto' }} className="md:!flex">
+            <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontFamily: 'var(--font-display)', fontSize: 12, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)' }}>
+              <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#1E9E4B', boxShadow: '0 0 0 3px rgba(30,158,75,0.25)', display: 'inline-block' }} />
               Sistema activo
             </span>
             <button
               onClick={() => router.push('/admin/login')}
-              className="font-display text-[12px] font-bold tracking-[0.1em] uppercase text-white/70 border border-white/25 px-3.5 py-2 rounded-lg transition-all hover:border-ceuta-red hover:text-white hover:bg-ceuta-red"
+              style={{ fontFamily: 'var(--font-display)', fontSize: 12, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', border: '1px solid rgba(255,255,255,0.2)', padding: '8px 14px', borderRadius: 8, background: 'none', cursor: 'pointer' }}
             >
               Cerrar sesión
             </button>
@@ -67,32 +107,41 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       </header>
 
       {/* Content */}
-      <main>
+      <main style={{ paddingBottom: 'calc(64px + env(safe-area-inset-bottom))' }} className="md:!pb-0">
         {children}
       </main>
 
       {/* Mobile bottom nav */}
-      <nav className="md:hidden fixed left-0 right-0 bottom-0 z-50 bg-ceuta-black border-t border-white/10 flex" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+      <nav
+        className="md:hidden"
+        style={{
+          position: 'fixed', left: 0, right: 0, bottom: 0, zIndex: 50,
+          background: 'var(--black)', borderTop: '1px solid rgba(255,255,255,0.1)',
+          display: 'flex', paddingBottom: 'env(safe-area-inset-bottom)',
+        }}
+      >
         {ADMIN_NAV.map((n) => {
           const active = pathname === n.id
           return (
             <button
               key={n.id}
               onClick={() => router.push(n.id)}
-              className={`flex-1 flex items-center justify-center py-4 relative font-display text-[12px] font-bold tracking-[0.08em] uppercase transition-colors
-                ${active ? 'text-white' : 'text-white/55'}`}
+              style={{
+                flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                gap: 3, padding: '10px 4px', position: 'relative', background: 'none', border: 'none', cursor: 'pointer',
+                color: active ? '#fff' : 'rgba(255,255,255,0.45)',
+                transition: 'color 0.15s',
+              }}
             >
-              {active && (
-                <span className="absolute top-0 left-[22%] right-[22%] h-[3px] bg-ceuta-red rounded-b-[3px]" />
-              )}
-              {n.label}
+              {active && <span style={{ position: 'absolute', top: 0, left: '20%', right: '20%', height: 2, background: 'var(--red)', borderRadius: '0 0 3px 3px' }} />}
+              {n.icon}
+              <span style={{ fontFamily: 'var(--font-display)', fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                {n.label}
+              </span>
             </button>
           )
         })}
       </nav>
-
-      {/* Mobile bottom nav spacer */}
-      <div className="md:hidden h-[calc(58px+env(safe-area-inset-bottom))]" />
     </div>
   )
 }
