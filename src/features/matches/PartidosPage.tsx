@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { getLocalLogo } from '@/lib/teamLogos'
-import { formatMatchDate, shortTeamName, resultLabel } from './matchUtils'
+import { shortTeamName, resultLabel } from './matchUtils'
 import Link from 'next/link'
 
 interface MatchRow {
@@ -20,77 +20,245 @@ interface MatchRow {
   espn_event_id: string | null
 }
 
-function resultBadge(r: string | null) {
-  const item = resultLabel(r)
-  if (!item) return null
-  return <span className={`result-badge ${item.cls}`}>{item.label}</span>
+function TeamCrest({ name, size = 54 }: { name: string; size?: number }) {
+  const logo = getLocalLogo(name)
+  return (
+    <div
+      className="rounded-full flex items-center justify-center flex-shrink-0"
+      style={{
+        width: size, height: size,
+        background: 'rgba(255,255,255,0.06)',
+        border: '1px solid rgba(255,255,255,0.14)',
+      }}
+    >
+      {logo
+        // eslint-disable-next-line @next/next/no-img-element
+        ? <img src={logo} alt={name} style={{ width: size * 0.74, height: size * 0.74 }} className="object-contain" />
+        : <span className="font-display font-black text-white/85" style={{ fontSize: size * 0.3 }}>
+            {name.slice(0, 3).toUpperCase()}
+          </span>
+      }
+    </div>
+  )
+}
+
+function SmallCrest({ name, size = 32 }: { name: string; size?: number }) {
+  const logo = getLocalLogo(name)
+  return (
+    <div
+      className="rounded-full flex items-center justify-center flex-shrink-0"
+      style={{
+        width: size, height: size,
+        background: 'var(--bg-soft)',
+        border: '1px solid var(--border)',
+      }}
+    >
+      {logo
+        // eslint-disable-next-line @next/next/no-img-element
+        ? <img src={logo} alt={name} style={{ width: size * 0.68, height: size * 0.68 }} className="object-contain" />
+        : <span className="font-display font-black text-[var(--muted)]" style={{ fontSize: size * 0.3 }}>
+            {name.slice(0, 3).toUpperCase()}
+          </span>
+      }
+    </div>
+  )
+}
+
+// Featured next match card (dark, design-style)
+function NextMatchCard({ m }: { m: MatchRow }) {
+  const dateLabel = new Date(m.date).toLocaleDateString('es-ES', {
+    weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC',
+  }).replace(/^\w/, c => c.toUpperCase())
+
+  return (
+    <div className="relative overflow-hidden rounded-[var(--radius)] bg-[var(--black)] text-white mx-0 mb-4 px-[18px] pb-[18px] pt-4">
+      <div
+        className="pointer-events-none absolute top-0 right-0 bottom-0 w-[110px]"
+        style={{ background: 'repeating-linear-gradient(-45deg,transparent 0 9px,rgba(255,255,255,.05) 9px 18px)' }}
+      />
+      {/* Top */}
+      <div className="relative z-[1] flex items-center justify-between">
+        <span className="flex items-center gap-[7px] font-display text-[10.5px] font-bold uppercase tracking-[0.12em] text-[var(--red)]">
+          <span className="w-[5px] h-[5px] rounded-full bg-[var(--red)]" />
+          Próximo partido
+        </span>
+        {m.matchday && (
+          <span className="font-display text-[10.5px] font-bold uppercase tracking-[0.1em] text-white/50">
+            Jornada {m.matchday}
+          </span>
+        )}
+      </div>
+
+      {/* Teams */}
+      <div className="relative z-[1] mt-4 grid items-center gap-[10px]" style={{ gridTemplateColumns: '1fr auto 1fr' }}>
+        <div className="flex flex-col items-center gap-[7px] text-center">
+          <TeamCrest name={m.home_team} size={54} />
+          <div>
+            <div className="font-display font-black text-[14px] uppercase tracking-[0.03em] leading-tight">
+              {shortTeamName(m.home_team)}
+            </div>
+            <div className="font-display text-[9.5px] font-bold uppercase tracking-[0.14em] text-white/40 mt-0.5">
+              {m.is_home ? 'Local' : 'Visitante'}
+            </div>
+          </div>
+        </div>
+
+        <div className="text-center">
+          <div className="font-display font-black text-[19px] text-white/28 leading-none">VS</div>
+          <div className="font-display font-black text-[14px] uppercase tracking-[0.04em] mt-[5px] leading-tight whitespace-nowrap">
+            {dateLabel}
+          </div>
+          {m.time && m.time !== '' ? (
+            <div className="font-display font-black text-[27px] text-[var(--gold)] leading-none mt-[2px]">
+              {m.time}<span className="text-[12px] font-bold text-white/50">h</span>
+            </div>
+          ) : (
+            <div className="mt-1 inline-block font-display text-[8.5px] font-bold uppercase tracking-[0.08em] bg-[var(--gold-soft,#FFF6CC)] text-[#8A6D00] rounded-[3px] px-[6px] py-[2px]">
+              Por confirmar
+            </div>
+          )}
+        </div>
+
+        <div className="flex flex-col items-center gap-[7px] text-center">
+          <TeamCrest name={m.away_team} size={54} />
+          <div>
+            <div className="font-display font-black text-[14px] uppercase tracking-[0.03em] leading-tight">
+              {shortTeamName(m.away_team)}
+            </div>
+            <div className="font-display text-[9.5px] font-bold uppercase tracking-[0.14em] text-white/40 mt-0.5">
+              {!m.is_home ? 'Local' : 'Visitante'}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="relative z-[1] mt-[15px] pt-3 border-t border-white/10 flex justify-center gap-[14px] flex-wrap">
+        {m.is_home && (
+          <span className="flex items-center gap-[5px] font-display text-[10.5px] font-semibold uppercase tracking-[0.07em] text-white/60">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3 h-3 text-[var(--red)]">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" />
+            </svg>
+            Alfonso Murube
+          </span>
+        )}
+        {m.tickets_url && (
+          <a
+            href={m.tickets_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-display text-[10.5px] font-black uppercase tracking-[0.1em] bg-[var(--red)] text-white px-3 py-1.5 rounded-[6px] no-underline"
+          >
+            Entradas
+          </a>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// Compact upcoming match row
+function UpcomingRow({ m }: { m: MatchRow }) {
+  return (
+    <div className="mx-0 mb-2 bg-white border border-[var(--border)] rounded-[var(--radius)] px-[14px] py-3 grid items-center gap-2"
+      style={{ gridTemplateColumns: '1fr auto 1fr' }}>
+      {/* Home */}
+      <div className="flex items-center gap-2 min-w-0">
+        <SmallCrest name={m.home_team} size={32} />
+        <div className="min-w-0">
+          <div className="font-display font-bold text-[13px] uppercase tracking-[0.02em] leading-tight truncate">
+            {shortTeamName(m.home_team)}
+          </div>
+          <div className="font-display text-[9px] font-bold uppercase tracking-[0.12em] text-[var(--muted)] mt-0.5">Local</div>
+        </div>
+      </div>
+
+      {/* Center */}
+      <div className="text-center min-w-[74px]">
+        <div className="font-display font-black text-[12px] uppercase tracking-[0.05em] leading-tight">
+          {new Date(m.date).toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' })}
+        </div>
+        {m.time && m.time !== '' ? (
+          <div className="font-display font-black text-[17px] text-[var(--red)] leading-tight mt-0.5">{m.time}</div>
+        ) : (
+          <div className="mt-1 inline-block font-display text-[7.5px] font-bold uppercase tracking-[0.08em] bg-[#FFF6CC] text-[#8A6D00] rounded-[3px] px-[5px] py-[2px]">
+            Por confirmar
+          </div>
+        )}
+        {m.matchday && (
+          <div className="font-display text-[8.5px] font-bold uppercase tracking-[0.1em] text-[var(--muted)] mt-0.5">
+            Jornada {m.matchday}
+          </div>
+        )}
+      </div>
+
+      {/* Away */}
+      <div className="flex items-center justify-end gap-2 min-w-0">
+        <div className="min-w-0 text-right">
+          <div className="font-display font-bold text-[13px] uppercase tracking-[0.02em] leading-tight truncate">
+            {shortTeamName(m.away_team)}
+          </div>
+          <div className="font-display text-[9px] font-bold uppercase tracking-[0.12em] text-[var(--muted)] mt-0.5">Visitante</div>
+        </div>
+        <SmallCrest name={m.away_team} size={32} />
+      </div>
+    </div>
+  )
+}
+
+function ResultCard({ r }: { r: MatchRow }) {
+  const ceutaHome = r.home_team.toLowerCase().includes('ceuta')
+  const item = resultLabel(r.result)
+
+  return (
+    <div className="mx-0 mb-2 bg-white border border-[var(--border)] rounded-[var(--radius)] px-[14px] py-3 grid items-center gap-2"
+      style={{ gridTemplateColumns: '1fr auto 1fr' }}>
+      {/* Home */}
+      <div className="flex items-center gap-2 min-w-0">
+        <SmallCrest name={r.home_team} size={32} />
+        <div className={`font-display font-bold text-[13px] uppercase tracking-[0.02em] leading-tight truncate ${ceutaHome ? 'text-[var(--black)]' : 'text-[var(--muted)]'}`}>
+          {shortTeamName(r.home_team)}
+        </div>
+      </div>
+
+      {/* Score */}
+      <div className="text-center min-w-[74px]">
+        <div className="font-display font-black text-[11.5px] uppercase tracking-[0.05em] text-[var(--muted)] leading-tight">
+          {new Date(r.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', timeZone: 'UTC' })}
+        </div>
+        <div className="font-display font-black leading-none mt-1">
+          <span className={`text-[22px] ${ceutaHome ? 'text-[var(--red)]' : 'text-[var(--black)]'}`}>{r.home_score}</span>
+          <span className="text-[14px] text-[var(--muted)] mx-1">–</span>
+          <span className={`text-[22px] ${!ceutaHome ? 'text-[var(--red)]' : 'text-[var(--black)]'}`}>{r.away_score}</span>
+        </div>
+        {item && (
+          <span className={`result-badge ${item.cls}`}>{item.label}</span>
+        )}
+        {r.espn_event_id && (
+          <Link
+            href={`/alineacion?eventId=${r.espn_event_id}&match=${encodeURIComponent(`${shortTeamName(r.home_team)} vs ${shortTeamName(r.away_team)}`)}&score=${r.home_score}-${r.away_score}`}
+            className="mt-1 flex items-center justify-center gap-1 no-underline"
+          >
+            <span className="font-display text-[8px] font-black uppercase tracking-[0.08em] text-[var(--muted)] underline">Alineación</span>
+          </Link>
+        )}
+      </div>
+
+      {/* Away */}
+      <div className="flex items-center justify-end gap-2 min-w-0">
+        <div className={`font-display font-bold text-[13px] uppercase tracking-[0.02em] leading-tight truncate text-right ${!ceutaHome ? 'text-[var(--black)]' : 'text-[var(--muted)]'}`}>
+          {shortTeamName(r.away_team)}
+        </div>
+        <SmallCrest name={r.away_team} size={32} />
+      </div>
+    </div>
+  )
 }
 
 interface Props {
   upcoming?: MatchRow[]
   results?: MatchRow[]
   previousSeason?: MatchRow[]
-
-}
-
-function ResultCard({ r }: { r: MatchRow }) {
-  const ceutaHome = r.home_team.toLowerCase().includes('ceuta')
-
-  return (
-    <div className="fixt-card">
-      <div className="fixt-head">
-        <div className="fixt-comp">Liga Hypermotion</div>
-        <div className="fixt-date">
-          {new Date(r.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', timeZone: 'UTC' })}
-        </div>
-      </div>
-
-      <div className="fixt-teams items-center">
-        <div className="flex items-center gap-2">
-          {getLocalLogo(r.home_team)
-            // eslint-disable-next-line @next/next/no-img-element
-            ? <img src={getLocalLogo(r.home_team) ?? ''} alt="" className="size-7 object-contain" />
-            : <div className="size-7 rounded-full bg-ceuta-bg-mid" />}
-          <div className={`fixt-tname ${ceutaHome ? 'mine' : ''}`}>{shortTeamName(r.home_team)}</div>
-        </div>
-
-        {/* Score centered */}
-        <div className="flex items-center gap-3 font-display font-black leading-none">
-          <span className={`text-[38px] ${ceutaHome ? 'text-ceuta-red' : 'text-ceuta-black'}`}>{r.home_score}</span>
-          <span className="text-[20px] text-ceuta-muted">–</span>
-          <span className={`text-[38px] ${!ceutaHome ? 'text-ceuta-red' : 'text-ceuta-black'}`}>{r.away_score}</span>
-        </div>
-
-        <div className="flex items-center justify-end gap-2">
-          <div className={`fixt-tname away ${!ceutaHome ? 'mine' : ''}`}>{shortTeamName(r.away_team)}</div>
-          {getLocalLogo(r.away_team)
-            // eslint-disable-next-line @next/next/no-img-element
-            ? <img src={getLocalLogo(r.away_team) ?? ''} alt="" className="size-7 object-contain" />
-            : <div className="size-7 rounded-full bg-ceuta-bg-mid" />}
-        </div>
-      </div>
-
-      <div className="mt-1.5 flex items-center justify-between">
-        <span className="font-display text-[11px] uppercase tracking-[0.08em] text-ceuta-muted">
-          {r.is_home ? 'A. Murube' : ''}
-        </span>
-        {r.espn_event_id && (
-          <Link
-            href={`/alineacion?eventId=${r.espn_event_id}&match=${encodeURIComponent(`${shortTeamName(r.home_team)} vs ${shortTeamName(r.away_team)}`)}&score=${r.home_score}-${r.away_score}`}
-            className="flex items-center gap-1.5 rounded-[6px] border-[1.5px] border-ceuta-black bg-ceuta-black px-2 py-1 no-underline"
-          >
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="3" width="18" height="18" rx="2" />
-              <path d="M3 9h18M3 15h18M9 3v18" />
-            </svg>
-            <span className="whitespace-nowrap font-display text-[9px] font-black uppercase tracking-[0.08em] text-white">
-              Alineación
-            </span>
-          </Link>
-        )}
-      </div>
-    </div>
-  )
 }
 
 export function PartidosPage({ upcoming = [], results = [], previousSeason = [] }: Props) {
@@ -112,21 +280,27 @@ export function PartidosPage({ upcoming = [], results = [], previousSeason = [] 
     ...(previousSeason.length > 0 ? [{ id: 'temporada-anterior', l: 'Temp. 25/26' }] : []),
   ]
 
-  // Group previousSeason matches by month label
-  const prevByMonth: { label: string; matches: MatchRow[] }[] = []
-  for (const m of previousSeason) {
-    const label = new Date(m.date)
-      .toLocaleString('es-ES', { month: 'long', year: 'numeric', timeZone: 'UTC' })
-      .replace(/^\w/, (c) => c.toUpperCase())
-    const existing = prevByMonth.find((g) => g.label === label)
-    if (existing) existing.matches.push(m)
-    else prevByMonth.push({ label, matches: [m] })
+  // Group matches by month
+  function groupByMonth(matches: MatchRow[]) {
+    const groups: { label: string; matches: MatchRow[] }[] = []
+    for (const m of matches) {
+      const label = new Date(m.date)
+        .toLocaleString('es-ES', { month: 'long', year: 'numeric', timeZone: 'UTC' })
+        .replace(/^\w/, c => c.toUpperCase())
+      const existing = groups.find(g => g.label === label)
+      if (existing) existing.matches.push(m)
+      else groups.push({ label, matches: [m] })
+    }
+    return groups
   }
+
+  const upcomingGroups = groupByMonth(upcoming.slice(1)) // skip first (featured)
+  const prevByMonth = groupByMonth(previousSeason)
 
   return (
     <div className="page">
       {/* ── HERO ── */}
-      <div className="page-hero-full relative mt-2 overflow-hidden bg-ceuta-black px-[18px] pb-[52px] pt-[22px] text-white">
+      <div className="page-hero-full relative mt-2 overflow-hidden bg-[var(--black)] px-[18px] pb-[14px] pt-[22px] text-white">
         <div
           className="pointer-events-none absolute bottom-0 right-[-40px] top-0 w-[180px]"
           style={{
@@ -134,135 +308,87 @@ export function PartidosPage({ upcoming = [], results = [], previousSeason = [] 
             clipPath: 'polygon(60px 0, 100% 0, 100% 100%, 0 100%)',
           }}
         />
-        <div className="flex items-center gap-2 font-display text-[11px] font-bold uppercase tracking-[0.16em] text-ceuta-red">
-          <div className="h-0.5 w-[18px] bg-ceuta-red" />
+        <div className="relative z-[1] flex items-center gap-2 font-display text-[11px] font-bold uppercase tracking-[0.16em] text-[var(--red)]">
+          <div className="h-0.5 w-[18px] bg-[var(--red)]" />
           Temporada 2026–27 · Liga Hypermotion
         </div>
-        <div className="mt-2 font-display text-[38px] font-black uppercase leading-[0.95]">
-          PARTIDOS <em className="not-italic text-ceuta-gold">Y</em>
-          <br />
-          <em className="not-italic text-ceuta-gold">RESULTADOS</em>
+        <div className="relative z-[1] mt-[6px] font-display text-[32px] font-black uppercase leading-[0.95]">
+          Partidos<span className="text-[var(--gold)]">.</span>
+        </div>
+        {/* Tabs inside hero */}
+        <div className="relative z-[1] flex gap-[6px] mt-[14px]">
+          {tabs.map(t => (
+            <button
+              key={t.id}
+              onClick={() => changePartidosTab(t.id)}
+              className={`font-display text-[11.5px] font-bold uppercase tracking-[0.08em] px-[14px] py-2 rounded-full border-[1.5px] transition-all ${
+                tab === t.id
+                  ? 'bg-white text-[var(--black)] border-white'
+                  : 'border-white/18 text-white/65'
+              }`}
+            >
+              {t.l}
+            </button>
+          ))}
         </div>
       </div>
 
-      <div className="chips mt-4 mb-2">
-        {tabs.map((t) => (
-          <button
-            key={t.id}
-            className={`chip ${tab === t.id ? 'active' : ''}`}
-            onClick={() => changePartidosTab(t.id)}
-          >
-            {t.l}
-          </button>
-        ))}
-      </div>
+      <div className="px-4 pt-4 pb-8">
+        {tab === 'proximos' && (
+          <>
+            {upcoming.length === 0 ? (
+              <p className="py-5 font-display text-[13px] uppercase tracking-[0.06em] text-[var(--muted)]">
+                No hay próximos partidos
+              </p>
+            ) : (
+              <>
+                {/* Featured next match */}
+                <NextMatchCard m={upcoming[0]} />
 
-      {tab === 'proximos' && (
-        <>
-          <div className="month-label">
-            {upcoming[0]
-              ? new Date(upcoming[0].date)
-                  .toLocaleString('es-ES', { month: 'long', year: 'numeric', timeZone: 'UTC' })
-                  .replace(/^\w/, (c) => c.toUpperCase())
-              : 'Próximos partidos'}
-          </div>
-          {upcoming.length === 0 ? (
-            <p className="px-4 py-5 font-display text-[13px] uppercase tracking-[0.06em] text-ceuta-muted">
-              No hay próximos partidos
-            </p>
-          ) : (
-            upcoming.map((m, i) => (
-              <div key={i} className="fixt-card">
-                <div className="fixt-head">
-                  <div className="fixt-comp">Liga Hypermotion</div>
-                  <div className="fixt-date">
-                    {m.time && m.time !== '' ? m.time : 'Por confirmar'}
+                {/* Remaining by month */}
+                {upcomingGroups.map(group => (
+                  <div key={group.label}>
+                    <div className="month-label">{group.label}</div>
+                    {group.matches.map((m, i) => <UpcomingRow key={i} m={m} />)}
                   </div>
-                </div>
-                <div className="fixt-teams items-center">
-                  <div className="flex items-center gap-2">
-                    {getLocalLogo(m.home_team) ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={getLocalLogo(m.home_team) ?? ''} alt="" className="size-7 object-contain" />
-                    ) : (
-                      <div className="size-7 rounded-full bg-ceuta-bg-mid" />
-                    )}
-                    <div className={`fixt-tname ${m.is_home ? 'mine' : ''}`}>
-                      {shortTeamName(m.home_team)}
-                    </div>
-                  </div>
-                  <div className="fixt-vs">VS</div>
-                  <div className="flex items-center justify-end gap-2">
-                    <div className={`fixt-tname away ${!m.is_home ? 'mine' : ''}`}>
-                      {shortTeamName(m.away_team)}
-                    </div>
-                    {getLocalLogo(m.away_team) ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={getLocalLogo(m.away_team) ?? ''} alt="" className="size-7 object-contain" />
-                    ) : (
-                      <div className="size-7 rounded-full bg-ceuta-bg-mid" />
-                    )}
-                  </div>
-                </div>
-                <div className="mt-1.5 flex items-center justify-between">
-                  <span className="font-display text-[11px] uppercase tracking-[0.08em] text-ceuta-muted">
-                    {new Date(m.date).toLocaleDateString('es-ES', {
-                      day: 'numeric',
-                      month: 'long',
-                      timeZone: 'UTC',
-                    })}
-                    {m.is_home ? ' · A. Murube' : ''}
-                  </span>
-                  {m.tickets_url && (
-                    <a
-                      href={m.tickets_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="match-cta px-[10px] py-1 text-[10px]"
-                    >
-                      Entradas
-                    </a>
-                  )}
-                </div>
-              </div>
-            ))
-          )}
-        </>
-      )}
-
-      {tab === 'resultados' && (
-        <>
-          {results.length === 0 ? (
-            <p className="px-4 py-5 font-display text-[13px] uppercase tracking-[0.06em] text-ceuta-muted">
-              No hay resultados todavía
-            </p>
-          ) : (
-            results.map((r, i) => <ResultCard key={i} r={r} />)
-          )}
-        </>
-      )}
-
-      {tab === 'temporada-anterior' && (
-        <>
-          <div className="px-4 py-3 font-display text-[11px] font-bold uppercase tracking-[0.14em] text-ceuta-muted">
-            Temporada 2025–26 · Temporada anterior
-          </div>
-          {previousSeason.length === 0 ? (
-            <p className="px-4 py-5 font-display text-[13px] uppercase tracking-[0.06em] text-ceuta-muted">
-              No hay datos de la temporada anterior
-            </p>
-          ) : (
-            prevByMonth.map((group) => (
-              <div key={group.label}>
-                <div className="month-label">{group.label}</div>
-                {group.matches.map((r, i) => (
-                  <ResultCard key={i} r={r} />
                 ))}
-              </div>
-            ))
-          )}
-        </>
-      )}
+              </>
+            )}
+          </>
+        )}
+
+        {tab === 'resultados' && (
+          <>
+            {results.length === 0 ? (
+              <p className="py-5 font-display text-[13px] uppercase tracking-[0.06em] text-[var(--muted)]">
+                No hay resultados todavía
+              </p>
+            ) : (
+              results.map((r, i) => <ResultCard key={i} r={r} />)
+            )}
+          </>
+        )}
+
+        {tab === 'temporada-anterior' && (
+          <>
+            <div className="py-3 font-display text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--muted)]">
+              Temporada 2025–26
+            </div>
+            {previousSeason.length === 0 ? (
+              <p className="py-5 font-display text-[13px] uppercase tracking-[0.06em] text-[var(--muted)]">
+                No hay datos de la temporada anterior
+              </p>
+            ) : (
+              prevByMonth.map(group => (
+                <div key={group.label}>
+                  <div className="month-label">{group.label}</div>
+                  {group.matches.map((r, i) => <ResultCard key={i} r={r} />)}
+                </div>
+              ))
+            )}
+          </>
+        )}
+      </div>
     </div>
   )
 }
