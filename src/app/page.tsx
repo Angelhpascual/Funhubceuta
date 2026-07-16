@@ -61,6 +61,13 @@ function usePullToRefresh(onRefresh: () => Promise<void>) {
   return { pullY, refreshing, onTouchStart, onTouchMove, onTouchEnd }
 }
 
+const LIVE_ICON = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" />
+    <polygon points="10 8 16 12 10 16 10 8" fill="currentColor" stroke="none" />
+  </svg>
+)
+
 type NavId = 'inicio' | 'mercado' | 'clasificacion' | 'partidos' | 'club'
 type Modal = 'himno' | null
 
@@ -168,6 +175,14 @@ function AppInner() {
   const [ready, setReady] = useState(false)
   const [loaderVisible, setLoaderVisible] = useState(true)
   const [refreshKey, setRefreshKey] = useState(0)
+  const [liveActive, setLiveActive] = useState(false)
+
+  useEffect(() => {
+    fetch(`/api/admin/live-control?t=${Date.now()}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.active) setLiveActive(true) })
+      .catch(() => {})
+  }, [])
 
   const handleRefresh = useCallback(async () => {
     setRefreshKey(k => k + 1)
@@ -268,16 +283,27 @@ function AppInner() {
         </div>
 
         <div className="bottom-nav">
-          {navItems.map((n) => (
-            <button
-              key={n.id}
-              className={`nav-item ${n.id === 'inicio' ? 'active' : ''}`}
-              onClick={() => handleNav(n.id)}
-            >
-              {n.icon}
-              <span className="nav-label">{n.label}</span>
-            </button>
-          ))}
+          {navItems.map((n) => {
+            const isLiveTab = n.id === 'mercado' && liveActive
+            return (
+              <button
+                key={n.id}
+                className={`nav-item ${n.id === 'inicio' ? 'active' : ''} ${isLiveTab ? 'text-[var(--red)]' : ''}`}
+                onClick={() => isLiveTab ? router.push('/live') : handleNav(n.id)}
+              >
+                {isLiveTab ? (
+                  <span className="relative">
+                    {LIVE_ICON}
+                    <span className="absolute -right-0.5 -top-0.5 flex size-2 items-center justify-center">
+                      <span className="absolute inline-flex size-full animate-ping rounded-full bg-[var(--red)] opacity-75" />
+                      <span className="relative inline-flex size-1.5 rounded-full bg-[var(--red)]" />
+                    </span>
+                  </span>
+                ) : n.icon}
+                <span className="nav-label">{isLiveTab ? 'Live' : n.label}</span>
+              </button>
+            )
+          })}
         </div>
       </div>
     </div>
