@@ -315,25 +315,21 @@ export function PartidosPage({ upcoming = [], results = [], previousSeason = [] 
         <div className="relative z-[1] mt-[6px] font-display text-[32px] font-black uppercase leading-[0.95]">
           Partidos<span className="text-[var(--gold)]">.</span>
         </div>
-        {/* Tabs inside hero */}
-        <div className="relative z-[1] flex gap-[6px] mt-[14px]">
-          {tabs.map(t => (
-            <button
-              key={t.id}
-              onClick={() => changePartidosTab(t.id)}
-              className={`font-display text-[11.5px] font-bold uppercase tracking-[0.08em] px-[14px] py-2 rounded-full border-[1.5px] transition-all ${
-                tab === t.id
-                  ? 'bg-white text-[var(--black)] border-white'
-                  : 'border-white/18 text-white/65'
-              }`}
-            >
-              {t.l}
-            </button>
-          ))}
-        </div>
       </div>
 
-      <div className="px-4 pt-4 pb-8">
+      <div className="chips mt-4 mb-2">
+        {tabs.map(t => (
+          <button
+            key={t.id}
+            className={`chip ${tab === t.id ? 'active' : ''}`}
+            onClick={() => changePartidosTab(t.id)}
+          >
+            {t.l}
+          </button>
+        ))}
+      </div>
+
+      <div className="px-4 pt-2 pb-8">
         {tab === 'proximos' && (
           <>
             {upcoming.length === 0 ? (
