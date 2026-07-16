@@ -33,7 +33,7 @@ export function NotifQueue() {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'news', filter: 'notify_queued=eq.true' }, () => load())
       .subscribe()
 
-    const interval = setInterval(load, 5_000)
+    const interval = setInterval(load, 30_000)
     return () => { supabase.removeChannel(channel); clearInterval(interval) }
   }, [load])
 

@@ -97,7 +97,7 @@ export function MvpBanner() {
 
   // Polling: 5s siempre salvo cuando la sesión ya está cerrada
   useEffect(() => {
-    const interval = session?.status === 'closed' ? 30_000 : 5_000
+    const interval = session?.status === 'closed' ? 120_000 : 60_000
     const id = setInterval(load, interval)
     return () => clearInterval(id)
   }, [load, session?.status])
