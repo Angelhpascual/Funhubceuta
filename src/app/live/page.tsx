@@ -1,11 +1,41 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import type { LiveMatch, LineupPlayer } from '@/domain/match/LiveMatch'
+import type { LiveMatch, LineupPlayer as LiveLineupPlayer } from '@/domain/match/LiveMatch'
+import type { MatchLineup, LineupPlayer } from '@/domain/match/Lineup'
 import { getLocalLogo } from '@/lib/teamLogos'
 import { MvpBanner } from '@/components/ui/MvpBanner'
+import { LineupField } from '@/features/matches/LineupField'
 
-const POSITION_ORDER: Record<string, number> = { GK: 0, RB: 1, CB: 2, LB: 3, DM: 4, CM: 5, AM: 6, RW: 7, LW: 8, ST: 9, FW: 9 }
+// Convierte la alineación live (posiciones simples) al formato que espera LineupField
+function toMatchLineup(players: LiveLineupPlayer[]): MatchLineup {
+  const starters: LineupPlayer[] = players.filter(p => p.starter).map(p => ({
+    name: p.name,
+    shortName: p.name.split(' ').pop() ?? p.name,
+    jersey: p.jersey,
+    position: p.position,
+    positionAbbr: p.position === 'AM' ? 'CAM' : p.position,
+    starter: true,
+    photoUrl: null,
+  }))
+  const bench: LineupPlayer[] = players.filter(p => !p.starter).map(p => ({
+    name: p.name,
+    shortName: p.name.split(' ').pop() ?? p.name,
+    jersey: p.jersey,
+    position: p.position,
+    positionAbbr: p.position,
+    starter: false,
+    photoUrl: null,
+  }))
+
+  // Inferir formación contando por líneas (excluyendo GK)
+  const defs = starters.filter(p => ['CB','RB','LB','WB'].includes(p.positionAbbr)).length
+  const mids = starters.filter(p => ['DM','CM','CAM','LM','RM'].includes(p.positionAbbr)).length
+  const atta = starters.filter(p => ['RW','LW','ST','CF','FW'].includes(p.positionAbbr)).length
+  const formation = `${defs}-${mids}-${atta}`
+
+  return { formation, starters, bench, events: [], available: true }
+}
 
 function TeamCrest({ name, size = 58 }: { name: string; size?: number }) {
   const logo = getLocalLogo(name)
@@ -35,31 +65,36 @@ function GoalFlash({ show }: { show: boolean }) {
   )
 }
 
-function LineupSection({ players, teamLabel }: { players: LineupPlayer[]; teamLabel: string }) {
-  const starters = players.filter(p => p.starter).sort(
-    (a, b) => (POSITION_ORDER[a.position] ?? 5) - (POSITION_ORDER[b.position] ?? 5)
-  )
-  const bench = players.filter(p => !p.starter)
-  if (starters.length === 0) return null
-  const isCeuta = teamLabel === 'AD Ceuta FC'
+
+function LiveLineupPanel({ lineup }: { lineup: MatchLineup }) {
+  const [open, setOpen] = useState(false)
   return (
-    <div style={{ borderRadius: 14, overflow: 'hidden', background: isCeuta ? 'var(--black)' : 'var(--bg-soft)' }}>
-      <div style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 8, borderBottom: `1px solid ${isCeuta ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'}` }}>
-        <span style={{ fontFamily: 'var(--font-display)', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: isCeuta ? 'rgba(255,255,255,0.5)' : 'var(--muted)' }}>Once inicial</span>
-        <span style={{ fontFamily: 'var(--font-display)', fontSize: 13, fontWeight: 900, textTransform: 'uppercase', color: isCeuta ? '#fff' : 'var(--black)' }}>{teamLabel}</span>
-      </div>
-      {starters.map((p, i) => (
-        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 16px', borderBottom: `1px solid ${isCeuta ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)'}` }}>
-          <span style={{ width: 28, textAlign: 'center', fontFamily: 'var(--font-display)', fontSize: 13, fontWeight: 900, color: isCeuta ? 'rgba(255,255,255,0.3)' : 'var(--muted)' }}>{p.jersey}</span>
-          <span style={{ flex: 1, fontFamily: 'var(--font-display)', fontSize: 14, fontWeight: 700, color: isCeuta ? '#fff' : 'var(--black)' }}>{p.name}</span>
-          <span style={{ fontFamily: 'var(--font-display)', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', padding: '2px 6px', borderRadius: 4, background: isCeuta ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)', color: isCeuta ? 'rgba(255,255,255,0.5)' : 'var(--muted)' }}>{p.position}</span>
-        </div>
-      ))}
-      {bench.length > 0 && (
-        <div style={{ padding: '8px 16px', borderTop: `1px solid ${isCeuta ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'}` }}>
-          <span style={{ fontFamily: 'var(--font-display)', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: isCeuta ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)' }}>
-            Suplentes: {bench.map(p => p.name).join(', ')}
+    <div style={{ margin: '0 0 0' }}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        style={{
+          width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '14px 16px', background: 'none', border: 'none', cursor: 'pointer',
+          borderTop: '1px solid var(--border)',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ width: 4, height: 16, background: 'var(--red)', borderRadius: 2, display: 'inline-block', flexShrink: 0 }} />
+          <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 16, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+            Alineación Ceuta
           </span>
+          <span style={{ fontFamily: 'var(--font-display)', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', background: 'var(--bg-soft)', borderRadius: 4, padding: '2px 7px', color: 'var(--muted)' }}>
+            {lineup.formation}
+          </span>
+        </div>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
+          style={{ width: 18, height: 18, color: 'var(--muted)', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>
+          <path d="M6 9l6 6 6-6" />
+        </svg>
+      </button>
+      {open && (
+        <div style={{ padding: '0 16px 20px' }}>
+          <LineupField lineup={lineup} />
         </div>
       )}
     </div>
@@ -313,23 +348,12 @@ export default function LivePage() {
           </div>
         )}
 
-        {/* ── Alineaciones ── */}
-        {match && (match.homeLineup || match.awayLineup) && (
-          <div style={{ padding: '18px 16px 6px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-              <span style={{ width: 4, height: 16, background: 'var(--red)', borderRadius: 2, display: 'inline-block', flexShrink: 0 }} />
-              <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 16, letterSpacing: '0.05em', textTransform: 'uppercase' }}>Alineaciones</span>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {match.homeLineup && (
-                <LineupSection players={match.homeLineup} teamLabel={ceutaIsHome ? 'AD Ceuta FC' : match.homeTeam} />
-              )}
-              {match.awayLineup && (
-                <LineupSection players={match.awayLineup} teamLabel={!ceutaIsHome ? 'AD Ceuta FC' : match.awayTeam} />
-              )}
-            </div>
-          </div>
-        )}
+        {/* ── Alineación Ceuta (campo visual, colapsable) ── */}
+        {match && (() => {
+          const ceutaLineup = ceutaIsHome ? match.homeLineup : match.awayLineup
+          if (!ceutaLineup?.length) return null
+          return <LiveLineupPanel lineup={toMatchLineup(ceutaLineup)} />
+        })()}
 
         {/* ── MVP CTA (live) ── */}
         {isLive && (
