@@ -192,46 +192,15 @@ export function AppShell({ children, liveActive }: { children: React.ReactNode; 
 
   const isSSRRoute = SSR_ROUTES.some((r) => pathname === r || pathname.startsWith(r + '/'))
 
-  const bottomNav = (
-    <div className="bottom-nav">
-      {NAV_MOBILE.map((n) => {
-        const isLiveTab = n.id === '/mercado' && liveActive
-        const href = isLiveTab ? '/live' : n.id
-        const label = isLiveTab ? 'Live' : n.label
-        const icon = isLiveTab ? LIVE_ICON : n.icon
-        return (
-          <button
-            key={n.id}
-            className={`nav-item ${pathname === href ? 'active' : ''} ${isLiveTab ? 'text-[var(--red)]' : ''}`}
-            onClick={() => router.push(href)}
-          >
-            {isLiveTab ? (
-              <span className="relative">
-                {icon}
-                <span className="absolute -right-0.5 -top-0.5 flex size-2 items-center justify-center">
-                  <span className="absolute inline-flex size-full animate-ping rounded-full bg-[var(--red)] opacity-75" />
-                  <span className="relative inline-flex size-1.5 rounded-full bg-[var(--red)]" />
-                </span>
-              </span>
-            ) : icon}
-            <span className="nav-label">{label}</span>
-          </button>
-        )
-      })}
-    </div>
-  )
-
   // Home page has its own mobile shell; on desktop we inject a topbar above it via CSS
   if (!isSSRRoute) {
     return (
       <>
         <InstallModal />
-        {/* Desktop-only topbar overlay for home and other non-SSR pages */}
         <div className="desktop-topbar-overlay">
           <Topbar pathname={pathname} router={router} />
         </div>
         {children}
-        {bottomNav}
       </>
     )
   }
@@ -243,7 +212,33 @@ export function AppShell({ children, liveActive }: { children: React.ReactNode; 
 
       <div className="scroll-area">{children}</div>
 
-      {bottomNav}
+      {/* Bottom nav: mobile only */}
+      <div className="bottom-nav">
+        {NAV_MOBILE.map((n) => {
+          const isLiveTab = n.id === '/mercado' && liveActive
+          const href = isLiveTab ? '/live' : n.id
+          const label = isLiveTab ? 'Live' : n.label
+          const icon = isLiveTab ? LIVE_ICON : n.icon
+          return (
+            <button
+              key={n.id}
+              className={`nav-item ${pathname === href ? 'active' : ''} ${isLiveTab ? 'text-[var(--red)]' : ''}`}
+              onClick={() => router.push(href)}
+            >
+              {isLiveTab ? (
+                <span className="relative">
+                  {icon}
+                  <span className="absolute -right-0.5 -top-0.5 flex size-2 items-center justify-center">
+                    <span className="absolute inline-flex size-full animate-ping rounded-full bg-[var(--red)] opacity-75" />
+                    <span className="relative inline-flex size-1.5 rounded-full bg-[var(--red)]" />
+                  </span>
+                </span>
+              ) : icon}
+              <span className="nav-label">{label}</span>
+            </button>
+          )
+        })}
+      </div>
     </div>
   )
 }
