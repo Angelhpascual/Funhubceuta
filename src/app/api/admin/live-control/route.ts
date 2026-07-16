@@ -26,7 +26,13 @@ export async function GET() {
 }
 
 export async function POST() {
-  // Activate live mode
+  // In preview/local: just flip the flag — no QStash needed (mock provides data)
+  if (process.env.VERCEL_ENV !== 'production') {
+    await setConfig(LIVE_ACTIVE_KEY, 'true')
+    return NextResponse.json({ ok: true, scheduleId: null })
+  }
+
+  // Production: create QStash schedule for real cron
   const existing = await getConfig(QSTASH_SCHEDULE_KEY)
   if (existing) {
     return NextResponse.json({ ok: true, already: true, scheduleId: existing })
@@ -35,7 +41,7 @@ export async function POST() {
   const client = qstash()
   const schedule = await client.schedules.create({
     destination: liveUrl(),
-    cron: '* * * * *', // every minute
+    cron: '* * * * *',
   })
 
   await setConfig(LIVE_ACTIVE_KEY, 'true')
@@ -45,7 +51,14 @@ export async function POST() {
 }
 
 export async function DELETE() {
-  // Deactivate live mode
+  // In preview/local: just clear flags
+  if (process.env.VERCEL_ENV !== 'production') {
+    await setConfig(LIVE_ACTIVE_KEY, 'false')
+    await deleteConfig('live_match_state')
+    return NextResponse.json({ ok: true })
+  }
+
+  // Production: also delete QStash schedule
   const scheduleId = await getConfig(QSTASH_SCHEDULE_KEY)
   if (scheduleId) {
     try {
