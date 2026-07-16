@@ -1,3 +1,4 @@
+import { unstable_noStore as noStore } from 'next/cache'
 import type { Metadata, Viewport } from 'next'
 import { Barlow, Barlow_Condensed } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
@@ -40,6 +41,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  noStore()
   const liveActive = (await getConfig('live_active')) === 'true'
 
   return (
