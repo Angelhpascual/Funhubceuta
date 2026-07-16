@@ -44,7 +44,8 @@ export async function POST(request: Request) {
     process.env.VAPID_PRIVATE_KEY!
   )
 
-  const subs = await getAllSubscriptions({ adminOnly: true })
+  const env = process.env.VERCEL_ENV === 'production' ? 'production' : 'development'
+  const subs = await getAllSubscriptions({ adminOnly: true, environment: env })
   if (!subs.length) {
     return NextResponse.json({ ok: true, sent: 0, warn: 'No admin subscribers — mark your device as admin first' })
   }
