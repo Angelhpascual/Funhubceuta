@@ -1,9 +1,10 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import type { LiveMatch } from '@/domain/match/LiveMatch'
+import type { LiveMatch, LineupPlayer } from '@/domain/match/LiveMatch'
 import { getLocalLogo } from '@/lib/teamLogos'
 import Image from 'next/image'
+import { MvpBanner } from '@/components/ui/MvpBanner'
 
 const EVENT_ICONS: Record<string, string> = {
   goal: '⚽',
@@ -52,6 +53,51 @@ function LiveBadge({ clock }: { clock: string }) {
       <span className="font-display text-[12px] font-black uppercase tracking-[0.14em] text-ceuta-red">
         EN VIVO {clock && `· ${clock}`}
       </span>
+    </div>
+  )
+}
+
+const POSITION_ORDER: Record<string, number> = { GK: 0, RB: 1, CB: 2, LB: 3, DM: 4, CM: 5, AM: 6, RW: 7, LW: 8, ST: 9, FW: 9 }
+
+function LineupSection({ players, teamName, teamLabel }: { players: LineupPlayer[]; teamName: string; teamLabel: string }) {
+  const starters = players.filter(p => p.starter).sort(
+    (a, b) => (POSITION_ORDER[a.position] ?? 5) - (POSITION_ORDER[b.position] ?? 5)
+  )
+  const bench = players.filter(p => !p.starter)
+  if (starters.length === 0) return null
+  const isCeuta = teamLabel === 'AD Ceuta FC'
+  return (
+    <div className={`rounded-[14px] overflow-hidden ${isCeuta ? 'bg-ceuta-black' : 'bg-ceuta-bg-soft'}`}>
+      <div className={`px-4 py-3 flex items-center gap-2 ${isCeuta ? 'border-b border-white/10' : 'border-b border-black/5'}`}>
+        <span className={`font-display text-[11px] font-bold uppercase tracking-[0.12em] ${isCeuta ? 'text-white/50' : 'text-ceuta-muted'}`}>
+          Once inicial
+        </span>
+        <span className={`font-display text-[13px] font-black uppercase ${isCeuta ? 'text-white' : 'text-ceuta-black'}`}>
+          {teamLabel}
+        </span>
+      </div>
+      <div className="divide-y divide-white/5">
+        {starters.map((p, i) => (
+          <div key={i} className="flex items-center gap-3 px-4 py-2.5">
+            <span className={`w-7 text-center font-display text-[13px] font-black ${isCeuta ? 'text-white/30' : 'text-ceuta-muted'}`}>
+              {p.jersey}
+            </span>
+            <span className={`flex-1 font-display text-[14px] font-bold ${isCeuta ? 'text-white' : 'text-ceuta-black'}`}>
+              {p.name}
+            </span>
+            <span className={`rounded px-1.5 py-0.5 font-display text-[10px] font-bold uppercase tracking-[0.1em] ${isCeuta ? 'bg-white/10 text-white/50' : 'bg-black/5 text-ceuta-muted'}`}>
+              {p.position}
+            </span>
+          </div>
+        ))}
+      </div>
+      {bench.length > 0 && (
+        <div className={`px-4 py-2 ${isCeuta ? 'border-t border-white/10' : 'border-t border-black/5'}`}>
+          <span className={`font-display text-[10px] font-bold uppercase tracking-[0.12em] ${isCeuta ? 'text-white/30' : 'text-ceuta-muted/60'}`}>
+            Suplentes: {bench.map(p => p.name).join(', ')}
+          </span>
+        </div>
+      )}
     </div>
   )
 }
@@ -225,6 +271,31 @@ export default function LivePage() {
           </div>
         )}
 
+        {/* Lineup */}
+        {match && (match.homeLineup || match.awayLineup) && (
+          <div className="mt-5">
+            <div className="sec-header mb-3">
+              <div className="sec-title-small">Alineaciones</div>
+            </div>
+            <div className="flex flex-col gap-3">
+              {match.homeLineup && (
+                <LineupSection
+                  players={match.homeLineup}
+                  teamName={match.homeTeam}
+                  teamLabel={ceutaIsHome ? 'AD Ceuta FC' : match.homeTeam}
+                />
+              )}
+              {match.awayLineup && (
+                <LineupSection
+                  players={match.awayLineup}
+                  teamName={match.awayTeam}
+                  teamLabel={!ceutaIsHome ? 'AD Ceuta FC' : match.awayTeam}
+                />
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Event timeline */}
         {(isLive || isPost) && (
           <div>
@@ -265,20 +336,8 @@ export default function LivePage() {
           </div>
         )}
 
-        {/* Post-match CTA */}
-        {isPost && (
-          <div className="mt-5 rounded-[14px] bg-ceuta-bg-soft p-5">
-            <div className="font-display text-[11px] font-bold uppercase tracking-[0.14em] text-ceuta-red mb-1">
-              Partido finalizado
-            </div>
-            <div className="font-display text-[18px] font-black uppercase text-ceuta-black leading-tight">
-              ¿Quién fue el mejor?
-            </div>
-            <p className="mt-1 mb-3 text-[13px] text-ceuta-muted">
-              La votación MVP se abrirá en breve.
-            </p>
-          </div>
-        )}
+        {/* Post-match MVP */}
+        {isPost && <div className="mt-5 -mx-4"><MvpBanner /></div>}
 
       </div>
     </div>

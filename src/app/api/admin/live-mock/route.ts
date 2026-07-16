@@ -1,6 +1,34 @@
 import { NextResponse } from 'next/server'
 import { setConfig, deleteConfig } from '@/infrastructure/supabase/AppConfigRepository'
-import type { LiveMatch } from '@/domain/match/LiveMatch'
+import type { LiveMatch, LineupPlayer } from '@/domain/match/LiveMatch'
+
+const CEUTA_LINEUP: LineupPlayer[] = [
+  { name: 'Bernabé Barragán', jersey: '1',  position: 'GK', starter: true },
+  { name: 'Javi Lara',        jersey: '2',  position: 'RB', starter: true },
+  { name: 'Rafa Gálvez',      jersey: '5',  position: 'CB', starter: true },
+  { name: 'Álex Leal',        jersey: '4',  position: 'CB', starter: true },
+  { name: 'Manu Sánchez',     jersey: '3',  position: 'LB', starter: true },
+  { name: 'Zalazar',          jersey: '8',  position: 'CM', starter: true },
+  { name: 'Hassan',           jersey: '6',  position: 'CM', starter: true },
+  { name: 'Aarón Escandell',  jersey: '10', position: 'AM', starter: true },
+  { name: 'Marín',            jersey: '7',  position: 'RW', starter: true },
+  { name: 'Moussa',           jersey: '11', position: 'LW', starter: true },
+  { name: 'Nené',             jersey: '9',  position: 'ST', starter: true },
+]
+
+const RIVAL_LINEUP: LineupPlayer[] = [
+  { name: 'Ratti',    jersey: '1',  position: 'GK', starter: true },
+  { name: 'García',   jersey: '2',  position: 'RB', starter: true },
+  { name: 'Molina',   jersey: '5',  position: 'CB', starter: true },
+  { name: 'Torres',   jersey: '4',  position: 'CB', starter: true },
+  { name: 'Ramos',    jersey: '3',  position: 'LB', starter: true },
+  { name: 'Ruiz',     jersey: '8',  position: 'CM', starter: true },
+  { name: 'López',    jersey: '6',  position: 'CM', starter: true },
+  { name: 'Martín',   jersey: '10', position: 'AM', starter: true },
+  { name: 'Díaz',     jersey: '7',  position: 'RW', starter: true },
+  { name: 'Fernández',jersey: '11', position: 'LW', starter: true },
+  { name: 'Pérez',    jersey: '9',  position: 'ST', starter: true },
+]
 
 const BASE: LiveMatch = {
   espnId: 'mock-001',
@@ -17,8 +45,8 @@ const BASE: LiveMatch = {
 }
 
 const SCENARIOS: Record<string, LiveMatch> = {
-  pre: { ...BASE, state: 'pre' },
-  live_0_0: { ...BASE, state: 'in', clock: "23'", status: '1st Half' },
+  pre: { ...BASE, state: 'pre', homeLineup: RIVAL_LINEUP, awayLineup: CEUTA_LINEUP },
+  live_0_0: { ...BASE, state: 'in', clock: "23'", status: '1st Half', homeLineup: RIVAL_LINEUP, awayLineup: CEUTA_LINEUP },
   live_goal_ceuta: {
     ...BASE,
     state: 'in',
@@ -47,7 +75,7 @@ const SCENARIOS: Record<string, LiveMatch> = {
       { type: 'goal', minute: "74'", team: 'away', playerName: 'Hassan' },
     ],
   },
-  win: { ...BASE, state: 'post', homeScore: 0, awayScore: 2, events: [
+  win: { ...BASE, state: 'post', homeScore: 0, awayScore: 2, homeLineup: RIVAL_LINEUP, awayLineup: CEUTA_LINEUP, events: [
     { type: 'goal', minute: "55'", team: 'away', playerName: 'Zalazar' },
     { type: 'goal', minute: "88'", team: 'away', playerName: 'Marín' },
   ]},

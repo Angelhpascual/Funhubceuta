@@ -17,15 +17,15 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-ceuta-bg-soft font-body">
       {/* Topbar */}
       <header className="sticky top-0 z-50 bg-ceuta-black text-white">
-        <div className="max-w-[1240px] mx-auto px-8 h-16 flex items-center gap-7">
+        <div className="max-w-[1240px] mx-auto px-4 md:px-8 h-16 flex items-center gap-3 md:gap-7">
           {/* Logo */}
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex items-center gap-2 shrink-0">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/escudo.webp" alt="AD Ceuta FC" className="w-[38px] h-[38px] object-contain" />
-            <span className="font-display font-extrabold text-xl tracking-widest uppercase leading-none">
+            <img src="/escudo.webp" alt="AD Ceuta FC" className="w-8 h-8 md:w-[38px] md:h-[38px] object-contain" />
+            <span className="hidden sm:block font-display font-extrabold text-xl tracking-widest uppercase leading-none">
               AD Ceuta <b className="text-ceuta-red">Info</b>
             </span>
-            <span className="font-display font-extrabold text-[11px] tracking-[0.14em] uppercase bg-ceuta-red text-white px-2 py-1 rounded-[4px] ml-0.5">
+            <span className="font-display font-extrabold text-[11px] tracking-[0.14em] uppercase bg-ceuta-red text-white px-2 py-1 rounded-[4px]">
               Admin
             </span>
           </div>

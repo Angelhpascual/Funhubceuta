@@ -114,40 +114,48 @@ export function LiveControl() {
         )}
       </div>
 
-      {/* ── Simulador de escenarios (solo preview/dev) ── */}
-      <div className="mt-4">
-        <div className="mb-2 font-display text-[11px] font-bold uppercase tracking-[0.12em] text-ceuta-muted">
-          Simular escenario (preview)
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {SCENARIOS.map((s) => (
+      {/* ── Simulador de escenarios (solo local / preview — nunca producción) ── */}
+      {process.env.NEXT_PUBLIC_VERCEL_ENV !== 'production' && (
+        <div className="mt-5 rounded-[12px] border border-dashed border-ceuta-border p-4">
+          <div className="mb-3 flex items-center gap-2">
+            <span className="rounded bg-amber-100 px-1.5 py-0.5 font-display text-[10px] font-black uppercase tracking-[0.1em] text-amber-700">
+              Solo local / preview
+            </span>
+            <span className="font-display text-[11px] font-bold uppercase tracking-[0.12em] text-ceuta-muted">
+              Simular escenario
+            </span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {SCENARIOS.map((s) => (
+              <button
+                key={s.id}
+                onClick={() => setMock(s.id)}
+                disabled={mockLoading !== null}
+                className={`rounded-[8px] border px-3 py-1.5 font-display text-[11px] font-bold uppercase tracking-[0.08em] transition-all disabled:opacity-40 ${
+                  mockActive === s.id
+                    ? 'border-ceuta-black bg-ceuta-black text-white'
+                    : 'border-ceuta-border bg-white text-ceuta-black hover:border-ceuta-black'
+                }`}
+              >
+                {mockLoading === s.id ? '...' : s.label}
+              </button>
+            ))}
             <button
-              key={s.id}
-              onClick={() => setMock(s.id)}
-              disabled={mockLoading !== null}
-              className={`rounded-[8px] px-3 py-1.5 font-display text-[11px] font-bold uppercase tracking-[0.08em] transition-all disabled:opacity-40 ${
-                mockActive === s.id
-                  ? 'bg-ceuta-black text-white'
-                  : 'bg-ceuta-bg-soft text-ceuta-black'
-              }`}
+              onClick={() => setMock('clear')}
+              disabled={mockLoading !== null || mockActive === null}
+              className="rounded-[8px] border border-ceuta-red/30 bg-ceuta-red/5 px-3 py-1.5 font-display text-[11px] font-bold uppercase tracking-[0.08em] text-ceuta-red disabled:opacity-30"
             >
-              {mockLoading === s.id ? '...' : s.label}
+              Limpiar mock
             </button>
-          ))}
-          <button
-            onClick={() => setMock('clear')}
-            disabled={mockLoading !== null || mockActive === null}
-            className="rounded-[8px] bg-ceuta-red/10 px-3 py-1.5 font-display text-[11px] font-bold uppercase tracking-[0.08em] text-ceuta-red disabled:opacity-30"
-          >
-            Limpiar mock
-          </button>
+          </div>
+          {mockActive && (
+            <p className="mt-2.5 text-[11px] text-ceuta-muted">
+              Mock activo: <strong className="text-ceuta-black">{mockActive}</strong> —{' '}
+              <a href="/live" target="_blank" className="text-ceuta-red underline">ver /live</a>
+            </p>
+          )}
         </div>
-        {mockActive && (
-          <p className="mt-2 text-[11px] text-ceuta-muted">
-            Mock activo: <strong>{mockActive}</strong> — abre <a href="/live" target="_blank" className="text-ceuta-red underline">/live</a> para verlo
-          </p>
-        )}
-      </div>
+      )}
     </section>
   )
 }

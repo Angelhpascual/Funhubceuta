@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { ESPN_SCOREBOARD, ESPN_SUMMARY } from '@/lib/constants'
 import { getConfig } from '@/infrastructure/supabase/AppConfigRepository'
 import { MatchesSupabaseRepository } from '@/infrastructure/supabase/MatchesSupabaseRepository'
-import type { LiveEvent, LiveMatch } from '@/domain/match/LiveMatch'
+import type { LiveEvent, LiveMatch, LineupPlayer } from '@/domain/match/LiveMatch'
 
 const matchesRepo = new MatchesSupabaseRepository()
 
@@ -21,8 +21,8 @@ async function fetchEspn(url: string) {
 }
 
 export async function GET() {
-  // In dev: use mock if it exists
-  if (process.env.NODE_ENV !== 'production') {
+  // Use mock in local dev and Vercel preview — never in production
+  if (process.env.VERCEL_ENV !== 'production') {
     const mock = await getConfig('live_match_mock')
     if (mock) return NextResponse.json({ match: JSON.parse(mock) })
   }
@@ -77,13 +77,36 @@ export async function GET() {
     }
   }
 
-  // Fetch play-by-play events only during/after match
+  // Fetch play-by-play events + lineup during/after match (or pre for lineup)
   let liveEvents: LiveEvent[] = []
-  if (guardedState === 'in' || guardedState === 'post') {
-    const summary = await fetchEspn(`${ESPN_SUMMARY}?event=${ceutaEvent.id}`)
-    const plays: unknown[] = summary?.plays ?? []
+  let homeLineup: LineupPlayer[] | undefined
+  let awayLineup: LineupPlayer[] | undefined
 
-    liveEvents = plays
+  if (guardedState === 'pre' || guardedState === 'in' || guardedState === 'post') {
+    const summary = await fetchEspn(`${ESPN_SUMMARY}?event=${ceutaEvent.id}`)
+
+    // Extract lineups from rosters
+    const rosters: unknown[] = summary?.rosters ?? []
+    for (const r of rosters) {
+      const roster = r as Record<string, unknown>
+      const teamId = (roster.team as Record<string, unknown>)?.id
+      const players = ((roster.roster as unknown[]) ?? []).map((p: unknown) => {
+        const player = p as Record<string, unknown>
+        const athlete = player.athlete as Record<string, unknown>
+        return {
+          name: (athlete?.displayName as string) ?? '',
+          jersey: (athlete?.jersey as string) ?? '',
+          position: ((player.position as Record<string, unknown>)?.abbreviation as string) ?? '',
+          starter: Boolean(player.starter),
+        } satisfies LineupPlayer
+      }).filter((p) => p.name)
+      if (teamId === homeTeamData?.id) homeLineup = players
+      else awayLineup = players
+    }
+
+    if (guardedState !== 'pre') {
+      const plays: unknown[] = summary?.plays ?? []
+      liveEvents = plays
       .filter((p: unknown) => {
         const play = p as Record<string, unknown>
         const type = (((play.type as Record<string, unknown>)?.text as string) ?? '').toLowerCase()
@@ -113,7 +136,8 @@ export async function GET() {
           playerName: (athlete?.displayName as string) ?? '',
         }
       })
-  }
+    } // end if guardedState !== 'pre'
+  } // end if pre|in|post
 
   const match: LiveMatch = {
     espnId: ceutaEvent.id as string,
@@ -127,6 +151,8 @@ export async function GET() {
     events: liveEvents,
     venue: ((venue as Record<string, unknown>)?.fullName as string) ?? '',
     startDate: (ceutaEvent.date as string) ?? '',
+    homeLineup: homeLineup?.length ? homeLineup : undefined,
+    awayLineup: awayLineup?.length ? awayLineup : undefined,
   }
 
   // Don't show a finished match that ended more than 3 hours ago
