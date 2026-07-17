@@ -38,7 +38,7 @@ async function loadPreMock() {
 
   const homeTeam = data?.home_team ?? 'Rival'
   const awayTeam = data?.away_team ?? 'AD Ceuta FC'
-  const venue    = data?.venue ?? 'Por confirmar'
+  const venue    = data?.venue ?? ''
 
   // Combine date + time if available (e.g. "2026-08-15" + "20:00" → ISO string)
   let startDate = new Date().toISOString()

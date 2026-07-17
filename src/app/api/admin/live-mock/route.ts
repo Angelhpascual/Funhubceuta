@@ -17,7 +17,7 @@ async function getNextMatch(): Promise<{ homeTeam: string; awayTeam: string; ven
   return {
     homeTeam: data.home_team,
     awayTeam: data.away_team,
-    venue: data.venue ?? 'Por confirmar',
+    venue: data.venue ?? '',
     startDate: new Date(dateStr).toISOString(),
   }
 }
