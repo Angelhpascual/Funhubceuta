@@ -10,6 +10,7 @@ export interface LineupPlayer {
   jersey: string
   position: string
   starter: boolean
+  photoUrl?: string | null
 }
 
 export interface MatchStat {
