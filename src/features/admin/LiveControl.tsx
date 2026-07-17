@@ -101,8 +101,8 @@ export function LiveControl() {
           disabled={acting || status === 'loading'}
           className={`w-full rounded-[10px] py-2.5 font-display text-[12px] font-black uppercase tracking-[0.08em] transition-opacity disabled:opacity-40 ${
             isActive
-              ? 'bg-white text-[var(--red)]'
-              : 'bg-[var(--red)] text-white'
+              ? '!bg-white !text-[var(--red)]'
+              : '!bg-[var(--red)] !text-white'
           }`}
         >
           {acting
