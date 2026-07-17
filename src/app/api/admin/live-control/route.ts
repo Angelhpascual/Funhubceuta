@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { Client } from '@upstash/qstash'
 import { setConfig, getConfig, deleteConfig } from '@/infrastructure/supabase/AppConfigRepository'
+import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
+import type { LiveMatch } from '@/domain/match/LiveMatch'
 
 const QSTASH_SCHEDULE_KEY = 'live_qstash_schedule_id'
 const LIVE_ACTIVE_KEY = 'live_active'
@@ -25,8 +27,41 @@ export async function GET() {
   return NextResponse.json({ active: active === 'true', scheduleId })
 }
 
+async function loadPreMock() {
+  const { data } = await supabaseAdmin
+    .from('matches')
+    .select('home_team, away_team, venue, date')
+    .gte('date', new Date().toISOString().split('T')[0])
+    .order('date', { ascending: true })
+    .limit(1)
+    .single()
+
+  const homeTeam = data?.home_team ?? 'Rival'
+  const awayTeam = data?.away_team ?? 'AD Ceuta FC'
+  const venue    = data?.venue ?? 'Por confirmar'
+  const startDate = data ? new Date(data.date).toISOString() : new Date().toISOString()
+
+  const mock: LiveMatch = {
+    espnId: 'mock-001',
+    homeTeam,
+    awayTeam,
+    homeScore: 0,
+    awayScore: 0,
+    events: [],
+    venue,
+    startDate,
+    clock: '',
+    status: '',
+    state: 'pre',
+  }
+  await setConfig('live_match_mock', JSON.stringify(mock))
+}
+
 export async function POST() {
-  // In preview/local: just flip the flag — no QStash needed (mock provides data)
+  // Always load next match mock on activate (sets crests, time, and pre state)
+  await loadPreMock()
+
+  // In preview/local: just flip the flag — no QStash needed
   if (process.env.VERCEL_ENV !== 'production') {
     await setConfig(LIVE_ACTIVE_KEY, 'true')
     return NextResponse.json({ ok: true, scheduleId: null })
