@@ -22,17 +22,17 @@ async function getNextMatch(): Promise<{ homeTeam: string; awayTeam: string; ven
 }
 
 const CEUTA_LINEUP: LineupPlayer[] = [
-  { name: 'Bernabé Barragán', jersey: '1',  position: 'GK', starter: true },
-  { name: 'Javi Lara',        jersey: '2',  position: 'RB', starter: true },
-  { name: 'Rafa Gálvez',      jersey: '5',  position: 'CB', starter: true },
-  { name: 'Álex Leal',        jersey: '4',  position: 'CB', starter: true },
-  { name: 'Manu Sánchez',     jersey: '3',  position: 'LB', starter: true },
-  { name: 'Zalazar',          jersey: '8',  position: 'CM', starter: true },
-  { name: 'Hassan',           jersey: '6',  position: 'CM', starter: true },
-  { name: 'Aarón Escandell',  jersey: '10', position: 'AM', starter: true },
-  { name: 'Marín',            jersey: '7',  position: 'RW', starter: true },
-  { name: 'Moussa',           jersey: '11', position: 'LW', starter: true },
-  { name: 'Nené',             jersey: '9',  position: 'ST', starter: true },
+  { name: 'Pedro López',   jersey: '1',  position: 'GK', starter: true, photoUrl: 'https://onguesyapdtatsadsxmc.supabase.co/storage/v1/object/public/player-photos/players/13b9af2f-c17b-45c3-a5bb-3a27c0831944.webp' },
+  { name: 'Capa',          jersey: '2',  position: 'RB', starter: true, photoUrl: 'https://onguesyapdtatsadsxmc.supabase.co/storage/v1/object/public/player-photos/players/c48f3f13-e4b6-45ce-9814-7336a5f87059.webp' },
+  { name: 'Yago',          jersey: '5',  position: 'CB', starter: true, photoUrl: 'https://onguesyapdtatsadsxmc.supabase.co/storage/v1/object/public/player-photos/players/88a5f311-1846-4a4b-ad3d-fa6b2df2b4c6.webp' },
+  { name: 'Matos',         jersey: '4',  position: 'CB', starter: true, photoUrl: 'https://onguesyapdtatsadsxmc.supabase.co/storage/v1/object/public/player-photos/players/4d1021f3-93c7-4597-a74e-af17c066653f.webp' },
+  { name: 'Manu Schez',    jersey: '3',  position: 'LB', starter: true, photoUrl: 'https://onguesyapdtatsadsxmc.supabase.co/storage/v1/object/public/player-photos/players/f06ba38e-4e6d-4b1e-8152-c4dac8fe589e.webp' },
+  { name: 'Josema',        jersey: '6',  position: 'DM', starter: true, photoUrl: 'https://onguesyapdtatsadsxmc.supabase.co/storage/v1/object/public/player-photos/players/eca02ca5-c3e9-43ef-8191-2cf8842f8a1e.webp' },
+  { name: 'Salvi Sánchez', jersey: '8',  position: 'CM', starter: true, photoUrl: 'https://onguesyapdtatsadsxmc.supabase.co/storage/v1/object/public/player-photos/players/aac6c9c7-b40f-4f34-879f-a12c72136065.webp' },
+  { name: 'Bodiger',       jersey: '10', position: 'CM', starter: true, photoUrl: 'https://onguesyapdtatsadsxmc.supabase.co/storage/v1/object/public/player-photos/players/449a4ff9-6cc7-408f-9c99-20281644d751.webp' },
+  { name: 'Anuar',         jersey: '7',  position: 'RW', starter: true, photoUrl: 'https://onguesyapdtatsadsxmc.supabase.co/storage/v1/object/public/player-photos/players/6e6c6903-f594-4a37-9767-51687c3846c5.webp' },
+  { name: 'Marino',        jersey: '11', position: 'LW', starter: true, photoUrl: 'https://onguesyapdtatsadsxmc.supabase.co/storage/v1/object/public/player-photos/players/0d969b04-b3dd-40b1-ab45-7b2edeedefcb.webp' },
+  { name: 'Zalazar',       jersey: '9',  position: 'ST', starter: true, photoUrl: 'https://onguesyapdtatsadsxmc.supabase.co/storage/v1/object/public/player-photos/players/bf5eef63-efdb-4f77-b14b-65cd68b17e51.webp' },
 ]
 
 const RIVAL_LINEUP: LineupPlayer[] = [
