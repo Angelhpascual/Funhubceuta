@@ -25,39 +25,35 @@ async function getNextMatch(): Promise<{ homeTeam: string; awayTeam: string; ven
 const PHOTO_BASE = 'https://onguesyapdtatsadsxmc.supabase.co/storage/v1/object/public/player-photos/players'
 const CEUTA_PHOTOS: Record<string, string> = {
   'Pedro López':   `${PHOTO_BASE}/13b9af2f-c17b-45c3-a5bb-3a27c0831944.webp`,
-  'Capa':          `${PHOTO_BASE}/c48f3f13-e4b6-45ce-9814-7336a5f87059.webp`,
-  'Yago':          `${PHOTO_BASE}/88a5f311-1846-4a4b-ad3d-fa6b2df2b4c6.webp`,
-  'Matos':         `${PHOTO_BASE}/4d1021f3-93c7-4597-a74e-af17c066653f.webp`,
-  'Manu Schez':    `${PHOTO_BASE}/f06ba38e-4e6d-4b1e-8152-c4dac8fe589e.webp`,
-  'Josema':        `${PHOTO_BASE}/eca02ca5-c3e9-43ef-8191-2cf8842f8a1e.webp`,
-  'Salvi Sánchez': `${PHOTO_BASE}/aac6c9c7-b40f-4f34-879f-a12c72136065.webp`,
   'Bodiger':       `${PHOTO_BASE}/449a4ff9-6cc7-408f-9c99-20281644d751.webp`,
+  'Capa':          `${PHOTO_BASE}/c48f3f13-e4b6-45ce-9814-7336a5f87059.webp`,
   'Anuar':         `${PHOTO_BASE}/6e6c6903-f594-4a37-9767-51687c3846c5.webp`,
+  'Aisar':         `${PHOTO_BASE}/90d9fd1e-9aa9-41e9-860b-109ba15d222f.webp`,
+  'Youness':       `${PHOTO_BASE}/98366be1-1dc0-40c6-824a-b5bf20f8cead.webp`,
+  'Rubén Díez':    `${PHOTO_BASE}/215fdc67-7312-4348-b99e-9f8604a41d49.webp`,
   'Marino':        `${PHOTO_BASE}/0d969b04-b3dd-40b1-ab45-7b2edeedefcb.webp`,
-  'Zalazar':       `${PHOTO_BASE}/bf5eef63-efdb-4f77-b14b-65cd68b17e51.webp`,
-  'Hassan':        `${PHOTO_BASE}/eca02ca5-c3e9-43ef-8191-2cf8842f8a1e.webp`,
-  'Marín':         `${PHOTO_BASE}/aac6c9c7-b40f-4f34-879f-a12c72136065.webp`,
   'Marcos':        `${PHOTO_BASE}/1a68b0dd-d6da-4745-b4d5-cb8135be37da.webp`,
   'Koné':          `${PHOTO_BASE}/a78a70f3-7784-4d58-80b3-be9816ca7700.webp`,
-  'Rubén Díez':    `${PHOTO_BASE}/215fdc67-7312-4348-b99e-9f8604a41d49.webp`,
+  'Bassinga':      `${PHOTO_BASE}/0b17cf09-a0a3-4a6b-a8b2-bdb623fdcd58.webp`,
 }
 
 const ceuta = (name: string, type: 'goal' | 'yellowCard' | 'redCard', minute: string) => ({
   type, minute, team: 'away' as const, playerName: name, photoUrl: CEUTA_PHOTOS[name] ?? null,
 })
 
+// Alineación real: AD Ceuta vs Albacete 29/05/2026 — 4-3-3
 const CEUTA_LINEUP: LineupPlayer[] = [
-  { name: 'Pedro López',   jersey: '1',  position: 'GK', starter: true, photoUrl: 'https://onguesyapdtatsadsxmc.supabase.co/storage/v1/object/public/player-photos/players/13b9af2f-c17b-45c3-a5bb-3a27c0831944.webp' },
-  { name: 'Capa',          jersey: '2',  position: 'RB', starter: true, photoUrl: 'https://onguesyapdtatsadsxmc.supabase.co/storage/v1/object/public/player-photos/players/c48f3f13-e4b6-45ce-9814-7336a5f87059.webp' },
-  { name: 'Yago',          jersey: '5',  position: 'CB', starter: true, photoUrl: 'https://onguesyapdtatsadsxmc.supabase.co/storage/v1/object/public/player-photos/players/88a5f311-1846-4a4b-ad3d-fa6b2df2b4c6.webp' },
-  { name: 'Matos',         jersey: '4',  position: 'CB', starter: true, photoUrl: 'https://onguesyapdtatsadsxmc.supabase.co/storage/v1/object/public/player-photos/players/4d1021f3-93c7-4597-a74e-af17c066653f.webp' },
-  { name: 'Manu Schez',    jersey: '3',  position: 'LB', starter: true, photoUrl: 'https://onguesyapdtatsadsxmc.supabase.co/storage/v1/object/public/player-photos/players/f06ba38e-4e6d-4b1e-8152-c4dac8fe589e.webp' },
-  { name: 'Josema',        jersey: '6',  position: 'DM', starter: true, photoUrl: 'https://onguesyapdtatsadsxmc.supabase.co/storage/v1/object/public/player-photos/players/eca02ca5-c3e9-43ef-8191-2cf8842f8a1e.webp' },
-  { name: 'Salvi Sánchez', jersey: '8',  position: 'CM', starter: true, photoUrl: 'https://onguesyapdtatsadsxmc.supabase.co/storage/v1/object/public/player-photos/players/aac6c9c7-b40f-4f34-879f-a12c72136065.webp' },
-  { name: 'Bodiger',       jersey: '10', position: 'CM', starter: true, photoUrl: 'https://onguesyapdtatsadsxmc.supabase.co/storage/v1/object/public/player-photos/players/449a4ff9-6cc7-408f-9c99-20281644d751.webp' },
-  { name: 'Rubén Díez',    jersey: '19', position: 'RW', starter: true, photoUrl: `${PHOTO_BASE}/215fdc67-7312-4348-b99e-9f8604a41d49.webp` },
-  { name: 'Koné',          jersey: '22', position: 'LW', starter: true, photoUrl: `${PHOTO_BASE}/a78a70f3-7784-4d58-80b3-be9816ca7700.webp` },
-  { name: 'Marcos',        jersey: '9',  position: 'ST', starter: true, photoUrl: `${PHOTO_BASE}/1a68b0dd-d6da-4745-b4d5-cb8135be37da.webp` },
+  { name: 'Pedro López', jersey: '1',  position: 'GK', starter: true, photoUrl: `${PHOTO_BASE}/13b9af2f-c17b-45c3-a5bb-3a27c0831944.webp` },
+  { name: 'Bodiger',     jersey: '14', position: 'CB', starter: true, photoUrl: `${PHOTO_BASE}/449a4ff9-6cc7-408f-9c99-20281644d751.webp` },
+  { name: 'Capa',        jersey: '4',  position: 'CB', starter: true, photoUrl: `${PHOTO_BASE}/c48f3f13-e4b6-45ce-9814-7336a5f87059.webp` },
+  { name: 'Anuar',       jersey: '23', position: 'LB', starter: true, photoUrl: `${PHOTO_BASE}/6e6c6903-f594-4a37-9767-51687c3846c5.webp` },
+  { name: 'Aisar',       jersey: '7',  position: 'RB', starter: true, photoUrl: `${PHOTO_BASE}/90d9fd1e-9aa9-41e9-860b-109ba15d222f.webp` },
+  { name: 'Youness',     jersey: '5',  position: 'CM', starter: true, photoUrl: `${PHOTO_BASE}/98366be1-1dc0-40c6-824a-b5bf20f8cead.webp` },
+  { name: 'Rubén Díez',  jersey: '19', position: 'LM', starter: true, photoUrl: `${PHOTO_BASE}/215fdc67-7312-4348-b99e-9f8604a41d49.webp` },
+  { name: 'Marino',      jersey: '12', position: 'RM', starter: true, photoUrl: `${PHOTO_BASE}/0d969b04-b3dd-40b1-ab45-7b2edeedefcb.webp` },
+  { name: 'Marcos',      jersey: '9',  position: 'ST', starter: true, photoUrl: `${PHOTO_BASE}/1a68b0dd-d6da-4745-b4d5-cb8135be37da.webp` },
+  { name: 'Koné',        jersey: '22', position: 'LW', starter: true, photoUrl: `${PHOTO_BASE}/a78a70f3-7784-4d58-80b3-be9816ca7700.webp` },
+  { name: 'Bassinga',    jersey: '26', position: 'RW', starter: true, photoUrl: `${PHOTO_BASE}/0b17cf09-a0a3-4a6b-a8b2-bdb623fdcd58.webp` },
 ]
 
 const RIVAL_LINEUP: LineupPlayer[] = [
