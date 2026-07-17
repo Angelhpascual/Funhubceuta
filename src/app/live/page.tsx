@@ -100,34 +100,70 @@ function LiveLineupPanel({ lineup }: { lineup: MatchLineup }) {
   )
 }
 
+const POLL_MS = 25_000
+const PTR_THRESHOLD = 70 // px to pull before triggering refresh
+
 export default function LivePage() {
   const [match, setMatch] = useState<LiveMatch | null>(null)
   const [loading, setLoading] = useState(true)
   const [goalFlash, setGoalFlash] = useState(false)
+  const [refreshing, setRefreshing] = useState(false)
   const prevScoreRef = useRef('')
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const touchStartY = useRef(0)
+  const ptrActive = useRef(false)
+  const scrollRef = useRef<HTMLDivElement>(null)
 
-  async function fetchMatch() {
-    const res = await fetch('/api/live', { cache: 'no-store' })
-    if (!res.ok) return
-    const data = await res.json()
-    const m: LiveMatch | null = data.match
-    if (m) {
-      const key = `${m.homeScore}-${m.awayScore}`
-      if (prevScoreRef.current && prevScoreRef.current !== key) {
-        setGoalFlash(true)
-        setTimeout(() => setGoalFlash(false), 1500)
+  async function fetchMatch(showRefreshing = false) {
+    if (showRefreshing) setRefreshing(true)
+    try {
+      const res = await fetch('/api/live', { cache: 'no-store' })
+      if (!res.ok) return
+      const data = await res.json()
+      const m: LiveMatch | null = data.match
+      if (m) {
+        const key = `${m.homeScore}-${m.awayScore}`
+        if (prevScoreRef.current && prevScoreRef.current !== key) {
+          setGoalFlash(true)
+          setTimeout(() => setGoalFlash(false), 1500)
+        }
+        prevScoreRef.current = key
       }
-      prevScoreRef.current = key
+      setMatch(m)
+      setLoading(false)
+    } finally {
+      if (showRefreshing) setTimeout(() => setRefreshing(false), 400)
     }
-    setMatch(m)
-    setLoading(false)
   }
 
   useEffect(() => {
     fetchMatch()
-    intervalRef.current = setInterval(fetchMatch, 60_000)
+    intervalRef.current = setInterval(() => fetchMatch(), POLL_MS)
     return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
+  }, [])
+
+  // Pull-to-refresh
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!el) return
+
+    const onTouchStart = (e: TouchEvent) => {
+      touchStartY.current = e.touches[0].clientY
+      ptrActive.current = el.scrollTop === 0
+    }
+    const onTouchEnd = (e: TouchEvent) => {
+      if (!ptrActive.current) return
+      const dy = e.changedTouches[0].clientY - touchStartY.current
+      if (dy > PTR_THRESHOLD) fetchMatch(true)
+      ptrActive.current = false
+    }
+
+    el.addEventListener('touchstart', onTouchStart, { passive: true })
+    el.addEventListener('touchend', onTouchEnd, { passive: true })
+    return () => {
+      el.removeEventListener('touchstart', onTouchStart)
+      el.removeEventListener('touchend', onTouchEnd)
+    }
   }, [])
 
   const isLive = match?.state === 'in'
@@ -141,8 +177,17 @@ export default function LivePage() {
     : []
 
   return (
-    <div className="page pb-24">
+    <div ref={scrollRef} className="page pb-24">
       <GoalFlash show={goalFlash} />
+
+      {/* Pull-to-refresh indicator */}
+      {refreshing && (
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '10px 0', background: 'var(--bg)' }}>
+          <svg style={{ width: 20, height: 20, animation: 'spin 0.8s linear infinite', color: 'var(--red)' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <path d="M21 12a9 9 0 11-6.219-8.56" strokeLinecap="round" />
+          </svg>
+        </div>
+      )}
 
       {/* ══ LIVE BOARD ══ */}
       <div style={{ background: 'var(--black)', color: '#fff', position: 'relative', overflow: 'hidden', padding: '0 20px 22px' }}>
