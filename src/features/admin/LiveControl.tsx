@@ -99,11 +99,11 @@ export function LiveControl() {
         <button
           onClick={isActive ? deactivate : activate}
           disabled={acting || status === 'loading'}
-          className={`w-full rounded-[10px] py-2.5 font-display text-[12px] font-black uppercase tracking-[0.08em] transition-opacity disabled:opacity-40 ${
-            isActive
-              ? '!bg-white !text-[var(--red)]'
-              : '!bg-[var(--red)] !text-white'
-          }`}
+          className="w-full rounded-[10px] py-2.5 font-display text-[12px] font-black uppercase tracking-[0.08em] transition-opacity disabled:opacity-40"
+          style={{
+            background: isActive ? '#fff' : 'var(--red)',
+            color: isActive ? 'var(--red)' : '#fff',
+          }}
         >
           {acting
             ? '...'
