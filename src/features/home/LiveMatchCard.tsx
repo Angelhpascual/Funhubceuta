@@ -8,8 +8,8 @@ import { getLocalLogo } from '@/lib/teamLogos'
 import { ScrapedMatch } from '@/infrastructure/scrapers/adceutaScraper'
 import Link from 'next/link'
 
-const POLL_INTERVAL_LIVE = 60_000
-const POLL_INTERVAL_PRE = 300_000
+const POLL_INTERVAL_LIVE = 25_000
+const POLL_INTERVAL_PRE = 120_000
 
 const EVENT_ICONS: Record<string, string> = {
   goal: '⚽',
@@ -314,12 +314,17 @@ export function LiveMatchCard() {
         </div>
       </div>
 
-      <MatchEvents events={match.events} />
+      {!isLive && <MatchEvents events={match.events} />}
 
-      <div className="mt-[18px] border-t border-white/10 pt-[14px]">
+      <div className="mt-[18px] border-t border-white/10 pt-[14px] flex items-center justify-between">
         <span className="font-display text-[11px] font-semibold uppercase tracking-[0.1em] text-white/50">
           {match.venue || 'Liga Hypermotion'}
         </span>
+        {isLive && (
+          <Link href="/live" className="font-display text-[10px] font-black uppercase tracking-[0.1em] text-ceuta-red">
+            Ver en directo →
+          </Link>
+        )}
       </div>
     </MatchCardShell>
   )
