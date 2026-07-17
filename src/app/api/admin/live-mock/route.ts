@@ -37,6 +37,9 @@ const CEUTA_PHOTOS: Record<string, string> = {
   'Zalazar':       `${PHOTO_BASE}/bf5eef63-efdb-4f77-b14b-65cd68b17e51.webp`,
   'Hassan':        `${PHOTO_BASE}/eca02ca5-c3e9-43ef-8191-2cf8842f8a1e.webp`,
   'Marín':         `${PHOTO_BASE}/aac6c9c7-b40f-4f34-879f-a12c72136065.webp`,
+  'Marcos':        `${PHOTO_BASE}/1a68b0dd-d6da-4745-b4d5-cb8135be37da.webp`,
+  'Koné':          `${PHOTO_BASE}/a78a70f3-7784-4d58-80b3-be9816ca7700.webp`,
+  'Rubén Díez':    `${PHOTO_BASE}/215fdc67-7312-4348-b99e-9f8604a41d49.webp`,
 }
 
 const ceuta = (name: string, type: 'goal' | 'yellowCard' | 'redCard', minute: string) => ({
@@ -52,9 +55,9 @@ const CEUTA_LINEUP: LineupPlayer[] = [
   { name: 'Josema',        jersey: '6',  position: 'DM', starter: true, photoUrl: 'https://onguesyapdtatsadsxmc.supabase.co/storage/v1/object/public/player-photos/players/eca02ca5-c3e9-43ef-8191-2cf8842f8a1e.webp' },
   { name: 'Salvi Sánchez', jersey: '8',  position: 'CM', starter: true, photoUrl: 'https://onguesyapdtatsadsxmc.supabase.co/storage/v1/object/public/player-photos/players/aac6c9c7-b40f-4f34-879f-a12c72136065.webp' },
   { name: 'Bodiger',       jersey: '10', position: 'CM', starter: true, photoUrl: 'https://onguesyapdtatsadsxmc.supabase.co/storage/v1/object/public/player-photos/players/449a4ff9-6cc7-408f-9c99-20281644d751.webp' },
-  { name: 'Anuar',         jersey: '7',  position: 'RW', starter: true, photoUrl: 'https://onguesyapdtatsadsxmc.supabase.co/storage/v1/object/public/player-photos/players/6e6c6903-f594-4a37-9767-51687c3846c5.webp' },
-  { name: 'Marino',        jersey: '11', position: 'LW', starter: true, photoUrl: 'https://onguesyapdtatsadsxmc.supabase.co/storage/v1/object/public/player-photos/players/0d969b04-b3dd-40b1-ab45-7b2edeedefcb.webp' },
-  { name: 'Zalazar',       jersey: '9',  position: 'ST', starter: true, photoUrl: 'https://onguesyapdtatsadsxmc.supabase.co/storage/v1/object/public/player-photos/players/bf5eef63-efdb-4f77-b14b-65cd68b17e51.webp' },
+  { name: 'Rubén Díez',    jersey: '19', position: 'RW', starter: true, photoUrl: `${PHOTO_BASE}/215fdc67-7312-4348-b99e-9f8604a41d49.webp` },
+  { name: 'Koné',          jersey: '22', position: 'LW', starter: true, photoUrl: `${PHOTO_BASE}/a78a70f3-7784-4d58-80b3-be9816ca7700.webp` },
+  { name: 'Marcos',        jersey: '9',  position: 'ST', starter: true, photoUrl: `${PHOTO_BASE}/1a68b0dd-d6da-4745-b4d5-cb8135be37da.webp` },
 ]
 
 const RIVAL_LINEUP: LineupPlayer[] = [
@@ -100,7 +103,7 @@ function buildScenarios(homeTeam: string, awayTeam: string, venue: string, start
   live_0_0: { ...BASE, state: 'in', clock: "23'", status: '1st Half', homeLineup: RIVAL_LINEUP, awayLineup: CEUTA_LINEUP },
   live_goal_ceuta: {
     ...BASE, state: 'in', clock: "67'", awayScore: 1,
-    events: [ceuta('Zalazar', 'goal', "67'")],
+    events: [ceuta('Marcos', 'goal', "67'")],
   },
   live_goal_rival: {
     ...BASE, state: 'in', clock: "34'", homeScore: 1,
@@ -109,11 +112,11 @@ function buildScenarios(homeTeam: string, awayTeam: string, venue: string, start
   live_events: {
     ...BASE, state: 'in', clock: "78'", homeScore: 1, awayScore: 2,
     events: [
-      ceuta('Zalazar', 'goal', "12'"),
+      ceuta('Marcos', 'goal', "12'"),
       { type: 'yellowCard', minute: "28'", team: 'home', playerName: 'García' },
       { type: 'goal', minute: "45'", team: 'home', playerName: 'Molina' },
       { type: 'redCard', minute: "61'", team: 'home', playerName: 'Torres' },
-      ceuta('Hassan', 'goal', "74'"),
+      ceuta('Rubén Díez', 'goal', "74'"),
     ],
   },
   // ── Full simulation steps ──
@@ -138,7 +141,7 @@ function buildScenarios(homeTeam: string, awayTeam: string, venue: string, start
     homeLineup: RIVAL_LINEUP, awayLineup: CEUTA_LINEUP,
     events: [
       { type: 'yellowCard', minute: "15'", team: 'home', playerName: 'García' },
-      { type: 'goal',       minute: "23'", team: 'away', playerName: 'Zalazar' },
+      { type: 'goal',       minute: "23'", team: 'away', playerName: 'Marcos' },
     ],
     stats: stats(41, 1, 4, 1, 2, 75, 83),
   },
@@ -147,7 +150,7 @@ function buildScenarios(homeTeam: string, awayTeam: string, venue: string, start
     homeLineup: RIVAL_LINEUP, awayLineup: CEUTA_LINEUP,
     events: [
       { type: 'yellowCard', minute: "15'", team: 'home', playerName: 'García' },
-      { type: 'goal',       minute: "23'", team: 'away', playerName: 'Zalazar' },
+      { type: 'goal',       minute: "23'", team: 'away', playerName: 'Marcos' },
     ],
     stats: stats(39, 2, 6, 2, 4, 74, 84),
   },
@@ -156,7 +159,7 @@ function buildScenarios(homeTeam: string, awayTeam: string, venue: string, start
     homeLineup: RIVAL_LINEUP, awayLineup: CEUTA_LINEUP,
     events: [
       { type: 'yellowCard', minute: "15'", team: 'home', playerName: 'García' },
-      { type: 'goal',       minute: "23'", team: 'away', playerName: 'Zalazar' },
+      { type: 'goal',       minute: "23'", team: 'away', playerName: 'Marcos' },
     ],
     stats: stats(38, 2, 7, 3, 4, 73, 85),
   },
@@ -165,7 +168,7 @@ function buildScenarios(homeTeam: string, awayTeam: string, venue: string, start
     homeLineup: RIVAL_LINEUP, awayLineup: CEUTA_LINEUP,
     events: [
       { type: 'yellowCard', minute: "15'", team: 'home', playerName: 'García' },
-      { type: 'goal',       minute: "23'", team: 'away', playerName: 'Zalazar' },
+      { type: 'goal',       minute: "23'", team: 'away', playerName: 'Marcos' },
     ],
     stats: stats(41, 3, 7, 3, 5, 75, 84),
   },
@@ -174,7 +177,7 @@ function buildScenarios(homeTeam: string, awayTeam: string, venue: string, start
     homeLineup: RIVAL_LINEUP, awayLineup: CEUTA_LINEUP,
     events: [
       { type: 'yellowCard', minute: "15'", team: 'home', playerName: 'García' },
-      { type: 'goal',       minute: "23'", team: 'away', playerName: 'Zalazar' },
+      { type: 'goal',       minute: "23'", team: 'away', playerName: 'Marcos' },
       { type: 'goal',       minute: "58'", team: 'home', playerName: 'Molina' },
     ],
     stats: stats(43, 4, 8, 4, 6, 76, 83),
@@ -184,7 +187,7 @@ function buildScenarios(homeTeam: string, awayTeam: string, venue: string, start
     homeLineup: RIVAL_LINEUP, awayLineup: CEUTA_LINEUP,
     events: [
       { type: 'yellowCard', minute: "15'", team: 'home', playerName: 'García' },
-      { type: 'goal',       minute: "23'", team: 'away', playerName: 'Zalazar' },
+      { type: 'goal',       minute: "23'", team: 'away', playerName: 'Marcos' },
       { type: 'goal',       minute: "58'", team: 'home', playerName: 'Molina' },
       { type: 'redCard',    minute: "65'", team: 'home', playerName: 'Torres' },
     ],
@@ -195,10 +198,10 @@ function buildScenarios(homeTeam: string, awayTeam: string, venue: string, start
     homeLineup: RIVAL_LINEUP, awayLineup: CEUTA_LINEUP,
     events: [
       { type: 'yellowCard', minute: "15'", team: 'home', playerName: 'García' },
-      { type: 'goal',       minute: "23'", team: 'away', playerName: 'Zalazar' },
+      { type: 'goal',       minute: "23'", team: 'away', playerName: 'Marcos' },
       { type: 'goal',       minute: "58'", team: 'home', playerName: 'Molina' },
       { type: 'redCard',    minute: "65'", team: 'home', playerName: 'Torres' },
-      { type: 'goal',       minute: "74'", team: 'away', playerName: 'Hassan' },
+      { type: 'goal',       minute: "74'", team: 'away', playerName: 'Rubén Díez' },
     ],
     stats: stats(47, 6, 11, 6, 7, 80, 81),
   },
@@ -207,21 +210,21 @@ function buildScenarios(homeTeam: string, awayTeam: string, venue: string, start
     homeLineup: RIVAL_LINEUP, awayLineup: CEUTA_LINEUP,
     events: [
       { type: 'yellowCard', minute: "15'", team: 'home', playerName: 'García' },
-      { type: 'goal',       minute: "23'", team: 'away', playerName: 'Zalazar' },
+      { type: 'goal',       minute: "23'", team: 'away', playerName: 'Marcos' },
       { type: 'goal',       minute: "58'", team: 'home', playerName: 'Molina' },
       { type: 'redCard',    minute: "65'", team: 'home', playerName: 'Torres' },
-      { type: 'goal',       minute: "74'", team: 'away', playerName: 'Hassan' },
+      { type: 'goal',       minute: "74'", team: 'away', playerName: 'Rubén Díez' },
     ],
     stats: stats(47, 7, 13, 7, 8, 80, 80),
   },
 
   win: { ...BASE, state: 'post', homeScore: 0, awayScore: 2, homeLineup: RIVAL_LINEUP, awayLineup: CEUTA_LINEUP, events: [
-    { type: 'goal', minute: "55'", team: 'away', playerName: 'Zalazar' },
+    { type: 'goal', minute: "55'", team: 'away', playerName: 'Marcos' },
     { type: 'goal', minute: "88'", team: 'away', playerName: 'Marín' },
   ]},
   draw: { ...BASE, state: 'post', homeScore: 1, awayScore: 1, events: [
     { type: 'goal', minute: "20'", team: 'home', playerName: 'Molina' },
-    { type: 'goal', minute: "71'", team: 'away', playerName: 'Hassan' },
+    { type: 'goal', minute: "71'", team: 'away', playerName: 'Rubén Díez' },
   ]},
   loss: { ...BASE, state: 'post', homeScore: 2, awayScore: 0, events: [
     { type: 'goal', minute: "10'", team: 'home', playerName: 'García' },
