@@ -3,6 +3,7 @@ export interface LiveEvent {
   minute: string
   team: 'home' | 'away'
   playerName: string
+  photoUrl?: string | null
 }
 
 export interface LineupPlayer {
