@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from 'react'
 import type { LiveMatch, LineupPlayer as LiveLineupPlayer } from '@/domain/match/LiveMatch'
 import type { MatchLineup, LineupPlayer } from '@/domain/match/Lineup'
 import { getLocalLogo } from '@/lib/teamLogos'
-import { MvpBanner } from '@/components/ui/MvpBanner'
 import { LineupField } from '@/features/matches/LineupField'
 
 // Convierte la alineación live (posiciones simples) al formato que espera LineupField
@@ -366,27 +365,6 @@ export default function LivePage() {
           return <LiveLineupPanel lineup={toMatchLineup(ceutaLineup)} />
         })()}
 
-        {/* ── MVP CTA (live) ── */}
-        {isLive && (
-          <div style={{ margin: '8px 16px 18px', background: 'var(--black)', color: '#fff', borderRadius: 14, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, position: 'relative', overflow: 'hidden' }}>
-            <div style={{ position: 'absolute', top: 0, right: 0, bottom: 0, width: 90, background: 'repeating-linear-gradient(-45deg,transparent 0 8px,rgba(255,255,255,0.06) 8px 16px)', pointerEvents: 'none' }} />
-            <div style={{ width: 38, height: 38, borderRadius: '50%', background: 'rgba(244,195,0,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: 18, height: 18, color: 'var(--gold)' }}>
-                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z" />
-              </svg>
-            </div>
-            <div style={{ flex: 1, position: 'relative', zIndex: 1 }}>
-              <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 15, letterSpacing: '0.03em', textTransform: 'uppercase', lineHeight: 1.1 }}>El MVP, al pitido final</div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', marginTop: 2 }}>La votación se abre cuando acabe el partido</div>
-            </div>
-            <span style={{ fontFamily: 'var(--font-display)', fontSize: 11, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', background: 'var(--red)', padding: '8px 12px', borderRadius: 8, position: 'relative', zIndex: 1, color: '#fff' }}>
-              Avisarme
-            </span>
-          </div>
-        )}
-
-        {/* ── Post-match MVP ── */}
-        {isPost && <div className="-mx-4 mt-2"><MvpBanner /></div>}
 
       </div>
     </div>

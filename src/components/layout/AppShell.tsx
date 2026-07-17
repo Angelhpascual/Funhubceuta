@@ -3,6 +3,7 @@
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { InstallModal } from '@/components/ui/InstallModal'
+import { MvpBanner } from '@/components/ui/MvpBanner'
 
 const NAV_MOBILE = [
   {
@@ -211,6 +212,8 @@ export function AppShell({ children, liveActive }: { children: React.ReactNode; 
       <Topbar pathname={pathname} router={router} />
 
       <div className="scroll-area">{children}</div>
+
+      <MvpBanner />
 
       {/* Bottom nav: mobile only */}
       <div className="bottom-nav">
