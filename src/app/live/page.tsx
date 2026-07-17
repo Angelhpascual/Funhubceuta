@@ -273,18 +273,25 @@ export default function LivePage() {
                         {ev.minute}&apos;
                       </span>
                       <span style={{
-                        width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                        background: isGoal ? (isCeuta ? 'var(--red)' : 'var(--black)') : (isYellow || isRed) ? 'transparent' : 'var(--bg-soft)',
+                        width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden',
+                        background: ev.photoUrl && isCeuta ? 'transparent' : isGoal ? (isCeuta ? 'var(--red)' : 'var(--black)') : (isYellow || isRed) ? 'transparent' : 'var(--bg-soft)',
                         color: isGoal ? '#fff' : 'var(--black)',
                       }}>
-                        {isGoal && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: 14, height: 14 }}><circle cx="12" cy="12" r="10" /><path d="M12 7l4.75 3.45-1.81 5.6h-5.88l-1.81-5.6z" fill="currentColor" stroke="none" /></svg>}
-                        {isYellow && (
-                          <div style={{ width: 14, height: 20, background: '#F5C518', borderRadius: 3, border: '1.5px solid rgba(0,0,0,0.18)', transform: 'rotate(-8deg)' }} />
+                        {ev.photoUrl && isCeuta ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={ev.photoUrl} alt={ev.playerName} style={{ width: 28, height: 28, objectFit: 'cover', objectPosition: 'top' }} />
+                        ) : (
+                          <>
+                            {isGoal && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: 14, height: 14 }}><circle cx="12" cy="12" r="10" /><path d="M12 7l4.75 3.45-1.81 5.6h-5.88l-1.81-5.6z" fill="currentColor" stroke="none" /></svg>}
+                            {isYellow && (
+                              <div style={{ width: 14, height: 20, background: '#F5C518', borderRadius: 3, border: '1.5px solid rgba(0,0,0,0.18)', transform: 'rotate(-8deg)' }} />
+                            )}
+                            {isRed && (
+                              <div style={{ width: 14, height: 20, background: '#E01020', borderRadius: 3, border: '1.5px solid rgba(0,0,0,0.18)', transform: 'rotate(-8deg)' }} />
+                            )}
+                            {ev.type === 'substitution' && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: 14, height: 14 }}><path d="M17 1l4 4-4 4" /><path d="M3 11V9a4 4 0 014-4h14" /><path d="M7 23l-4-4 4-4" /><path d="M21 13v2a4 4 0 01-4 4H3" /></svg>}
+                          </>
                         )}
-                        {isRed && (
-                          <div style={{ width: 14, height: 20, background: '#E01020', borderRadius: 3, border: '1.5px solid rgba(0,0,0,0.18)', transform: 'rotate(-8deg)' }} />
-                        )}
-                        {ev.type === 'substitution' && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: 14, height: 14 }}><path d="M17 1l4 4-4 4" /><path d="M3 11V9a4 4 0 014-4h14" /><path d="M7 23l-4-4 4-4" /><path d="M21 13v2a4 4 0 01-4 4H3" /></svg>}
                       </span>
                       <div>
                         <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 15, letterSpacing: '0.02em', textTransform: 'uppercase', lineHeight: 1.2 }}>
