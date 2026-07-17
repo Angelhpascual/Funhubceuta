@@ -30,7 +30,7 @@ export async function GET() {
 async function loadPreMock() {
   const { data } = await supabaseAdmin
     .from('matches')
-    .select('home_team, away_team, venue, date')
+    .select('home_team, away_team, home_team_logo, away_team_logo, venue, date, time')
     .gte('date', new Date().toISOString().split('T')[0])
     .order('date', { ascending: true })
     .limit(1)
@@ -39,7 +39,13 @@ async function loadPreMock() {
   const homeTeam = data?.home_team ?? 'Rival'
   const awayTeam = data?.away_team ?? 'AD Ceuta FC'
   const venue    = data?.venue ?? 'Por confirmar'
-  const startDate = data ? new Date(data.date).toISOString() : new Date().toISOString()
+
+  // Combine date + time if available (e.g. "2026-08-15" + "20:00" → ISO string)
+  let startDate = new Date().toISOString()
+  if (data?.date) {
+    const dateStr = data.time ? `${data.date}T${data.time}:00` : `${data.date}T00:00:00`
+    startDate = new Date(dateStr).toISOString()
+  }
 
   const mock: LiveMatch = {
     espnId: 'mock-001',

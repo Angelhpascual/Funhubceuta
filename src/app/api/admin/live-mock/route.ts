@@ -6,18 +6,19 @@ import type { LiveMatch, LineupPlayer, MatchStat } from '@/domain/match/LiveMatc
 async function getNextMatch(): Promise<{ homeTeam: string; awayTeam: string; venue: string; startDate: string }> {
   const { data } = await supabaseAdmin
     .from('matches')
-    .select('home_team, away_team, venue, date')
+    .select('home_team, away_team, venue, date, time')
     .gte('date', new Date().toISOString().split('T')[0])
     .order('date', { ascending: true })
     .limit(1)
     .single()
 
   if (!data) return { homeTeam: 'FC Andorra', awayTeam: 'AD Ceuta FC', venue: 'Estadio de la FAF, Encamp', startDate: new Date().toISOString() }
+  const dateStr = data.time ? `${data.date}T${data.time}:00` : `${data.date}T00:00:00`
   return {
     homeTeam: data.home_team,
     awayTeam: data.away_team,
     venue: data.venue ?? 'Por confirmar',
-    startDate: new Date(data.date).toISOString(),
+    startDate: new Date(dateStr).toISOString(),
   }
 }
 
