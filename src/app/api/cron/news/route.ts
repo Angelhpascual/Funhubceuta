@@ -157,10 +157,10 @@ async function syncNews() {
 
   // Queue ALL new recent articles for admin review (not just the most relevant).
   // Admin decides which ones to send or discard from the panel.
-  const ONE_DAY = 24 * 60 * 60 * 1000
+  const FIVE_DAYS = 5 * 24 * 60 * 60 * 1000
   const recentNew = allNew.filter((a) => {
     if (!a.publishedAt) return false
-    return Date.now() - new Date(a.publishedAt).getTime() < ONE_DAY
+    return Date.now() - new Date(a.publishedAt).getTime() < FIVE_DAYS
   })
 
   // Sort by priority so admin sees the most relevant first
