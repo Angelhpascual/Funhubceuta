@@ -61,7 +61,8 @@ export function PredictionBanner() {
       .channel('prediction_sessions_status')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'prediction_sessions' }, () => load())
       .subscribe()
-    const interval = session?.status === 'closed' ? 30_000 : 5_000
+    // No session → check every 10 min (realtime fires if one opens); closed → 2 min; open → 1 min
+    const interval = !session ? 600_000 : session.status === 'closed' ? 120_000 : 60_000
     const id = setInterval(load, interval)
     return () => { supabase.removeChannel(channel); clearInterval(id) }
   // eslint-disable-next-line react-hooks/exhaustive-deps

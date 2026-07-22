@@ -3,6 +3,7 @@
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { InstallModal } from '@/components/ui/InstallModal'
+import { MvpBanner } from '@/components/ui/MvpBanner'
 
 const NAV_MOBILE = [
   {
@@ -126,7 +127,7 @@ const NAV_DESKTOP = [
   },
 ]
 
-const SSR_ROUTES = ['/clasificacion', '/partidos', '/club', '/noticias', '/alineacion', '/mercado']
+const SSR_ROUTES = ['/clasificacion', '/partidos', '/club', '/noticias', '/alineacion', '/mercado', '/live']
 
 // Topbar rendered on SSR routes AND on home in desktop-only mode
 function Topbar({ pathname, router }: { pathname: string; router: ReturnType<typeof useRouter> }) {
@@ -170,7 +171,14 @@ function removeHtmlLoader() {
   el.style.transition = 'opacity 0.3s ease'
 }
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+const LIVE_ICON = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" />
+    <polygon points="10 8 16 12 10 16 10 8" fill="currentColor" stroke="none" />
+  </svg>
+)
+
+export function AppShell({ children, liveActive }: { children: React.ReactNode; liveActive: boolean }) {
   const pathname = usePathname()
   const router = useRouter()
 
@@ -190,7 +198,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     return (
       <>
         <InstallModal />
-        {/* Desktop-only topbar overlay for home and other non-SSR pages */}
         <div className="desktop-topbar-overlay">
           <Topbar pathname={pathname} router={router} />
         </div>
@@ -206,18 +213,34 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <div className="scroll-area">{children}</div>
 
+      <MvpBanner />
+
       {/* Bottom nav: mobile only */}
       <div className="bottom-nav">
-        {NAV_MOBILE.map((n) => (
-          <button
-            key={n.id}
-            className={`nav-item ${pathname === n.id ? 'active' : ''}`}
-            onClick={() => router.push(n.id)}
-          >
-            {n.icon}
-            <span className="nav-label">{n.label}</span>
-          </button>
-        ))}
+        {NAV_MOBILE.map((n) => {
+          const isLiveTab = n.id === '/mercado' && liveActive
+          const href = isLiveTab ? '/live' : n.id
+          const label = isLiveTab ? 'Live' : n.label
+          const icon = isLiveTab ? LIVE_ICON : n.icon
+          return (
+            <button
+              key={n.id}
+              className={`nav-item ${pathname === href ? 'active' : ''} ${isLiveTab ? 'text-[var(--red)]' : ''}`}
+              onClick={() => router.push(href)}
+            >
+              {isLiveTab ? (
+                <span className="relative">
+                  {icon}
+                  <span className="absolute -right-0.5 -top-0.5 flex size-2 items-center justify-center">
+                    <span className="absolute inline-flex size-full animate-ping rounded-full bg-[var(--red)] opacity-75" />
+                    <span className="relative inline-flex size-1.5 rounded-full bg-[var(--red)]" />
+                  </span>
+                </span>
+              ) : icon}
+              <span className="nav-label">{label}</span>
+            </button>
+          )
+        })}
       </div>
     </div>
   )

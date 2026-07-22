@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { Receiver } from '@upstash/qstash'
 import webpush from 'web-push'
 import type { LiveMatch, LiveEvent } from '@/domain/match/LiveMatch'
-import { setConfig, deleteConfig } from '@/infrastructure/supabase/AppConfigRepository'
+import { getConfig, setConfig, deleteConfig } from '@/infrastructure/supabase/AppConfigRepository'
 import { deleteSubscription } from '@/infrastructure/supabase/PushSubscriptionsRepository'
 import { ESPN_BASE as ESPN } from '@/lib/constants'
 import { MSG } from './messages'
@@ -132,6 +132,13 @@ async function saveState(state: MatchState) {
 
 // ── Main logic ────────────────────────────────────────────────────────────
 async function checkAndNotify(testMode = false) {
+  // Guard: only run when live mode is explicitly active
+  if (!testMode) {
+    const liveActive = await getConfig('live_active')
+    if (liveActive !== 'true') {
+      return { match: null, notifications: [], skipped: true }
+    }
+  }
   const match = await fetchLiveMatch()
 
   if (!match) {
@@ -205,8 +212,19 @@ async function checkAndNotify(testMode = false) {
     }
   }
 
-  // ── Match finished ────────────────────────────────────────────────────
+  // ── Match finished — auto-deactivate live mode ────────────────────────
   if (prev?.state === 'in' && match.state === 'post') {
+    // Stop the QStash schedule automatically
+    const scheduleId = await getConfig('live_qstash_schedule_id')
+    if (scheduleId) {
+      try {
+        const { Client } = await import('@upstash/qstash')
+        const client = new Client({ token: process.env.QSTASH_TOKEN! })
+        await client.schedules.delete(scheduleId)
+      } catch { /* best effort */ }
+      await deleteConfig('live_qstash_schedule_id')
+    }
+    await setConfig('live_active', 'false')
     const ceutaScore = ceutaIsHome ? match.homeScore : match.awayScore
     const rivalScore = ceutaIsHome ? match.awayScore : match.homeScore
     const m =

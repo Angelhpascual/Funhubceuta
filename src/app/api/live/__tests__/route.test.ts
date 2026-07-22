@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
 vi.mock('@/lib/constants', () => ({
   ESPN_SCOREBOARD: 'https://espn.com/scoreboard',
@@ -48,6 +48,9 @@ beforeEach(() => {
 })
 
 describe('GET /api/live (production — no mock)', () => {
+  beforeEach(() => { vi.stubEnv('VERCEL_ENV', 'production') })
+  afterEach(() => { vi.unstubAllEnvs() })
+
   it('returns match:null when ESPN scoreboard fails', async () => {
     vi.spyOn(global, 'fetch').mockResolvedValue(new Response('', { status: 503 }))
     const res = await GET()
@@ -66,8 +69,8 @@ describe('GET /api/live (production — no mock)', () => {
   })
 
   it('returns pre-match data when state is pre', async () => {
-    vi.spyOn(global, 'fetch').mockResolvedValue(
-      new Response(JSON.stringify(makeScoreboard('pre')), { status: 200 })
+    vi.spyOn(global, 'fetch').mockImplementation(() =>
+      Promise.resolve(new Response(JSON.stringify(makeScoreboard('pre')), { status: 200 }))
     )
     const res = await GET()
     const body = await res.json()
@@ -93,8 +96,8 @@ describe('GET /api/live (production — no mock)', () => {
   })
 
   it('downgrades in→pre when DB kickoff is outside 4h window', async () => {
-    vi.spyOn(global, 'fetch').mockResolvedValue(
-      new Response(JSON.stringify(makeScoreboard('in')), { status: 200 })
+    vi.spyOn(global, 'fetch').mockImplementation(() =>
+      Promise.resolve(new Response(JSON.stringify(makeScoreboard('in')), { status: 200 }))
     )
     // DB says kickoff was 6h ago → stale signal
     mockFetchByEspnId.mockResolvedValue({ date: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString() })

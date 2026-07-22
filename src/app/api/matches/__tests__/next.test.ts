@@ -38,7 +38,7 @@ describe('GET /api/matches/next', () => {
   it('sets Cache-Control header', async () => {
     mockGetNextMatch.mockResolvedValue(null)
     const res = await GET()
-    expect(res.headers.get('Cache-Control')).toContain('s-maxage=300')
+    expect(res.headers.get('Cache-Control')).toContain('no-cache')
   })
 
   it('returns 500 when repo throws', async () => {

@@ -7,9 +7,10 @@ import { usePushNotifications } from '@/hooks/usePushNotifications'
 import { getLocalLogo } from '@/lib/teamLogos'
 import { ScrapedMatch } from '@/infrastructure/scrapers/adceutaScraper'
 import Link from 'next/link'
+import { MatchBoard } from '@/components/ui/MatchBoard'
 
-const POLL_INTERVAL_LIVE = 60_000
-const POLL_INTERVAL_PRE = 300_000
+const POLL_INTERVAL_LIVE = 25_000
+const POLL_INTERVAL_PRE = 120_000
 
 const EVENT_ICONS: Record<string, string> = {
   goal: '⚽',
@@ -152,6 +153,7 @@ export function LiveMatchCard() {
   const [goalFlash, setGoalFlash] = useState(false)
 
   const prevScoreRef = useRef<string>('')
+  const matchStateRef = useRef<string | undefined>(undefined)
   const { permission, subscribed, subscribe } = usePushNotifications()
 
   const fetchLive = async () => {
@@ -170,14 +172,21 @@ export function LiveMatchCard() {
     setMatch(m)
   }
 
+  // Fetch next match once on mount
   useEffect(() => {
-    fetchLive()
-    fetch('/api/matches/next', { cache: 'no-store' })
+    fetch('/api/matches/next')
       .then((r) => (r.ok ? r.json() : null))
-      .then((d) => {
-        if (d?.match) setNextMatch(d.match)
-      })
+      .then((d) => { if (d?.match) setNextMatch(d.match) })
       .catch(() => {})
+  }, [])
+
+  // Live polling — interval adjusts when state changes, but does NOT re-fetch immediately
+  useEffect(() => {
+    const isFirstMount = matchStateRef.current === undefined
+    matchStateRef.current = match?.state
+
+    // Only fetch immediately on first mount, not on state transitions
+    if (isFirstMount) fetchLive()
 
     const interval = setInterval(
       fetchLive,
@@ -251,76 +260,10 @@ export function LiveMatchCard() {
     )
   }
 
-  const isLive = match.state === 'in'
-  const isFinished = match.state === 'post'
-
   return (
-    <MatchCardShell relative>
+    <div className="mx-3 overflow-hidden rounded-[14px]">
       <GoalFlash show={goalFlash} />
-
-      <div className="flex items-center justify-between">
-        <Competition />
-        {isLive && <LiveBadge clock={match.clock} />}
-        {isFinished && (
-          <span className="font-display text-[11px] font-bold uppercase tracking-[0.1em] text-white/50">
-            FINALIZADO
-          </span>
-        )}
-      </div>
-
-      <div className="relative z-[1] mt-4 grid grid-cols-[1fr_auto_1fr] items-center gap-2.5">
-        <div className="flex flex-col items-center gap-2">
-          <TeamCrest name={match.homeTeam} />
-          <div className="text-center font-display text-[15px] font-bold uppercase tracking-[0.04em]">
-            {match.homeTeam}
-          </div>
-        </div>
-        <div className="text-center">
-          {isLive || isFinished ? (
-            <div className="font-display text-[38px] font-black leading-none tracking-[-0.02em] text-white">
-              {match.homeScore} – {match.awayScore}
-            </div>
-          ) : (
-            <>
-              <div className="mb-1.5 font-display text-[12px] font-black tracking-[0.16em] text-ceuta-muted">
-                VS
-              </div>
-              {(() => {
-                // Prefer DB date (nextMatch) over ESPN startDate which can be corrupt
-                const dateStr = nextMatch
-                  ? `${nextMatch.date}T${nextMatch.time}:00`
-                  : match.startDate
-                const d = new Date(dateStr)
-                return (
-                  <div className="font-display text-[22px] font-black leading-none tracking-[0.04em]">
-                    {d.toLocaleDateString('es-ES', { weekday: 'short', timeZone: 'UTC' }).toUpperCase().replace('.', '')}
-                    <br />
-                    {d.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', timeZone: 'UTC' })}
-                    <br />
-                    <span className="text-[16px] text-white/60">
-                      {nextMatch?.time && nextMatch.time !== '00:00' ? nextMatch.time : 'Por confirmar'}
-                    </span>
-                  </div>
-                )
-              })()}
-            </>
-          )}
-        </div>
-        <div className="flex flex-col items-center gap-2">
-          <TeamCrest name={match.awayTeam} />
-          <div className="text-center font-display text-[15px] font-bold uppercase tracking-[0.04em]">
-            {match.awayTeam}
-          </div>
-        </div>
-      </div>
-
-      <MatchEvents events={match.events} />
-
-      <div className="mt-[18px] border-t border-white/10 pt-[14px]">
-        <span className="font-display text-[11px] font-semibold uppercase tracking-[0.1em] text-white/50">
-          {match.venue || 'Liga Hypermotion'}
-        </span>
-      </div>
-    </MatchCardShell>
+      <MatchBoard match={match} showLiveLink />
+    </div>
   )
 }

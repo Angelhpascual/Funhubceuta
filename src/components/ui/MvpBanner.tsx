@@ -61,7 +61,8 @@ export function MvpBanner() {
   const [votedId, setVotedId] = useState<string | null>(null)
 
   const computeState = useCallback((s: MvpSession | null): BannerState => {
-    if (!s || s.status === 'pending') return 'none'
+    if (!s) return 'none'
+    if (s.status === 'pending') return 'antes'
     if (s.status === 'closed') return 'cerrada'
     const voted = getVotedSession() === s.id
     return voted ? 'votado' : 'abierta'
@@ -95,9 +96,10 @@ export function MvpBanner() {
     return () => { supabase.removeChannel(channel) }
   }, [load])
 
-  // Polling: 5s siempre salvo cuando la sesión ya está cerrada
+  // Polling: solo cuando hay sesión activa (realtime cubre cambios de estado)
   useEffect(() => {
-    const interval = session?.status === 'closed' ? 30_000 : 5_000
+    if (!session) return // realtime se encarga si se abre una sesión
+    const interval = session.status === 'closed' ? 120_000 : 60_000
     const id = setInterval(load, interval)
     return () => clearInterval(id)
   }, [load, session?.status])
@@ -128,7 +130,7 @@ export function MvpBanner() {
 
   return (
     <>
-      <div className="px-4 pt-3">
+      <div className="px-4 pt-2 pb-1 bg-[var(--bg)] border-t border-[var(--border)]">
         <button className={`mvp-banner st-${bannerState}`} onClick={() => setSheetOpen(true)}>
           <div className="mb-strp" />
           {bannerState === 'cerrada' && winner?.photo_url ? (

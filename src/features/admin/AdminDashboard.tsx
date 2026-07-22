@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { AdminActions } from './AdminActions'
+import { LiveControl } from './LiveControl'
 import { MvpAdmin } from './MvpAdmin'
 import { PredictionAdmin } from './PredictionAdmin'
 import { ActivityTimeline } from './ActivityTimeline'
@@ -62,23 +63,23 @@ export function AdminDashboard({ stats }: { stats: AdminStats }) {
             clipPath: 'polygon(120px 0, 100% 0, 100% 100%, 0 100%)',
           }}
         />
-        <div className="max-w-[1240px] mx-auto px-8 py-9 relative flex items-end justify-between gap-6 flex-wrap">
+        <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-6 md:py-9 relative flex items-end justify-between gap-4 flex-wrap">
           <div>
-            <div className="font-display text-[12.5px] font-bold tracking-[0.16em] uppercase text-ceuta-red flex items-center gap-2.5">
-              <span className="w-6 h-0.5 bg-ceuta-red" />
+            <div className="font-display text-[11px] md:text-[12.5px] font-bold tracking-[0.16em] uppercase text-ceuta-red flex items-center gap-2.5">
+              <span className="w-5 h-0.5 bg-ceuta-red" />
               Panel de control
             </div>
-            <h1 className="font-display font-black text-[46px] leading-[0.95] uppercase mt-2">
+            <h1 className="font-display font-black text-[32px] md:text-[46px] leading-[0.95] uppercase mt-2">
               Buenos días, <em className="not-italic text-ceuta-gold">míster.</em>
             </h1>
           </div>
-          <div className="flex gap-2.5 flex-wrap">
-            <span className="flex items-center gap-2 bg-white/7 border border-white/14 rounded-full px-3.5 py-2 font-display text-[12.5px] font-semibold tracking-[0.06em] uppercase text-white/75">
-              <span className={`w-[7px] h-[7px] rounded-full ${newsOk ? 'bg-[#1E9E4B]' : 'bg-ceuta-red'}`} />
+          <div className="flex gap-2 md:gap-2.5 flex-wrap">
+            <span className="flex items-center gap-1.5 bg-white/7 border border-white/14 rounded-full px-3 py-1.5 font-display text-[11px] md:text-[12.5px] font-semibold tracking-[0.06em] uppercase text-white/75">
+              <span className={`w-[6px] h-[6px] rounded-full shrink-0 ${newsOk ? 'bg-[#1E9E4B]' : 'bg-ceuta-red'}`} />
               Noticias · <b className="text-white">{timeAgo(stats.lastNewsRun?.created_at ?? null)}</b>
             </span>
-            <span className="flex items-center gap-2 bg-white/7 border border-white/14 rounded-full px-3.5 py-2 font-display text-[12.5px] font-semibold tracking-[0.06em] uppercase text-white/75">
-              <span className={`w-[7px] h-[7px] rounded-full ${matchOk ? 'bg-[#1E9E4B]' : 'bg-ceuta-gold'}`} />
+            <span className="flex items-center gap-1.5 bg-white/7 border border-white/14 rounded-full px-3 py-1.5 font-display text-[11px] md:text-[12.5px] font-semibold tracking-[0.06em] uppercase text-white/75">
+              <span className={`w-[6px] h-[6px] rounded-full shrink-0 ${matchOk ? 'bg-[#1E9E4B]' : 'bg-ceuta-gold'}`} />
               Partidos · <b className="text-white">{timeAgo(stats.lastMatchRun?.created_at ?? null)}</b>
             </span>
           </div>
@@ -88,30 +89,30 @@ export function AdminDashboard({ stats }: { stats: AdminStats }) {
       <div className="max-w-[1240px] mx-auto px-4 md:px-8">
         {/* KPI Strip */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5 pt-6">
-          <div className="bg-ceuta-red border border-ceuta-red rounded-[14px] p-5 relative overflow-hidden">
+          <div className="bg-ceuta-red border border-ceuta-red rounded-[14px] p-4 md:p-5 relative overflow-hidden">
             <div className="absolute top-0 right-0 bottom-0 w-20 opacity-[0.06]"
               style={{ background: 'repeating-linear-gradient(-45deg, transparent 0 7px, #fff 7px 14px)' }} />
-            <div className="font-display font-black text-[42px] leading-none text-white">{stats.subscribers}</div>
-            <div className="font-display text-[11.5px] font-bold tracking-[0.12em] uppercase text-white/75 mt-1.5">Suscriptores</div>
-            <div className="text-[12px] text-white/85 font-semibold mt-1.5">activos</div>
+            <div className="font-display font-black text-[34px] md:text-[42px] leading-none text-white">{stats.subscribers}</div>
+            <div className="font-display text-[11px] font-bold tracking-[0.12em] uppercase text-white/75 mt-1.5">Suscriptores</div>
+            <div className="text-[11px] text-white/85 font-semibold mt-1">activos</div>
           </div>
-          <div className="bg-ceuta-black border border-ceuta-black rounded-[14px] p-5 relative overflow-hidden">
+          <div className="bg-ceuta-black border border-ceuta-black rounded-[14px] p-4 md:p-5 relative overflow-hidden">
             <div className="absolute top-0 right-0 bottom-0 w-20 opacity-[0.06]"
               style={{ background: 'repeating-linear-gradient(-45deg, transparent 0 7px, #fff 7px 14px)' }} />
-            <div className="font-display font-black text-[42px] leading-none text-white">{stats.totalNews}</div>
-            <div className="font-display text-[11.5px] font-bold tracking-[0.12em] uppercase text-white/75 mt-1.5">Noticias publicadas</div>
-            <div className="text-[12px] text-white/85 font-semibold mt-1.5">esta temporada</div>
+            <div className="font-display font-black text-[34px] md:text-[42px] leading-none text-white">{stats.totalNews}</div>
+            <div className="font-display text-[11px] font-bold tracking-[0.12em] uppercase text-white/75 mt-1.5">Noticias</div>
+            <div className="text-[11px] text-white/85 font-semibold mt-1">esta temporada</div>
           </div>
-          <div className="bg-white border border-ceuta-border rounded-[14px] p-5">
-            <div className="font-display font-black text-[42px] leading-none text-ceuta-black">
-              {stats.deliveryRate !== null ? `${stats.deliveryRate}` : '—'}<span className="text-[26px]">%</span>
+          <div className="bg-white border border-ceuta-border rounded-[14px] p-4 md:p-5">
+            <div className="font-display font-black text-[34px] md:text-[42px] leading-none text-ceuta-black">
+              {stats.deliveryRate !== null ? `${stats.deliveryRate}` : '—'}<span className="text-[22px] md:text-[26px]">%</span>
             </div>
-            <div className="font-display text-[11.5px] font-bold tracking-[0.12em] uppercase text-ceuta-muted mt-1.5">Entrega de notificaciones</div>
-            <div className="text-[12px] text-[#1E9E4B] font-semibold mt-1.5">Estable</div>
+            <div className="font-display text-[11px] font-bold tracking-[0.12em] uppercase text-ceuta-muted mt-1.5">Entrega notif.</div>
+            <div className="text-[11px] text-[#1E9E4B] font-semibold mt-1">Estable</div>
           </div>
-          <div className="bg-white border border-ceuta-border rounded-[14px] p-5">
-            <div className="font-display font-black text-[42px] leading-none text-ceuta-black">MVP</div>
-            <div className="font-display text-[11.5px] font-bold tracking-[0.12em] uppercase text-ceuta-muted mt-1.5">
+          <div className="bg-white border border-ceuta-border rounded-[14px] p-4 md:p-5">
+            <div className="font-display font-black text-[34px] md:text-[42px] leading-none text-ceuta-black">MVP</div>
+            <div className="font-display text-[11px] font-bold tracking-[0.12em] uppercase text-ceuta-muted mt-1.5">
               {stats.mvpSession
                 ? stats.mvpSession.status === 'open' ? 'Votación abierta'
                   : stats.mvpSession.status === 'closed' ? 'Cerrada'
@@ -173,6 +174,16 @@ export function AdminDashboard({ stats }: { stats: AdminStats }) {
 
           {/* Right column */}
           <div className="flex flex-col gap-5">
+
+            {/* Live */}
+            <Module>
+              <div className="flex items-center justify-between gap-3 px-5 pt-5">
+                <ModuleTitle>Partido en vivo</ModuleTitle>
+              </div>
+              <div className="px-5 pb-5 mt-4">
+                <LiveControl />
+              </div>
+            </Module>
 
             {/* MVP */}
             <Module>

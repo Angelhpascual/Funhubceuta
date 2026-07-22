@@ -3,6 +3,22 @@ export interface LiveEvent {
   minute: string
   team: 'home' | 'away'
   playerName: string
+  photoUrl?: string | null
+}
+
+export interface LineupPlayer {
+  name: string
+  jersey: string
+  position: string
+  starter: boolean
+  photoUrl?: string | null
+}
+
+export interface MatchStat {
+  name: string
+  displayName: string
+  home: string
+  away: string
 }
 
 export interface LiveMatch {
@@ -17,4 +33,7 @@ export interface LiveMatch {
   events: LiveEvent[]
   venue: string
   startDate: string
+  homeLineup?: LineupPlayer[]
+  awayLineup?: LineupPlayer[]
+  stats?: MatchStat[]
 }

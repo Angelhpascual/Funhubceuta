@@ -118,32 +118,32 @@ export const MSG = {
   lossCeuta: (score: string) =>
     pick([
       {
-        title: `😔 Derrota... pero seguimos juntos (${score})`,
-        body: `No era el día. Esto es el fútbol. El Ceuta siempre se levanta. ¡Gracias por el apoyo! 🖤⚪`,
+        title: `💪 No era el día, pero volvemos más fuertes (${score})`,
+        body: `El Ceuta peleó hasta el final. La próxima semana, a por ellos. ¡Siempre caballas! 🖤⚪🔥`,
       },
       {
-        title: `😞 No pudo ser (${score})`,
-        body: `Derrota dura, pero el equipo lo ha intentado. ¡Seguimos, caballas! 🖤⚪💪`,
+        title: `🖤⚪ Nos levantamos, que para eso somos Ceuta (${score})`,
+        body: `Un resultado que duele, pero esta afición nunca abandona. ¡Seguimos unidos! 💪`,
       },
       {
-        title: `⚫ Derrota (${score})`,
-        body: `Un mal resultado que olvidar. El Ceuta se levantará. ¡La afición siempre está ahí! 🖤⚪`,
+        title: `🔥 Golpe encajado, la cabeza bien alta (${score})`,
+        body: `El Ceuta no se rinde. Cada derrota nos hace más fuertes. ¡A por la siguiente, caballas! 🖤⚪`,
       },
     ]),
 
   drawCeuta: (score: string) =>
     pick([
       {
-        title: `🤝 Empate final (${score})`,
-        body: `Un punto que suma. El equipo lo ha dado todo. ¡Gracias caballas! 🖤⚪`,
+        title: `🤝 Un punto arrancado a pulso (${score})`,
+        body: `El Ceuta no bajó los brazos en ningún momento. ¡Un punto más en el bolsillo, caballas! 🖤⚪💪`,
       },
       {
-        title: `➖ Tablas (${score})`,
-        body: `Se reparte el botín. El Ceuta no se rindió. ¡Un punto es un punto! 🖤⚪`,
+        title: `⚡ Tablas, pero con orgullo (${score})`,
+        body: `El equipo compitió de tú a tú. Punto sumado y a seguir peleando. ¡Vamos Ceuta! 🖤⚪🔥`,
       },
       {
-        title: `🤝 Empate justo (${score})`,
-        body: `Ni para unos ni para otros. El Ceuta peleó hasta el final. ¡Gracias afición! 🖤⚪`,
+        title: `🖤⚪ Empate con carácter (${score})`,
+        body: `Ni un paso atrás. El Ceuta aguantó hasta el pitido final. ¡Gracias por el apoyo, afición! 💪`,
       },
     ]),
 

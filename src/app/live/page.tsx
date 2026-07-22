@@ -1,0 +1,349 @@
+'use client'
+
+import { useEffect, useRef, useState } from 'react'
+import type { LiveMatch, LineupPlayer as LiveLineupPlayer } from '@/domain/match/LiveMatch'
+import type { MatchLineup, LineupPlayer } from '@/domain/match/Lineup'
+import { LineupField } from '@/features/matches/LineupField'
+import { MatchBoard } from '@/components/ui/MatchBoard'
+
+// Convierte la alineación live (posiciones simples) al formato que espera LineupField
+function toMatchLineup(players: LiveLineupPlayer[]): MatchLineup {
+  const starters: LineupPlayer[] = players.filter(p => p.starter).map(p => ({
+    name: p.name,
+    shortName: p.name.split(' ').pop() ?? p.name,
+    jersey: p.jersey,
+    position: p.position,
+    positionAbbr: p.position === 'AM' ? 'CAM' : p.position,
+    starter: true,
+    photoUrl: p.photoUrl ?? null,
+  }))
+  const bench: LineupPlayer[] = players.filter(p => !p.starter).map(p => ({
+    name: p.name,
+    shortName: p.name.split(' ').pop() ?? p.name,
+    jersey: p.jersey,
+    position: p.position,
+    positionAbbr: p.position,
+    starter: false,
+    photoUrl: p.photoUrl ?? null,
+  }))
+
+  // Inferir formación contando por líneas (excluyendo GK)
+  const defs = starters.filter(p => ['CB','RB','LB','WB'].includes(p.positionAbbr)).length
+  const mids = starters.filter(p => ['DM','CM','CAM','LM','RM'].includes(p.positionAbbr)).length
+  const atta = starters.filter(p => ['RW','LW','ST','CF','FW'].includes(p.positionAbbr)).length
+  const formation = `${defs}-${mids}-${atta}`
+
+  return { formation, starters, bench, events: [], available: true }
+}
+
+
+function GoalFlash({ show }: { show: boolean }) {
+  if (!show) return null
+  return (
+    <div className="pointer-events-none fixed inset-0 z-50 bg-[var(--red)]/20 animate-[goalFlash_1.2s_ease-out_forwards]">
+      <style>{`@keyframes goalFlash{0%{opacity:1}100%{opacity:0}}`}</style>
+    </div>
+  )
+}
+
+
+function LiveLineupPanel({ lineup }: { lineup: MatchLineup }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <div style={{ margin: '0 0 0' }}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        style={{
+          width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '14px 16px', background: 'none', border: 'none', cursor: 'pointer',
+          borderTop: '1px solid var(--border)',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ width: 4, height: 16, background: 'var(--red)', borderRadius: 2, display: 'inline-block', flexShrink: 0 }} />
+          <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 16, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+            Alineación AD Ceuta FC
+          </span>
+          <span style={{ fontFamily: 'var(--font-display)', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', background: 'var(--bg-soft)', borderRadius: 4, padding: '2px 7px', color: 'var(--muted)' }}>
+            {lineup.formation}
+          </span>
+        </div>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
+          style={{ width: 18, height: 18, color: 'var(--muted)', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>
+          <path d="M6 9l6 6 6-6" />
+        </svg>
+      </button>
+      {open && (
+        <div style={{ padding: '0 16px 20px' }}>
+          <LineupField lineup={lineup} />
+        </div>
+      )}
+    </div>
+  )
+}
+
+const POLL_MS = 25_000
+const PTR_THRESHOLD = 70 // px to pull before triggering refresh
+
+export default function LivePage() {
+  const [match, setMatch] = useState<LiveMatch | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [goalFlash, setGoalFlash] = useState(false)
+  const [refreshing, setRefreshing] = useState(false)
+  const prevScoreRef = useRef('')
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const touchStartY = useRef(0)
+  const ptrActive = useRef(false)
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  async function fetchMatch(showRefreshing = false) {
+    if (showRefreshing) setRefreshing(true)
+    try {
+      const res = await fetch('/api/live', { cache: 'no-store' })
+      if (!res.ok) return
+      const data = await res.json()
+      const m: LiveMatch | null = data.match
+      if (m) {
+        const key = `${m.homeScore}-${m.awayScore}`
+        if (prevScoreRef.current && prevScoreRef.current !== key) {
+          setGoalFlash(true)
+          setTimeout(() => setGoalFlash(false), 1500)
+        }
+        prevScoreRef.current = key
+      }
+      setMatch(m)
+      setLoading(false)
+    } finally {
+      if (showRefreshing) setTimeout(() => setRefreshing(false), 400)
+    }
+  }
+
+  useEffect(() => {
+    fetchMatch()
+    intervalRef.current = setInterval(() => fetchMatch(), POLL_MS)
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
+  }, [])
+
+  // Pull-to-refresh
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!el) return
+
+    const onTouchStart = (e: TouchEvent) => {
+      touchStartY.current = e.touches[0].clientY
+      ptrActive.current = el.scrollTop === 0
+    }
+    const onTouchEnd = (e: TouchEvent) => {
+      if (!ptrActive.current) return
+      const dy = e.changedTouches[0].clientY - touchStartY.current
+      if (dy > PTR_THRESHOLD) fetchMatch(true)
+      ptrActive.current = false
+    }
+
+    el.addEventListener('touchstart', onTouchStart, { passive: true })
+    el.addEventListener('touchend', onTouchEnd, { passive: true })
+    return () => {
+      el.removeEventListener('touchstart', onTouchStart)
+      el.removeEventListener('touchend', onTouchEnd)
+    }
+  }, [])
+
+  const isLive = match?.state === 'in'
+  const isPost = match?.state === 'post'
+  const ceutaIsHome = match ? match.homeTeam.toLowerCase().includes('ceuta') : true
+  const rival = match ? (ceutaIsHome ? match.awayTeam : match.homeTeam) : ''
+  const ceutaScore = match ? (ceutaIsHome ? match.homeScore : match.awayScore) : 0
+  const rivalScore = match ? (ceutaIsHome ? match.awayScore : match.homeScore) : 0
+  const sortedEvents = match
+    ? [...match.events].sort((a, b) => (parseInt(b.minute) || 0) - (parseInt(a.minute) || 0))
+    : []
+
+  return (
+    <div ref={scrollRef} className="page pb-24">
+      <GoalFlash show={goalFlash} />
+
+      {/* Pull-to-refresh indicator */}
+      {refreshing && (
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '10px 0', background: 'var(--bg)' }}>
+          <svg style={{ width: 20, height: 20, animation: 'spin 0.8s linear infinite', color: 'var(--red)' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <path d="M21 12a9 9 0 11-6.219-8.56" strokeLinecap="round" />
+          </svg>
+        </div>
+      )}
+
+      {/* ══ LIVE BOARD ══ */}
+      <MatchBoard match={match} loading={loading} />
+
+      {/* ══ CONTENT ══ */}
+      <div>
+
+        {/* No data */}
+        {!loading && !match && (
+          <div style={{ margin: '16px 16px 0', background: 'var(--bg-soft)', borderRadius: 14, padding: '24px 20px', textAlign: 'center' }}>
+            <div style={{ fontSize: 28, marginBottom: 8 }}>⚽</div>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 900, textTransform: 'uppercase', color: 'var(--black)' }}>Sin partido en curso</div>
+            <p style={{ marginTop: 4, fontSize: 13, color: 'var(--muted)' }}>El modo live se activará antes del partido.</p>
+          </div>
+        )}
+
+        {/* Pre-match */}
+        {match?.state === 'pre' && (
+          <div style={{ margin: '16px 16px 0', background: 'var(--bg-soft)', borderRadius: 14, padding: 20 }}>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.14em', color: 'var(--red)', marginBottom: 4 }}>Próximamente</div>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 900, textTransform: 'uppercase', lineHeight: 1.1 }}>El partido está a punto de comenzar</div>
+            <p style={{ marginTop: 8, fontSize: 13, color: 'var(--muted)' }}>Las alineaciones y actualizaciones aparecerán aquí en cuanto empiece.</p>
+          </div>
+        )}
+
+        {/* ── Timeline ── */}
+        {(isLive || isPost) && (
+          <div style={{ padding: '18px 16px 6px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+              <span style={{ width: 4, height: 16, background: 'var(--red)', borderRadius: 2, display: 'inline-block', flexShrink: 0 }} />
+              <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 16, letterSpacing: '0.05em', textTransform: 'uppercase' }}>Minuto a minuto</span>
+            </div>
+            {sortedEvents.length === 0 ? (
+              <p style={{ fontSize: 13, color: 'var(--muted)', padding: '8px 0' }}>Sin eventos registrados aún.</p>
+            ) : (
+              <div>
+                {/* Cabecera equipos */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 40px 1fr', alignItems: 'center', marginBottom: 8, paddingBottom: 8, borderBottom: '1px solid var(--border)' }}>
+                  <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: ceutaIsHome ? 'var(--red)' : 'var(--muted)' }}>
+                    {match.homeTeam}
+                  </span>
+                  <span />
+                  <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: !ceutaIsHome ? 'var(--red)' : 'var(--muted)', textAlign: 'right' }}>
+                    {match.awayTeam}
+                  </span>
+                </div>
+                {sortedEvents.map((ev, i) => {
+                  const isCeuta = ev.team === (ceutaIsHome ? 'home' : 'away')
+                  const isHome = ev.team === 'home'
+                  const isGoal = ev.type === 'goal'
+                  const isYellow = ev.type === 'yellowCard'
+                  const isRed = ev.type === 'redCard'
+
+                  const EventIcon = () => {
+                    if (isGoal && isCeuta) {
+                      if (ev.photoUrl) {
+                        // eslint-disable-next-line @next/next/no-img-element
+                        return <img src={ev.photoUrl} alt={ev.playerName} style={{ width: 28, height: 28, objectFit: 'cover', objectPosition: 'top', borderRadius: '50%' }} />
+                      }
+                      return <span style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 11, color: '#fff' }}>{ev.minute}&apos;</span>
+                    }
+                    if (isGoal) return <span style={{ fontSize: 16 }}>⚽</span>
+                    if (isYellow) return <div style={{ width: 12, height: 17, background: '#F5C518', borderRadius: 2, border: '1.5px solid rgba(0,0,0,0.18)', transform: 'rotate(-8deg)' }} />
+                    if (isRed) return <div style={{ width: 12, height: 17, background: '#E01020', borderRadius: 2, border: '1.5px solid rgba(0,0,0,0.18)', transform: 'rotate(-8deg)' }} />
+                    if (ev.type === 'substitution') return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: 13, height: 13 }}><path d="M17 1l4 4-4 4" /><path d="M3 11V9a4 4 0 014-4h14" /><path d="M7 23l-4-4 4-4" /><path d="M21 13v2a4 4 0 01-4 4H3" /></svg>
+                    return null
+                  }
+
+                  const playerLabel = ev.playerName || (isGoal ? (isCeuta ? '¡Gol AD Ceuta FC!' : `Gol ${rival}`) : ev.type === 'yellowCard' ? 'Amarilla' : ev.type === 'redCard' ? 'Roja' : 'Cambio')
+
+                  return (
+                    <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 40px 1fr', alignItems: 'center', gap: 4, padding: '8px 0', borderBottom: '1px solid var(--border)' }}
+                      className="last:border-none">
+                      {/* Columna izquierda (home) */}
+                      {isHome ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <span style={{ width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden', background: isGoal && isCeuta ? 'var(--red)' : 'var(--bg-soft)' }}>
+                            <EventIcon />
+                          </span>
+                          <div>
+                            <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 13, textTransform: 'uppercase', lineHeight: 1.2, color: isGoal && isCeuta ? 'var(--red)' : 'var(--black)' }}>
+                              {playerLabel}
+                            </div>
+                          </div>
+                        </div>
+                      ) : <div />}
+
+                      {/* Minuto central */}
+                      <div style={{ textAlign: 'center' }}>
+                        <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 12, color: isGoal ? 'var(--red)' : 'var(--muted)' }}>
+                          {ev.minute}&apos;
+                        </span>
+                      </div>
+
+                      {/* Columna derecha (away) */}
+                      {!isHome ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'flex-end' }}>
+                          <div style={{ textAlign: 'right' }}>
+                            <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 13, textTransform: 'uppercase', lineHeight: 1.2, color: isGoal && isCeuta ? 'var(--red)' : 'var(--black)' }}>
+                              {playerLabel}
+                            </div>
+                          </div>
+                          <span style={{ width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden', background: isGoal && isCeuta ? 'var(--red)' : 'var(--bg-soft)' }}>
+                            <EventIcon />
+                          </span>
+                        </div>
+                      ) : <div />}
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── Estadísticas ── */}
+        {(isLive || isPost) && match?.stats && match.stats.length > 0 && (
+          <div style={{ padding: '18px 16px 6px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+              <span style={{ width: 4, height: 16, background: 'var(--red)', borderRadius: 2, display: 'inline-block', flexShrink: 0 }} />
+              <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 16, letterSpacing: '0.05em', textTransform: 'uppercase' }}>Estadísticas</span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              {match.stats.map((stat) => {
+                const isPct = stat.name === 'possessionPct' || stat.name === 'passPct'
+                const homeRaw = parseFloat(stat.home) || 0
+                const awayRaw = parseFloat(stat.away) || 0
+                const total = homeRaw + awayRaw || 1
+
+                // For percentages ESPN gives 0–100 directly; for counts use proportion
+                const homePct = isPct ? homeRaw : (homeRaw / total) * 100
+                const awayPct = isPct ? awayRaw : (awayRaw / total) * 100
+
+                // Display values: percentages show %, counts show raw
+                const homeDisplay = isPct ? `${Math.round(homeRaw)}%` : String(Math.round(homeRaw))
+                const awayDisplay = isPct ? `${Math.round(awayRaw)}%` : String(Math.round(awayRaw))
+
+                const ceutaIsHomeLocal = match.homeTeam.toLowerCase().includes('ceuta')
+                const ceutaPct = ceutaIsHomeLocal ? homePct : awayPct
+                const rivalPct = ceutaIsHomeLocal ? awayPct : homePct
+                const ceutaDisplay = ceutaIsHomeLocal ? homeDisplay : awayDisplay
+                const rivalDisplay = ceutaIsHomeLocal ? awayDisplay : homeDisplay
+
+                return (
+                  <div key={stat.name}>
+                    {/* Label centrado */}
+                    <div style={{ textAlign: 'center', fontFamily: 'var(--font-display)', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--muted)', marginBottom: 6 }}>
+                      {stat.displayName}
+                    </div>
+                    {/* Valores + barra */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '40px 1fr 40px', alignItems: 'center', gap: 8 }}>
+                      <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 15, textAlign: 'right', color: 'var(--red)' }}>{ceutaDisplay}</span>
+                      <div style={{ display: 'flex', height: 6, borderRadius: 3, overflow: 'hidden', background: 'var(--border)' }}>
+                        <div style={{ width: `${ceutaPct}%`, background: 'var(--red)', borderRadius: '3px 0 0 3px', transition: 'width 0.6s ease' }} />
+                        <div style={{ width: `${rivalPct}%`, background: 'var(--black)', borderRadius: '0 3px 3px 0', transition: 'width 0.6s ease' }} />
+                      </div>
+                      <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 15, textAlign: 'left', color: 'var(--black)' }}>{rivalDisplay}</span>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* ── Alineación AD Ceuta FC (campo visual, colapsable) ── */}
+        {match && (() => {
+          const ceutaLineup = ceutaIsHome ? match.homeLineup : match.awayLineup
+          if (!ceutaLineup?.length) return null
+          return <LiveLineupPanel lineup={toMatchLineup(ceutaLineup)} />
+        })()}
+
+
+      </div>
+    </div>
+  )
+}
