@@ -208,7 +208,10 @@ export default function LivePage() {
           ) : isPost ? (
             <span style={{ fontFamily: 'var(--font-display)', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.55)' }}>Finalizado</span>
           ) : (
-            <span style={{ fontFamily: 'var(--font-display)', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.55)' }}>Previo</span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: 'var(--font-display)', fontSize: 11, fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)' }}>
+              <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'rgba(255,255,255,0.4)', display: 'inline-block' }} />
+              Día de partido
+            </span>
           )}
           <span style={{ fontFamily: 'var(--font-display)', fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.55)' }}>
             Liga Hypermotion
@@ -247,7 +250,14 @@ export default function LivePage() {
                 )}
               </>
             ) : (
-              <div style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 19, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.16em' }}>VS</div>
+              <>
+                <div style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 52, lineHeight: 1, letterSpacing: '0.02em' }}>
+                  0<span style={{ color: 'rgba(255,255,255,0.3)' }}>–</span>0
+                </div>
+                <div style={{ marginTop: 6, fontFamily: 'var(--font-display)', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.35)' }}>
+                  Esperando alineaciones
+                </div>
+              </>
             )}
           </div>
 
