@@ -260,16 +260,6 @@ export default function NoticiasPage() {
               )
             })}
 
-            {/* Botón "Cargar más" — fallback visible para cualquier navegador */}
-            {hasMore && !loadingMore && news.length > 0 && (
-              <button
-                onClick={loadNextPage}
-                className="w-full py-4 font-display text-[11px] font-bold uppercase tracking-[0.12em] text-ceuta-muted active:bg-ceuta-bg-soft transition-colors"
-              >
-                Cargar más noticias
-              </button>
-            )}
-
             {!hasMore && news.length > 0 && (
               <div className="px-[14px] py-4 text-center font-display text-[11px] font-semibold uppercase tracking-[0.1em] text-ceuta-muted">
                 Ya has visto todas las noticias
@@ -278,6 +268,16 @@ export default function NoticiasPage() {
           </>
         )}
       </div>
+
+      {/* Botón "Cargar más" — FUERA del overflow-hidden, siempre accesible */}
+      {!loading && hasMore && !loadingMore && news.length > 0 && (
+        <button
+          onClick={loadNextPage}
+          className="mx-3 mt-3 w-[calc(100%-24px)] rounded-[14px] border-2 border-ceuta-black py-4 font-display text-[11px] font-bold uppercase tracking-[0.12em] text-ceuta-black active:bg-ceuta-bg-soft transition-colors"
+        >
+          Cargar más noticias
+        </button>
+      )}
 
       {loadingMore && (
         <div className="flex items-center justify-center py-4">
