@@ -73,9 +73,11 @@ export default function NoticiasPage() {
   }, [fetchNews])
 
   // Infinite scroll via IntersectionObserver on sentinel div
+  // Must use .scroll-area as root (the actual scroll container, not the viewport)
   useEffect(() => {
     const sentinel = sentinelRef.current
     if (!sentinel) return
+    const scrollRoot = document.querySelector('.scroll-area') as Element | null
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -91,7 +93,7 @@ export default function NoticiasPage() {
           setOffset(next)
         }
       },
-      { rootMargin: '200px' }
+      { root: scrollRoot, rootMargin: '200px' }
     )
     observer.observe(sentinel)
     return () => observer.disconnect()
@@ -245,17 +247,6 @@ export default function NoticiasPage() {
               )
             })}
 
-            {/* Sentinel para infinite scroll */}
-            <div ref={sentinelRef} className="h-1" />
-
-            {loadingMore && (
-              <div className="flex items-center justify-center py-4">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--red)" strokeWidth="2.5" strokeLinecap="round" className="animate-spin">
-                  <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-                </svg>
-              </div>
-            )}
-
             {!hasMore && news.length > 0 && (
               <div className="px-[14px] py-4 text-center font-display text-[11px] font-semibold uppercase tracking-[0.1em] text-ceuta-muted">
                 Ya has visto todas las noticias
@@ -264,6 +255,16 @@ export default function NoticiasPage() {
           </>
         )}
       </div>
+
+      {/* Sentinel fuera del overflow-hidden para que IntersectionObserver funcione */}
+      {loadingMore && (
+        <div className="flex items-center justify-center py-4">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--red)" strokeWidth="2.5" strokeLinecap="round" className="animate-spin">
+            <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+          </svg>
+        </div>
+      )}
+      <div ref={sentinelRef} className="h-1" />
 
       <div className="h-6" />
     </div>
