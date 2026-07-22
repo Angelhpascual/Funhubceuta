@@ -178,6 +178,7 @@ img {
 /* ════════ SCROLL ════════ */
 .scroll-area {
   flex: 1;
+  min-height: 0; /* necesario en flex column para que overflow-y:auto funcione */
   overflow-y: auto;
   overflow-x: clip;
   margin-top: var(--top-h);
