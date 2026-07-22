@@ -107,7 +107,7 @@ body {
   height: 100dvh;
   background: var(--bg);
   position: relative;
-  overflow: hidden;
+  overflow: clip; /* clip visual sin crear scroll context — permite touch scroll en .scroll-area en Brave */
   display: flex;
   flex-direction: column;
   box-shadow: 0 0 40px rgba(0, 0, 0, 0.4);
