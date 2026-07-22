@@ -187,7 +187,7 @@ async function syncNews() {
       if (kw.size === 0 || ekw.size === 0) return false
       let overlap = 0
       for (const w of kw) if (ekw.has(w)) overlap++
-      return overlap / Math.min(kw.size, ekw.size) >= 0.4
+      return overlap / Math.min(kw.size, ekw.size) >= 0.6
     })
 
   // discardedTitles acts as a permanent blocklist — admin explicitly said "no" to these

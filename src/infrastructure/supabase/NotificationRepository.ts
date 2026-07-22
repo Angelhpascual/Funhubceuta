@@ -19,12 +19,14 @@ export async function getQueuedTitles(): Promise<string[]> {
   return (data ?? []).map((n) => n.title as string)
 }
 
-/** Titles of articles the admin has explicitly discarded — used to prevent re-queuing */
+/** Titles of articles the admin has explicitly discarded in the last 30 days — used to prevent re-queuing */
 export async function getDiscardedTitles(): Promise<string[]> {
+  const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
   const { data } = await supabaseAdmin
     .from('news')
     .select('title')
     .eq('discarded', true)
+    .gte('created_at', since)
   return (data ?? []).map((n) => n.title as string)
 }
 
