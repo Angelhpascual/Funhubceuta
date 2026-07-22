@@ -24,7 +24,38 @@ function liveUrl() {
 export async function GET() {
   const active = await getConfig(LIVE_ACTIVE_KEY)
   const scheduleId = await getConfig(QSTASH_SCHEDULE_KEY)
-  return NextResponse.json({ active: active === 'true', scheduleId })
+  const lastResultRaw = await getConfig('live_last_result')
+  let lastResult: { homeTeam: string; awayTeam: string; homeScore: number; awayScore: number; savedAt: string } | null = null
+  if (lastResultRaw) {
+    try {
+      const r = JSON.parse(lastResultRaw)
+      const ageDays = (Date.now() - new Date(r.savedAt ?? 0).getTime()) / 86_400_000
+      if (ageDays < 3) {
+        lastResult = { homeTeam: r.homeTeam, awayTeam: r.awayTeam, homeScore: r.homeScore, awayScore: r.awayScore, savedAt: r.savedAt }
+      }
+    } catch { /* ignore */ }
+  }
+  return NextResponse.json({ active: active === 'true', scheduleId, lastResult })
+}
+
+export async function PATCH(req: Request) {
+  const body = await req.json().catch(() => ({}))
+  if (body.action === 'activate_result') {
+    // Save current mock (or last known state) as the recent result
+    const mockRaw = await getConfig('live_match_mock')
+    if (mockRaw) {
+      try {
+        const mock = JSON.parse(mockRaw) as LiveMatch
+        const result = { ...mock, state: 'post' as const, savedAt: new Date().toISOString() }
+        await setConfig('live_last_result', JSON.stringify(result))
+        return NextResponse.json({ ok: true })
+      } catch { /* ignore */ }
+    }
+    return NextResponse.json({ ok: false, error: 'No hay partido preparado' }, { status: 400 })
+  }
+  // Default: deactivate / clear result
+  await deleteConfig('live_last_result')
+  return NextResponse.json({ ok: true })
 }
 
 async function loadPreMock() {
@@ -92,18 +123,6 @@ export async function POST() {
 }
 
 export async function DELETE() {
-  // Save last result before clearing — shown in home banner for ~3 days after the match
-  const mockRaw = await getConfig('live_match_mock')
-  if (mockRaw) {
-    try {
-      const mock = JSON.parse(mockRaw) as LiveMatch
-      if (mock.state === 'in' || mock.state === 'post') {
-        const result = { ...mock, state: 'post' as const, savedAt: new Date().toISOString() }
-        await setConfig('live_last_result', JSON.stringify(result))
-      }
-    } catch { /* ignore parse errors */ }
-  }
-
   // In preview/local: just clear flags
   if (process.env.VERCEL_ENV !== 'production') {
     await setConfig(LIVE_ACTIVE_KEY, 'false')

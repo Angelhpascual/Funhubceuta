@@ -96,9 +96,10 @@ export function MvpBanner() {
     return () => { supabase.removeChannel(channel) }
   }, [load])
 
-  // Polling: 5s siempre salvo cuando la sesión ya está cerrada
+  // Polling: solo cuando hay sesión activa (realtime cubre cambios de estado)
   useEffect(() => {
-    const interval = session?.status === 'closed' ? 120_000 : 60_000
+    if (!session) return // realtime se encarga si se abre una sesión
+    const interval = session.status === 'closed' ? 120_000 : 60_000
     const id = setInterval(load, interval)
     return () => clearInterval(id)
   }, [load, session?.status])

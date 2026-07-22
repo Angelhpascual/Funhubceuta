@@ -20,11 +20,20 @@ async function fetchEspn(url: string) {
   return res.json()
 }
 
+// Preview/local: never cache (you're testing, mock changes instantly)
+// Production: 20s edge cache — all users share one Supabase/ESPN fetch
+const NO_CACHE = { headers: { 'Cache-Control': 'no-store' } }
+const EDGE_CACHE = { headers: { 'Cache-Control': 's-maxage=20, stale-while-revalidate=10' } }
+
+function cacheHeaders() {
+  return process.env.VERCEL_ENV === 'production' ? EDGE_CACHE : NO_CACHE
+}
+
 export async function GET() {
   // Use mock in local dev and Vercel preview — never in production
   if (process.env.VERCEL_ENV !== 'production') {
     const mock = await getConfig('live_match_mock')
-    if (mock) return NextResponse.json({ match: JSON.parse(mock) })
+    if (mock) return NextResponse.json({ match: JSON.parse(mock) }, NO_CACHE)
     // No active mock — check if there's a recent result (last 3 days) to show
     const lastResult = await getConfig('live_last_result')
     if (lastResult) {
@@ -32,11 +41,11 @@ export async function GET() {
         const r = JSON.parse(lastResult)
         const savedAt = new Date(r.savedAt ?? 0)
         const ageDays = (Date.now() - savedAt.getTime()) / 86_400_000
-        if (ageDays < 3) return NextResponse.json({ match: { ...r, state: 'post' } })
+        if (ageDays < 3) return NextResponse.json({ match: { ...r, state: 'post' } }, NO_CACHE)
         await deleteConfig('live_last_result') // auto-expire after 3 days
       } catch { /* ignore */ }
     }
-    return NextResponse.json({ match: null })
+    return NextResponse.json({ match: null }, NO_CACHE)
   }
 
   const scoreboard = await fetchEspn(ESPN_SCOREBOARD)
@@ -46,11 +55,11 @@ export async function GET() {
       try {
         const r = JSON.parse(lastResult)
         const ageDays = (Date.now() - new Date(r.savedAt ?? 0).getTime()) / 86_400_000
-        if (ageDays < 3) return NextResponse.json({ match: { ...r, state: 'post' } })
+        if (ageDays < 3) return NextResponse.json({ match: { ...r, state: 'post' } }, cacheHeaders())
         await deleteConfig('live_last_result')
       } catch { /* ignore */ }
     }
-    return NextResponse.json({ match: null })
+    return NextResponse.json({ match: null }, cacheHeaders())
   }
 
   const events: unknown[] = scoreboard.events ?? []
@@ -67,15 +76,15 @@ export async function GET() {
       try {
         const r = JSON.parse(lastResult)
         const ageDays = (Date.now() - new Date(r.savedAt ?? 0).getTime()) / 86_400_000
-        if (ageDays < 3) return NextResponse.json({ match: { ...r, state: 'post' } })
+        if (ageDays < 3) return NextResponse.json({ match: { ...r, state: 'post' } }, cacheHeaders())
         await deleteConfig('live_last_result')
       } catch { /* ignore */ }
     }
-    return NextResponse.json({ match: null })
+    return NextResponse.json({ match: null }, cacheHeaders())
   }
 
   const competition = (ceutaEvent.competitions as Record<string, unknown>[])?.[0]
-  if (!competition) return NextResponse.json({ match: null })
+  if (!competition) return NextResponse.json({ match: null }, cacheHeaders())
 
   const status = competition.status as Record<string, unknown>
   const statusType = status?.type as Record<string, unknown>
@@ -243,5 +252,5 @@ export async function GET() {
     }
   }
 
-  return NextResponse.json({ match })
+  return NextResponse.json({ match }, cacheHeaders())
 }

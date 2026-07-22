@@ -5,6 +5,14 @@ import { LiveSimulator } from './LiveSimulator'
 
 type Status = 'idle' | 'loading' | 'active' | 'error'
 
+type LastResult = {
+  homeTeam: string
+  awayTeam: string
+  homeScore: number
+  awayScore: number
+  savedAt: string
+}
+
 const SCENARIOS: { id: string; label: string; push?: Record<string, string> }[] = [
   { id: 'pre',             label: 'Previo' },
   { id: 'live_0_0',        label: 'En vivo 0-0',       push: { event: 'kickoff' } },
@@ -22,6 +30,8 @@ export function LiveControl() {
   const [acting, setActing] = useState(false)
   const [mockLoading, setMockLoading] = useState<string | null>(null)
   const [mockActive, setMockActive] = useState<string | null>(null)
+  const [lastResult, setLastResult] = useState<LastResult | null>(null)
+  const [clearingResult, setClearingResult] = useState(false)
 
   const fetch_ = (url: string, opts?: RequestInit) => fetch(url, opts)
 
@@ -53,6 +63,7 @@ export function LiveControl() {
       const data = await res.json()
       setStatus(data.active ? 'active' : 'idle')
       setScheduleId(data.scheduleId ?? null)
+      setLastResult(data.lastResult ?? null)
     } catch {
       setStatus('error')
     }
@@ -74,7 +85,34 @@ export function LiveControl() {
     setActing(false)
   }
 
+  async function toggleResult() {
+    setClearingResult(true)
+    if (lastResult) {
+      await fetch_('/api/admin/live-control', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      })
+    } else {
+      await fetch_('/api/admin/live-control', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'activate_result' }),
+      })
+    }
+    await load()
+    setClearingResult(false)
+  }
+
   const isActive = status === 'active'
+
+  // Determine banner state: 1=next match, 2=live, 3=recent result
+  const bannerState = isActive ? 2 : lastResult ? 3 : 1
+  const bannerLabels: Record<number, string> = {
+    1: 'Próximo partido',
+    2: 'En directo',
+    3: 'Resultado reciente',
+  }
 
   return (
     <section>
@@ -126,6 +164,80 @@ export function LiveControl() {
         {status === 'error' && (
           <p className="mt-2 text-[11px] text-white/60">Error al cargar estado</p>
         )}
+      </div>
+
+      {/* ── Estado del banner de inicio ── */}
+      <div className="mt-4 rounded-[12px] border border-[var(--border)] bg-white p-4">
+        <div className="mb-3 font-display text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--muted)]">
+          Estado del banner de inicio
+        </div>
+
+        {/* State pills */}
+        <div className="flex gap-2 mb-4">
+          {[1, 2, 3].map((s) => (
+            <div
+              key={s}
+              className={`flex-1 rounded-[8px] py-2 text-center font-display text-[10px] font-black uppercase tracking-[0.08em] transition-all ${
+                bannerState === s
+                  ? s === 2
+                    ? 'bg-[var(--red)] text-white'
+                    : 'bg-[var(--black)] text-white'
+                  : 'bg-[var(--bg-soft)] text-[var(--muted)]'
+              }`}
+            >
+              <div className="text-[8px] opacity-60 mb-0.5">Estado {s}</div>
+              {bannerLabels[s]}
+            </div>
+          ))}
+        </div>
+
+        {/* Current state info + action */}
+        {bannerState === 1 && (
+          <p className="text-[12px] text-[var(--muted)] leading-tight">
+            Mostrando la fecha del próximo partido. Activa el modo live para cambiar al estado 2.
+          </p>
+        )}
+        {bannerState === 2 && (
+          <p className="text-[12px] text-[var(--muted)] leading-tight">
+            Banner en modo live. Desactiva el modo live para volver al estado 1 o 3.
+          </p>
+        )}
+        {/* State 3 toggle */}
+        <div className="mt-4 pt-3 border-t border-[var(--border)]">
+          <div className="flex items-center justify-between mb-2">
+            <div>
+              <div className="font-display text-[12px] font-black uppercase tracking-[0.06em] text-[var(--black)]">
+                Resultado reciente
+              </div>
+              <div className="text-[11px] text-[var(--muted)] leading-tight mt-0.5">
+                Muestra el resultado del último partido en el banner
+              </div>
+            </div>
+            <button
+              onClick={toggleResult}
+              disabled={clearingResult || status === 'loading'}
+              className={`relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 disabled:opacity-40 ${
+                lastResult ? 'bg-[var(--black)]' : 'bg-[var(--border)]'
+              }`}
+            >
+              <span
+                className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transition-transform duration-200 ${
+                  lastResult ? 'translate-x-5' : 'translate-x-0'
+                }`}
+              />
+            </button>
+          </div>
+          {lastResult && (
+            <div className="rounded-[8px] bg-[var(--bg-soft)] px-3 py-2 text-center">
+              <div className="font-display text-[15px] font-black text-[var(--black)]">
+                {lastResult.homeScore} – {lastResult.awayScore}
+              </div>
+              <div className="font-display text-[10px] uppercase text-[var(--muted)] mt-0.5">
+                {lastResult.homeTeam} vs {lastResult.awayTeam}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* ── Gestión del partido — visible siempre ── */}

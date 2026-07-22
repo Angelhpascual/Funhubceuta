@@ -54,7 +54,9 @@ export function ActivityTimeline() {
 
   useEffect(() => {
     fetchLogs()
-    const interval = setInterval(fetchLogs, 30000)
+    const interval = setInterval(() => {
+      if (document.visibilityState === 'visible') fetchLogs()
+    }, 60_000)
     return () => clearInterval(interval)
   }, [fetchLogs])
 

@@ -33,8 +33,8 @@ export function NotifQueue() {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'news', filter: 'notify_queued=eq.true' }, () => load())
       .subscribe()
 
-    const interval = setInterval(load, 30_000)
-    return () => { supabase.removeChannel(channel); clearInterval(interval) }
+    // Realtime handles updates — no polling needed here
+    return () => { supabase.removeChannel(channel) }
   }, [load])
 
   async function act(id: string, action: 'send' | 'publish' | 'notify' | 'discard') {

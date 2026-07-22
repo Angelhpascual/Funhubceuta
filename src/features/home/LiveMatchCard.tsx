@@ -153,6 +153,7 @@ export function LiveMatchCard() {
   const [goalFlash, setGoalFlash] = useState(false)
 
   const prevScoreRef = useRef<string>('')
+  const matchStateRef = useRef<string | undefined>(undefined)
   const { permission, subscribed, subscribe } = usePushNotifications()
 
   const fetchLive = async () => {
@@ -171,14 +172,21 @@ export function LiveMatchCard() {
     setMatch(m)
   }
 
+  // Fetch next match once on mount
   useEffect(() => {
-    fetchLive()
-    fetch('/api/matches/next', { cache: 'no-store' })
+    fetch('/api/matches/next')
       .then((r) => (r.ok ? r.json() : null))
-      .then((d) => {
-        if (d?.match) setNextMatch(d.match)
-      })
+      .then((d) => { if (d?.match) setNextMatch(d.match) })
       .catch(() => {})
+  }, [])
+
+  // Live polling — interval adjusts when state changes, but does NOT re-fetch immediately
+  useEffect(() => {
+    const isFirstMount = matchStateRef.current === undefined
+    matchStateRef.current = match?.state
+
+    // Only fetch immediately on first mount, not on state transitions
+    if (isFirstMount) fetchLive()
 
     const interval = setInterval(
       fetchLive,
