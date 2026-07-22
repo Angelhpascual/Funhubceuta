@@ -15,7 +15,7 @@ function toMatchLineup(players: LiveLineupPlayer[]): MatchLineup {
     position: p.position,
     positionAbbr: p.position === 'AM' ? 'CAM' : p.position,
     starter: true,
-    photoUrl: null,
+    photoUrl: p.photoUrl ?? null,
   }))
   const bench: LineupPlayer[] = players.filter(p => !p.starter).map(p => ({
     name: p.name,
@@ -24,7 +24,7 @@ function toMatchLineup(players: LiveLineupPlayer[]): MatchLineup {
     position: p.position,
     positionAbbr: p.position,
     starter: false,
-    photoUrl: null,
+    photoUrl: p.photoUrl ?? null,
   }))
 
   // Inferir formación contando por líneas (excluyendo GK)
@@ -80,7 +80,7 @@ function LiveLineupPanel({ lineup }: { lineup: MatchLineup }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <span style={{ width: 4, height: 16, background: 'var(--red)', borderRadius: 2, display: 'inline-block', flexShrink: 0 }} />
           <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 16, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-            Alineación Ceuta
+            Alineación AD Ceuta FC
           </span>
           <span style={{ fontFamily: 'var(--font-display)', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', background: 'var(--bg-soft)', borderRadius: 4, padding: '2px 7px', color: 'var(--muted)' }}>
             {lineup.formation}
@@ -403,7 +403,7 @@ export default function LivePage() {
           </div>
         )}
 
-        {/* ── Alineación Ceuta (campo visual, colapsable) ── */}
+        {/* ── Alineación AD Ceuta FC (campo visual, colapsable) ── */}
         {match && (() => {
           const ceutaLineup = ceutaIsHome ? match.homeLineup : match.awayLineup
           if (!ceutaLineup?.length) return null
