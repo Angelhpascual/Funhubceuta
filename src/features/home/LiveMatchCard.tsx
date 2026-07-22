@@ -7,6 +7,7 @@ import { usePushNotifications } from '@/hooks/usePushNotifications'
 import { getLocalLogo } from '@/lib/teamLogos'
 import { ScrapedMatch } from '@/infrastructure/scrapers/adceutaScraper'
 import Link from 'next/link'
+import { MatchBoard } from '@/components/ui/MatchBoard'
 
 const POLL_INTERVAL_LIVE = 25_000
 const POLL_INTERVAL_PRE = 120_000
@@ -251,72 +252,10 @@ export function LiveMatchCard() {
     )
   }
 
-  const isLive = match.state === 'in'
-  const isFinished = match.state === 'post'
-
   return (
-    <MatchCardShell relative>
+    <div className="mx-3 overflow-hidden rounded-[14px]">
       <GoalFlash show={goalFlash} />
-
-      <div className="flex items-center justify-between">
-        <Competition />
-        {isLive && <LiveBadge clock={match.clock} />}
-        {!isLive && !isFinished && (
-          <div className="flex items-center gap-1.5">
-            <span className="inline-block size-2 rounded-full bg-white/40" />
-            <span className="font-display text-[11px] font-bold uppercase tracking-[0.14em] text-white/60">
-              Día de partido
-            </span>
-          </div>
-        )}
-        {isFinished && (
-          <span className="font-display text-[11px] font-bold uppercase tracking-[0.1em] text-white/50">
-            FINALIZADO
-          </span>
-        )}
-      </div>
-
-      <div className="relative z-[1] mt-4 grid grid-cols-[1fr_auto_1fr] items-center gap-2.5">
-        <div className="flex flex-col items-center gap-2">
-          <TeamCrest name={match.homeTeam} />
-          <div className="text-center font-display text-[15px] font-bold uppercase tracking-[0.04em]">
-            {match.homeTeam}
-          </div>
-        </div>
-        <div className="text-center">
-          <div className="font-display text-[38px] font-black leading-none tracking-[-0.02em] text-white">
-            {match.homeScore} – {match.awayScore}
-          </div>
-          {!isLive && !isFinished && (
-            <div className="mt-1.5 font-display text-[10px] font-bold uppercase tracking-[0.12em] text-white/40">
-              Esperando alineaciones
-            </div>
-          )}
-        </div>
-        <div className="flex flex-col items-center gap-2">
-          <TeamCrest name={match.awayTeam} />
-          <div className="text-center font-display text-[15px] font-bold uppercase tracking-[0.04em]">
-            {match.awayTeam}
-          </div>
-        </div>
-      </div>
-
-      {!isLive && <MatchEvents events={match.events} />}
-
-      <div className="mt-[18px] border-t border-white/10 pt-[14px] flex items-center justify-between">
-        {match.venue ? (
-          <span className="font-display text-[11px] font-semibold uppercase tracking-[0.1em] text-white/50">
-            {match.venue}
-          </span>
-        ) : (
-          <span />
-        )}
-        {isLive && (
-          <Link href="/live" className="font-display text-[10px] font-black uppercase tracking-[0.1em] text-ceuta-red">
-            Ver en directo →
-          </Link>
-        )}
-      </div>
-    </MatchCardShell>
+      <MatchBoard match={match} showLiveLink />
+    </div>
   )
 }
