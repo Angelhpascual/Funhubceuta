@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
 vi.mock('@/lib/constants', () => ({
   ESPN_SCOREBOARD: 'https://espn.com/scoreboard',
@@ -48,6 +48,9 @@ beforeEach(() => {
 })
 
 describe('GET /api/live (production — no mock)', () => {
+  beforeEach(() => { vi.stubEnv('VERCEL_ENV', 'production') })
+  afterEach(() => { vi.unstubAllEnvs() })
+
   it('returns match:null when ESPN scoreboard fails', async () => {
     vi.spyOn(global, 'fetch').mockResolvedValue(new Response('', { status: 503 }))
     const res = await GET()
