@@ -261,6 +261,14 @@ export function LiveMatchCard() {
       <div className="flex items-center justify-between">
         <Competition />
         {isLive && <LiveBadge clock={match.clock} />}
+        {!isLive && !isFinished && (
+          <div className="flex items-center gap-1.5">
+            <span className="inline-block size-2 rounded-full bg-white/40" />
+            <span className="font-display text-[11px] font-bold uppercase tracking-[0.14em] text-white/60">
+              Día de partido
+            </span>
+          </div>
+        )}
         {isFinished && (
           <span className="font-display text-[11px] font-bold uppercase tracking-[0.1em] text-white/50">
             FINALIZADO
@@ -276,34 +284,13 @@ export function LiveMatchCard() {
           </div>
         </div>
         <div className="text-center">
-          {isLive || isFinished ? (
-            <div className="font-display text-[38px] font-black leading-none tracking-[-0.02em] text-white">
-              {match.homeScore} – {match.awayScore}
+          <div className="font-display text-[38px] font-black leading-none tracking-[-0.02em] text-white">
+            {match.homeScore} – {match.awayScore}
+          </div>
+          {!isLive && !isFinished && (
+            <div className="mt-1.5 font-display text-[10px] font-bold uppercase tracking-[0.12em] text-white/40">
+              Esperando alineaciones
             </div>
-          ) : (
-            <>
-              <div className="mb-1.5 font-display text-[12px] font-black tracking-[0.16em] text-ceuta-muted">
-                VS
-              </div>
-              {(() => {
-                // Prefer DB date (nextMatch) over ESPN startDate which can be corrupt
-                const dateStr = nextMatch
-                  ? `${nextMatch.date}T${nextMatch.time}:00`
-                  : match.startDate
-                const d = new Date(dateStr)
-                return (
-                  <div className="font-display text-[22px] font-black leading-none tracking-[0.04em]">
-                    {d.toLocaleDateString('es-ES', { weekday: 'short', timeZone: 'UTC' }).toUpperCase().replace('.', '')}
-                    <br />
-                    {d.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', timeZone: 'UTC' })}
-                    <br />
-                    <span className="text-[16px] text-white/60">
-                      {nextMatch?.time && nextMatch.time !== '00:00' ? nextMatch.time : 'Por confirmar'}
-                    </span>
-                  </div>
-                )
-              })()}
-            </>
           )}
         </div>
         <div className="flex flex-col items-center gap-2">
