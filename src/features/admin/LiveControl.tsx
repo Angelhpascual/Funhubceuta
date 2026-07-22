@@ -5,15 +5,15 @@ import { LiveSimulator } from './LiveSimulator'
 
 type Status = 'idle' | 'loading' | 'active' | 'error'
 
-const SCENARIOS = [
-  { id: 'pre',            label: 'Previo' },
-  { id: 'live_0_0',       label: 'En vivo 0-0' },
-  { id: 'live_goal_ceuta',label: 'Gol Ceuta 0-1' },
-  { id: 'live_goal_rival', label: 'Gol rival 1-0' },
-  { id: 'live_events',    label: 'Múltiples eventos' },
-  { id: 'win',            label: 'Victoria 0-2' },
-  { id: 'draw',           label: 'Empate 1-1' },
-  { id: 'loss',           label: 'Derrota 2-0' },
+const SCENARIOS: { id: string; label: string; push?: Record<string, string> }[] = [
+  { id: 'pre',             label: 'Previo' },
+  { id: 'live_0_0',        label: 'En vivo 0-0',       push: { event: 'kickoff' } },
+  { id: 'live_goal_ceuta', label: 'Gol Ceuta 0-1',     push: { event: 'goal_ceuta', scorer: 'Marcos', score: '0-1', minute: "23'" } },
+  { id: 'live_goal_rival', label: 'Gol rival 1-0',     push: { event: 'goal_rival', scorer: 'Rival', score: '1-0' } },
+  { id: 'live_events',     label: 'Múltiples eventos' },
+  { id: 'win',             label: 'Victoria 0-2',       push: { event: 'win', score: '0-2' } },
+  { id: 'draw',            label: 'Empate 1-1',         push: { event: 'draw', score: '1-1' } },
+  { id: 'loss',            label: 'Derrota 2-0',        push: { event: 'loss', score: '2-0' } },
 ]
 
 export function LiveControl() {
@@ -32,6 +32,15 @@ export function LiveControl() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ scenario }),
     })
+    // Send push notification if this scenario has one
+    const s = SCENARIOS.find(sc => sc.id === scenario)
+    if (s?.push) {
+      await fetch_('/api/admin/live-push', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rival: 'FC Andorra', ...s.push }),
+      })
+    }
     setMockActive(scenario === 'clear' ? null : scenario)
     setMockLoading(null)
   }

@@ -317,9 +317,13 @@ export function LiveMatchCard() {
       {!isLive && <MatchEvents events={match.events} />}
 
       <div className="mt-[18px] border-t border-white/10 pt-[14px] flex items-center justify-between">
-        <span className="font-display text-[11px] font-semibold uppercase tracking-[0.1em] text-white/50">
-          {match.venue || 'Liga Hypermotion'}
-        </span>
+        {match.venue ? (
+          <span className="font-display text-[11px] font-semibold uppercase tracking-[0.1em] text-white/50">
+            {match.venue}
+          </span>
+        ) : (
+          <span />
+        )}
         {isLive && (
           <Link href="/live" className="font-display text-[10px] font-black uppercase tracking-[0.1em] text-ceuta-red">
             Ver en directo →

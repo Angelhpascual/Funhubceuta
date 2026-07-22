@@ -305,46 +305,74 @@ export default function LivePage() {
               <p style={{ fontSize: 13, color: 'var(--muted)', padding: '8px 0' }}>Sin eventos registrados aún.</p>
             ) : (
               <div>
+                {/* Cabecera equipos */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 40px 1fr', alignItems: 'center', marginBottom: 8, paddingBottom: 8, borderBottom: '1px solid var(--border)' }}>
+                  <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: ceutaIsHome ? 'var(--red)' : 'var(--muted)' }}>
+                    {match.homeTeam}
+                  </span>
+                  <span />
+                  <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: !ceutaIsHome ? 'var(--red)' : 'var(--muted)', textAlign: 'right' }}>
+                    {match.awayTeam}
+                  </span>
+                </div>
                 {sortedEvents.map((ev, i) => {
                   const isCeuta = ev.team === (ceutaIsHome ? 'home' : 'away')
+                  const isHome = ev.team === 'home'
                   const isGoal = ev.type === 'goal'
                   const isYellow = ev.type === 'yellowCard'
                   const isRed = ev.type === 'redCard'
+
+                  const EventIcon = () => {
+                    if (ev.photoUrl && isCeuta) {
+                      // eslint-disable-next-line @next/next/no-img-element
+                      return <img src={ev.photoUrl} alt={ev.playerName} style={{ width: 28, height: 28, objectFit: 'cover', objectPosition: 'top', borderRadius: '50%' }} />
+                    }
+                    if (isGoal) return <span style={{ fontSize: 16 }}>⚽</span>
+                    if (isYellow) return <div style={{ width: 12, height: 17, background: '#F5C518', borderRadius: 2, border: '1.5px solid rgba(0,0,0,0.18)', transform: 'rotate(-8deg)' }} />
+                    if (isRed) return <div style={{ width: 12, height: 17, background: '#E01020', borderRadius: 2, border: '1.5px solid rgba(0,0,0,0.18)', transform: 'rotate(-8deg)' }} />
+                    if (ev.type === 'substitution') return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: 13, height: 13 }}><path d="M17 1l4 4-4 4" /><path d="M3 11V9a4 4 0 014-4h14" /><path d="M7 23l-4-4 4-4" /><path d="M21 13v2a4 4 0 01-4 4H3" /></svg>
+                    return null
+                  }
+
+                  const playerLabel = ev.playerName || (isGoal ? (isCeuta ? '¡Gol AD Ceuta FC!' : `Gol ${rival}`) : ev.type === 'yellowCard' ? 'Amarilla' : ev.type === 'redCard' ? 'Roja' : 'Cambio')
+
                   return (
-                    <div key={i} style={{ display: 'grid', gridTemplateColumns: '44px 30px 1fr', alignItems: 'center', gap: 8, padding: '9px 0', borderBottom: '1px solid var(--border)' }}
+                    <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 40px 1fr', alignItems: 'center', gap: 4, padding: '8px 0', borderBottom: '1px solid var(--border)' }}
                       className="last:border-none">
-                      <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 14, color: isGoal && isCeuta ? 'var(--red)' : 'var(--muted)', textAlign: 'right' }}>
-                        {ev.minute}&apos;
-                      </span>
-                      <span style={{
-                        width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden',
-                        background: ev.photoUrl && isCeuta ? 'transparent' : isGoal ? (isCeuta ? 'var(--red)' : 'var(--black)') : (isYellow || isRed) ? 'transparent' : 'var(--bg-soft)',
-                        color: isGoal ? '#fff' : 'var(--black)',
-                      }}>
-                        {ev.photoUrl && isCeuta ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={ev.photoUrl} alt={ev.playerName} style={{ width: 28, height: 28, objectFit: 'cover', objectPosition: 'top' }} />
-                        ) : (
-                          <>
-                            {isGoal && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: 14, height: 14 }}><circle cx="12" cy="12" r="10" /><path d="M12 7l4.75 3.45-1.81 5.6h-5.88l-1.81-5.6z" fill="currentColor" stroke="none" /></svg>}
-                            {isYellow && (
-                              <div style={{ width: 14, height: 20, background: '#F5C518', borderRadius: 3, border: '1.5px solid rgba(0,0,0,0.18)', transform: 'rotate(-8deg)' }} />
-                            )}
-                            {isRed && (
-                              <div style={{ width: 14, height: 20, background: '#E01020', borderRadius: 3, border: '1.5px solid rgba(0,0,0,0.18)', transform: 'rotate(-8deg)' }} />
-                            )}
-                            {ev.type === 'substitution' && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: 14, height: 14 }}><path d="M17 1l4 4-4 4" /><path d="M3 11V9a4 4 0 014-4h14" /><path d="M7 23l-4-4 4-4" /><path d="M21 13v2a4 4 0 01-4 4H3" /></svg>}
-                          </>
-                        )}
-                      </span>
-                      <div>
-                        <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 15, letterSpacing: '0.02em', textTransform: 'uppercase', lineHeight: 1.2 }}>
-                          {ev.playerName || (isGoal ? (isCeuta ? '¡Gol del Ceuta!' : `Gol del ${rival}`) : ev.type === 'yellowCard' ? 'Tarjeta amarilla' : ev.type === 'redCard' ? 'Tarjeta roja' : 'Cambio')}
+                      {/* Columna izquierda (home) */}
+                      {isHome ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <span style={{ width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden', background: isGoal && isCeuta ? 'var(--red)' : 'var(--bg-soft)' }}>
+                            <EventIcon />
+                          </span>
+                          <div>
+                            <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 13, textTransform: 'uppercase', lineHeight: 1.2, color: isGoal && isCeuta ? 'var(--red)' : 'var(--black)' }}>
+                              {playerLabel}
+                            </div>
+                          </div>
                         </div>
-                        <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 2 }}>
-                          {isCeuta ? 'AD Ceuta FC' : rival}
-                        </div>
+                      ) : <div />}
+
+                      {/* Minuto central */}
+                      <div style={{ textAlign: 'center' }}>
+                        <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 12, color: isGoal ? 'var(--red)' : 'var(--muted)' }}>
+                          {ev.minute}&apos;
+                        </span>
                       </div>
+
+                      {/* Columna derecha (away) */}
+                      {!isHome ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'flex-end' }}>
+                          <div style={{ textAlign: 'right' }}>
+                            <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 13, textTransform: 'uppercase', lineHeight: 1.2, color: isGoal && isCeuta ? 'var(--red)' : 'var(--black)' }}>
+                              {playerLabel}
+                            </div>
+                          </div>
+                          <span style={{ width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden', background: isGoal && isCeuta ? 'var(--red)' : 'var(--bg-soft)' }}>
+                            <EventIcon />
+                          </span>
+                        </div>
+                      ) : <div />}
                     </div>
                   )
                 })}
