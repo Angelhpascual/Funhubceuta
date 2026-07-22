@@ -25,6 +25,7 @@ export async function GET() {
   if (process.env.VERCEL_ENV !== 'production') {
     const mock = await getConfig('live_match_mock')
     if (mock) return NextResponse.json({ match: JSON.parse(mock) })
+    return NextResponse.json({ match: null })
   }
 
   const scoreboard = await fetchEspn(ESPN_SCOREBOARD)
