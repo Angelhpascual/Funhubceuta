@@ -1,15 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-vi.mock('../client', () => {
+vi.mock('../adminClient', () => {
   const from = vi.fn()
-  return { supabase: { from, __from: from } }
+  return { supabaseAdmin: { from, __from: from } }
 })
 
-import { supabase } from '../client'
+import { supabaseAdmin } from '../adminClient'
 import { getConfig, setConfig, deleteConfig } from '../AppConfigRepository'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const mockFrom: ReturnType<typeof vi.fn> = (supabase as any).__from
+const mockFrom: ReturnType<typeof vi.fn> = (supabaseAdmin as any).__from
 
 beforeEach(() => { vi.resetAllMocks() })
 

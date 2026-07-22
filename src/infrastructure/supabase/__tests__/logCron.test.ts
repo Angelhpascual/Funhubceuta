@@ -1,17 +1,17 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-vi.mock('../client', () => {
+vi.mock('../adminClient', () => {
   const insert = vi.fn()
   const then = vi.fn((ok: () => unknown) => { ok(); return Promise.resolve() })
   const from = vi.fn(() => ({ insert: vi.fn(() => ({ then })), __insert: insert, __then: then }))
-  return { supabase: { from, __from: from } }
+  return { supabaseAdmin: { from, __from: from } }
 })
 
-import { supabase } from '../client'
+import { supabaseAdmin } from '../adminClient'
 import { logCron, logNotification } from '../logCron'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const mockFrom: ReturnType<typeof vi.fn> = (supabase as any).__from
+const mockFrom: ReturnType<typeof vi.fn> = (supabaseAdmin as any).__from
 
 beforeEach(() => { vi.resetAllMocks() })
 

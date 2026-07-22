@@ -1,7 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
+vi.mock('../adminClient', () => ({ supabaseAdmin: { from: vi.fn() } }))
 vi.mock('../client', () => ({ supabase: { from: vi.fn() } }))
 
+import { supabaseAdmin } from '../adminClient'
 import { supabase } from '../client'
 import { getAllSubscriptions, upsertSubscription, deleteSubscription } from '../PushSubscriptionsRepository'
 
@@ -25,7 +27,7 @@ describe('getAllSubscriptions', () => {
       return chain
     }
     const chain = buildChain()
-    vi.mocked(supabase.from).mockReturnValue({
+    vi.mocked(supabaseAdmin.from).mockReturnValue({
       select: vi.fn().mockReturnValue(chain),
     } as never)
     return { eq: chain['eq'] as ReturnType<typeof vi.fn> }
