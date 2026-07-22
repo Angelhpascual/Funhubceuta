@@ -230,14 +230,20 @@ export async function fetchSource(source: RssSource): Promise<ParsedArticle[]> {
     .map((item) => ({
       externalId: extractGuid(item),
       title: decodeEntities(String(item.title ?? '').replace(/<[^>]+>/g, '')).trim(),
-      description: item.description
-        ? decodeEntities(
-            String(item.description)
-              .replace(/<[^>]+>/g, '')
-              .trim()
-          ).slice(0, 300)
-        : null,
-      url: String(item.link ?? ''),
+      description: (() => {
+        const d = item.description
+        const raw =
+          typeof d === 'string' ? d
+          : d && typeof d === 'object' ? String((d as Record<string, unknown>)['__cdata'] ?? (d as Record<string, unknown>)['#text'] ?? '')
+          : ''
+        return raw ? decodeEntities(raw.replace(/<[^>]+>/g, '').trim()).slice(0, 300) : null
+      })(),
+      url: (() => {
+        const l = item.link
+        if (Array.isArray(l)) return String(l[0] ?? '')
+        if (l && typeof l === 'object') return String((l as Record<string, unknown>)['#text'] ?? (l as Record<string, unknown>)['__cdata'] ?? '')
+        return String(l ?? '')
+      })(),
       imageUrl: extractImage(item),
       source: source.id,
       publishedAt: item.pubDate ? new Date(String(item.pubDate)).toISOString() : null,
