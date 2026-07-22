@@ -71,16 +71,27 @@ export default function NoticiasPage() {
     fetchNews(0, false).finally(() => setLoading(false))
   }, [fetchNews])
 
-  // Infinite scroll via scroll event on .scroll-area (universal — works on iOS Safari)
+  const loadNextPage = useCallback(() => {
+    if (loadingMoreRef.current || !hasMoreRef.current) return
+    loadingMoreRef.current = true
+    setLoadingMore(true)
+    const next = offsetRef.current + PAGE_SIZE
+    offsetRef.current = next
+    fetchNews(next, true).finally(() => {
+      loadingMoreRef.current = false
+      setLoadingMore(false)
+    })
+    setOffset(next)
+  }, [fetchNews])
+
+  // Infinite scroll — scroll event adaptativo: scroll-area en móvil, window en desktop
   useEffect(() => {
     const scrollEl = document.querySelector('.scroll-area') as HTMLElement | null
-    // En desktop .scroll-area tiene overflow-y: visible — el scroll ocurre en window
     const cs = scrollEl ? window.getComputedStyle(scrollEl) : null
     const isScrollable = cs?.overflowY === 'auto' || cs?.overflowY === 'scroll'
     const target: EventTarget = isScrollable && scrollEl ? scrollEl : window
 
-    const loadMore = () => {
-      if (loadingMoreRef.current || !hasMoreRef.current) return
+    const onScroll = () => {
       let scrollTop: number, scrollHeight: number, clientHeight: number
       if (target === window) {
         scrollTop = window.scrollY
@@ -92,22 +103,12 @@ export default function NoticiasPage() {
         scrollHeight = el.scrollHeight
         clientHeight = el.clientHeight
       }
-      if (scrollTop + clientHeight >= scrollHeight - 300) {
-        loadingMoreRef.current = true
-        setLoadingMore(true)
-        const next = offsetRef.current + PAGE_SIZE
-        offsetRef.current = next
-        fetchNews(next, true).finally(() => {
-          loadingMoreRef.current = false
-          setLoadingMore(false)
-        })
-        setOffset(next)
-      }
+      if (scrollTop + clientHeight >= scrollHeight - 400) loadNextPage()
     }
 
-    target.addEventListener('scroll', loadMore, { passive: true })
-    return () => target.removeEventListener('scroll', loadMore)
-  }, [fetchNews])
+    target.addEventListener('scroll', onScroll, { passive: true })
+    return () => target.removeEventListener('scroll', onScroll)
+  }, [loadNextPage])
 
   const refresh = useCallback(async () => {
     if (refreshing) return
@@ -258,6 +259,16 @@ export default function NoticiasPage() {
                 </a>
               )
             })}
+
+            {/* Botón "Cargar más" — fallback visible para cualquier navegador */}
+            {hasMore && !loadingMore && news.length > 0 && (
+              <button
+                onClick={loadNextPage}
+                className="w-full py-4 font-display text-[11px] font-bold uppercase tracking-[0.12em] text-ceuta-muted active:bg-ceuta-bg-soft transition-colors"
+              >
+                Cargar más noticias
+              </button>
+            )}
 
             {!hasMore && news.length > 0 && (
               <div className="px-[14px] py-4 text-center font-display text-[11px] font-semibold uppercase tracking-[0.1em] text-ceuta-muted">
