@@ -96,6 +96,7 @@ export async function DELETE() {
   if (process.env.VERCEL_ENV !== 'production') {
     await setConfig(LIVE_ACTIVE_KEY, 'false')
     await deleteConfig('live_match_state')
+    await deleteConfig('live_match_mock')
     return NextResponse.json({ ok: true })
   }
 
@@ -112,6 +113,7 @@ export async function DELETE() {
   }
   await setConfig(LIVE_ACTIVE_KEY, 'false')
   await deleteConfig('live_match_state')
+  await deleteConfig('live_match_mock')
 
   return NextResponse.json({ ok: true })
 }
