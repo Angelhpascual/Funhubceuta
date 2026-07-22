@@ -74,11 +74,24 @@ export default function NoticiasPage() {
   // Infinite scroll via scroll event on .scroll-area (universal — works on iOS Safari)
   useEffect(() => {
     const scrollEl = document.querySelector('.scroll-area') as HTMLElement | null
-    if (!scrollEl) return
+    // En desktop .scroll-area tiene overflow-y: visible — el scroll ocurre en window
+    const cs = scrollEl ? window.getComputedStyle(scrollEl) : null
+    const isScrollable = cs?.overflowY === 'auto' || cs?.overflowY === 'scroll'
+    const target: EventTarget = isScrollable && scrollEl ? scrollEl : window
 
     const loadMore = () => {
       if (loadingMoreRef.current || !hasMoreRef.current) return
-      const { scrollTop, scrollHeight, clientHeight } = scrollEl
+      let scrollTop: number, scrollHeight: number, clientHeight: number
+      if (target === window) {
+        scrollTop = window.scrollY
+        scrollHeight = document.documentElement.scrollHeight
+        clientHeight = window.innerHeight
+      } else {
+        const el = target as HTMLElement
+        scrollTop = el.scrollTop
+        scrollHeight = el.scrollHeight
+        clientHeight = el.clientHeight
+      }
       if (scrollTop + clientHeight >= scrollHeight - 300) {
         loadingMoreRef.current = true
         setLoadingMore(true)
@@ -92,8 +105,8 @@ export default function NoticiasPage() {
       }
     }
 
-    scrollEl.addEventListener('scroll', loadMore, { passive: true })
-    return () => scrollEl.removeEventListener('scroll', loadMore)
+    target.addEventListener('scroll', loadMore, { passive: true })
+    return () => target.removeEventListener('scroll', loadMore)
   }, [fetchNews])
 
   const refresh = useCallback(async () => {
@@ -107,10 +120,12 @@ export default function NoticiasPage() {
     setRefreshing(false)
   }, [refreshing, fetchNews])
 
-  // Pull-to-refresh — listen on .scroll-area (the actual scroll container)
+  // Pull-to-refresh — solo en móvil donde .scroll-area tiene overflow-y: auto
   useEffect(() => {
-    const scrollEl = document.querySelector('.scroll-area')
+    const scrollEl = document.querySelector('.scroll-area') as HTMLElement | null
     if (!scrollEl) return
+    const cs = window.getComputedStyle(scrollEl)
+    if (cs.overflowY !== 'auto' && cs.overflowY !== 'scroll') return
 
     const onTouchStart = (e: TouchEvent) => {
       if (scrollEl.scrollTop === 0) {
