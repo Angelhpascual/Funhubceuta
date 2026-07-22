@@ -323,9 +323,12 @@ export default function LivePage() {
                   const isRed = ev.type === 'redCard'
 
                   const EventIcon = () => {
-                    if (ev.photoUrl && isCeuta) {
-                      // eslint-disable-next-line @next/next/no-img-element
-                      return <img src={ev.photoUrl} alt={ev.playerName} style={{ width: 28, height: 28, objectFit: 'cover', objectPosition: 'top', borderRadius: '50%' }} />
+                    if (isGoal && isCeuta) {
+                      if (ev.photoUrl) {
+                        // eslint-disable-next-line @next/next/no-img-element
+                        return <img src={ev.photoUrl} alt={ev.playerName} style={{ width: 28, height: 28, objectFit: 'cover', objectPosition: 'top', borderRadius: '50%' }} />
+                      }
+                      return <span style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 11, color: '#fff' }}>{ev.minute}&apos;</span>
                     }
                     if (isGoal) return <span style={{ fontSize: 16 }}>⚽</span>
                     if (isYellow) return <div style={{ width: 12, height: 17, background: '#F5C518', borderRadius: 2, border: '1.5px solid rgba(0,0,0,0.18)', transform: 'rotate(-8deg)' }} />
