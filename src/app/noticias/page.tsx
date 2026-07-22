@@ -240,7 +240,7 @@ export default function NoticiasPage() {
                   <div className="min-w-0 flex-1">
                     <div className="mb-0.5 flex items-center gap-1.5">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={`/api/proxy/favicon?domain=${src?.domain}`} alt="" width={11} height={11} loading="lazy" decoding="async" className="rounded-[2px]" />
+                      {src?.domain && <img src={`/api/proxy/favicon?domain=${src.domain}`} alt="" width={11} height={11} loading="lazy" decoding="async" className="rounded-[2px]" />}
                       <span className="font-display text-[9.5px] font-bold uppercase tracking-[0.1em]" style={{ color: src?.color ?? 'var(--muted)' }}>
                         {src?.label ?? n.source}
                       </span>
