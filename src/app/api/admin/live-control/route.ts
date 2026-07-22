@@ -92,6 +92,18 @@ export async function POST() {
 }
 
 export async function DELETE() {
+  // Save last result before clearing — shown in home banner for ~3 days after the match
+  const mockRaw = await getConfig('live_match_mock')
+  if (mockRaw) {
+    try {
+      const mock = JSON.parse(mockRaw) as LiveMatch
+      if (mock.state === 'in' || mock.state === 'post') {
+        const result = { ...mock, state: 'post' as const, savedAt: new Date().toISOString() }
+        await setConfig('live_last_result', JSON.stringify(result))
+      }
+    } catch { /* ignore parse errors */ }
+  }
+
   // In preview/local: just clear flags
   if (process.env.VERCEL_ENV !== 'production') {
     await setConfig(LIVE_ACTIVE_KEY, 'false')

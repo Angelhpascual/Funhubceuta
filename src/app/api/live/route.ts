@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { ESPN_SCOREBOARD, ESPN_SUMMARY } from '@/lib/constants'
-import { getConfig } from '@/infrastructure/supabase/AppConfigRepository'
+import { getConfig, deleteConfig } from '@/infrastructure/supabase/AppConfigRepository'
 import { MatchesSupabaseRepository } from '@/infrastructure/supabase/MatchesSupabaseRepository'
 import type { LiveEvent, LiveMatch, LineupPlayer, MatchStat } from '@/domain/match/LiveMatch'
 
@@ -25,11 +25,33 @@ export async function GET() {
   if (process.env.VERCEL_ENV !== 'production') {
     const mock = await getConfig('live_match_mock')
     if (mock) return NextResponse.json({ match: JSON.parse(mock) })
+    // No active mock — check if there's a recent result (last 3 days) to show
+    const lastResult = await getConfig('live_last_result')
+    if (lastResult) {
+      try {
+        const r = JSON.parse(lastResult)
+        const savedAt = new Date(r.savedAt ?? 0)
+        const ageDays = (Date.now() - savedAt.getTime()) / 86_400_000
+        if (ageDays < 3) return NextResponse.json({ match: { ...r, state: 'post' } })
+        await deleteConfig('live_last_result') // auto-expire after 3 days
+      } catch { /* ignore */ }
+    }
     return NextResponse.json({ match: null })
   }
 
   const scoreboard = await fetchEspn(ESPN_SCOREBOARD)
-  if (!scoreboard) return NextResponse.json({ match: null })
+  if (!scoreboard) {
+    const lastResult = await getConfig('live_last_result')
+    if (lastResult) {
+      try {
+        const r = JSON.parse(lastResult)
+        const ageDays = (Date.now() - new Date(r.savedAt ?? 0).getTime()) / 86_400_000
+        if (ageDays < 3) return NextResponse.json({ match: { ...r, state: 'post' } })
+        await deleteConfig('live_last_result')
+      } catch { /* ignore */ }
+    }
+    return NextResponse.json({ match: null })
+  }
 
   const events: unknown[] = scoreboard.events ?? []
 
@@ -39,7 +61,18 @@ export async function GET() {
     return JSON.stringify(ev).toLowerCase().includes('ceuta')
   }) as Record<string, unknown> | undefined
 
-  if (!ceutaEvent) return NextResponse.json({ match: null })
+  if (!ceutaEvent) {
+    const lastResult = await getConfig('live_last_result')
+    if (lastResult) {
+      try {
+        const r = JSON.parse(lastResult)
+        const ageDays = (Date.now() - new Date(r.savedAt ?? 0).getTime()) / 86_400_000
+        if (ageDays < 3) return NextResponse.json({ match: { ...r, state: 'post' } })
+        await deleteConfig('live_last_result')
+      } catch { /* ignore */ }
+    }
+    return NextResponse.json({ match: null })
+  }
 
   const competition = (ceutaEvent.competitions as Record<string, unknown>[])?.[0]
   if (!competition) return NextResponse.json({ match: null })
