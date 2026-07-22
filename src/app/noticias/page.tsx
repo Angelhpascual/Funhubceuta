@@ -49,7 +49,6 @@ export default function NoticiasPage() {
   const [refreshing, setRefreshing] = useState(false)
   const [pullY, setPullY] = useState(0)
 
-  const sentinelRef = useRef<HTMLDivElement>(null)
   const touchStartY = useRef(0)
   const pulling = useRef(false)
   const loadingMoreRef = useRef(false)
@@ -72,31 +71,29 @@ export default function NoticiasPage() {
     fetchNews(0, false).finally(() => setLoading(false))
   }, [fetchNews])
 
-  // Infinite scroll via IntersectionObserver on sentinel div
-  // Must use .scroll-area as root (the actual scroll container, not the viewport)
+  // Infinite scroll via scroll event on .scroll-area (universal — works on iOS Safari)
   useEffect(() => {
-    const sentinel = sentinelRef.current
-    if (!sentinel) return
-    const scrollRoot = document.querySelector('.scroll-area') as Element | null
+    const scrollEl = document.querySelector('.scroll-area') as HTMLElement | null
+    if (!scrollEl) return
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && !loadingMoreRef.current && hasMoreRef.current) {
-          loadingMoreRef.current = true
-          setLoadingMore(true)
-          const next = offsetRef.current + PAGE_SIZE
-          offsetRef.current = next
-          fetchNews(next, true).finally(() => {
-            loadingMoreRef.current = false
-            setLoadingMore(false)
-          })
-          setOffset(next)
-        }
-      },
-      { root: scrollRoot, rootMargin: '200px' }
-    )
-    observer.observe(sentinel)
-    return () => observer.disconnect()
+    const loadMore = () => {
+      if (loadingMoreRef.current || !hasMoreRef.current) return
+      const { scrollTop, scrollHeight, clientHeight } = scrollEl
+      if (scrollTop + clientHeight >= scrollHeight - 300) {
+        loadingMoreRef.current = true
+        setLoadingMore(true)
+        const next = offsetRef.current + PAGE_SIZE
+        offsetRef.current = next
+        fetchNews(next, true).finally(() => {
+          loadingMoreRef.current = false
+          setLoadingMore(false)
+        })
+        setOffset(next)
+      }
+    }
+
+    scrollEl.addEventListener('scroll', loadMore, { passive: true })
+    return () => scrollEl.removeEventListener('scroll', loadMore)
   }, [fetchNews])
 
   const refresh = useCallback(async () => {
@@ -256,7 +253,6 @@ export default function NoticiasPage() {
         )}
       </div>
 
-      {/* Sentinel fuera del overflow-hidden para que IntersectionObserver funcione */}
       {loadingMore && (
         <div className="flex items-center justify-center py-4">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--red)" strokeWidth="2.5" strokeLinecap="round" className="animate-spin">
@@ -264,8 +260,6 @@ export default function NoticiasPage() {
           </svg>
         </div>
       )}
-      <div ref={sentinelRef} className="h-1" />
-
       <div className="h-6" />
     </div>
   )
