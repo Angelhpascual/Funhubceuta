@@ -269,14 +269,16 @@ export default function NoticiasPage() {
         )}
       </div>
 
-      {/* Botón "Cargar más" — FUERA del overflow-hidden, siempre accesible */}
+      {/* Sticky: siempre visible sin llegar al fondo */}
       {!loading && hasMore && !loadingMore && news.length > 0 && (
-        <button
-          onClick={loadNextPage}
-          className="mx-3 mt-3 w-[calc(100%-24px)] rounded-[14px] border-2 border-ceuta-black py-4 font-display text-[11px] font-bold uppercase tracking-[0.12em] text-ceuta-black active:bg-ceuta-bg-soft transition-colors"
-        >
-          Cargar más noticias
-        </button>
+        <div className="sticky bottom-0 z-10 px-3 pb-3 pt-6" style={{ background: 'linear-gradient(to bottom, transparent, white 40%)' }}>
+          <button
+            onClick={loadNextPage}
+            className="w-full rounded-[14px] border-2 border-ceuta-black bg-white py-4 font-display text-[12px] font-black uppercase tracking-[0.12em] text-ceuta-black shadow-[4px_4px_0_var(--red)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0_var(--red)] transition-all"
+          >
+            Cargar más noticias
+          </button>
+        </div>
       )}
 
       {loadingMore && (
