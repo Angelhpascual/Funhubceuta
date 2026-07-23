@@ -232,12 +232,12 @@ function ResultCard({ r }: { r: MatchRow }) {
         {r.espn_event_id && (
           <Link
             href={`/alineacion?eventId=${r.espn_event_id}&match=${encodeURIComponent(`${shortTeamName(r.home_team)} vs ${shortTeamName(r.away_team)}`)}&score=${r.home_score}-${r.away_score}`}
-            className="mt-1 inline-flex items-center gap-1 bg-[var(--black)] text-white rounded-[5px] px-[7px] py-[3px] no-underline"
+            className="mt-1 inline-flex items-center gap-1 border border-[var(--border)] rounded-[5px] px-[7px] py-[3px] no-underline bg-[var(--bg-soft)]"
           >
-            <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="var(--black)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <rect x="3" y="3" width="18" height="18" rx="2" /><path d="M3 9h18M3 15h18M9 3v18" />
             </svg>
-            <span className="font-display text-[8.5px] font-black uppercase tracking-[0.08em]">Alineación</span>
+            <span className="font-display text-[8.5px] font-black uppercase tracking-[0.08em] text-[var(--black)]">Alineación</span>
           </Link>
         )}
         {!r.espn_event_id && (
