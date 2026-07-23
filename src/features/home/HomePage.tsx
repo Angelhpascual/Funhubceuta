@@ -326,17 +326,17 @@ export function HomePage({
       <PredictionBanner />
 
       {/* ── PRÓXIMO PARTIDO ── */}
+      <MvpBanner />
       <div className="flex items-end justify-between px-4 pb-3 pt-6">
         <div>
           <div className="mb-1.5 font-display text-[11px] font-bold uppercase tracking-[0.14em] text-ceuta-red">
             Próximo encuentro
           </div>
           <div className="font-display text-[22px] font-black uppercase tracking-[0.02em] leading-none text-ceuta-black">
-            Próximo partido
+            En el campo
           </div>
         </div>
       </div>
-      <MvpBanner />
       <LiveMatchCard />
 
       {/* ── NOTICIAS ── */}
