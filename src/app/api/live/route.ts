@@ -2,9 +2,33 @@ import { NextResponse } from 'next/server'
 import { ESPN_SCOREBOARD, ESPN_SUMMARY } from '@/lib/constants'
 import { getConfig, deleteConfig } from '@/infrastructure/supabase/AppConfigRepository'
 import { MatchesSupabaseRepository } from '@/infrastructure/supabase/MatchesSupabaseRepository'
+import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
 import type { LiveEvent, LiveMatch, LineupPlayer, MatchStat } from '@/domain/match/LiveMatch'
 
 const matchesRepo = new MatchesSupabaseRepository()
+
+async function getSquadPhotoMap(): Promise<Map<string, string>> {
+  const { data } = await supabaseAdmin
+    .from('squad')
+    .select('name, photo_url')
+    .not('photo_url', 'is', null)
+  const map = new Map<string, string>()
+  for (const p of data ?? []) {
+    if (p.name && p.photo_url) map.set(p.name.toLowerCase(), p.photo_url)
+  }
+  return map
+}
+
+function matchPhotoUrl(playerName: string, photoMap: Map<string, string>): string | null {
+  const lower = playerName.toLowerCase()
+  if (photoMap.has(lower)) return photoMap.get(lower)!
+  // partial match — last name or first word
+  for (const [name, url] of photoMap) {
+    const parts = name.split(' ')
+    if (parts.some(p => p.length > 3 && lower.includes(p))) return url
+  }
+  return null
+}
 
 export type { LiveEvent, LiveMatch }
 
@@ -212,6 +236,20 @@ export async function GET() {
       })
     } // end if guardedState !== 'pre'
   } // end if pre|in|post
+
+  // Enrich goal events of Ceuta players with photo from squad
+  if (liveEvents.length > 0) {
+    const photoMap = await getSquadPhotoMap()
+    const homeIsCeuta = (homeTeamData?.displayName as string ?? '').toLowerCase().includes('ceuta')
+    const ceutaTeam: 'home' | 'away' = homeIsCeuta ? 'home' : 'away'
+    liveEvents = liveEvents.map(ev => {
+      if (ev.type === 'goal' && ev.team === ceutaTeam && ev.playerName) {
+        const photoUrl = matchPhotoUrl(ev.playerName, photoMap)
+        if (photoUrl) return { ...ev, photoUrl }
+      }
+      return ev
+    })
+  }
 
   const match: LiveMatch = {
     espnId: ceutaEvent.id as string,
