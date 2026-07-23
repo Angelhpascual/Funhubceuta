@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { getLocalLogo } from '@/lib/teamLogos'
-import { shortTeamName, resultLabel } from './matchUtils'
+import { shortTeamName } from './matchUtils'
 import Link from 'next/link'
 
 interface MatchRow {
@@ -207,17 +207,17 @@ function UpcomingRow({ m }: { m: MatchRow }) {
 }
 
 function ResultCard({ r }: { r: MatchRow }) {
-  const ceutaHome = r.home_team.toLowerCase().includes('ceuta')
-  const item = resultLabel(r.result)
-
   return (
     <div className="mx-0 mb-2 bg-white border border-[var(--border)] rounded-[var(--radius)] px-[14px] py-3 grid items-center gap-2"
       style={{ gridTemplateColumns: '1fr auto 1fr' }}>
       {/* Home */}
       <div className="flex items-center gap-2 min-w-0">
         <SmallCrest name={r.home_team} size={32} />
-        <div className={`font-display font-bold text-[13px] uppercase tracking-[0.02em] leading-tight truncate ${ceutaHome ? 'text-[var(--black)]' : 'text-[var(--muted)]'}`}>
-          {shortTeamName(r.home_team)}
+        <div className="min-w-0">
+          <div className="font-display font-bold text-[13px] uppercase tracking-[0.02em] leading-tight truncate">
+            {shortTeamName(r.home_team)}
+          </div>
+          <div className="font-display text-[9px] font-bold uppercase tracking-[0.12em] text-[var(--muted)] mt-0.5">Local</div>
         </div>
       </div>
 
@@ -226,28 +226,34 @@ function ResultCard({ r }: { r: MatchRow }) {
         <div className="font-display font-black text-[11.5px] uppercase tracking-[0.05em] text-[var(--muted)] leading-tight">
           {new Date(r.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', timeZone: 'UTC' })}
         </div>
-        <div className="font-display font-black leading-none mt-1">
-          <span className={`text-[22px] ${ceutaHome ? 'text-[var(--red)]' : 'text-[var(--black)]'}`}>{r.home_score}</span>
-          <span className="text-[14px] text-[var(--muted)] mx-1">–</span>
-          <span className={`text-[22px] ${!ceutaHome ? 'text-[var(--red)]' : 'text-[var(--black)]'}`}>{r.away_score}</span>
+        <div className="font-display font-black text-[24px] text-[var(--black)] leading-tight mt-0.5 tracking-[0.04em]">
+          {r.home_score}<span className="text-[16px] text-[var(--muted)] mx-[3px]">–</span>{r.away_score}
         </div>
-        {item && (
-          <span className={`result-badge ${item.cls}`}>{item.label}</span>
-        )}
         {r.espn_event_id && (
           <Link
             href={`/alineacion?eventId=${r.espn_event_id}&match=${encodeURIComponent(`${shortTeamName(r.home_team)} vs ${shortTeamName(r.away_team)}`)}&score=${r.home_score}-${r.away_score}`}
-            className="mt-1 flex items-center justify-center gap-1 no-underline"
+            className="mt-1 inline-flex items-center gap-1 border border-[var(--border)] rounded-[5px] px-[7px] py-[3px] no-underline bg-[var(--bg-soft)]"
           >
-            <span className="font-display text-[8px] font-black uppercase tracking-[0.08em] text-[var(--muted)] underline">Alineación</span>
+            <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="var(--black)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2" /><path d="M3 9h18M3 15h18M9 3v18" />
+            </svg>
+            <span className="font-display text-[8.5px] font-black uppercase tracking-[0.08em] text-[var(--black)]">Alineación</span>
           </Link>
+        )}
+        {!r.espn_event_id && (
+          <div className="mt-1 font-display text-[8.5px] font-bold uppercase tracking-[0.1em] text-[var(--muted)]">
+            {r.matchday ? `J${r.matchday}` : ''}
+          </div>
         )}
       </div>
 
       {/* Away */}
       <div className="flex items-center justify-end gap-2 min-w-0">
-        <div className={`font-display font-bold text-[13px] uppercase tracking-[0.02em] leading-tight truncate text-right ${!ceutaHome ? 'text-[var(--black)]' : 'text-[var(--muted)]'}`}>
-          {shortTeamName(r.away_team)}
+        <div className="min-w-0 text-right">
+          <div className="font-display font-bold text-[13px] uppercase tracking-[0.02em] leading-tight truncate">
+            {shortTeamName(r.away_team)}
+          </div>
+          <div className="font-display text-[9px] font-bold uppercase tracking-[0.12em] text-[var(--muted)] mt-0.5">Visitante</div>
         </div>
         <SmallCrest name={r.away_team} size={32} />
       </div>

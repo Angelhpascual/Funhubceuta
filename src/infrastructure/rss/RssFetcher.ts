@@ -229,7 +229,13 @@ export async function fetchSource(source: RssSource): Promise<ParsedArticle[]> {
     .filter((item) => isRelevant(item, source))
     .map((item) => ({
       externalId: extractGuid(item),
-      title: decodeEntities(String(item.title ?? '').replace(/<[^>]+>/g, '')).trim(),
+      title: (() => {
+        const t = item.title
+        const raw = typeof t === 'string' ? t
+          : t && typeof t === 'object' ? String((t as Record<string, unknown>)['__cdata'] ?? (t as Record<string, unknown>)['#text'] ?? '')
+          : String(t ?? '')
+        return decodeEntities(raw.replace(/<[^>]+>/g, '').trim())
+      })(),
       description: (() => {
         const d = item.description
         const raw =
