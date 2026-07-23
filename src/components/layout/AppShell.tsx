@@ -202,9 +202,6 @@ export function AppShell({ children, liveActive }: { children: React.ReactNode; 
           <Topbar pathname={pathname} router={router} />
         </div>
         {children}
-        <div className="fixed bottom-[var(--bot-h)] left-0 right-0 z-50 mx-auto w-full max-w-[430px]">
-          <MvpBanner />
-        </div>
       </>
     )
   }

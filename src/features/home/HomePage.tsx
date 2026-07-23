@@ -5,6 +5,7 @@ import { timeAgo } from '@/lib/formatters'
 import { NewsItem } from '@/domain/news/News'
 import { SocialLinks } from '@/components/social/TwitterTimeline'
 import { LiveMatchCard } from './LiveMatchCard'
+import { MvpBanner } from '@/components/ui/MvpBanner'
 import { NotificationBanner } from '@/components/ui/NotificationBanner'
 import { PredictionBanner } from '@/components/ui/PredictionBanner'
 import Link from 'next/link'
@@ -335,6 +336,7 @@ export function HomePage({
           </div>
         </div>
       </div>
+      <MvpBanner />
       <LiveMatchCard />
 
       {/* ── NOTICIAS ── */}
