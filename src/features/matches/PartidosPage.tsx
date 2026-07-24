@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { getLocalLogo } from '@/lib/teamLogos'
 import { shortTeamName } from './matchUtils'
 import Link from 'next/link'
+import { getMatchVenue } from '@/lib/stadiums'
 
 interface MatchRow {
   home_team: string
@@ -134,14 +135,17 @@ function NextMatchCard({ m }: { m: MatchRow }) {
 
       {/* Footer */}
       <div className="relative z-[1] mt-[15px] pt-3 border-t border-white/10 flex justify-center gap-[14px] flex-wrap">
-        {m.is_home && (
-          <span className="flex items-center gap-[5px] font-display text-[10.5px] font-semibold uppercase tracking-[0.07em] text-white/60">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3 h-3 text-[var(--red)]">
-              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" />
-            </svg>
-            Alfonso Murube
-          </span>
-        )}
+        {(() => {
+          const venue = getMatchVenue(m.home_team, m.away_team)
+          return venue ? (
+            <span className="flex items-center gap-[5px] font-display text-[10.5px] font-semibold uppercase tracking-[0.07em] text-white/60">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3 h-3 text-[var(--red)]">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" />
+              </svg>
+              {venue}
+            </span>
+          ) : null
+        })()}
         {m.tickets_url && (
           <a
             href={m.tickets_url}

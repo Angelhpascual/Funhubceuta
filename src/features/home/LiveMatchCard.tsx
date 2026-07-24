@@ -8,6 +8,7 @@ import { getLocalLogo } from '@/lib/teamLogos'
 import type { ScrapedMatch } from '@/domain/match/ScrapedMatch'
 import Link from 'next/link'
 import { MatchBoard } from '@/components/ui/MatchBoard'
+import { getMatchVenue } from '@/lib/stadiums'
 
 const POLL_INTERVAL_LIVE = 25_000
 const POLL_INTERVAL_PRE = 120_000
@@ -274,9 +275,20 @@ export function LiveMatchCard() {
           </div>
         </div>
 
-        <div className="relative z-[1] mt-[18px] border-t border-white/10 pt-[14px]">
+        <div className="relative z-[1] mt-[18px] border-t border-white/10 pt-[14px] flex items-center justify-between">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/liga-hypermotion-white.webp" alt="Liga Hypermotion" className="h-[10px] w-auto opacity-40" />
+          {(() => {
+            const venue = getMatchVenue(nextMatch.homeTeam, nextMatch.awayTeam)
+            return venue ? (
+              <span className="font-display text-[9.5px] font-semibold uppercase tracking-[0.1em] text-white/35 flex items-center gap-[5px]">
+                <svg width="8" height="9" viewBox="0 0 10 12" fill="none" className="opacity-60">
+                  <path d="M5 0C2.79 0 1 1.79 1 4c0 3 4 8 4 8s4-5 4-8c0-2.21-1.79-4-4-4zm0 5.5A1.5 1.5 0 1 1 5 2.5a1.5 1.5 0 0 1 0 3z" fill="currentColor"/>
+                </svg>
+                {venue}
+              </span>
+            ) : null
+          })()}
         </div>
       </MatchCardShell>
     )
