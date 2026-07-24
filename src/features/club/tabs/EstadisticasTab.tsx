@@ -214,7 +214,7 @@ export function EstadisticasTab({
   const protagonistas = [
     topScorer  && { label: 'Máximo goleador',  sub: `${topScorer.value} goles`,     player: topScorer,  gold: true  },
     topAssist  && { label: 'Máx. asistente',   sub: `${topAssist.value} asistencias`, player: topAssist, gold: false },
-    topKeeper  && { label: 'El muro',          sub: `${topKeeper.value} paradas`,    player: topKeeper,  gold: false },
+    topKeeper  && { label: 'La muralla',        sub: `${topKeeper.value} paradas`,    player: topKeeper,  gold: false },
   ].filter(Boolean) as { label: string; sub: string; player: typeof topScorer; gold: boolean }[]
 
   return (
