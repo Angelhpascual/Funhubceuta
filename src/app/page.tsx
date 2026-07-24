@@ -218,12 +218,12 @@ function AppInner() {
       {/* Modal views — slide over the main content */}
       {modal === 'himno' && (
         <>
-          <div className="topbar home-topbar-mobile justify-center">
+          <div className="topbar home-topbar-mobile">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/escudo.webp"
               alt="AD Ceuta"
-              className="w-10 h-10 object-contain"
+              className="absolute left-1/2 -translate-x-1/2 w-10 h-10 object-contain"
             />
           </div>
           <div className="scroll-area">
