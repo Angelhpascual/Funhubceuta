@@ -1,15 +1,12 @@
 import { PartidosPage } from '@/features/matches/PartidosPage'
-import { MatchesSupabaseRepository } from '@/infrastructure/supabase/MatchesSupabaseRepository'
-import { CURRENT_MATCH_SEASON, PREVIOUS_MATCH_SEASON } from '@/lib/constants'
+import { fetchSeasonMatches, fetchPreviousSeasonMatches } from '@/lib/serverFetches'
 
 export const revalidate = 300
 
-const repo = new MatchesSupabaseRepository()
-
 export default async function PartidosServerPage() {
   const [{ upcoming, results }, previousSeason] = await Promise.all([
-    repo.fetchSeasonMatches(CURRENT_MATCH_SEASON),
-    repo.fetchBySeason(PREVIOUS_MATCH_SEASON, 200),
+    fetchSeasonMatches(),
+    fetchPreviousSeasonMatches(),
   ])
 
   const previous = previousSeason

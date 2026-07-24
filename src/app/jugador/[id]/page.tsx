@@ -1,8 +1,7 @@
 import { notFound } from 'next/navigation'
 import { CURRENT_SEASON } from '@/lib/constants'
 import { PlayerDetailPage } from '@/features/club/PlayerDetailPage'
-import { fetchPlayerById } from '@/infrastructure/supabase/SquadSupabaseRepository'
-import { fetchPlayerStatsByName } from '@/infrastructure/supabase/PlayerStatsRepository'
+import { fetchPlayerById, fetchPlayerStatsByName } from '@/lib/serverFetches'
 
 export const revalidate = 3600
 
