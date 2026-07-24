@@ -64,18 +64,6 @@ const NAV_MOBILE = [
       </svg>
     ),
   },
-  {
-    id: '/merchan',
-    label: 'Tienda',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
-        <line x1="3" y1="6" x2="21" y2="6" />
-        <path d="M16 10a4 4 0 01-8 0" />
-        <path d="M12 6v4" />
-      </svg>
-    ),
-  },
 ]
 
 const NAV_DESKTOP = [
@@ -137,18 +125,6 @@ const NAV_DESKTOP = [
       </svg>
     ),
   },
-  {
-    id: '/merchan',
-    label: 'Tienda',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
-        <line x1="3" y1="6" x2="21" y2="6" />
-        <path d="M16 10a4 4 0 01-8 0" />
-        <path d="M12 6v4" />
-      </svg>
-    ),
-  },
 ]
 
 const SSR_ROUTES = ['/clasificacion', '/partidos', '/club', '/noticias', '/alineacion', '/mercado', '/live', '/merchan']
@@ -195,6 +171,14 @@ function removeHtmlLoader() {
   el.style.transition = 'opacity 0.3s ease'
 }
 
+const TIENDA_ICON = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+    <line x1="3" y1="6" x2="21" y2="6" />
+    <path d="M16 10a4 4 0 01-8 0" />
+  </svg>
+)
+
 const LIVE_ICON = (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="10" />
@@ -202,7 +186,7 @@ const LIVE_ICON = (
   </svg>
 )
 
-export function AppShell({ children, liveActive }: { children: React.ReactNode; liveActive: boolean }) {
+export function AppShell({ children, liveActive, mercadoActive }: { children: React.ReactNode; liveActive: boolean; mercadoActive: boolean }) {
   const pathname = usePathname()
   const router = useRouter()
 
@@ -242,14 +226,17 @@ export function AppShell({ children, liveActive }: { children: React.ReactNode; 
       {/* Bottom nav: mobile only */}
       <div className="bottom-nav">
         {NAV_MOBILE.map((n) => {
-          const isLiveTab = n.id === '/mercado' && liveActive
-          const href = isLiveTab ? '/live' : n.id
-          const label = isLiveTab ? 'Live' : n.label
-          const icon = isLiveTab ? LIVE_ICON : n.icon
+          // Slot dinámico: Live > Mercado > Tienda
+          const isDynamicSlot = n.id === '/mercado'
+          const isLiveTab = isDynamicSlot && liveActive
+          const href = isLiveTab ? '/live' : isDynamicSlot && !mercadoActive ? '/merchan' : n.id
+          const label = isLiveTab ? 'Live' : isDynamicSlot && !mercadoActive ? 'Tienda' : n.label
+          const icon = isLiveTab ? LIVE_ICON : isDynamicSlot && !mercadoActive ? TIENDA_ICON : n.icon
+          const isActive = pathname === href || (isDynamicSlot && !mercadoActive && pathname === '/merchan')
           return (
             <button
               key={n.id}
-              className={`nav-item ${pathname === href ? 'active' : ''} ${isLiveTab ? 'text-[var(--red)]' : ''}`}
+              className={`nav-item ${isActive ? 'active' : ''} ${isLiveTab ? 'text-[var(--red)]' : ''}`}
               onClick={() => router.push(href)}
             >
               {isLiveTab ? (
