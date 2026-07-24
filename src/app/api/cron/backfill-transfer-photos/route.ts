@@ -18,13 +18,6 @@ async function backfillTransferPhotos() {
   await Promise.all(
     batch.map(async ({ id, photo_url }) => {
       try {
-        // Check URL is reachable before passing to sharp
-        const headRes = await fetch(photo_url, { method: 'HEAD' }).catch(() => null)
-        if (!headRes?.ok) {
-          errors.push(`${id}: HTTP ${headRes?.status ?? 'ERR'} — ${photo_url.slice(0, 60)}`)
-          return
-        }
-
         const stored = await downloadAndUploadImage(photo_url, `transfers/${id}`, {
           bucket: PLAYER_BUCKET,
           maxWidth: 220,
