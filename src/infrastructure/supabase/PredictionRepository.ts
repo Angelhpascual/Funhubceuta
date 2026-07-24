@@ -1,4 +1,5 @@
 import { supabaseAdmin } from './adminClient'
+import { APP_ENV } from '@/lib/appEnv'
 
 export type { PredictionMatchMeta, PredictionResult, PredictionSession, UserPrediction } from '@/domain/predictions/PredictionSession'
 import type { PredictionMatchMeta, PredictionResult, PredictionSession, UserPrediction } from '@/domain/predictions/PredictionSession'
@@ -7,6 +8,7 @@ export async function getActivePredictionSession(): Promise<PredictionSession | 
   const { data } = await supabaseAdmin
     .from('prediction_sessions')
     .select('*')
+    .eq('environment', APP_ENV)
     .in('status', ['pending', 'open', 'closed'])
     .order('created_at', { ascending: false })
     .limit(1)
@@ -20,6 +22,7 @@ export async function getUserPrediction(sessionId: string, fingerprint: string):
     .select('*')
     .eq('session_id', sessionId)
     .eq('fingerprint', fingerprint)
+    .eq('environment', APP_ENV)
     .maybeSingle()
   return data as UserPrediction | null
 }
@@ -34,7 +37,14 @@ export async function upsertPrediction(
   const { data, error } = await supabaseAdmin
     .from('prediction_votes')
     .upsert(
-      { session_id: sessionId, fingerprint, home_score: home, away_score: away, ...(nickname ? { nickname } : {}) },
+      {
+        session_id: sessionId,
+        fingerprint,
+        home_score: home,
+        away_score: away,
+        environment: APP_ENV,
+        ...(nickname ? { nickname } : {}),
+      },
       { onConflict: 'session_id,fingerprint' }
     )
     .select()
@@ -49,7 +59,14 @@ export async function createPredictionSession(
 ) {
   const { data, error } = await supabaseAdmin
     .from('prediction_sessions')
-    .insert({ match_label: matchLabel, jornada, status: 'pending', match_meta: matchMeta ?? null, result: null })
+    .insert({
+      match_label: matchLabel,
+      jornada,
+      status: 'pending',
+      match_meta: matchMeta ?? null,
+      result: null,
+      environment: APP_ENV,
+    })
     .select()
     .single()
   return { data, error }
@@ -60,6 +77,7 @@ export async function openPredictionSession(sessionId: string) {
     .from('prediction_sessions')
     .update({ status: 'open', opened_at: new Date().toISOString() })
     .eq('id', sessionId)
+    .eq('environment', APP_ENV)
   return { error }
 }
 
@@ -68,11 +86,11 @@ export async function closePredictionSession(
   homeResult: number,
   awayResult: number
 ) {
-  // Calcular puntos para cada predicción
   const { data: votes } = await supabaseAdmin
     .from('prediction_votes')
     .select('*')
     .eq('session_id', sessionId)
+    .eq('environment', APP_ENV)
 
   if (votes) {
     for (const vote of votes) {
@@ -97,6 +115,7 @@ export async function closePredictionSession(
       closed_at: new Date().toISOString(),
     })
     .eq('id', sessionId)
+    .eq('environment', APP_ENV)
   return { error }
 }
 
@@ -104,6 +123,7 @@ export async function getPredictionHistory() {
   const { data: sessions } = await supabaseAdmin
     .from('prediction_sessions')
     .select('id, match_label, jornada, result, closed_at')
+    .eq('environment', APP_ENV)
     .in('status', ['closed', 'archived'])
     .order('closed_at', { ascending: false })
     .limit(20)
@@ -115,6 +135,7 @@ export async function getPredictionHistory() {
       .from('prediction_votes')
       .select('nickname, fingerprint, home_score, away_score, points')
       .eq('session_id', s.id)
+      .eq('environment', APP_ENV)
       .order('points', { ascending: false })
     return { ...s, votes: votes ?? [] }
   }))
@@ -126,13 +147,13 @@ export async function getPredictionSeasonRanking() {
   const { data } = await supabaseAdmin
     .from('prediction_votes')
     .select('fingerprint, points, home_score, away_score, nickname')
+    .eq('environment', APP_ENV)
     .not('points', 'is', null)
 
   if (!data) return []
 
   const totals: Record<string, { points: number; exactos: number; nickname: string | null }> = {}
   for (const row of data) {
-    // Agrupar por nickname si existe, si no por fingerprint
     const key = row.nickname?.trim() || row.fingerprint
     const prev = totals[key] ?? { points: 0, exactos: 0, nickname: null }
     totals[key] = {

@@ -1,4 +1,5 @@
 import { supabaseAdmin } from './adminClient'
+import { APP_ENV } from '@/lib/appEnv'
 
 export type MvpCandidate = {
   id: string
@@ -33,6 +34,7 @@ export async function getActiveMvpSession(): Promise<MvpSession | null> {
   const { data } = await supabaseAdmin
     .from('mvp_sessions')
     .select('*')
+    .eq('environment', APP_ENV)
     .in('status', ['pending', 'open', 'closed'])
     .order('created_at', { ascending: false })
     .limit(1)
@@ -45,6 +47,7 @@ export async function getMvpVoteTallies(sessionId: string): Promise<MvpVoteTally
     .from('mvp_votes')
     .select('candidate_id')
     .eq('session_id', sessionId)
+    .eq('environment', APP_ENV)
   if (!data) return []
   const counts: Record<string, number> = {}
   for (const row of data) {
@@ -56,7 +59,7 @@ export async function getMvpVoteTallies(sessionId: string): Promise<MvpVoteTally
 export async function castMvpVote(sessionId: string, candidateId: string, fingerprint: string) {
   const { error } = await supabaseAdmin
     .from('mvp_votes')
-    .insert({ session_id: sessionId, candidate_id: candidateId, fingerprint })
+    .insert({ session_id: sessionId, candidate_id: candidateId, fingerprint, environment: APP_ENV })
   return { error }
 }
 
@@ -66,6 +69,7 @@ export async function hasVoted(sessionId: string, fingerprint: string): Promise<
     .select('id')
     .eq('session_id', sessionId)
     .eq('fingerprint', fingerprint)
+    .eq('environment', APP_ENV)
     .maybeSingle()
   return !!data
 }
@@ -73,7 +77,7 @@ export async function hasVoted(sessionId: string, fingerprint: string): Promise<
 export async function createMvpSession(matchLabel: string, candidates: MvpCandidate[], matchMeta?: MvpMatchMeta) {
   const { data, error } = await supabaseAdmin
     .from('mvp_sessions')
-    .insert({ match_label: matchLabel, candidates, status: 'pending', match_meta: matchMeta ?? null })
+    .insert({ match_label: matchLabel, candidates, status: 'pending', match_meta: matchMeta ?? null, environment: APP_ENV })
     .select()
     .single()
   return { data, error }
@@ -84,11 +88,11 @@ export async function openMvpSession(sessionId: string) {
     .from('mvp_sessions')
     .update({ status: 'open', opened_at: new Date().toISOString() })
     .eq('id', sessionId)
+    .eq('environment', APP_ENV)
   return { error }
 }
 
 export async function closeMvpSession(sessionId: string) {
-  // Compute winner
   const tallies = await getMvpVoteTallies(sessionId)
   const { data: session } = await supabaseAdmin
     .from('mvp_sessions')
@@ -118,6 +122,7 @@ export async function closeMvpSession(sessionId: string) {
       winner_votes: winnerVotes,
     })
     .eq('id', sessionId)
+    .eq('environment', APP_ENV)
   return { error }
 }
 
@@ -125,6 +130,7 @@ export async function getMvpHistory(limit = 10) {
   const { data } = await supabaseAdmin
     .from('mvp_sessions')
     .select('id, match_label, winner_name, winner_votes, closed_at')
+    .eq('environment', APP_ENV)
     .eq('status', 'closed')
     .order('closed_at', { ascending: false })
     .limit(limit)
@@ -135,6 +141,7 @@ export async function getMvpSeasonRanking() {
   const { data } = await supabaseAdmin
     .from('mvp_sessions')
     .select('winner_name, winner_id, winner_votes, candidates')
+    .eq('environment', APP_ENV)
     .eq('status', 'closed')
     .not('winner_name', 'is', null)
 
