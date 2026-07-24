@@ -1,29 +1,21 @@
 /**
- * Simulador de partido en directo — SOLO EN LOCAL (dev)
+ * Simulador de partido en directo — para testing en local y preview
  *
- * Pasos del simulacro:
- *   GET /api/test/simulate?step=kickoff   → partido empieza
- *   GET /api/test/simulate?step=goal1     → ¡GOL DEL CEUTA! 1-0
- *   GET /api/test/simulate?step=goal2     → GOL RIVAL 1-1
- *   GET /api/test/simulate?step=redcard   → TARJETA ROJA rival
- *   GET /api/test/simulate?step=halftime  → Descanso 1-1
- *   GET /api/test/simulate?step=goal3     → ¡GOL DEL CEUTA! 2-1
- *   GET /api/test/simulate?step=fulltime  → FINAL 2-1 ¡VICTORIA!
- *   GET /api/test/simulate?step=reset     → Limpia estado
- *   GET /api/test/simulate?step=push      → Envía push de prueba directo
+ * Pasos:
+ *   GET /api/admin/live-scenario?step=kickoff&secret=X   → partido empieza
+ *   GET /api/admin/live-scenario?step=goal1&secret=X     → ¡GOL DEL CEUTA! 1-0
+ *   GET /api/admin/live-scenario?step=goal2&secret=X     → GOL RIVAL 1-1
+ *   GET /api/admin/live-scenario?step=redcard&secret=X   → TARJETA ROJA rival
+ *   GET /api/admin/live-scenario?step=halftime&secret=X  → Descanso 1-1
+ *   GET /api/admin/live-scenario?step=goal3&secret=X     → ¡GOL DEL CEUTA! 2-1
+ *   GET /api/admin/live-scenario?step=fulltime&secret=X  → FINAL 2-1 ¡VICTORIA!
+ *   GET /api/admin/live-scenario?step=reset&secret=X     → Limpia estado
+ *   GET /api/admin/live-scenario?step=push&secret=X      → Push de prueba
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/infrastructure/supabase/client'
-import webpush from 'web-push'
-
-if (process.env.NODE_ENV !== 'production') {
-  webpush.setVapidDetails(
-    process.env.VAPID_CONTACT ?? 'mailto:angelhpascual@gmail.com',
-    process.env.VAPID_PUBLIC_KEY!,
-    process.env.VAPID_PRIVATE_KEY!
-  )
-}
+import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
+import { sendPushDev } from '@/infrastructure/push/sendPush'
 
 const HOME = 'FC Andorra'
 const AWAY = 'Ceuta'
@@ -118,47 +110,26 @@ const STEPS: Record<
   },
 }
 
-async function sendPushAll(title: string, body: string, tag: string) {
-  const { data: subs } = await supabase.from('push_subscriptions').select('endpoint, p256dh, auth')
-  if (!subs?.length) return 0
-  let sent = 0
-  await Promise.allSettled(
-    subs.map(async (sub) => {
-      try {
-        await webpush.sendNotification(
-          { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
-          JSON.stringify({ title, body, tag, url: '/' })
-        )
-        sent++
-      } catch {}
-    })
-  )
-  return sent
-}
-
 export async function GET(request: NextRequest) {
-  // Allow in production only with secret param
   const secret = request.nextUrl.searchParams.get('secret')
-  if (process.env.NODE_ENV === 'production' && secret !== process.env.TEST_SECRET) {
+  if (secret !== process.env.TEST_SECRET) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
   const step = request.nextUrl.searchParams.get('step') ?? 'kickoff'
 
-  // Reset — limpia el estado guardado
   if (step === 'reset') {
-    await supabase.from('app_config').delete().eq('key', 'live_match_state')
-    await supabase.from('app_config').delete().eq('key', 'live_match_mock')
+    await supabaseAdmin.from('app_config').delete().eq('key', 'live_match_state')
+    await supabaseAdmin.from('app_config').delete().eq('key', 'live_match_mock')
     return NextResponse.json({ ok: true, message: 'Estado limpiado' })
   }
 
-  // Push de prueba directo
   if (step === 'push') {
-    const sent = await sendPushAll(
-      '🧪 Prueba de notificación',
-      'Las alertas del Ceuta funcionan ✅',
-      'test'
-    )
+    const { sent } = await sendPushDev({
+      title: '🧪 Prueba de notificación',
+      body: 'Las alertas del Ceuta funcionan ✅',
+      tag: 'test',
+    })
     return NextResponse.json({ ok: true, sent, message: `Push enviado a ${sent} dispositivos` })
   }
 
@@ -170,7 +141,8 @@ export async function GET(request: NextRequest) {
     )
   }
 
-  // Guarda el mock como estado actual del partido
+  const score = `${data.homeScore}-${data.awayScore}`
+
   const mockMatch = {
     espnId: 'test-748973',
     state: data.state,
@@ -185,17 +157,12 @@ export async function GET(request: NextRequest) {
     startDate: new Date().toISOString(),
   }
 
-  await supabase.from('app_config').upsert(
-    {
-      key: 'live_match_mock',
-      value: JSON.stringify(mockMatch),
-      updated_at: new Date().toISOString(),
-    },
+  await supabaseAdmin.from('app_config').upsert(
+    { key: 'live_match_mock', value: JSON.stringify(mockMatch), updated_at: new Date().toISOString() },
     { onConflict: 'key' }
   )
 
-  // Lee el estado anterior y compara para enviar notificaciones
-  const { data: prevData } = await supabase
+  const { data: prevData } = await supabaseAdmin
     .from('app_config')
     .select('value')
     .eq('key', 'live_match_state')
@@ -204,15 +171,12 @@ export async function GET(request: NextRequest) {
 
   const notifications: string[] = []
 
-  const score = `${data.homeScore}-${data.awayScore}`
-  const rival = HOME // Ceuta is away
-
   if (!prev && data.state === 'in') {
-    const sent = await sendPushAll(
-      '⚽ ¡Ya estamos en marcha, caballas!',
-      `Hoy nos enfrentamos al ${rival}. 90 minutos de lucha. ¡Vamos Ceuta! 🖤⚪`,
-      'kickoff'
-    )
+    const { sent } = await sendPushDev({
+      title: '⚽ ¡Ya estamos en marcha, caballas!',
+      body: `Hoy nos enfrentamos al ${HOME}. 90 minutos de lucha. ¡Vamos Ceuta! 🖤⚪`,
+      tag: 'kickoff',
+    })
     notifications.push(`kickoff (${sent} enviados)`)
   }
 
@@ -222,21 +186,21 @@ export async function GET(request: NextRequest) {
 
     for (let i = 0; i < awayCeutaGoals; i++) {
       const scorer = data.events.filter((e) => e.type === 'goal' && e.team === 'away').pop()
-      const sent = await sendPushAll(
-        `🚨 ¡¡GOOOOOL DE CEUTA!! 🔥`,
-        `¡${scorer?.playerName ?? 'GOOOL'}! ¡Qué locura! Marcador: ${score} (${scorer?.minute ?? ''}) ¡VAMOS CABALLAS! 🖤⚪`,
-        `goal-${data.awayScore}`
-      )
+      const { sent } = await sendPushDev({
+        title: '🚨 ¡¡GOOOOOL DE CEUTA!! 🔥',
+        body: `¡${scorer?.playerName ?? 'GOOOL'}! ¡Qué locura! Marcador: ${score} (${scorer?.minute ?? ''}) ¡VAMOS CABALLAS! 🖤⚪`,
+        tag: `goal-${data.awayScore}`,
+      })
       notifications.push(`goal-ceuta (${sent} enviados)`)
     }
 
     for (let i = 0; i < homeRivalGoals; i++) {
       const scorer = data.events.filter((e) => e.type === 'goal' && e.team === 'home').pop()
-      const sent = await sendPushAll(
-        `😤 Gol en contra... (${score})`,
-        `Nos han marcado${scorer ? ` ${scorer.playerName}` : ''}. Pero esto no ha terminado. ¡A por ellos! 💪`,
-        `goal-rival-${data.homeScore}`
-      )
+      const { sent } = await sendPushDev({
+        title: `😤 Gol en contra... (${score})`,
+        body: `Nos han marcado${scorer ? ` ${scorer.playerName}` : ''}. Pero esto no ha terminado. ¡A por ellos! 💪`,
+        tag: `goal-rival-${data.homeScore}`,
+      })
       notifications.push(`goal-rival (${sent} enviados)`)
     }
 
@@ -246,17 +210,11 @@ export async function GET(request: NextRequest) {
     const newRedCards = data.events.filter((e) => e.type === 'redCard').slice(prevRedCards)
     for (const card of newRedCards) {
       const isCeuta = card.team === 'away'
-      const sent = isCeuta
-        ? await sendPushAll(
-            `🟥 Nos quedamos con 10...`,
-            `Roja para ${card.playerName} en el ${card.minute}. Ahora más unidos que nunca. ¡El Ceuta no se rinde! 🖤⚪`,
-            `red-${card.minute}`
-          )
-        : await sendPushAll(
-            `🟥 ¡Roja para el rival!`,
-            `Expulsado ${card.playerName} (${card.minute}). ¡Con uno más, a aprovechar! Vamos Ceuta 💪🔥`,
-            `red-${card.minute}`
-          )
+      const { sent } = await sendPushDev(
+        isCeuta
+          ? { title: '🟥 Nos quedamos con 10...', body: `Roja para ${card.playerName} en el ${card.minute}. ¡El Ceuta no se rinde! 🖤⚪`, tag: `red-${card.minute}` }
+          : { title: '🟥 ¡Roja para el rival!', body: `Expulsado ${card.playerName} (${card.minute}). ¡Con uno más, a aprovechar! 💪🔥`, tag: `red-${card.minute}` }
+      )
       notifications.push(`redcard (${sent} enviados)`)
     }
   }
@@ -264,23 +222,17 @@ export async function GET(request: NextRequest) {
   if (prev?.state === 'in' && data.state === 'post') {
     const ceutaWins = data.awayScore > data.homeScore
     const draw = data.awayScore === data.homeScore
-    let title, body
-    if (ceutaWins) {
-      title = `🏆 ¡¡VICTORIA CABALLAS!! (${score})`
-      body = `¡Lo hemos conseguido! Tres puntos de oro. Gracias por estar siempre con nosotros. ¡Hasta la siguiente! 🖤⚪🔥`
-    } else if (draw) {
-      title = `🤝 Empate final (${score})`
-      body = `Un punto que suma. El equipo lo ha dado todo. ¡Gracias caballas por el apoyo! 🖤⚪`
-    } else {
-      title = `😔 Derrota... pero seguimos juntos (${score})`
-      body = `No era el día. Esto es el fútbol. Pero el Ceuta siempre se levanta. ¡Gracias por el apoyo! 🖤⚪`
-    }
-    const sent = await sendPushAll(title, body, 'fulltime')
+    const { sent } = await sendPushDev(
+      ceutaWins
+        ? { title: `🏆 ¡¡VICTORIA CABALLAS!! (${score})`, body: '¡Lo hemos conseguido! Tres puntos de oro. ¡Hasta la siguiente! 🖤⚪🔥', tag: 'fulltime' }
+        : draw
+        ? { title: `🤝 Empate final (${score})`, body: 'Un punto que suma. El equipo lo ha dado todo. ¡Gracias caballas! 🖤⚪', tag: 'fulltime' }
+        : { title: `😔 Derrota... pero seguimos juntos (${score})`, body: 'No era el día. Pero el Ceuta siempre se levanta. ¡Gracias por el apoyo! 🖤⚪', tag: 'fulltime' }
+    )
     notifications.push(`fulltime (${sent} enviados)`)
   }
 
-  // Actualiza estado
-  await supabase.from('app_config').upsert(
+  await supabaseAdmin.from('app_config').upsert(
     {
       key: 'live_match_state',
       value: JSON.stringify({
@@ -288,7 +240,6 @@ export async function GET(request: NextRequest) {
         homeScore: data.homeScore,
         awayScore: data.awayScore,
         state: data.state,
-        eventCount: data.events.length,
         events: data.events,
       }),
       updated_at: new Date().toISOString(),
@@ -296,12 +247,5 @@ export async function GET(request: NextRequest) {
     { onConflict: 'key' }
   )
 
-  return NextResponse.json({
-    ok: true,
-    step,
-    label: data.label,
-    score: `${data.homeScore}-${data.awayScore}`,
-    state: data.state,
-    notifications,
-  })
+  return NextResponse.json({ ok: true, step, label: data.label, score, state: data.state, notifications })
 }
