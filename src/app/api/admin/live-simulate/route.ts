@@ -42,7 +42,7 @@ export async function POST(request: Request) {
   }
 
   webpush.setVapidDetails(
-    'mailto:angelhpascual@gmail.com',
+    process.env.VAPID_CONTACT ?? 'mailto:angelhpascual@gmail.com',
     process.env.VAPID_PUBLIC_KEY!,
     process.env.VAPID_PRIVATE_KEY!
   )

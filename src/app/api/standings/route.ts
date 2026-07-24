@@ -1,10 +1,7 @@
 import { NextResponse } from 'next/server'
 import { apiError } from '@/lib/apiError'
-import { StandingsService } from '@/domain/standings/StandingsService'
-import { StandingsSupabaseRepository } from '@/infrastructure/supabase/StandingsSupabaseRepository'
+import { standingsService as service } from '@/lib/services'
 import { STANDINGS_CURRENT_SEASON } from '@/lib/constants'
-
-const service = new StandingsService(new StandingsSupabaseRepository())
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)

@@ -1,17 +1,13 @@
 import { Suspense } from 'react'
 import { ClubPage } from '@/features/club/ClubPage'
-import { StandingsService } from '@/domain/standings/StandingsService'
-import { StandingsSupabaseRepository } from '@/infrastructure/supabase/StandingsSupabaseRepository'
+import { standingsService } from '@/lib/services'
 import { CURRENT_SEASON, PREVIOUS_SEASON, STANDINGS_CURRENT_SEASON, STANDINGS_PREVIOUS_SEASON } from '@/lib/constants'
-import { fetchCeutaForm } from '@/lib/serverFetches'
-import { fetchSquadBySeason } from '@/infrastructure/supabase/SquadSupabaseRepository'
-import { fetchLeadersBySeason } from '@/infrastructure/supabase/PlayerStatsRepository'
+import { fetchCeutaForm, fetchSquadBySeason, fetchLeadersBySeason } from '@/lib/serverFetches'
 
 export const revalidate = 300
 
 async function fetchCeuta(season: string) {
-  const service = new StandingsService(new StandingsSupabaseRepository())
-  const standings = await service.getStandings(season)
+  const standings = await standingsService.getStandings(season)
   return standings?.entries?.find((e) => e.teamName.toLowerCase().includes('ceuta')) ?? null
 }
 

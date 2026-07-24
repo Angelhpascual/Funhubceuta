@@ -1,4 +1,4 @@
-import { getTransfers } from '@/infrastructure/supabase/TransfersRepository'
+import { getTransfers } from '@/lib/serverFetches'
 import MercadoClient from './MercadoClient'
 
 export const revalidate = 300

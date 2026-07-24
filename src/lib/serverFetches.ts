@@ -1,6 +1,13 @@
 import { supabase } from '@/infrastructure/supabase/client'
 import { TeamsSupabaseRepository } from '@/infrastructure/supabase/TeamsSupabaseRepository'
-import { PREVIOUS_SEASON, STANDINGS_CURRENT_SEASON, STANDINGS_PREVIOUS_SEASON } from '@/lib/constants'
+import { MatchesSupabaseRepository } from '@/infrastructure/supabase/MatchesSupabaseRepository'
+import { fetchSquadBySeason as _fetchSquadBySeason } from '@/infrastructure/supabase/SquadSupabaseRepository'
+import { fetchLeadersBySeason as _fetchLeadersBySeason, fetchPlayerStatsByName as _fetchPlayerStatsByName } from '@/infrastructure/supabase/PlayerStatsRepository'
+import { fetchPlayerById as _fetchPlayerById } from '@/infrastructure/supabase/SquadSupabaseRepository'
+import { getTransfers as _getTransfers } from '@/infrastructure/supabase/TransfersRepository'
+import { CURRENT_MATCH_SEASON, PREVIOUS_MATCH_SEASON, PREVIOUS_SEASON, STANDINGS_CURRENT_SEASON, STANDINGS_PREVIOUS_SEASON } from '@/lib/constants'
+
+const matchesRepo = new MatchesSupabaseRepository()
 
 export async function fetchCeutaForm(): Promise<string[]> {
   const { data } = await supabase
@@ -18,6 +25,20 @@ export async function fetchCeutaForm(): Promise<string[]> {
     .eq('key', 'ceuta_form')
     .single()
   return config?.value?.split(',').filter(Boolean) ?? []
+}
+
+export const fetchSquadBySeason = _fetchSquadBySeason
+export const fetchLeadersBySeason = _fetchLeadersBySeason
+export const fetchPlayerStatsByName = _fetchPlayerStatsByName
+export const fetchPlayerById = _fetchPlayerById
+export const getTransfers = _getTransfers
+
+export async function fetchSeasonMatches(season: string = CURRENT_MATCH_SEASON) {
+  return matchesRepo.fetchSeasonMatches(season)
+}
+
+export async function fetchPreviousSeasonMatches(season: string = PREVIOUS_MATCH_SEASON, limit = 200) {
+  return matchesRepo.fetchBySeason(season, limit)
 }
 
 export async function fetchTeamLogos(): Promise<Record<string, string>> {
