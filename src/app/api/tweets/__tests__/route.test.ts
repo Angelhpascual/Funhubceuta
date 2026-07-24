@@ -12,7 +12,7 @@ beforeEach(() => { vi.resetAllMocks() })
 describe('GET /api/tweets', () => {
   it('returns tweets array', async () => {
     vi.mocked(getLatestTweets).mockResolvedValue([
-      { id: '1', text: 'Gol de Ceuta!', createdAt: '2026-05-01', url: 'https://x.com/1' },
+      { tweet_id: '1', text: 'Gol de Ceuta!', created_at_twitter: '2026-05-01', url: 'https://x.com/1', image_url: null },
     ])
     const res = await GET()
     expect(res.status).toBe(200)

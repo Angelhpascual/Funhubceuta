@@ -38,7 +38,7 @@ describe('GET /api/admin/transfers', () => {
   })
 
   it('returns transfers list', async () => {
-    const transfers = [{ id: '1', player: 'Jugador', type: 'in' }]
+    const transfers = [{ id: '1', name: 'Jugador', position: 'DEL', type: 'in' as const, clubFrom: null, clubTo: null, reliability: 2 as const, photoUrl: null, notes: null, createdAt: '2026-01-01' }]
     vi.mocked(getTransfers).mockResolvedValue(transfers)
     const res = await GET()
     expect(res.status).toBe(200)
@@ -55,7 +55,7 @@ describe('POST /api/admin/transfers', () => {
   })
 
   it('creates transfer, revalidates /mercado and returns it', async () => {
-    const created = { id: 'new-1', player: 'Nuevo', type: 'in' }
+    const created = { id: 'new-1', name: 'Nuevo', position: 'DEL', type: 'in' as const, clubFrom: null, clubTo: null, reliability: 2 as const, photoUrl: null, notes: null, createdAt: '2026-01-01' }
     vi.mocked(createTransfer).mockResolvedValue(created)
     const res = await POST(makeRequest('POST', { player: 'Nuevo', type: 'in' }))
     expect(res.status).toBe(200)

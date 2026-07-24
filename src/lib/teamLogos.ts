@@ -111,7 +111,7 @@ const ALIASES: Record<string, string> = {
   'cyd leonesa': 'leonesa',
 }
 
-export function getLocalLogo(name: string): string | null {
+export function getLocalLogo(name: string | null | undefined): string | null {
   if (!name) return null
 
   // Try alias first
