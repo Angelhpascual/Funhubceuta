@@ -13,7 +13,7 @@ const IconExt = () => (
 
 function FeaturedCard({ product }: { product: MerchanProduct }) {
   return (
-    <div className="-mt-[38px] mx-3 relative z-[3] bg-white border-[1.5px] border-[var(--border)] rounded-[var(--r-md)] overflow-hidden shadow-[0_6px_18px_rgba(0,0,0,0.08)]">
+    <div className="-mt-[38px] mx-3 relative z-[2] bg-white border-[1.5px] border-[var(--border)] rounded-[var(--r-md)] overflow-hidden shadow-[0_6px_18px_rgba(0,0,0,0.08)]">
       <div className="h-[210px] bg-[var(--bg-soft)] relative">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={product.image} alt={product.name} className="w-full h-full object-contain bg-white" />
@@ -129,7 +129,7 @@ export default function MerchanPage() {
       {featured && <FeaturedCard product={featured} />}
 
       {/* Chips */}
-      <div className="chips sticky top-[var(--top-h)] z-50 bg-[var(--bg)] pt-4 pb-[6px] border-b border-[var(--border)] shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
+      <div className="chips sticky top-[var(--top-h)] z-[60] bg-[var(--bg)] pt-4 pb-[6px] border-b border-[var(--border)] shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
         {CATS.map(c => (
           <button key={c} className={`chip ${activeCat === c ? 'active' : ''}`} onClick={() => setActiveCat(c)}>
             {c}
