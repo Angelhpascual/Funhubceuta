@@ -455,9 +455,7 @@ export default function AdminMercadoPage() {
             <div className="mt-2 flex items-center gap-[10px]">
               <div className="w-14 h-14 rounded-lg overflow-hidden bg-ceuta-bg-mid relative shrink-0">
                 <Image
-                  src={form.photoUrl.includes('supabase.co')
-                    ? form.photoUrl
-                    : `/api/proxy/image?url=${encodeURIComponent(form.photoUrl)}&w=120`}
+                  src={`/api/proxy/image?url=${encodeURIComponent(form.photoUrl)}&w=120`}
                   alt="preview"
                   fill
                   sizes="56px"
