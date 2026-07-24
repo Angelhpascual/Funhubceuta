@@ -82,13 +82,13 @@ export function PlayerDetailPage({ player, stats }: Props) {
           {player.photo_url && (
             <div className="pd-hero-photo">
               <Image
-                src={player.photo_url}
+                src={`/api/proxy/image?url=${encodeURIComponent(player.photo_url)}&w=440&q=85`}
                 alt={player.name}
                 width={220}
                 height={220}
                 priority
                 sizes="220px"
-                quality={85}
+                unoptimized
                 className="pd-hero-photo-img"
               />
             </div>

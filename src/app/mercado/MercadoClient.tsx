@@ -74,7 +74,7 @@ function PlayerPhoto({ photoUrl, name, type }: { photoUrl: string | null; name: 
             <div className="absolute inset-0 animate-pulse rounded-full bg-ceuta-bg-mid" />
           )}
           <Image
-            src={photoUrl.includes('supabase.co') ? photoUrl : `/api/proxy/image?url=${encodeURIComponent(photoUrl)}&w=120`}
+            src={`/api/proxy/image?url=${encodeURIComponent(photoUrl)}&w=120&q=75`}
             alt={name} fill sizes="58px"
             className="object-cover object-top"
             onError={() => setError(true)}

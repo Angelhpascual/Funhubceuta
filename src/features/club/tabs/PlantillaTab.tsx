@@ -96,13 +96,13 @@ function PlayerCard({ player }: { player: Player }) {
           <div className="relative z-[2] w-[88px] h-[128px] flex items-end justify-center">
             {player.photo_url ? (
               <Image
-                src={player.photo_url}
+                src={`/api/proxy/image?url=${encodeURIComponent(player.photo_url)}&w=176&q=75`}
                 alt={player.name}
                 width={88}
                 height={128}
                 sizes="88px"
-                quality={75}
                 className="w-full h-full object-cover object-top"
+                unoptimized
               />
             ) : (
               <PlayerSilhouette />
