@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { TEAMS_2627 } from '@/lib/teams2627'
-import type { PredictionSession } from '@/infrastructure/supabase/PredictionRepository'
+import type { PredictionSession } from '@/domain/predictions/PredictionSession'
 
 type Vote = { nickname: string | null; fingerprint: string; home_score: number; away_score: number; points: number | null }
 type HistorySession = { id: string; match_label: string; jornada: string | null; result: { home: number; away: number } | null; closed_at: string | null; votes: Vote[] }

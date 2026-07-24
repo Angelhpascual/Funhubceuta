@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { LiveMatch } from '@/domain/match/LiveMatch'
 import { usePushNotifications } from '@/hooks/usePushNotifications'
 import { getLocalLogo } from '@/lib/teamLogos'
-import { ScrapedMatch } from '@/infrastructure/scrapers/adceutaScraper'
+import type { ScrapedMatch } from '@/domain/match/ScrapedMatch'
 import Link from 'next/link'
 import { MatchBoard } from '@/components/ui/MatchBoard'
 

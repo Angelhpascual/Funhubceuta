@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import type { PredictionSession, UserPrediction } from '@/infrastructure/supabase/PredictionRepository'
+import type { PredictionSession, UserPrediction } from '@/domain/predictions/PredictionSession'
 
 type Tab = 'partido' | 'ranking'
 type SeasonEntry = { fingerprint: string; nickname: string | null; points: number; exactos: number }
