@@ -110,7 +110,7 @@ function NextMatchCard({ m }: { m: MatchRow }) {
           </div>
           {m.time && m.time !== '' ? (
             <div className="font-display font-black text-[27px] text-[var(--gold)] leading-none mt-[2px]">
-              {m.time}<span className="text-[12px] font-bold text-white/50">h</span>
+              {m.time} <span className="text-[12px] font-bold text-white/50">h</span>
             </div>
           ) : (
             <div className="mt-1 inline-block font-display text-[8.5px] font-bold uppercase tracking-[0.08em] bg-[var(--gold-soft,#FFF6CC)] text-[#8A6D00] rounded-[3px] px-[6px] py-[2px]">

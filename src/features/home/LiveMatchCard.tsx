@@ -217,42 +217,64 @@ export function LiveMatchCard() {
           </div>
         </MatchCardShell>
       )
-    const dateStr = `${nextMatch.date}T${nextMatch.time}:00`
+    const dateLabel = new Date(`${nextMatch.date}T12:00:00`)
+      .toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' })
+      .replace(/^\w/, c => c.toUpperCase())
+    const hasTime = nextMatch.time && nextMatch.time !== '00:00'
     return (
       <MatchCardShell>
-        <Competition />
-        <div className="relative z-[1] mt-4 grid grid-cols-[1fr_auto_1fr] items-center gap-2.5">
-          <div className="flex flex-col items-center gap-2">
+        {/* Header */}
+        <div className="relative z-[1] flex items-center justify-between">
+          <span className="flex items-center gap-[7px] font-display text-[10.5px] font-bold uppercase tracking-[0.12em] text-ceuta-red">
+            <span className="w-[5px] h-[5px] rounded-full bg-ceuta-red" />
+            Próximo partido
+          </span>
+        </div>
+
+        {/* Teams */}
+        <div className="relative z-[1] mt-4 grid items-center gap-[10px]" style={{ gridTemplateColumns: '1fr auto 1fr' }}>
+          <div className="flex flex-col items-center gap-[7px] text-center">
             <TeamCrest name={nextMatch.homeTeam} />
-            <div className="text-center font-display text-[15px] font-bold uppercase tracking-[0.04em]">
-              {nextMatch.homeTeam}
+            <div>
+              <div className="font-display font-black text-[14px] uppercase tracking-[0.03em] leading-tight">
+                {nextMatch.homeTeam}
+              </div>
+              <div className="font-display text-[9.5px] font-bold uppercase tracking-[0.14em] text-white/40 mt-0.5">
+                Local
+              </div>
             </div>
           </div>
+
           <div className="text-center">
-            <div className="font-display text-[12px] font-black tracking-[0.16em] text-ceuta-muted">
-              VS
+            <div className="font-display font-black text-[19px] text-white/28 leading-none">VS</div>
+            <div className="font-display font-black text-[14px] uppercase tracking-[0.04em] mt-[5px] leading-tight whitespace-nowrap">
+              {dateLabel}
             </div>
-            <div className="mt-1.5 font-display text-[22px] font-black leading-none tracking-[0.04em]">
-              {new Date(dateStr)
-                .toLocaleDateString('es-ES', { weekday: 'short', timeZone: 'UTC' })
-                .toUpperCase()
-                .replace('.', '')}
-              <br />
-              {new Date(dateStr).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', timeZone: 'UTC' })}
-              <br />
-              <span className="text-[16px] text-white/60">
-                {nextMatch.time && nextMatch.time !== '00:00' ? nextMatch.time : 'Por confirmar'}
-              </span>
-            </div>
+            {hasTime ? (
+              <div className="font-display font-black text-[27px] text-[var(--gold)] leading-none mt-[2px]">
+                {nextMatch.time} <span className="text-[12px] font-bold text-white/50">h</span>
+              </div>
+            ) : (
+              <div className="mt-1 inline-block font-display text-[8.5px] font-bold uppercase tracking-[0.08em] bg-[#FFF6CC] text-[#8A6D00] rounded-[3px] px-[6px] py-[2px]">
+                Por confirmar
+              </div>
+            )}
           </div>
-          <div className="flex flex-col items-center gap-2">
+
+          <div className="flex flex-col items-center gap-[7px] text-center">
             <TeamCrest name={nextMatch.awayTeam} />
-            <div className="text-center font-display text-[15px] font-bold uppercase tracking-[0.04em]">
-              {nextMatch.awayTeam}
+            <div>
+              <div className="font-display font-black text-[14px] uppercase tracking-[0.03em] leading-tight">
+                {nextMatch.awayTeam}
+              </div>
+              <div className="font-display text-[9.5px] font-bold uppercase tracking-[0.14em] text-white/40 mt-0.5">
+                Visitante
+              </div>
             </div>
           </div>
         </div>
-        <div className="mt-[18px] border-t border-white/10 pt-[14px]">
+
+        <div className="relative z-[1] mt-[18px] border-t border-white/10 pt-[14px]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/liga-hypermotion-white.webp" alt="Liga Hypermotion" className="h-[10px] w-auto opacity-40" />
         </div>
