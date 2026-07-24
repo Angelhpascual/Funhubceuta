@@ -19,7 +19,7 @@ import webpush from 'web-push'
 
 if (process.env.NODE_ENV !== 'production') {
   webpush.setVapidDetails(
-    'mailto:angelhpascual@gmail.com',
+    process.env.VAPID_CONTACT ?? 'mailto:angelhpascual@gmail.com',
     process.env.VAPID_PUBLIC_KEY!,
     process.env.VAPID_PRIVATE_KEY!
   )

@@ -11,7 +11,7 @@ export interface PushPayload {
 
 async function sendPushToEnvironment(payload: PushPayload, environment: string): Promise<{ sent: number; total: number }> {
   webpush.setVapidDetails(
-    'mailto:angelhpascual@gmail.com',
+    process.env.VAPID_CONTACT ?? 'mailto:angelhpascual@gmail.com',
     process.env.VAPID_PUBLIC_KEY!,
     process.env.VAPID_PRIVATE_KEY!
   )
