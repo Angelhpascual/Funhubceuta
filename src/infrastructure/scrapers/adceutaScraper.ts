@@ -1,27 +1,7 @@
 import { ESPN_BASE as ESPN, ESPN_CEUTA_ID as CEUTA_ID } from '@/lib/constants'
 
-export interface ScrapedMatch {
-  homeTeam: string
-  awayTeam: string
-  date: string // YYYY-MM-DD
-  time: string // HH:MM
-  weekday: string
-  isHome: boolean
-  ticketsUrl: string | null
-  espnEventId: string | null
-}
-
-export interface ScrapedResult {
-  homeTeam: string
-  awayTeam: string
-  homeScore: number
-  awayScore: number
-  date: string // YYYY-MM-DD
-  weekday: string
-  result: 'W' | 'D' | 'L'
-  isHome: boolean
-  espnEventId: string | null
-}
+export type { ScrapedMatch, ScrapedResult } from '@/domain/match/ScrapedMatch'
+import type { ScrapedMatch, ScrapedResult } from '@/domain/match/ScrapedMatch'
 
 const WEEKDAYS_ES = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
 

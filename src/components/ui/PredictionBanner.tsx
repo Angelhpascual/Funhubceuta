@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { PredictionSheet } from './PredictionSheet'
 import { supabase } from '@/infrastructure/supabase/client'
-import type { PredictionSession, UserPrediction } from '@/infrastructure/supabase/PredictionRepository'
+import type { PredictionSession, UserPrediction } from '@/domain/predictions/PredictionSession'
 
 function getFingerprint(): string {
   let fp = localStorage.getItem('mvp_fp')
