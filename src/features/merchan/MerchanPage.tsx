@@ -62,7 +62,7 @@ function ProductCard({ product }: { product: MerchanProduct }) {
     >
       <div className="h-[150px] bg-[var(--bg-soft)] relative">
         {product.tag && (
-          <span className={`absolute top-2 left-2 font-display font-extrabold text-[9px] tracking-[0.1em] uppercase px-[7px] py-1 rounded-[4px] z-[2] ${product.tag === 'nuevo' ? 'bg-[var(--red)] text-white' : 'bg-[var(--black)] text-white'}`}>
+          <span className={`absolute top-2 left-2 font-display font-extrabold text-[9px] tracking-[0.1em] uppercase px-[7px] py-1 rounded-[4px] ${product.tag === 'nuevo' ? 'bg-[var(--red)] text-white' : 'bg-[var(--black)] text-white'}`}>
             {TAG_LABELS[product.tag]}
           </span>
         )}
@@ -129,7 +129,7 @@ export default function MerchanPage() {
       {featured && <FeaturedCard product={featured} />}
 
       {/* Chips */}
-      <div className="chips sticky top-[var(--top-h)] z-[60] bg-[var(--bg)] pt-4 pb-[6px] border-b border-[var(--border)] shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
+      <div className="chips sticky top-[var(--top-h)] z-[100] bg-[var(--bg)] pt-4 pb-[6px] border-b border-[var(--border)] shadow-[0_4px_12px_rgba(0,0,0,0.08)]">
         {CATS.map(c => (
           <button key={c} className={`chip ${activeCat === c ? 'active' : ''}`} onClick={() => setActiveCat(c)}>
             {c}
@@ -146,7 +146,7 @@ export default function MerchanPage() {
       </div>
 
       {/* Product grid */}
-      <div key={activeCat} className="grid grid-cols-2 gap-[10px] px-3 pt-[10px]">
+      <div key={activeCat} className="grid grid-cols-2 gap-[10px] px-3 pt-[10px] isolate">
         {filtered.map(p => <ProductCard key={p.url} product={p} />)}
       </div>
 
