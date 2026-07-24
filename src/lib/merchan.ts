@@ -4,6 +4,8 @@ export type MerchanProduct = {
   url: string
   image: string
   category: 'equipaciones' | 'entrenamiento' | 'paseo' | 'merchandising'
+  tag?: 'nuevo' | 'top'
+  featured?: boolean
 }
 
 export const MERCHAN_PRODUCTS: MerchanProduct[] = [
@@ -14,6 +16,8 @@ export const MERCHAN_PRODUCTS: MerchanProduct[] = [
     price: '69,00 €',
     image: 'https://tienda.adceutafc.com/wp-content/uploads/2026/05/AD-CEUTA-FC-10995-1-300x300.jpg',
     url: 'https://tienda.adceutafc.com/producto/camiseta-jornada-retro-ad-ceuta-fc-25-26/',
+    tag: 'nuevo',
+    featured: true,
   },
   {
     category: 'equipaciones',
@@ -21,6 +25,7 @@ export const MERCHAN_PRODUCTS: MerchanProduct[] = [
     price: '66,50 €',
     image: 'https://tienda.adceutafc.com/wp-content/uploads/2025/08/Primera-Equipacion-AD-Ceuta-FC.jpg',
     url: 'https://tienda.adceutafc.com/producto/camiseta-primera-equipacion-ad-ceuta-fc-25-26/',
+    tag: 'top',
   },
   {
     category: 'equipaciones',
