@@ -129,7 +129,7 @@ export default function MerchanPage() {
       {featured && <FeaturedCard product={featured} />}
 
       {/* Chips */}
-      <div className="chips sticky top-[var(--top-h)] z-50 bg-[var(--bg)] pt-4 pb-[6px]">
+      <div className="chips sticky top-[var(--top-h)] z-50 bg-[var(--bg)] pt-4 pb-[6px] border-b border-[var(--border)] shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
         {CATS.map(c => (
           <button key={c} className={`chip ${activeCat === c ? 'active' : ''}`} onClick={() => setActiveCat(c)}>
             {c}
