@@ -24,7 +24,7 @@ const mockVerify: ReturnType<typeof vi.fn> = (Receiver as any).__verify
 
 beforeEach(() => { vi.resetAllMocks() })
 
-const tweet = { id: '1', text: 'Gol!', createdAt: '2026-05-01', url: 'https://x.com/1' }
+const tweet = { tweetId: '1', text: 'Gol!', createdAt: '2026-05-01', url: 'https://x.com/1', imageUrl: null }
 
 describe('cron/tweets GET', () => {
   it('returns 405 in production', async () => {

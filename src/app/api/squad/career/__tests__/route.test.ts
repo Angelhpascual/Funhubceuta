@@ -38,7 +38,7 @@ describe('POST /api/squad/career', () => {
   it('processes players and returns results', async () => {
     vi.mocked(fetchEspnRoster).mockResolvedValue([{ espnId: '123', name: 'Jugador' }])
     vi.mocked(fetchSquadNames).mockResolvedValue([{ id: 'uuid-1', name: 'Jugador' }])
-    vi.mocked(scrapeCareerHistory).mockResolvedValue([{ season: '2024-25', club: 'Ceuta', league: 'RFEF2' }])
+    vi.mocked(scrapeCareerHistory).mockResolvedValue([{ seasons: '2024-25', club: 'Ceuta', logo: null }])
     vi.mocked(updateCareerHistory).mockResolvedValue(undefined)
 
     const res = await POST(makeRequest())
