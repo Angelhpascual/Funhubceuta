@@ -130,7 +130,7 @@ const NAV_DESKTOP = [
 const SSR_ROUTES = ['/clasificacion', '/partidos', '/club', '/noticias', '/alineacion', '/mercado', '/live', '/merchan']
 
 // Topbar rendered on SSR routes AND on home in desktop-only mode
-function Topbar({ pathname, router }: { pathname: string; router: ReturnType<typeof useRouter> }) {
+function Topbar({ pathname, router, liveActive, mercadoActive }: { pathname: string; router: ReturnType<typeof useRouter>; liveActive: boolean; mercadoActive: boolean }) {
   return (
     <div className="topbar">
       {/* Desktop: escudo + título a la izquierda */}
@@ -148,16 +148,23 @@ function Topbar({ pathname, router }: { pathname: string; router: ReturnType<typ
         <img src="/escudo.webp" alt="AD Ceuta" className="w-10 h-10 object-contain" />
       </div>
       <nav className="top-nav desktop-only">
-        {NAV_DESKTOP.map((n) => (
-          <button
-            key={n.id}
-            className={`top-nav-item ${pathname === n.id ? 'active' : ''}`}
-            onClick={() => router.push(n.id)}
-          >
-            {n.icon}
-            {n.label}
-          </button>
-        ))}
+        {NAV_DESKTOP.map((n) => {
+          const isDynamicSlot = n.id === '/mercado'
+          const isLiveTab = isDynamicSlot && liveActive
+          const href = isLiveTab ? '/live' : isDynamicSlot && !mercadoActive ? '/merchan' : n.id
+          const label = isLiveTab ? 'Live' : isDynamicSlot && !mercadoActive ? 'Tienda' : n.label
+          const icon = isLiveTab ? LIVE_ICON : isDynamicSlot && !mercadoActive ? TIENDA_ICON : n.icon
+          return (
+            <button
+              key={n.id}
+              className={`top-nav-item ${pathname === href ? 'active' : ''} ${isLiveTab ? 'text-[var(--red)]' : ''}`}
+              onClick={() => router.push(href)}
+            >
+              {icon}
+              {label}
+            </button>
+          )
+        })}
       </nav>
     </div>
   )
@@ -207,7 +214,7 @@ export function AppShell({ children, liveActive, mercadoActive }: { children: Re
       <>
         <InstallModal />
         <div className="desktop-topbar-overlay">
-          <Topbar pathname={pathname} router={router} />
+          <Topbar pathname={pathname} router={router} liveActive={liveActive} mercadoActive={mercadoActive} />
         </div>
         {children}
       </>
@@ -217,7 +224,7 @@ export function AppShell({ children, liveActive, mercadoActive }: { children: Re
   return (
     <div id="app-root">
       <InstallModal />
-      <Topbar pathname={pathname} router={router} />
+      <Topbar pathname={pathname} router={router} liveActive={liveActive} mercadoActive={mercadoActive} />
 
       <div className="scroll-area">{children}</div>
 
