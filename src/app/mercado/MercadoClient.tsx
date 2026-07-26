@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import type { Transfer } from '@/infrastructure/supabase/TransfersRepository'
+import { getLocalLogo } from '@/lib/teamLogos'
 
 const POSITIONS: Record<string, string> = {
   POR: 'Portero', DEF: 'Defensa', MED: 'Centrocampista', DEL: 'Delantero',
@@ -31,6 +32,22 @@ const ROUTE_LABEL: Record<Tab, string> = {
   out:   'Destino',
   renew: 'Renueva hasta',
   rumor: 'Suena desde',
+}
+
+function ClubLogo({ name }: { name: string }) {
+  const logo = getLocalLogo(name)
+  if (logo) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img src={logo} alt={name} width={28} height={28} className="size-7 object-contain" />
+    )
+  }
+  const initials = name.replace(/\b(fc|cf|ad|sd|ud|cd|rc|real|atletico|club)\b/gi, '').trim().slice(0, 2).toUpperCase()
+  return (
+    <div className="flex size-7 items-center justify-center rounded-full bg-ceuta-bg-mid font-display text-[10px] font-black text-ceuta-muted">
+      {initials}
+    </div>
+  )
 }
 
 function isExitRumor(t: Transfer): boolean {
@@ -157,13 +174,8 @@ function TransferCard({ t, type, idx }: { t: Transfer; type: Tab; idx: number })
         {/* route box */}
         {showRoute && (
           <div className="mt-[13px] flex items-center gap-[10px] rounded-[8px] bg-ceuta-bg-soft px-3 py-[10px]">
-            <div className={`flex size-[26px] shrink-0 items-center justify-center rounded-full ${
-              type === 'renew' ? 'bg-[#1E7F47] text-white'   :
-              type === 'in'    ? 'bg-ceuta-black text-white'  :
-              type === 'out'   ? 'bg-ceuta-red text-white'    :
-                                 'bg-ceuta-gold text-black'
-            }`}>
-              {(type === 'out' || exitRumor) ? <ArrowOut /> : type === 'renew' ? <RenewIcon /> : <ArrowIn />}
+            <div className="flex shrink-0 items-center justify-center">
+              <ClubLogo name={type === 'renew' ? (t.clubTo ?? 'AD Ceuta FC') : (routeClub ?? '')} />
             </div>
             <div className="min-w-0 flex-1">
               <div className="font-display text-[9.5px] font-bold uppercase tracking-[0.13em] text-ceuta-muted">
@@ -172,6 +184,14 @@ function TransferCard({ t, type, idx }: { t: Transfer; type: Tab; idx: number })
               <div className="mt-[1px] truncate font-display text-[15px] font-bold uppercase leading-[1.05] tracking-[0.02em] text-ceuta-black">
                 {type === 'renew' ? (t.clubTo ?? 'AD Ceuta FC') : routeClub}
               </div>
+            </div>
+            <div className={`flex size-[22px] shrink-0 items-center justify-center rounded-full ${
+              type === 'renew' ? 'bg-[#1E7F47] text-white'  :
+              type === 'in'    ? 'bg-ceuta-black text-white' :
+              type === 'out'   ? 'bg-ceuta-red text-white'   :
+                                 'bg-ceuta-gold text-black'
+            }`}>
+              {(type === 'out' || exitRumor) ? <ArrowOut /> : type === 'renew' ? <RenewIcon /> : <ArrowIn />}
             </div>
           </div>
         )}
