@@ -62,8 +62,9 @@ function PlayerPhoto({ photoUrl, name, type }: { photoUrl: string | null; name: 
   const [loaded, setLoaded] = useState(false)
   const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
   const ringCls =
-    type === 'in'    ? 'ring-2 ring-ceuta-red'    :
+    type === 'in'    ? 'ring-2 ring-ceuta-black'  :
     type === 'renew' ? 'ring-2 ring-[#1E7F47]'    :
+    type === 'out'   ? 'ring-2 ring-ceuta-red'    :
                        'ring-2 ring-ceuta-border'
 
   return (
@@ -95,9 +96,9 @@ function TransferCard({ t, type, idx }: { t: Transfer; type: Tab; idx: number })
   const exitRumor = type === 'rumor' && isExitRumor(t)
 
   const badgeCls = exitRumor ? 'bg-ceuta-bg-mid text-ceuta-muted' :
-    type === 'renew' ? 'bg-[#E4F3EA] text-[#1E7F47]'  :
-    type === 'in'    ? 'bg-ceuta-black text-white'      :
-    type === 'out'   ? 'bg-ceuta-red-soft text-ceuta-red' :
+    type === 'renew' ? 'bg-[#E4F3EA] text-[#1E7F47]'      :
+    type === 'in'    ? 'bg-ceuta-black text-white'          :
+    type === 'out'   ? 'bg-ceuta-red-soft text-ceuta-red'   :
                        'bg-ceuta-bg-mid text-ceuta-muted'
   const badgeLabel = exitRumor ? 'Posible salida' : BADGE_LABEL[type]
 
@@ -119,9 +120,9 @@ function TransferCard({ t, type, idx }: { t: Transfer; type: Tab; idx: number })
     >
       {/* left colour bar */}
       <div className={`absolute bottom-0 left-0 top-0 w-1 ${
-        type === 'renew' ? 'bg-[#1E7F47]'  :
-        type === 'in'    ? 'bg-ceuta-red'   :
-        type === 'out'   ? 'bg-ceuta-black' :
+        type === 'renew' ? 'bg-[#1E7F47]'   :
+        type === 'in'    ? 'bg-ceuta-black'  :
+        type === 'out'   ? 'bg-ceuta-red'    :
                            'bg-ceuta-gold'
       }`} />
 
@@ -136,9 +137,9 @@ function TransferCard({ t, type, idx }: { t: Transfer; type: Tab; idx: number })
             </div>
             <div className="mt-[7px] flex flex-wrap items-center gap-[7px]">
               <span className={`rounded-[4px] px-2 py-[3px] font-display text-[10px] font-bold uppercase tracking-[0.08em] ${
-                type === 'renew' ? 'bg-[#1E7F47] text-white'  :
-                type === 'in'    ? 'bg-ceuta-red text-white'   :
-                type === 'out'   ? 'bg-ceuta-black text-white' :
+                type === 'renew' ? 'bg-[#1E7F47] text-white'   :
+                type === 'in'    ? 'bg-ceuta-black text-white'  :
+                type === 'out'   ? 'bg-ceuta-red text-white'    :
                                    'bg-ceuta-gold text-black'
               }`}>
                 {POSITIONS[t.position] ?? t.position}
@@ -157,9 +158,9 @@ function TransferCard({ t, type, idx }: { t: Transfer; type: Tab; idx: number })
         {showRoute && (
           <div className="mt-[13px] flex items-center gap-[10px] rounded-[8px] bg-ceuta-bg-soft px-3 py-[10px]">
             <div className={`flex size-[26px] shrink-0 items-center justify-center rounded-full ${
-              type === 'renew' ? 'bg-[#1E7F47] text-white'  :
-              type === 'in'    ? 'bg-ceuta-red text-white'   :
-              type === 'out'   ? 'bg-ceuta-black text-white' :
+              type === 'renew' ? 'bg-[#1E7F47] text-white'   :
+              type === 'in'    ? 'bg-ceuta-black text-white'  :
+              type === 'out'   ? 'bg-ceuta-red text-white'    :
                                  'bg-ceuta-gold text-black'
             }`}>
               {(type === 'out' || exitRumor) ? <ArrowOut /> : type === 'renew' ? <RenewIcon /> : <ArrowIn />}
