@@ -43,6 +43,11 @@ const LOGOS: Record<string, string> = {
   llagostera:   '/logos/llagostera.webp',
   teruel:       '/logos/teruel.webp',
   elche:        '/logos/elche.webp',
+  // Equipos europeos y fichajes/salidas mercado
+  espanyol:     '/logos/espanyol.webp',
+  moreirense:   '/logos/moreirense.webp',
+  hercules:     '/logos/hercules.webp',
+  cskasonfia:   '/logos/cska-sofia.webp',
 }
 
 const STOPWORDS = new Set(['fc', 'cf', 'ad', 'sd', 'ud', 'cd', 'rc', 'real', 'atletico', 'deportivo', 'club', 'balompie'])
@@ -109,6 +114,14 @@ const ALIASES: Record<string, string> = {
   'ad ceuta fc': 'ceuta',
   // CyD Leonesa = Cultural Leonesa
   'cyd leonesa': 'leonesa',
+  // Europeos y de mercado
+  'rcd espanyol': 'espanyol',
+  'espanyol b': 'espanyol',
+  'hercules cf': 'hercules',
+  'hercules de alicante': 'hercules',
+  'cska sofia': 'cskasonfia',
+  'pfc cska sofia': 'cskasonfia',
+  'moreirense fc': 'moreirense',
 }
 
 export function getLocalLogo(name: string | null | undefined): string | null {
