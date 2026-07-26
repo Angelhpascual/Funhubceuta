@@ -300,12 +300,12 @@ export default function MercadoClient({ transfers }: { transfers: Transfer[] }) 
           const active = tab === t.id
           const COLOR: Record<string, string> = {
             renew: '#1E7F47',
-            in:    'var(--red)',
-            out:   'var(--black)',
+            in:    'var(--black)',
+            out:   'var(--red)',
             rumor: 'var(--gold)',
           }
           const color = COLOR[t.id]
-          const isLight = t.id === 'rumor'
+          const isLight = t.id === 'rumor' || t.id === 'renew'
 
           return (
             <button
