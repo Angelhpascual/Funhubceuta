@@ -175,7 +175,7 @@ function TransferCard({ t, type, idx }: { t: Transfer; type: Tab; idx: number })
         {showRoute && (
           <div className="mt-[13px] flex items-center gap-[10px] rounded-[8px] bg-ceuta-bg-soft px-3 py-[10px]">
             <div className="flex shrink-0 items-center justify-center">
-              <ClubLogo name={type === 'renew' ? (t.clubTo ?? 'AD Ceuta FC') : (routeClub ?? '')} />
+              <ClubLogo name={type === 'renew' ? 'AD Ceuta FC' : (routeClub ?? '')} />
             </div>
             <div className="min-w-0 flex-1">
               <div className="font-display text-[9.5px] font-bold uppercase tracking-[0.13em] text-ceuta-muted">
