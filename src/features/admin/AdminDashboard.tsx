@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { AdminActions } from './AdminActions'
 import { LiveControl } from './LiveControl'
+import { MerchanToggle } from './MerchanToggle'
 import { MvpAdmin } from './MvpAdmin'
 import { PredictionAdmin } from './PredictionAdmin'
 import { ActivityTimeline } from './ActivityTimeline'
@@ -182,6 +183,7 @@ export function AdminDashboard({ stats }: { stats: AdminStats }) {
               </div>
               <div className="px-5 pb-5 mt-4">
                 <LiveControl />
+                <MerchanToggle />
               </div>
             </Module>
 
