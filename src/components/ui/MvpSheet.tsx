@@ -92,6 +92,11 @@ export function MvpSheet({ session, tallies, bannerState, votedId, fingerprint, 
       }
       onVoted(session.id, pickedId)
       onRefresh()
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const umami = typeof window !== 'undefined' ? (window as any).umami : null
+      if (umami?.track) {
+        umami.track('mvp_vote', { session_id: session.id, candidate_id: pickedId })
+      }
     } catch {
       setError('Error de red')
       setSubmitting(false)
