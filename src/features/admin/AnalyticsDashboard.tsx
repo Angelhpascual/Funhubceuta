@@ -6,6 +6,7 @@ type Props = {
     mvpVotes: number
     predictions: number
     totalNews: number
+    growth: { month: string; subs: number }[]
   }
 }
 
@@ -13,19 +14,68 @@ function fmt(n: number): string {
   return n >= 1000 ? (n / 1000).toFixed(1).replace('.0', '') + 'k' : String(n)
 }
 
-const GROWTH = [800, 1200, 1800, 2400, 3100, 3800]
-const MONTHS = ['FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL']
-const MAX_VAL = 4000
-const CHART_H = 180
-const CHART_Y0 = 200
-const XS = [70, 178, 286, 394, 502, 610]
-
-function toY(v: number) {
-  return CHART_Y0 - (v / MAX_VAL) * CHART_H
+const MONTH_LABELS: Record<string, string> = {
+  '01': 'ENE', '02': 'FEB', '03': 'MAR', '04': 'ABR',
+  '05': 'MAY', '06': 'JUN', '07': 'JUL', '08': 'AGO',
+  '09': 'SEP', '10': 'OCT', '11': 'NOV', '12': 'DIC',
 }
 
-const pts = GROWTH.map((v, i) => `${XS[i]},${toY(v)}`).join(' ')
-const polyPts = pts + ` 610,${CHART_Y0} 70,${CHART_Y0}`
+function GrowthChart({ growth }: { growth: { month: string; subs: number }[] }) {
+  if (growth.length < 2) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 text-center">
+        <div className="font-display text-[32px] font-black text-ceuta-red">{growth[0]?.subs ?? 0}</div>
+        <div className="mt-1 font-display text-[11px] font-bold uppercase tracking-[0.14em] text-ceuta-muted">
+          Suscriptores push actuales
+        </div>
+        <p className="mt-3 max-w-xs text-[12px] leading-snug text-ceuta-muted">
+          La gráfica de crecimiento se irá completando con el tiempo. Los datos se recogen automáticamente cada mes.
+        </p>
+      </div>
+    )
+  }
+
+  const CHART_H = 180
+  const CHART_Y0 = 200
+  const maxVal = Math.max(...growth.map((g) => g.subs), 10)
+  const rounded = Math.ceil(maxVal / 10) * 10
+  const n = growth.length
+  const XS = growth.map((_, i) => Math.round(70 + (i / (n - 1)) * 540))
+
+  function toY(v: number) { return CHART_Y0 - (v / rounded) * CHART_H }
+
+  const pts = growth.map((g, i) => `${XS[i]},${toY(g.subs)}`).join(' ')
+  const polyPts = pts + ` ${XS[n-1]},${CHART_Y0} ${XS[0]},${CHART_Y0}`
+
+  return (
+    <svg className="mt-3 w-full" viewBox="0 0 640 240" role="img">
+      <g stroke="#E6E4DE" strokeWidth="1">
+        {[20, 70, 120, 170, 200].map((y) => <line key={y} x1="46" y1={y} x2="620" y2={y} />)}
+      </g>
+      <g fontFamily="Barlow" fontSize="11" fill="#A8A69D">
+        {[rounded, Math.round(rounded*0.75), Math.round(rounded*0.5), Math.round(rounded*0.25), 0].map((v, i) => (
+          <text key={i} x="38" y={[24,74,124,174,204][i]} textAnchor="end">{v >= 1000 ? (v/1000).toFixed(1).replace('.0','')+'k' : v}</text>
+        ))}
+      </g>
+      <polygon points={polyPts} fill="#C8102E" opacity="0.07" />
+      <polyline points={pts} fill="none" stroke="#C8102E" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
+      {growth.map((g, i) => (
+        <circle key={i} cx={XS[i]} cy={toY(g.subs)} r={i === n-1 ? 6 : 4.5} fill="#C8102E"
+          stroke={i === n-1 ? '#fff' : undefined} strokeWidth={i === n-1 ? 2.5 : undefined} />
+      ))}
+      <g fontFamily="Barlow Condensed" fontWeight="700" fontSize="12" fill="#6E6C63" textAnchor="middle" letterSpacing="1">
+        {growth.map((g, i) => <text key={i} x={XS[i]} y="222">{MONTH_LABELS[g.month.slice(5,7)] ?? g.month.slice(5,7)}</text>)}
+      </g>
+      <g fontFamily="Barlow Condensed" fontWeight="800" fontSize="13" fill="#1A1A1A" textAnchor="middle">
+        {growth.map((g, i) => (
+          <text key={i} x={XS[i]} y={toY(g.subs) - 12}>
+            {g.subs >= 1000 ? (g.subs/1000).toFixed(1).replace('.0','')+'k' : g.subs}
+          </text>
+        ))}
+      </g>
+    </svg>
+  )
+}
 
 export function AnalyticsDashboard({ data }: Props) {
   return (
@@ -146,47 +196,17 @@ export function AnalyticsDashboard({ data }: Props) {
                 Crecimiento
               </div>
               <h2 className="mt-1 font-display text-[22px] font-black uppercase leading-none text-ceuta-black">
-                Usuarios únicos · 6 meses
+                Suscriptores push · historial
               </h2>
             </div>
-            <div className="flex items-center gap-2 font-display text-[12px] font-bold uppercase tracking-[0.06em] text-ceuta-muted">
-              <span className="inline-block h-1 w-4 rounded-full bg-ceuta-red" />
-              Usuarios / mes
-            </div>
+            {data.growth.length >= 2 && (
+              <div className="flex items-center gap-2 font-display text-[12px] font-bold uppercase tracking-[0.06em] text-ceuta-muted">
+                <span className="inline-block h-1 w-4 rounded-full bg-ceuta-red" />
+                Suscriptores / mes
+              </div>
+            )}
           </div>
-          <svg className="mt-3 w-full" viewBox="0 0 640 240" role="img" aria-label="Crecimiento de usuarios">
-            <g stroke="#E6E4DE" strokeWidth="1">
-              {[20, 70, 120, 170, 200].map((y) => (
-                <line key={y} x1="46" y1={y} x2="620" y2={y} />
-              ))}
-            </g>
-            <g fontFamily="Barlow" fontSize="11" fill="#A8A69D">
-              <text x="38" y="24" textAnchor="end">4k</text>
-              <text x="38" y="74" textAnchor="end">3k</text>
-              <text x="38" y="124" textAnchor="end">2k</text>
-              <text x="38" y="174" textAnchor="end">1k</text>
-              <text x="38" y="204" textAnchor="end">0</text>
-            </g>
-            <polygon points={`${polyPts}`} fill="#C8102E" opacity="0.07" />
-            <polyline points={pts} fill="none" stroke="#C8102E" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
-            {GROWTH.map((v, i) => (
-              <circle key={i} cx={XS[i]} cy={toY(v)} r={i === GROWTH.length - 1 ? 6 : 4.5} fill="#C8102E"
-                stroke={i === GROWTH.length - 1 ? '#fff' : undefined}
-                strokeWidth={i === GROWTH.length - 1 ? 2.5 : undefined}
-              />
-            ))}
-            <g fontFamily="Barlow Condensed" fontWeight="700" fontSize="12" fill="#6E6C63" textAnchor="middle" letterSpacing="1">
-              {MONTHS.map((m, i) => <text key={m} x={XS[i]} y="222">{m}</text>)}
-            </g>
-            <g fontFamily="Barlow Condensed" fontWeight="800" fontSize="13" fill="#1A1A1A" textAnchor="middle">
-              {GROWTH.map((v, i) => (
-                <text key={i} x={XS[i]} y={toY(v) - 12}>{v >= 1000 ? (v / 1000).toFixed(1).replace('.0', '') + 'k' : v}</text>
-              ))}
-            </g>
-          </svg>
-          <p className="mt-2 text-center text-[11px] text-ceuta-muted">
-            * Datos de crecimiento de referencia · actualiza con tu dashboard de Umami
-          </p>
+          <GrowthChart growth={data.growth} />
         </section>
 
         {/* Audiencia */}
