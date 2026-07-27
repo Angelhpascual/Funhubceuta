@@ -65,35 +65,37 @@ function ProductCard({ product }: { product: MerchanProduct }) {
       href={product.url}
       target="_blank"
       rel="noopener noreferrer"
-      className="bg-white border border-[var(--border)] rounded-[16px] overflow-hidden flex flex-col shadow-[0_2px_8px_rgba(0,0,0,0.05)] active:scale-[0.98] transition-transform"
+      className="relative rounded-[18px] overflow-hidden aspect-[3/4] block shadow-[0_4px_16px_rgba(0,0,0,0.12)] active:scale-[0.97] transition-transform"
     >
-      {/* Imagen con aspect-ratio cuadrado */}
-      <div className="relative aspect-square bg-[var(--bg-soft)]">
-        {product.tag && (
-          <span className={`absolute top-2 left-2 z-10 font-display font-extrabold text-[9px] tracking-[0.1em] uppercase px-[7px] py-1 rounded-[5px] ${product.tag === 'nuevo' ? 'bg-[var(--red)] text-white' : 'bg-[var(--black)] text-white'}`}>
-            {TAG_LABELS[product.tag]}
-          </span>
-        )}
-        <Image
-          src={product.image}
-          alt={product.name}
-          fill
-          sizes="(max-width: 640px) 45vw, 200px"
-          className="object-contain p-2"
-          loading="lazy"
-        />
-      </div>
-      {/* Info */}
-      <div className="px-3 pt-[10px] pb-[12px] flex flex-col flex-1">
-        <div className="font-display font-extrabold text-[14px] leading-[1.1] uppercase line-clamp-2">
+      {/* Imagen full-bleed */}
+      <Image
+        src={product.image}
+        alt={product.name}
+        fill
+        sizes="(max-width: 640px) 45vw, 200px"
+        className="object-cover object-top"
+        loading="lazy"
+      />
+
+      {/* Badge */}
+      {product.tag && (
+        <span className={`absolute top-2 left-2 z-10 font-display font-extrabold text-[9px] tracking-[0.1em] uppercase px-[7px] py-[4px] rounded-[5px] ${product.tag === 'nuevo' ? 'bg-[var(--red)] text-white' : 'bg-[var(--black)] text-white'}`}>
+          {TAG_LABELS[product.tag]}
+        </span>
+      )}
+
+      {/* Gradient + info overlay */}
+      <div className="absolute inset-x-0 bottom-0 z-10 px-[11px] pt-8 pb-[11px]"
+        style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)' }}
+      >
+        <div className="font-display font-extrabold text-[13px] leading-[1.1] uppercase text-white line-clamp-2">
           {shortName}
         </div>
-        <div className="text-[10.5px] text-[var(--muted)] mt-[3px] capitalize">{product.category}</div>
-        <div className="flex items-center justify-between mt-auto pt-[10px] gap-2">
-          <span className="font-display font-black text-[17px]">
-            {product.price.split(',')[0]}<small className="text-[10px] font-bold">,{product.price.split(',')[1]}</small>
+        <div className="flex items-center justify-between mt-[7px] gap-2">
+          <span className="font-display font-black text-[16px] text-white">
+            {product.price.split(',')[0]}<small className="text-[10px] font-bold opacity-80">,{product.price.split(',')[1]}</small>
           </span>
-          <span className="shrink-0 flex items-center gap-[5px] bg-[var(--red)] text-white font-display font-extrabold text-[10px] tracking-[0.06em] uppercase px-[10px] py-[7px] rounded-[8px]">
+          <span className="shrink-0 flex items-center gap-[5px] bg-[var(--red)] text-white font-display font-extrabold text-[10px] tracking-[0.06em] uppercase px-[9px] py-[6px] rounded-[7px]">
             Comprar <IconExt />
           </span>
         </div>
