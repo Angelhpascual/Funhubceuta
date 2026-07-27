@@ -38,13 +38,15 @@ function ClubLogo({ name }: { name: string }) {
   const logo = getLocalLogo(name)
   if (logo) {
     return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img src={logo} alt={name} width={28} height={28} className="size-7 object-contain" />
+      <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-white shadow-sm">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={logo} alt={name} width={24} height={24} className="size-6 object-contain" />
+      </div>
     )
   }
-  const initials = name.replace(/\b(fc|cf|ad|sd|ud|cd|rc|real|atletico|club)\b/gi, '').trim().slice(0, 2).toUpperCase()
+  const initials = name.replace(/\b(fc|cf|ad|sd|ud|cd|rc|real|atletico|club|deportivo)\b/gi, '').trim().slice(0, 2).toUpperCase()
   return (
-    <div className="flex size-7 items-center justify-center rounded-full bg-ceuta-bg-mid font-display text-[10px] font-black text-ceuta-muted">
+    <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-white shadow-sm font-display text-[10px] font-black text-ceuta-muted">
       {initials}
     </div>
   )

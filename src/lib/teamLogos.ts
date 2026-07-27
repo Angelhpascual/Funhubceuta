@@ -126,6 +126,11 @@ const ALIASES: Record<string, string> = {
   'juventud torremolinos': 'juventudt',
   'juventud torremolinos cf': 'juventudt',
   'juventud de torremolinos': 'juventudt',
+  // Deportivo de la Coruña — "deportivo" está en stopwords, no llega por keywords
+  'deportivo de la coruna': 'deportivo',
+  'rc deportivo': 'deportivo',
+  'deportivo la coruna': 'deportivo',
+  'deportivo coruna': 'deportivo',
 }
 
 export function getLocalLogo(name: string | null | undefined): string | null {
