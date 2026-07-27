@@ -200,8 +200,6 @@ export function AdminActions({ syncOnly, notifOnly, deviceOnly }: { syncOnly?: b
 
   const [syncNews, setSyncNews] = useState<SyncState>(IDLE)
   const [syncNewsImages, setSyncNewsImages] = useState<SyncState>(IDLE)
-  const [syncSquadPhotos, setSyncSquadPhotos] = useState<SyncState>(IDLE)
-  const [syncTransferPhotos, setSyncTransferPhotos] = useState<SyncState>(IDLE)
 
   const [pushTitle, setPushTitle] = useState('')
   const [pushBody, setPushBody] = useState('')
@@ -401,28 +399,6 @@ export function AdminActions({ syncOnly, notifOnly, deviceOnly }: { syncOnly?: b
             state={syncNewsImages}
             onClick={() => triggerSync(setSyncNewsImages, 'backfill-news-images', 'backfill-images', [
               'Buscando fotos externas en noticias…',
-              'Descargando y convirtiendo a WebP…',
-              'Actualizando base de datos…',
-            ], { direct: true })}
-          />
-          <SyncCard
-            emoji="👤"
-            label="Optimizar fotos jugadores"
-            description="Migra y convierte a WebP las fotos externas de la plantilla."
-            state={syncSquadPhotos}
-            onClick={() => triggerSync(setSyncSquadPhotos, 'backfill-squad-photos', 'backfill-squad-photos', [
-              'Buscando fotos externas en plantilla…',
-              'Descargando y convirtiendo a WebP…',
-              'Actualizando base de datos…',
-            ], { direct: true })}
-          />
-          <SyncCard
-            emoji="🔄"
-            label="Optimizar fotos mercado"
-            description="Migra fotos de transferencias/mercado a Supabase en WebP."
-            state={syncTransferPhotos}
-            onClick={() => triggerSync(setSyncTransferPhotos, 'backfill-transfer-photos', 'backfill-transfer-photos', [
-              'Buscando fotos externas en mercado…',
               'Descargando y convirtiendo a WebP…',
               'Actualizando base de datos…',
             ], { direct: true })}
