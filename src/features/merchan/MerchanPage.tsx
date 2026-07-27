@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { MERCHAN_PRODUCTS, MERCHAN_CATEGORIES, type MerchanProduct } from '@/lib/merchan'
 
 const IconExt = () => (
@@ -13,11 +14,17 @@ const IconExt = () => (
 
 function FeaturedCard({ product }: { product: MerchanProduct }) {
   return (
-    <div className="-mt-[38px] mx-3 relative z-[2] bg-white border-[1.5px] border-[var(--border)] rounded-[var(--r-md)] overflow-hidden shadow-[0_6px_18px_rgba(0,0,0,0.08)]">
-      <div className="h-[210px] bg-[var(--bg-soft)] relative">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={product.image} alt={product.name} className="w-full h-full object-contain bg-white" />
-        <span className="absolute top-[10px] left-[10px] bg-[var(--gold)] text-[var(--black)] font-display font-extrabold text-[10px] tracking-[0.1em] uppercase px-[9px] py-[5px] rounded-[5px] z-[2]">
+    <div className="-mt-[38px] mx-3 relative z-[2] bg-white border-[1.5px] border-[var(--border)] rounded-[18px] overflow-hidden shadow-[0_8px_24px_rgba(0,0,0,0.10)]">
+      <div className="h-[220px] bg-[var(--bg-soft)] relative">
+        <Image
+          src={product.image}
+          alt={product.name}
+          fill
+          sizes="(max-width: 640px) calc(100vw - 24px), 600px"
+          className="object-contain p-3"
+          priority
+        />
+        <span className="absolute top-[10px] left-[10px] bg-[var(--gold)] text-[var(--black)] font-display font-extrabold text-[10px] tracking-[0.1em] uppercase px-[9px] py-[5px] rounded-[6px] z-[2]">
           Novedad · Retro
         </span>
       </div>
@@ -36,7 +43,7 @@ function FeaturedCard({ product }: { product: MerchanProduct }) {
             href={product.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="ml-auto bg-[var(--red)] hover:bg-[var(--red-dark)] text-white font-display font-extrabold text-[13px] tracking-[0.08em] uppercase px-4 py-[11px] rounded-[10px] flex items-center gap-[7px] transition-colors"
+            className="ml-auto bg-[var(--red)] hover:bg-[var(--red-dark)] text-white font-display font-extrabold text-[13px] tracking-[0.08em] uppercase px-5 py-[11px] rounded-[10px] flex items-center gap-[7px] transition-colors"
           >
             Comprar <IconExt />
           </a>
@@ -58,28 +65,36 @@ function ProductCard({ product }: { product: MerchanProduct }) {
       href={product.url}
       target="_blank"
       rel="noopener noreferrer"
-      className="bg-white border border-[var(--border)] rounded-[var(--r-md)] overflow-hidden flex flex-col"
+      className="bg-white border border-[var(--border)] rounded-[16px] overflow-hidden flex flex-col shadow-[0_2px_8px_rgba(0,0,0,0.05)] active:scale-[0.98] transition-transform"
     >
-      <div className="h-[150px] bg-[var(--bg-soft)] relative">
+      {/* Imagen con aspect-ratio cuadrado */}
+      <div className="relative aspect-square bg-[var(--bg-soft)]">
         {product.tag && (
-          <span className={`absolute top-2 left-2 font-display font-extrabold text-[9px] tracking-[0.1em] uppercase px-[7px] py-1 rounded-[4px] ${product.tag === 'nuevo' ? 'bg-[var(--red)] text-white' : 'bg-[var(--black)] text-white'}`}>
+          <span className={`absolute top-2 left-2 z-10 font-display font-extrabold text-[9px] tracking-[0.1em] uppercase px-[7px] py-1 rounded-[5px] ${product.tag === 'nuevo' ? 'bg-[var(--red)] text-white' : 'bg-[var(--black)] text-white'}`}>
             {TAG_LABELS[product.tag]}
           </span>
         )}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={product.image} alt={product.name} loading="lazy" className="w-full h-full object-contain bg-white" />
+        <Image
+          src={product.image}
+          alt={product.name}
+          fill
+          sizes="(max-width: 640px) 45vw, 200px"
+          className="object-contain p-2"
+          loading="lazy"
+        />
       </div>
-      <div className="px-3 pt-[11px] pb-3 flex flex-col flex-1">
-        <div className="font-display font-extrabold text-[15.5px] leading-[1.05] uppercase">
+      {/* Info */}
+      <div className="px-3 pt-[10px] pb-[12px] flex flex-col flex-1">
+        <div className="font-display font-extrabold text-[14px] leading-[1.1] uppercase line-clamp-2">
           {shortName}
         </div>
-        <div className="text-[11px] text-[var(--muted)] mt-[3px] capitalize">{product.category}</div>
-        <div className="flex items-center mt-auto pt-[10px]">
-          <span className="font-display font-black text-[18px]">
-            {product.price.split(',')[0]}<small className="text-[11px] font-bold">,{product.price.split(',')[1]}</small>
+        <div className="text-[10.5px] text-[var(--muted)] mt-[3px] capitalize">{product.category}</div>
+        <div className="flex items-center justify-between mt-auto pt-[10px] gap-2">
+          <span className="font-display font-black text-[17px]">
+            {product.price.split(',')[0]}<small className="text-[10px] font-bold">,{product.price.split(',')[1]}</small>
           </span>
-          <span className="ml-auto w-[34px] h-[34px] rounded-[9px] bg-[var(--red)] text-white flex items-center justify-center">
-            <IconExt />
+          <span className="shrink-0 flex items-center gap-[5px] bg-[var(--red)] text-white font-display font-extrabold text-[10px] tracking-[0.06em] uppercase px-[10px] py-[7px] rounded-[8px]">
+            Comprar <IconExt />
           </span>
         </div>
       </div>
@@ -146,12 +161,12 @@ export default function MerchanPage() {
       </div>
 
       {/* Product grid */}
-      <div key={activeCat} className="grid grid-cols-2 gap-[10px] px-3 pt-[10px] isolate">
+      <div key={activeCat} className="grid grid-cols-2 gap-3 px-3 pt-[10px] isolate">
         {filtered.map(p => <ProductCard key={p.url} product={p} />)}
       </div>
 
       {/* Store note */}
-      <div className="relative mx-3 mt-[18px] mb-2 bg-[var(--black)] rounded-[var(--r-md)] px-[17px] py-4 text-white flex items-center gap-[14px] overflow-hidden">
+      <div className="relative mx-3 mt-[18px] mb-2 bg-[var(--black)] rounded-[16px] px-[17px] py-4 text-white flex items-center gap-[14px] overflow-hidden">
         <div
           className="pointer-events-none absolute top-0 right-0 w-[120px] h-full opacity-[0.055]"
           style={{ background: 'repeating-linear-gradient(-45deg, #fff 0 12px, transparent 12px 24px)' }}

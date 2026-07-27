@@ -55,6 +55,7 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'ceutadeportiva.com' },
       { protocol: 'https', hostname: 'www.ceutadeportiva.com' },
       { protocol: 'https', hostname: 'i.ytimg.com' },
+      { protocol: 'https', hostname: 'tienda.adceutafc.com' },
     ],
   },
 }
