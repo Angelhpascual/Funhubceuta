@@ -21,17 +21,11 @@ const MONTH_LABELS: Record<string, string> = {
 }
 
 function GrowthChart({ growth }: { growth: { month: string; subs: number }[] }) {
-  if (growth.length < 2) {
+  if (growth.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 text-center">
-        <div className="font-display text-[32px] font-black text-ceuta-red">{growth[0]?.subs ?? 0}</div>
-        <div className="mt-1 font-display text-[11px] font-bold uppercase tracking-[0.14em] text-ceuta-muted">
-          Suscriptores push actuales
-        </div>
-        <p className="mt-3 max-w-xs text-[12px] leading-snug text-ceuta-muted">
-          La gráfica de crecimiento se irá completando con el tiempo. Los datos se recogen automáticamente cada mes.
-        </p>
-      </div>
+      <p className="py-10 text-center text-[12px] text-ceuta-muted">
+        Sin datos todavía — la gráfica aparecerá en cuanto el cron registre el primer mes.
+      </p>
     )
   }
 
@@ -40,12 +34,18 @@ function GrowthChart({ growth }: { growth: { month: string; subs: number }[] }) 
   const maxVal = Math.max(...growth.map((g) => g.subs), 10)
   const rounded = Math.ceil(maxVal / 10) * 10
   const n = growth.length
-  const XS = growth.map((_, i) => Math.round(70 + (i / (n - 1)) * 540))
+
+  // Con 1 solo punto lo centramos; con varios los distribuimos
+  const XS = n === 1
+    ? [330]
+    : growth.map((_, i) => Math.round(70 + (i / (n - 1)) * 540))
 
   function toY(v: number) { return CHART_Y0 - (v / rounded) * CHART_H }
 
   const pts = growth.map((g, i) => `${XS[i]},${toY(g.subs)}`).join(' ')
-  const polyPts = pts + ` ${XS[n-1]},${CHART_Y0} ${XS[0]},${CHART_Y0}`
+  const polyPts = n > 1
+    ? pts + ` ${XS[n-1]},${CHART_Y0} ${XS[0]},${CHART_Y0}`
+    : `${XS[0]},${toY(growth[0].subs)} ${XS[0]},${CHART_Y0}`
 
   return (
     <svg className="mt-3 w-full" viewBox="0 0 640 240" role="img">
@@ -58,7 +58,9 @@ function GrowthChart({ growth }: { growth: { month: string; subs: number }[] }) 
         ))}
       </g>
       <polygon points={polyPts} fill="#C8102E" opacity="0.07" />
-      <polyline points={pts} fill="none" stroke="#C8102E" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
+      {n > 1 && (
+        <polyline points={pts} fill="none" stroke="#C8102E" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
+      )}
       {growth.map((g, i) => (
         <circle key={i} cx={XS[i]} cy={toY(g.subs)} r={i === n-1 ? 6 : 4.5} fill="#C8102E"
           stroke={i === n-1 ? '#fff' : undefined} strokeWidth={i === n-1 ? 2.5 : undefined} />
