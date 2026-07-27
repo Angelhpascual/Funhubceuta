@@ -129,7 +129,6 @@ const ALIASES: Record<string, string> = {
   // Deportivo de la Coruña — "deportivo" está en stopwords, no llega por keywords
   'deportivo de la coruna': 'deportivo',
   'rc deportivo': 'deportivo',
-  'deportivo la coruna': 'deportivo',
   'deportivo coruna': 'deportivo',
 }
 
