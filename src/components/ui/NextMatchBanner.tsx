@@ -85,7 +85,7 @@ export function NextMatchBanner({ match }: { match: NextMatchData }) {
               {shortName(homeTeam)}
             </div>
             <div className="font-display text-[9.5px] font-bold uppercase tracking-[0.14em] text-white/40 mt-0.5">
-              {isHome ? 'Local' : 'Visitante'}
+              Local
             </div>
           </div>
         </div>
@@ -115,7 +115,7 @@ export function NextMatchBanner({ match }: { match: NextMatchData }) {
               {shortName(awayTeam)}
             </div>
             <div className="font-display text-[9.5px] font-bold uppercase tracking-[0.14em] text-white/40 mt-0.5">
-              {!isHome ? 'Local' : 'Visitante'}
+              Visitante
             </div>
           </div>
         </div>
