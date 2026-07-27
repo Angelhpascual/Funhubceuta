@@ -48,6 +48,7 @@ const LOGOS: Record<string, string> = {
   moreirense:   '/logos/moreirense.webp',
   hercules:     '/logos/hercules.webp',
   cskasonfia:   '/logos/cska-sofia.webp',
+  juventudt:    '/logos/juventud-torremolinos.webp',
 }
 
 const STOPWORDS = new Set(['fc', 'cf', 'ad', 'sd', 'ud', 'cd', 'rc', 'real', 'atletico', 'deportivo', 'club', 'balompie'])
@@ -122,6 +123,9 @@ const ALIASES: Record<string, string> = {
   'cska sofia': 'cskasonfia',
   'pfc cska sofia': 'cskasonfia',
   'moreirense fc': 'moreirense',
+  'juventud torremolinos': 'juventudt',
+  'juventud torremolinos cf': 'juventudt',
+  'juventud de torremolinos': 'juventudt',
 }
 
 export function getLocalLogo(name: string | null | undefined): string | null {
