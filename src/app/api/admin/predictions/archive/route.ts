@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
 import { apiError } from '@/lib/apiError'
+import { checkAdminAuth, unauthorizedResponse } from '@/infrastructure/admin/auth'
 
 export async function POST(request: Request) {
+  if (!(await checkAdminAuth())) return unauthorizedResponse()
   try {
     const { sessionId } = await request.json()
     if (!sessionId) return NextResponse.json({ error: 'sessionId requerido' }, { status: 400 })

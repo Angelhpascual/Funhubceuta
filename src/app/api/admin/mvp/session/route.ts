@@ -41,7 +41,7 @@ export async function PATCH(request: Request) {
       .from('mvp_sessions')
       .select('match_label, jornada')
       .eq('id', sessionId)
-      .single()
+      .maybeSingle()
 
     sendPush({
       title: '⭐ Vota al MVP del partido',

@@ -3,8 +3,10 @@ import { createPredictionSession, openPredictionSession } from '@/infrastructure
 import { apiError } from '@/lib/apiError'
 import { sendPush } from '@/infrastructure/push/sendPush'
 import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
+import { checkAdminAuth, unauthorizedResponse } from '@/infrastructure/admin/auth'
 
 export async function POST(request: Request) {
+  if (!(await checkAdminAuth())) return unauthorizedResponse()
   try {
     const { matchLabel, jornada, matchMeta } = await request.json()
     if (!matchLabel) return NextResponse.json({ error: 'matchLabel requerido' }, { status: 400 })
@@ -17,6 +19,7 @@ export async function POST(request: Request) {
 }
 
 export async function PUT(request: Request) {
+  if (!(await checkAdminAuth())) return unauthorizedResponse()
   try {
     const { sessionId, action } = await request.json()
     if (!sessionId || !action) return NextResponse.json({ error: 'sessionId y action requeridos' }, { status: 400 })
@@ -28,7 +31,7 @@ export async function PUT(request: Request) {
         .from('prediction_sessions')
         .select('match_label, jornada')
         .eq('id', sessionId)
-        .single()
+        .maybeSingle()
 
       sendPush({
         title: '🔮 Predice el resultado',
