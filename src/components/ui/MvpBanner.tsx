@@ -3,8 +3,9 @@
 import Image from 'next/image'
 import { useState, useEffect, useCallback } from 'react'
 import { MvpSheet, type BannerState as SheetState } from './MvpSheet'
-import type { MvpSession, MvpVoteTally, MvpMatchMeta } from '@/infrastructure/supabase/MvpRepository'
+import type { MvpSession, MvpVoteTally } from '@/infrastructure/supabase/MvpRepository'
 import { supabase } from '@/infrastructure/supabase/client'
+import { getLocalLogo } from '@/lib/teamLogos'
 
 type BannerState = 'none' | SheetState
 
@@ -104,6 +105,14 @@ export function MvpBanner() {
     return () => clearInterval(id)
   }, [load, session?.status])
 
+  function trackEvent(sessionId: string, event: string) {
+    fetch('/api/mvp/event', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId, event, fingerprint: typeof window !== 'undefined' ? getFingerprint() : null }),
+    }).catch(() => {})
+  }
+
   const handleVoted = useCallback((sessionId: string, candidateId: string) => {
     localStorage.setItem('mvp_voted_session', sessionId)
     localStorage.setItem(`mvp_voted_${sessionId}`, candidateId)
@@ -128,50 +137,88 @@ export function MvpBanner() {
   }
   const cfg = configs[bannerState as SheetState]
 
+  const meta = session.match_meta
+  function logoFor(name: string | undefined, url: string | null | undefined) {
+    return getLocalLogo(name) ?? url ?? null
+  }
+
   return (
     <>
-      <div className="px-4 pt-2 pb-1 bg-[var(--bg)] border-t border-[var(--border)]">
-        <button className={`mvp-banner st-${bannerState}`} onClick={() => setSheetOpen(true)}>
+      <div className="px-4 pt-5 pb-1">
+        <div className="font-display text-[11px] font-bold uppercase tracking-[0.14em] text-ceuta-red mb-1">
+          {bannerState === 'cerrada' ? 'Resultado' : 'MVP del partido'}
+        </div>
+        <div className="font-display text-[22px] font-black uppercase leading-tight text-ceuta-black">
+          {bannerState === 'cerrada' ? 'Mejor jugador' : 'Vota al mejor'}
+        </div>
+      </div>
+      <div className="px-4 pt-3">
+        <button className={`mvp-banner st-${bannerState}`} onClick={() => {
+          if (session) trackEvent(session.id, 'banner_click')
+          setSheetOpen(true)
+        }}>
           <div className="mb-strp" />
-          {bannerState === 'cerrada' && winner?.photo_url ? (
-            <div className="mb-ic !p-0 overflow-hidden rounded-[12px]">
-              <Image
-                src={winner.photo_url}
-                alt={winner.name}
-                width={46}
-                height={46}
-                className="w-full h-full object-cover object-top"
-              />
+
+          {/* tag */}
+          <div className="mb-header">
+            <div className="mb-tag">
+              <span className={`mb-dot${bannerState === 'abierta' ? ' green' : ''}`} />
+              <span>{cfg.eye}</span>
             </div>
-          ) : (
-            <div className="mb-ic">{cfg.icon}</div>
-          )}
-          <div className="mb-main">
-            {session.match_meta && (
-              <div className="mb-match">
-                {session.match_meta.home.logo
-                  // eslint-disable-next-line @next/next/no-img-element
-                  ? <img src={session.match_meta.home.logo} alt={session.match_meta.home.name} width={16} height={16} className="object-contain" />
-                  : null
-                }
-                <span className="mb-match-name">{session.match_meta.home.name}</span>
-                <span className="mb-match-vs">vs</span>
-                {session.match_meta.away.logo
-                  // eslint-disable-next-line @next/next/no-img-element
-                  ? <img src={session.match_meta.away.logo} alt={session.match_meta.away.name} width={16} height={16} className="object-contain" />
-                  : null
-                }
-                <span className="mb-match-name">{session.match_meta.away.name}</span>
-              </div>
-            )}
-            <div className="mb-eye">
-              {bannerState === 'abierta' && <span className="live-dot" />}
-              {cfg.eye}
-            </div>
-            <div className="mb-title">{cfg.title}</div>
-            <div className="mb-sub">{cfg.sub}</div>
+            {session.match_label && <div className="mb-jornada">{session.match_label}</div>}
           </div>
-          <div className="mb-chev"><IconChevron /></div>
+
+          {/* equipos */}
+          {meta && (
+            <div className="mb-teams">
+              <div className="mb-team">
+                <div className="mb-logo">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  {logoFor(meta.home.name, meta.home.logo)
+                    ? <img src={logoFor(meta.home.name, meta.home.logo)!} alt={meta.home.name} width={40} height={40} className="object-contain" />
+                    : <span className="mb-logo-init">{meta.home.name?.[0]}</span>}
+                </div>
+                <span className="mb-team-name">{meta.home.name}</span>
+              </div>
+
+              {/* centro: foto MVP o icono */}
+              <div className="mb-center">
+                {bannerState === 'cerrada' && winner?.photo_url ? (
+                  <div className="mb-winner-photo">
+                    <Image src={winner.photo_url} alt={winner.name} width={52} height={52} className="w-full h-full object-cover object-top" />
+                  </div>
+                ) : (
+                  <div className="mb-center-ic">{cfg.icon}</div>
+                )}
+                {bannerState === 'cerrada' && winner && (
+                  <div className="mb-winner-name">{winner.name}</div>
+                )}
+              </div>
+
+              <div className="mb-team">
+                <div className="mb-logo">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  {logoFor(meta.away.name, meta.away.logo)
+                    ? <img src={logoFor(meta.away.name, meta.away.logo)!} alt={meta.away.name} width={40} height={40} className="object-contain" />
+                    : <span className="mb-logo-init">{meta.away.name?.[0]}</span>}
+                </div>
+                <span className="mb-team-name">{meta.away.name}</span>
+              </div>
+            </div>
+          )}
+
+          <div className="mb-divider" />
+
+          {/* footer */}
+          <div className="mb-footer">
+            <div className="mb-footer-text">
+              <b>{cfg.title}</b>
+              <span>{cfg.sub}</span>
+            </div>
+            <div className="mb-cta-pill">
+              {bannerState === 'antes' ? 'Pronto' : bannerState === 'cerrada' ? 'Ver' : bannerState === 'votado' ? 'Ver votos' : 'Votar'} <span>›</span>
+            </div>
+          </div>
         </button>
       </div>
 
@@ -183,8 +230,9 @@ export function MvpBanner() {
           votedId={votedId}
           fingerprint={typeof window !== 'undefined' ? getFingerprint() : ''}
           onClose={() => setSheetOpen(false)}
-          onVoted={handleVoted}
+          onVoted={(sid, cid) => { trackEvent(sid, 'vote_cast'); handleVoted(sid, cid) }}
           onRefresh={load}
+          onOpen={() => { if (session) trackEvent(session.id, 'sheet_open') }}
         />
       )}
     </>

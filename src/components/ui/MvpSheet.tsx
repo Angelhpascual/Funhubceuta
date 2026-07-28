@@ -14,6 +14,7 @@ type Props = {
   onClose: () => void
   onVoted: (sessionId: string, candidateId: string) => void
   onRefresh: () => void
+  onOpen?: () => void
 }
 
 type Tab = 'partido' | 'temporada'
@@ -40,7 +41,7 @@ function pct(votes: number, total: number) {
   return Math.round((votes / total) * 100)
 }
 
-export function MvpSheet({ session, tallies, bannerState, votedId, fingerprint, onClose, onVoted, onRefresh }: Props) {
+export function MvpSheet({ session, tallies, bannerState, votedId, fingerprint, onClose, onVoted, onRefresh, onOpen }: Props) {
   const [tab, setTab] = useState<Tab>('partido')
   const [pickedId, setPickedId] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
@@ -49,7 +50,9 @@ export function MvpSheet({ session, tallies, bannerState, votedId, fingerprint, 
 
   useEffect(() => {
     document.body.style.overflow = 'hidden'
+    onOpen?.()
     return () => { document.body.style.overflow = '' }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {

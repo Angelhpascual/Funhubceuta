@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server'
 import { closePredictionSession } from '@/infrastructure/supabase/PredictionRepository'
 import { apiError } from '@/lib/apiError'
+import { checkAdminAuth, unauthorizedResponse } from '@/infrastructure/admin/auth'
 
 export async function POST(request: Request) {
+  if (!(await checkAdminAuth())) return unauthorizedResponse()
   try {
     const { sessionId, homeResult, awayResult } = await request.json()
     if (!sessionId || homeResult == null || awayResult == null) {

@@ -352,9 +352,9 @@ export function HomePage({
         {news.length > 0 && (
           <Link
             href="/noticias"
-            className="flex items-center gap-1 font-display text-[12px] font-bold uppercase tracking-[0.1em] text-ceuta-black"
+            className="flex items-center gap-1 font-display text-[12px] font-bold uppercase tracking-[0.1em] text-ceuta-black underline"
           >
-            Ver todo <span className="text-[14px]">→</span>
+            Ver todas →
           </Link>
         )}
       </div>
