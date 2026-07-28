@@ -366,7 +366,7 @@ export const MERCHAN_PRODUCTS: MerchanProduct[] = [
     category: 'merchandising',
     name: 'Sudadera con capucha blanca AD Ceuta FC 2025/26',
     price: '42,00 €',
-    image: 'https://tienda.adceutafc.com/wp-content/uploads/2025/08/800003160100_10.jpg',
+    image: 'https://tienda.adceutafc.com/wp-content/uploads/2025/07/800003160100_10.jpg',
     url: 'https://tienda.adceutafc.com/producto/sudadera-con-capucha-blanca-ad-ceuta-fc-2025-26/',
   },
   {

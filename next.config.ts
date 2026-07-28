@@ -22,9 +22,8 @@ const nextConfig: NextConfig = {
     deviceSizes: [390, 640, 828, 1080],
     imageSizes: [48, 88, 110, 220],
     localPatterns: [
-      {
-        pathname: '/api/proxy/image',
-      },
+      { pathname: '/api/proxy/image' },
+      { pathname: '/mascota/**' },
     ],
     remotePatterns: [
       { protocol: 'https', hostname: 'r2.thesportsdb.com' },

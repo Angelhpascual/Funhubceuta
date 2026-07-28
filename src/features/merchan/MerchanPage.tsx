@@ -14,39 +14,44 @@ const IconExt = () => (
 
 function FeaturedCard({ product }: { product: MerchanProduct }) {
   return (
-    <div className="-mt-[38px] mx-3 relative z-[2] bg-white border-[1.5px] border-[var(--border)] rounded-[18px] overflow-hidden shadow-[0_8px_24px_rgba(0,0,0,0.10)]">
-      <div className="h-[220px] bg-[var(--bg-soft)] relative">
+    <div className="-mt-[38px] mx-3 relative z-[2] rounded-[18px] overflow-hidden shadow-[0_8px_28px_rgba(0,0,0,0.18)]">
+      {/* Imagen full-bleed */}
+      <div className="relative h-[260px]">
         <Image
           src={product.image}
           alt={product.name}
           fill
           sizes="(max-width: 640px) calc(100vw - 24px), 600px"
-          className="object-contain p-3"
+          className="object-cover object-top"
           priority
         />
         <span className="absolute top-[10px] left-[10px] bg-[var(--gold)] text-[var(--black)] font-display font-extrabold text-[10px] tracking-[0.1em] uppercase px-[9px] py-[5px] rounded-[6px] z-[2]">
           Novedad · Retro
         </span>
-      </div>
-      <div className="px-[15px] pt-[14px] pb-[15px]">
-        <div className="font-display font-extrabold text-[21px] leading-none uppercase">
-          Camiseta jornada retro 25/26
-        </div>
-        <div className="text-[12.5px] text-[var(--muted)] mt-[5px]">
-          La edición especial de jornada. Tallas 4XS–4XL.
-        </div>
-        <div className="flex items-center gap-3 mt-3">
-          <span className="font-display font-black text-[24px]">
-            69<small className="text-[14px] font-bold">,00€</small>
-          </span>
-          <a
-            href={product.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="ml-auto bg-[var(--red)] hover:bg-[var(--red-dark)] text-white font-display font-extrabold text-[13px] tracking-[0.08em] uppercase px-5 py-[11px] rounded-[10px] flex items-center gap-[7px] transition-colors"
-          >
-            Comprar <IconExt />
-          </a>
+        {/* Gradient overlay */}
+        <div
+          className="absolute inset-x-0 bottom-0 px-[15px] pt-10 pb-[15px] z-[1]"
+          style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.5) 55%, transparent 100%)' }}
+        >
+          <div className="font-display font-extrabold text-[22px] leading-none uppercase text-white">
+            Camiseta jornada retro 25/26
+          </div>
+          <div className="text-[12px] text-white/60 mt-[5px]">
+            La edición especial de jornada. Tallas 4XS–4XL.
+          </div>
+          <div className="flex items-center gap-3 mt-3">
+            <span className="font-display font-black text-[24px] text-white">
+              69<small className="text-[14px] font-bold">,00€</small>
+            </span>
+            <a
+              href={product.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="ml-auto bg-[var(--red)] !text-white font-display font-extrabold text-[13px] tracking-[0.08em] uppercase px-5 py-[11px] rounded-[10px] flex items-center gap-[7px] transition-colors no-underline"
+            >
+              Comprar <IconExt />
+            </a>
+          </div>
         </div>
       </div>
     </div>
@@ -119,26 +124,22 @@ export default function MerchanPage() {
   return (
     <div>
       {/* Hero */}
-      <div className="relative bg-[var(--black)] text-white px-[18px] pt-6 pb-14 overflow-hidden">
+      <div className="page-hero-full relative overflow-hidden bg-[var(--black)] px-[18px] pb-[52px] pt-[22px] text-white">
         <div
-          className="pointer-events-none absolute -top-[30px] -right-[50px] w-[200px] h-[200px] opacity-[0.07] rotate-[8deg]"
+          className="pointer-events-none absolute bottom-0 right-[-40px] top-0 w-[180px]"
           style={{
-            background: 'repeating-linear-gradient(-45deg, #fff 0 14px, #000 14px 28px)',
-            clipPath: 'polygon(70px 0, 100% 0, 100% 100%, 0 100%)',
+            background: 'repeating-linear-gradient(-45deg, white 0 14px, #0A0A0A 14px 28px)',
+            clipPath: 'polygon(60px 0, 100% 0, 100% 100%, 0 100%)',
           }}
         />
         <div className="flex items-center gap-2 font-display text-[11px] font-bold uppercase tracking-[0.16em] text-[var(--red)]">
-          <span className="w-[18px] h-[2px] bg-[var(--red)] flex-shrink-0" />
-          Tienda oficial
+          <div className="h-0.5 w-[18px] bg-[var(--red)]" />
+          Tienda oficial · Envío gratis +100€
         </div>
-        <div className="font-display font-black text-[40px] uppercase leading-[0.92] mt-[10px] relative z-[1]">
-          MERCHAN<br /><span className="text-[var(--gold)]">CABALLA</span>
-        </div>
-        <div className="flex items-center gap-[7px] text-[12.5px] text-white/60 mt-[10px]">
-          <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" className="w-[13px] h-[13px] flex-shrink-0 stroke-[var(--gold)]">
-            <circle cx="12" cy="12" r="9" /><path d="M12 8v4l2.5 2.5" />
-          </svg>
-          Envío gratis en compras superiores a 100€ · tienda oficial
+        <div className="mt-2 font-display text-[38px] font-black uppercase leading-[0.95]">
+          MERCHAN<em className="not-italic text-[var(--gold)]">DISING</em>
+          <br />
+          CABALLA
         </div>
       </div>
 
@@ -146,7 +147,7 @@ export default function MerchanPage() {
       {featured && <FeaturedCard product={featured} />}
 
       {/* Chips */}
-      <div className="chips sticky top-0 z-[100] bg-white/80 backdrop-blur-md pt-4 pb-[6px] border-b border-[var(--border)]">
+      <div className="chips sticky top-0 z-[100] bg-white/80 backdrop-blur-md pt-4 pb-4 mt-4 border-b border-[var(--border)]">
         {CATS.map(c => (
           <button key={c} className={`chip ${activeCat === c ? 'active' : ''}`} onClick={() => setActiveCat(c)}>
             {c}
@@ -155,7 +156,7 @@ export default function MerchanPage() {
       </div>
 
       {/* Grid header */}
-      <div className="flex items-baseline justify-between px-4 pt-[14px] pb-[2px]">
+      <div className="flex items-baseline justify-between px-4 pt-6 pb-[2px]">
         <span className="font-display font-extrabold text-[16px] tracking-[0.02em] uppercase">
           {activeCat === ALL_CAT ? 'Todo el catálogo' : activeCat}
         </span>
@@ -188,7 +189,7 @@ export default function MerchanPage() {
         </div>
       </div>
 
-      <div className="pb-6" />
+      <div className="pb-16" />
     </div>
   )
 }

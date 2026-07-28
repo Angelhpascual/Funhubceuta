@@ -6,12 +6,16 @@ import { StandingEntry } from '@/domain/standings/Standings'
 import { EstadisticasTab } from './tabs/EstadisticasTab'
 import { PlantillaTab } from './tabs/PlantillaTab'
 import { HistoriaTab } from './tabs/HistoriaTab'
+import { EstadioTab } from './tabs/EstadioTab'
+import { CaballatiTab } from './tabs/CaballatiTab'
 import type { Group, LeadersMap } from './clubTypes'
 
 const TABS = [
   { id: 'stats', label: 'Estadísticas' },
   { id: 'plantilla', label: 'Plantilla' },
   { id: 'historia', label: 'Historia' },
+  { id: 'estadio', label: 'Estadio' },
+  { id: 'mascota', label: 'Mascota' },
 ]
 
 interface Props {
@@ -82,6 +86,8 @@ export function ClubPage({
       {tab === 'stats' && <EstadisticasTab ceuta={ceuta} ceutaPrevious={ceutaPrevious} form={form} leaders={leaders} previousLeaders={previousLeaders} />}
       {tab === 'plantilla' && <PlantillaTab grouped={grouped} total={total} previousGrouped={previousGrouped} previousTotal={previousTotal} loading={false} />}
       {tab === 'historia' && <HistoriaTab />}
+      {tab === 'estadio' && <EstadioTab />}
+      {tab === 'mascota' && <CaballatiTab />}
 
       <div className="h-2" />
     </div>

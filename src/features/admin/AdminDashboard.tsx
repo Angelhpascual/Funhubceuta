@@ -43,7 +43,7 @@ function ModuleTitle({ children }: { children: React.ReactNode }) {
 
 function Module({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
-    <section className={`bg-white border border-ceuta-border rounded-[14px] overflow-hidden ${className}`}>
+    <section className={`bg-white border border-ceuta-border rounded-[14px] ${className}`}>
       {children}
     </section>
   )
@@ -183,7 +183,9 @@ export function AdminDashboard({ stats }: { stats: AdminStats }) {
               </div>
               <div className="px-5 pb-5 mt-4">
                 <LiveControl />
-                <MerchanToggle />
+                <div className="mt-4">
+                  <MerchanToggle />
+                </div>
               </div>
             </Module>
 

@@ -47,9 +47,8 @@ export function MerchanToggle() {
         <button
           onClick={toggle}
           disabled={saving || mercadoActive === null}
-          className={`relative flex h-8 w-14 shrink-0 items-center rounded-full transition-colors disabled:opacity-50 ${
-            isStore ? 'bg-ceuta-gold' : 'bg-ceuta-border'
-          }`}
+          style={{ backgroundColor: isStore ? '#f2c300' : '#111111' }}
+          className="relative flex h-8 w-14 shrink-0 items-center rounded-full transition-colors disabled:opacity-60"
           aria-label="Toggle mercado/tienda"
         >
           <span
