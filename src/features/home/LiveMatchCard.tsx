@@ -9,6 +9,7 @@ import type { ScrapedMatch } from '@/domain/match/ScrapedMatch'
 import Link from 'next/link'
 import { MatchBoard } from '@/components/ui/MatchBoard'
 import { NextMatchBanner } from '@/components/ui/NextMatchBanner'
+import { useNavSlot } from '@/hooks/useNavSlot'
 
 const POLL_INTERVAL_LIVE = 25_000
 const POLL_INTERVAL_PRE = 120_000
@@ -156,6 +157,7 @@ export function LiveMatchCard() {
   const prevScoreRef = useRef<string>('')
   const matchStateRef = useRef<string | undefined>(undefined)
   const { permission, subscribed, subscribe } = usePushNotifications()
+  const { liveActive } = useNavSlot()
 
   const fetchLive = async () => {
     const res = await fetch('/api/live', { cache: 'no-store' })
@@ -181,12 +183,13 @@ export function LiveMatchCard() {
       .catch(() => {})
   }, [])
 
-  // Live polling — interval adjusts when state changes, but does NOT re-fetch immediately
+  // Solo hacer polling si el admin ha activado el live — evita llamadas innecesarias a ESPN
   useEffect(() => {
+    if (!liveActive) return
+
     const isFirstMount = matchStateRef.current === undefined
     matchStateRef.current = match?.state
 
-    // Only fetch immediately on first mount, not on state transitions
     if (isFirstMount) fetchLive()
 
     const interval = setInterval(
@@ -194,7 +197,7 @@ export function LiveMatchCard() {
       match?.state === 'in' ? POLL_INTERVAL_LIVE : POLL_INTERVAL_PRE
     )
     return () => clearInterval(interval)
-  }, [match?.state])
+  }, [match?.state, liveActive])
 
   // No ESPN data — show next match from DB
   if (!match) {
