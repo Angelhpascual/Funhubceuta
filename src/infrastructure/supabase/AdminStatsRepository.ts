@@ -35,7 +35,7 @@ export async function getAdminStats(): Promise<AdminStats> {
     supabase.from('news').select('*', { count: 'exact', head: true }),
     supabase.from('cron_logs').select('id, created_at, status, duration_ms, details, cron_type').order('created_at', { ascending: false }).limit(50),
     supabase.from('notification_logs').select('id, created_at, article_title, article_source, recipients, sent_ok, sent_fail').order('created_at', { ascending: false }).limit(30),
-    supabase.from('cron_logs').select('created_at, status').eq('cron_type', 'matches').order('created_at', { ascending: false }).limit(1).single(),
+    supabase.from('cron_logs').select('created_at, status').eq('cron_type', 'matches').order('created_at', { ascending: false }).limit(1).maybeSingle(),
     supabase.from('news').select('source').then(({ data }) => ({
       data: data ? Object.entries(
         data.reduce((acc: Record<string, number>, r) => { acc[r.source] = (acc[r.source] ?? 0) + 1; return acc }, {})
