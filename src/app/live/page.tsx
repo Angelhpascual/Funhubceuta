@@ -82,7 +82,7 @@ function LiveLineupPanel({ lineup }: { lineup: MatchLineup }) {
   )
 }
 
-const POLL_MS = 25_000
+const POLL_MS = 60_000
 const PTR_THRESHOLD = 70 // px to pull before triggering refresh
 
 export default function LivePage() {

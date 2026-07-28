@@ -11,7 +11,7 @@ import { MatchBoard } from '@/components/ui/MatchBoard'
 import { NextMatchBanner } from '@/components/ui/NextMatchBanner'
 import { useNavSlot } from '@/hooks/useNavSlot'
 
-const POLL_INTERVAL_LIVE = 25_000
+const POLL_INTERVAL_LIVE = 60_000
 const POLL_INTERVAL_PRE = 120_000
 
 const EVENT_ICONS: Record<string, string> = {
