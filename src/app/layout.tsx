@@ -43,6 +43,7 @@ export default async function RootLayout({
 }>) {
   noStore()
   const liveActive = (await getConfig('live_active')) === 'true'
+  const mercadoActive = (await getConfig('mercado_active')) === 'true'
 
   return (
     <html lang="es" className={`${barlow.variable} ${barlowCondensed.variable} h-full`}>
@@ -54,7 +55,7 @@ export default async function RootLayout({
           aria-hidden="true"
           className="fixed inset-0 bg-white z-[9999]"
         />
-        <AppShell liveActive={liveActive}>{children}</AppShell>
+        <AppShell liveActive={liveActive} mercadoActive={mercadoActive}>{children}</AppShell>
         <Analytics />
         <SpeedInsights />
         <Script

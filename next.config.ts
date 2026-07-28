@@ -2,6 +2,9 @@ import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: ['192.168.1.64'],
+  experimental: {
+    staleTimes: { dynamic: 0, static: 0 },
+  },
   async headers() {
     return [
       {
@@ -19,9 +22,8 @@ const nextConfig: NextConfig = {
     deviceSizes: [390, 640, 828, 1080],
     imageSizes: [48, 88, 110, 220],
     localPatterns: [
-      {
-        pathname: '/api/proxy/image',
-      },
+      { pathname: '/api/proxy/image' },
+      { pathname: '/mascota/**' },
     ],
     remotePatterns: [
       { protocol: 'https', hostname: 'r2.thesportsdb.com' },
@@ -52,6 +54,7 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'ceutadeportiva.com' },
       { protocol: 'https', hostname: 'www.ceutadeportiva.com' },
       { protocol: 'https', hostname: 'i.ytimg.com' },
+      { protocol: 'https', hostname: 'tienda.adceutafc.com' },
     ],
   },
 }

@@ -212,9 +212,9 @@ export function HistoriaTab() {
           position: relative;
           background: var(--black);
           color: var(--white);
-          border-radius: 14px;
+          border-radius: 0;
           overflow: hidden;
-          margin: 16px 0 0;
+          margin: 0 -16px;
           padding: 30px 20px 26px;
           min-height: 200px;
           display: flex;
@@ -586,11 +586,6 @@ export function HistoriaTab() {
             <Timeline />
           </div>
 
-          {/* sidebar */}
-          <div className="hist-sidebar">
-            <MLabel>El estadio</MLabel>
-            <StadiumCard />
-          </div>
         </div>
       </div>
     </>
