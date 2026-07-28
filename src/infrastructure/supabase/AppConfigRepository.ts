@@ -1,7 +1,7 @@
 import { supabaseAdmin } from './adminClient'
 
 export async function getConfig(key: string): Promise<string | null> {
-  const { data } = await supabaseAdmin.from('app_config').select('value').eq('key', key).single()
+  const { data } = await supabaseAdmin.from('app_config').select('value').eq('key', key).maybeSingle()
   return data?.value ?? null
 }
 
