@@ -6,6 +6,7 @@ import type { PredictionSession } from '@/domain/predictions/PredictionSession'
 
 type Vote = { nickname: string | null; fingerprint: string; home_score: number; away_score: number; points: number | null }
 type HistorySession = { id: string; match_label: string; jornada: string | null; result: { home: number; away: number } | null; closed_at: string | null; votes: Vote[] }
+type SeasonEntry = { fingerprint: string; nickname: string | null; points: number; exactos: number }
 
 const CEUTA = { name: 'AD Ceuta', logo: '/escudo.webp' }
 
@@ -16,6 +17,7 @@ export function PredictionAdmin() {
   const [msg, setMsg] = useState<string | null>(null)
   const [creating, setCreating] = useState(false)
   const [history, setHistory] = useState<HistorySession[]>([])
+  const [seasonRanking, setSeasonRanking] = useState<SeasonEntry[]>([])
   const [expandedId, setExpandedId] = useState<string | null>(null)
 
   // form state
@@ -55,6 +57,7 @@ export function PredictionAdmin() {
     const res = await fetch('/api/admin/predictions/history')
     const data = await res.json()
     setHistory(data.history ?? [])
+    setSeasonRanking(data.seasonRanking ?? [])
   }
 
   async function apiCall(path: string, method: string, body: unknown) {
@@ -301,6 +304,25 @@ export function PredictionAdmin() {
               </button>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Ranking temporada */}
+      {seasonRanking.length > 0 && (
+        <div>
+          <div className="font-display text-[10px] font-bold tracking-[0.14em] uppercase text-ceuta-muted mb-2">🏅 Ranking temporada</div>
+          <div className="space-y-1.5">
+            {seasonRanking.slice(0, 10).map((p, i) => (
+              <div key={p.fingerprint} className="flex items-center gap-3 px-3 py-2.5 bg-ceuta-bg-soft rounded-xl border border-ceuta-border">
+                <div className="font-display text-[11px] font-black text-ceuta-muted w-4 text-center shrink-0">{i + 1}</div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-display text-[12px] font-bold text-ceuta-black truncate">@{p.nickname ?? 'anónimo'}</div>
+                  <div className="font-display text-[10px] text-ceuta-muted">{p.exactos} exacto{p.exactos !== 1 ? 's' : ''}</div>
+                </div>
+                <div className="font-display text-[14px] font-black text-ceuta-gold shrink-0">{p.points} pts</div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
