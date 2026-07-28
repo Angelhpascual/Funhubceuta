@@ -3,6 +3,7 @@ import { Client } from '@upstash/qstash'
 import { setConfig, getConfig, deleteConfig } from '@/infrastructure/supabase/AppConfigRepository'
 import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
 import type { LiveMatch } from '@/domain/match/LiveMatch'
+import { checkAdminAuth, unauthorizedResponse } from '@/infrastructure/admin/auth'
 
 const QSTASH_SCHEDULE_KEY = 'live_qstash_schedule_id'
 const LIVE_ACTIVE_KEY = 'live_active'
@@ -39,6 +40,7 @@ export async function GET() {
 }
 
 export async function PATCH(req: Request) {
+  if (!(await checkAdminAuth())) return unauthorizedResponse()
   const body = await req.json().catch(() => ({}))
   if (body.action === 'activate_result') {
     // Save current mock (or last known state) as the recent result
@@ -95,6 +97,7 @@ async function loadPreMock() {
 }
 
 export async function POST() {
+  if (!(await checkAdminAuth())) return unauthorizedResponse()
   // Always load next match mock on activate (sets crests, time, and pre state)
   await loadPreMock()
 
@@ -123,6 +126,7 @@ export async function POST() {
 }
 
 export async function DELETE() {
+  if (!(await checkAdminAuth())) return unauthorizedResponse()
   // In preview/local: just clear flags
   if (process.env.VERCEL_ENV !== 'production') {
     await setConfig(LIVE_ACTIVE_KEY, 'false')

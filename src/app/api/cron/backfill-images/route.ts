@@ -1,9 +1,10 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { Receiver } from '@upstash/qstash'
 import { NewsSupabaseRepository } from '@/infrastructure/supabase/NewsSupabaseRepository'
 import { downloadAndUploadImage, newsImageFilename } from '@/infrastructure/storage/imageUploader'
 import { fetchOgImage } from '@/infrastructure/rss/fetchOgImage'
 import { logCron } from '@/infrastructure/supabase/logCron'
+import { checkCronAuth, cronUnauthorized } from '@/infrastructure/cron/auth'
 
 export const maxDuration = 60
 
@@ -57,6 +58,7 @@ async function runSafe() {
 }
 
 export async function POST(request: Request) {
+  if (!checkCronAuth(request)) return cronUnauthorized()
   const { searchParams } = new URL(request.url)
   const secret = searchParams.get('secret')
 

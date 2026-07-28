@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { Receiver } from '@upstash/qstash'
 import webpush from 'web-push'
 import { ESPN_BASE as ESPN } from '@/lib/constants'
@@ -8,6 +8,7 @@ import {
   deleteSubscription,
 } from '@/infrastructure/supabase/PushSubscriptionsRepository'
 import { MSG } from '../live/messages'
+import { checkCronAuth, cronUnauthorized } from '@/infrastructure/cron/auth'
 
 async function getTodayMatch() {
   const res = await fetch(`${ESPN}/scoreboard`, { cache: 'no-store' })
@@ -100,6 +101,7 @@ async function runMatchDay() {
 
 // ── Routes ────────────────────────────────────────────────────────────────
 export async function POST(request: Request) {
+  if (!checkCronAuth(request)) return cronUnauthorized()
   const receiver = new Receiver({
     currentSigningKey: process.env.QSTASH_CURRENT_SIGNING_KEY!,
     nextSigningKey: process.env.QSTASH_NEXT_SIGNING_KEY!,
@@ -115,7 +117,7 @@ export async function POST(request: Request) {
   return NextResponse.json({ ok: true, ...result })
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   if (process.env.NODE_ENV === 'production') {
     return NextResponse.json({ error: 'Use POST in production' }, { status: 405 })
   }

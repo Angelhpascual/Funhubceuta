@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 
 export const maxDuration = 60
@@ -13,6 +13,7 @@ import { sendNewsNotification } from '@/infrastructure/push/sendNewsNotification
 import { notifyAdmin } from '@/infrastructure/push/notifyAdmin'
 import { logCron, logNotification } from '@/infrastructure/supabase/logCron'
 import { getRecentNotifTitles, getQueuedTitles, getDiscardedTitles, markNotifyQueued, getSubscriberCount } from '@/infrastructure/supabase/NotificationRepository'
+import { checkCronAuth, cronUnauthorized } from '@/infrastructure/cron/auth'
 import {
   downloadAndUploadImage,
   isStoredNewsImage,
@@ -235,6 +236,7 @@ async function syncNews() {
 }
 
 export async function POST(request: Request) {
+  if (!checkCronAuth(request)) return cronUnauthorized()
   const { searchParams } = new URL(request.url)
   const secret = searchParams.get('secret')
 

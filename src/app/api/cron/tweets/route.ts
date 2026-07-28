@@ -1,8 +1,9 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { Receiver } from '@upstash/qstash'
 import { scrapeLatestTweets } from '@/infrastructure/scrapers/twitterScraper'
 import { upsertTweets } from '@/infrastructure/supabase/TweetsRepository'
 import { logCron } from '@/infrastructure/supabase/logCron'
+import { checkCronAuth, cronUnauthorized } from '@/infrastructure/cron/auth'
 
 async function syncTweets() {
   const t0 = Date.now()
@@ -19,6 +20,7 @@ async function syncTweets() {
 }
 
 export async function POST(request: Request) {
+  if (!checkCronAuth(request)) return cronUnauthorized()
   const receiver = new Receiver({
     currentSigningKey: process.env.QSTASH_CURRENT_SIGNING_KEY!,
     nextSigningKey: process.env.QSTASH_NEXT_SIGNING_KEY!,
@@ -34,7 +36,7 @@ export async function POST(request: Request) {
   return NextResponse.json({ ok: true, count })
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   if (process.env.NODE_ENV === 'production') {
     return NextResponse.json({ error: 'Use POST via QStash in production' }, { status: 405 })
   }

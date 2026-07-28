@@ -1,6 +1,7 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { setConfig } from '@/infrastructure/supabase/AppConfigRepository'
 import { logCron } from '@/infrastructure/supabase/logCron'
+import { checkCronAuth, cronUnauthorized } from '@/infrastructure/cron/auth'
 
 const LALIGA_URL = 'https://www.laliga.com/en-GB/clubs/ad-ceuta-fc/stats'
 const CDN_BASE = 'https://assets.laliga.com/squad/2025/t14705'
@@ -75,6 +76,7 @@ async function scrapeLeaders() {
 }
 
 export async function GET(request: Request) {
+  if (!checkCronAuth(request)) return cronUnauthorized()
   const { searchParams } = new URL(request.url)
   const secret = searchParams.get('secret')
   if (process.env.NODE_ENV === 'production' && secret !== process.env.TEST_SECRET) {

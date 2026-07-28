@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { setConfig, deleteConfig } from '@/infrastructure/supabase/AppConfigRepository'
 import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
 import type { LiveMatch, LineupPlayer, MatchStat } from '@/domain/match/LiveMatch'
+import { checkAdminAuth, unauthorizedResponse } from '@/infrastructure/admin/auth'
 
 async function getNextMatch(): Promise<{ homeTeam: string; awayTeam: string; venue: string; startDate: string }> {
   const { data } = await supabaseAdmin
@@ -230,6 +231,7 @@ function buildScenarios(homeTeam: string, awayTeam: string, venue: string, start
 }
 
 export async function POST(req: Request) {
+  if (!(await checkAdminAuth())) return unauthorizedResponse()
   const { scenario } = await req.json()
 
   if (scenario === 'clear') {

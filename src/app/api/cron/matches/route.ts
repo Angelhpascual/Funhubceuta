@@ -1,6 +1,6 @@
 export const maxDuration = 60
 
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { logCron } from '@/infrastructure/supabase/logCron'
 import { Receiver } from '@upstash/qstash'
 import {
@@ -10,6 +10,7 @@ import {
 } from '@/infrastructure/scrapers/adceutaScraper'
 import { MatchesSupabaseRepository } from '@/infrastructure/supabase/MatchesSupabaseRepository'
 import { setConfig } from '@/infrastructure/supabase/AppConfigRepository'
+import { checkCronAuth, cronUnauthorized } from '@/infrastructure/cron/auth'
 
 const repo = new MatchesSupabaseRepository()
 
@@ -44,6 +45,7 @@ async function syncMatchesSafe() {
 }
 
 export async function POST(request: Request) {
+  if (!checkCronAuth(request)) return cronUnauthorized()
   const { searchParams } = new URL(request.url)
   const secret = searchParams.get('secret')
 

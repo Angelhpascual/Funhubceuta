@@ -1,8 +1,9 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { CURRENT_SEASON } from '@/lib/constants'
 import { getPlayersWithExternalPhotos, updatePlayerPhotoUrl } from '@/infrastructure/supabase/SquadSupabaseRepository'
 import { downloadAndUploadImage, PLAYER_BUCKET } from '@/infrastructure/storage/imageUploader'
 import { logCron } from '@/infrastructure/supabase/logCron'
+import { checkCronAuth, cronUnauthorized } from '@/infrastructure/cron/auth'
 
 export const maxDuration = 60
 
@@ -45,6 +46,7 @@ async function backfillPhotos() {
 }
 
 export async function GET(request: Request) {
+  if (!checkCronAuth(request)) return cronUnauthorized()
   const { searchParams } = new URL(request.url)
   const secret = searchParams.get('secret')
   if (process.env.NODE_ENV === 'production' && secret !== process.env.TEST_SECRET) {
@@ -54,7 +56,7 @@ export async function GET(request: Request) {
   return NextResponse.json({ ok: true, ...result })
 }
 
-export async function POST() {
+export async function POST(req: NextRequest) {
   const result = await backfillPhotos()
   return NextResponse.json({ ok: true, ...result })
 }
