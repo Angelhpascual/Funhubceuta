@@ -3,7 +3,6 @@ import { Receiver } from '@upstash/qstash'
 import { logCron } from '@/infrastructure/supabase/logCron'
 import { upsertPlayerStats, PlayerStatRow } from '@/infrastructure/supabase/PlayerStatsRepository'
 import { ESPN_ROSTER, CURRENT_SEASON } from '@/lib/constants'
-import { checkCronAuth, cronUnauthorized } from '@/infrastructure/cron/auth'
 
 const POSITION_GROUP: Record<string, string> = {
   G: 'Porteros',
@@ -96,7 +95,6 @@ async function scrapePlayerStats() {
 }
 
 export async function GET(request: Request) {
-  if (!checkCronAuth(request)) return cronUnauthorized()
   const { searchParams } = new URL(request.url)
   const secret = searchParams.get('secret')
   const testSecret = process.env.TEST_SECRET

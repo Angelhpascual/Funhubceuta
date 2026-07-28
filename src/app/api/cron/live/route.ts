@@ -7,7 +7,6 @@ import { deleteSubscription } from '@/infrastructure/supabase/PushSubscriptionsR
 import { ESPN_BASE as ESPN } from '@/lib/constants'
 import { MSG } from './messages'
 import { logCron } from '@/infrastructure/supabase/logCron'
-import { checkCronAuth, cronUnauthorized } from '@/infrastructure/cron/auth'
 
 // ── Fetch live match from ESPN (same logic as /api/live) ──────────────────
 
@@ -263,7 +262,6 @@ async function checkAndNotifySafe(testMode = false) {
 
 // ── Routes ────────────────────────────────────────────────────────────────
 export async function POST(request: Request) {
-  if (!checkCronAuth(request)) return cronUnauthorized()
   const { searchParams } = new URL(request.url)
   const testMode = searchParams.get('test') === 'true'
 

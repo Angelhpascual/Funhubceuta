@@ -3,7 +3,6 @@ import { Receiver } from '@upstash/qstash'
 import { scrapeLatestTweets } from '@/infrastructure/scrapers/twitterScraper'
 import { upsertTweets } from '@/infrastructure/supabase/TweetsRepository'
 import { logCron } from '@/infrastructure/supabase/logCron'
-import { checkCronAuth, cronUnauthorized } from '@/infrastructure/cron/auth'
 
 async function syncTweets() {
   const t0 = Date.now()
@@ -20,7 +19,6 @@ async function syncTweets() {
 }
 
 export async function POST(request: Request) {
-  if (!checkCronAuth(request)) return cronUnauthorized()
   const receiver = new Receiver({
     currentSigningKey: process.env.QSTASH_CURRENT_SIGNING_KEY!,
     nextSigningKey: process.env.QSTASH_NEXT_SIGNING_KEY!,

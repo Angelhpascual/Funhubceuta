@@ -8,7 +8,6 @@ import {
   deleteSubscription,
 } from '@/infrastructure/supabase/PushSubscriptionsRepository'
 import { MSG } from '../live/messages'
-import { checkCronAuth, cronUnauthorized } from '@/infrastructure/cron/auth'
 
 async function getTodayMatch() {
   const res = await fetch(`${ESPN}/scoreboard`, { cache: 'no-store' })
@@ -101,7 +100,6 @@ async function runMatchDay() {
 
 // ── Routes ────────────────────────────────────────────────────────────────
 export async function POST(request: Request) {
-  if (!checkCronAuth(request)) return cronUnauthorized()
   const receiver = new Receiver({
     currentSigningKey: process.env.QSTASH_CURRENT_SIGNING_KEY!,
     nextSigningKey: process.env.QSTASH_NEXT_SIGNING_KEY!,
