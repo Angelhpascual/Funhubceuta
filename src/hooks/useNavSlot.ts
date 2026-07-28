@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 
 export type NavSlotState = {
   liveActive: boolean
-  mercadoActive: boolean
   /** Resolved href for the dynamic slot (/live, /merchan, or /mercado) */
   slotHref: '/live' | '/merchan' | '/mercado'
   /** Resolved label for the dynamic slot */
@@ -13,29 +12,27 @@ export type NavSlotState = {
   slotMode: 'live' | 'tienda' | 'mercado'
 }
 
+function isPreseason(): boolean {
+  const month = new Date().getMonth() + 1 // 1-12
+  return month === 7 || month === 8 // julio y agosto
+}
+
 export function useNavSlot(): NavSlotState {
   const [liveActive, setLiveActive] = useState(false)
-  const [mercadoActive, setMercadoActive] = useState(true)
 
   useEffect(() => {
     fetch(`/api/admin/live-control?t=${Date.now()}`)
       .then(r => r.ok ? r.json() : null)
       .then(d => { if (d?.active) setLiveActive(true) })
       .catch(() => {})
-
-    fetch('/api/admin/merchan-toggle')
-      .then(r => r.ok ? r.json() : null)
-      .then(d => { if (d !== null) setMercadoActive(d.mercadoActive) })
-      .catch(() => {})
   }, [])
 
-  const slotMode = liveActive ? 'live' : !mercadoActive ? 'tienda' : 'mercado'
+  const slotMode = liveActive ? 'live' : isPreseason() ? 'mercado' : 'tienda'
 
   return {
     liveActive,
-    mercadoActive,
-    slotHref: slotMode === 'live' ? '/live' : slotMode === 'tienda' ? '/merchan' : '/mercado',
-    slotLabel: slotMode === 'live' ? 'Live' : slotMode === 'tienda' ? 'Tienda' : 'Mercado',
+    slotHref: slotMode === 'live' ? '/live' : slotMode === 'mercado' ? '/mercado' : '/merchan',
+    slotLabel: slotMode === 'live' ? 'Live' : slotMode === 'mercado' ? 'Mercado' : 'Tienda',
     slotMode,
   }
 }

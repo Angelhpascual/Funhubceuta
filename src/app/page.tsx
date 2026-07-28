@@ -170,7 +170,7 @@ function AppInner() {
   const [ready, setReady] = useState(false)
   const [loaderVisible, setLoaderVisible] = useState(true)
   const [refreshKey, setRefreshKey] = useState(0)
-  const { liveActive, mercadoActive, slotHref, slotLabel, slotMode } = useNavSlot()
+  const { liveActive, slotHref, slotLabel, slotMode } = useNavSlot()
 
   const handleRefresh = useCallback(async () => {
     setRefreshKey(k => k + 1)
