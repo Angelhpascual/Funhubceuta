@@ -65,33 +65,32 @@ function ScorePicker({ home, setHome, away, setAway, session }: {
   const meta = session.match_meta
   return (
     <div className="pred-picker">
-      <div className="pred-picker-teams">
-        <div className="pred-picker-team">
-          {meta?.home.logo
-            // eslint-disable-next-line @next/next/no-img-element
-            ? <img src={meta.home.logo} alt={meta.home.name} className="pred-picker-badge" />
-            : <div className="pred-picker-badge pred-picker-badge-empty" />
-          }
-          <span>{meta?.home.name ?? 'Local'}</span>
-        </div>
-        <div className="pred-picker-vs">vs</div>
-        <div className="pred-picker-team">
-          {meta?.away.logo
-            // eslint-disable-next-line @next/next/no-img-element
-            ? <img src={meta.away.logo} alt={meta.away.name} className="pred-picker-badge" />
-            : <div className="pred-picker-badge pred-picker-badge-empty" />
-          }
-          <span>{meta?.away.name ?? 'Visitante'}</span>
-        </div>
-      </div>
-      <div className="pred-picker-controls">
-        <div className="pred-picker-stepper">
+      <div className="pred-picker-row">
+        {/* equipo local */}
+        <div className="pred-picker-col">
+          <div className="pred-picker-logo-wrap">
+            {meta?.home.logo
+              // eslint-disable-next-line @next/next/no-img-element
+              ? <img src={meta.home.logo} alt={meta.home.name} className="pred-picker-badge" />
+              : <div className="pred-picker-badge pred-picker-badge-empty" />}
+          </div>
+          <span className="pred-picker-name">{meta?.home.name ?? 'Local'}</span>
           <button className="pred-step-btn" onClick={() => setHome(Math.min(9, home + 1))}><IconPlus /></button>
           <div className="pred-step-value">{home}</div>
           <button className="pred-step-btn" onClick={() => setHome(Math.max(0, home - 1))}><IconMinus /></button>
         </div>
+
         <div className="pred-picker-colon">:</div>
-        <div className="pred-picker-stepper">
+
+        {/* equipo visitante */}
+        <div className="pred-picker-col">
+          <div className="pred-picker-logo-wrap">
+            {meta?.away.logo
+              // eslint-disable-next-line @next/next/no-img-element
+              ? <img src={meta.away.logo} alt={meta.away.name} className="pred-picker-badge" />
+              : <div className="pred-picker-badge pred-picker-badge-empty" />}
+          </div>
+          <span className="pred-picker-name">{meta?.away.name ?? 'Visitante'}</span>
           <button className="pred-step-btn" onClick={() => setAway(Math.min(9, away + 1))}><IconPlus /></button>
           <div className="pred-step-value">{away}</div>
           <button className="pred-step-btn" onClick={() => setAway(Math.max(0, away - 1))}><IconMinus /></button>
@@ -287,6 +286,20 @@ export function PredictionSheet({ session, mine, fingerprint, onClose, onPredict
           {tab === 'partido' && showPicker && !askNickname && (
             <>
               <ScorePicker home={pickerHome} setHome={setPickerHome} away={pickerAway} setAway={setPickerAway} session={session} />
+              <div className="pred-points-legend">
+                <div className="pred-points-legend-row">
+                  <span className="pred-points-legend-pts gold">+50</span>
+                  <span className="pred-points-legend-desc">Resultado exacto</span>
+                </div>
+                <div className="pred-points-legend-row">
+                  <span className="pred-points-legend-pts">+15</span>
+                  <span className="pred-points-legend-desc">Aciertas el ganador</span>
+                </div>
+                <div className="pred-points-legend-row">
+                  <span className="pred-points-legend-pts dim">+0</span>
+                  <span className="pred-points-legend-desc">Fallas el resultado</span>
+                </div>
+              </div>
               <button
                 className="pred-cta-btn"
                 disabled={submitting}

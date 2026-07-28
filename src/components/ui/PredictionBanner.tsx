@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { PredictionSheet } from './PredictionSheet'
 import { supabase } from '@/infrastructure/supabase/client'
 import type { PredictionSession, UserPrediction } from '@/domain/predictions/PredictionSession'
+import { getLocalLogo } from '@/lib/teamLogos'
 
 function getFingerprint(): string {
   let fp = localStorage.getItem('mvp_fp')
@@ -60,6 +61,10 @@ export function PredictionBanner() {
   )
 
   const meta = session.match_meta
+  function logoFor(name: string | undefined, url: string | null | undefined) {
+    return getLocalLogo(name) ?? url ?? null
+  }
+
 
   const homeScore = hasMine ? mine.home_score : null
   const awayScore = hasMine ? mine.away_score : null
@@ -100,10 +105,10 @@ export function PredictionBanner() {
           {/* teams + score picker */}
           <div className="pred-banner-teams">
             <div className="pred-banner-team">
-              <div className="pred-banner-logo">
-                {meta?.home.logo
+              <div className={`pred-banner-logo`}>
+                {logoFor(meta?.home.name, meta?.home.logo)
                   // eslint-disable-next-line @next/next/no-img-element
-                  ? <img src={meta.home.logo} alt={meta.home.name} width={40} height={40} className="object-contain" />
+                  ? <img src={logoFor(meta?.home.name, meta?.home.logo)!} alt={meta?.home.name} width={40} height={40} className="object-contain" />
                   : <span className="pred-banner-logo-init">{meta?.home.name?.[0] ?? '?'}</span>}
               </div>
               <span className="pred-banner-team-name">{meta?.home.name ?? 'Local'}</span>
@@ -120,10 +125,10 @@ export function PredictionBanner() {
             </div>
 
             <div className="pred-banner-team">
-              <div className="pred-banner-logo">
-                {meta?.away.logo
+              <div className={`pred-banner-logo`}>
+                {logoFor(meta?.away.name, meta?.away.logo)
                   // eslint-disable-next-line @next/next/no-img-element
-                  ? <img src={meta.away.logo} alt={meta.away.name} width={40} height={40} className="object-contain" />
+                  ? <img src={logoFor(meta?.away.name, meta?.away.logo)!} alt={meta?.away.name} width={40} height={40} className="object-contain" />
                   : <span className="pred-banner-logo-init">{meta?.away.name?.[0] ?? '?'}</span>}
               </div>
               <span className="pred-banner-team-name">{meta?.away.name ?? 'Visitante'}</span>
