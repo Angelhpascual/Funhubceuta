@@ -98,7 +98,7 @@ export async function closeMvpSession(sessionId: string) {
     .from('mvp_sessions')
     .select('candidates')
     .eq('id', sessionId)
-    .single()
+    .maybeSingle()
 
   let winnerId: string | null = null
   let winnerName: string | null = null
