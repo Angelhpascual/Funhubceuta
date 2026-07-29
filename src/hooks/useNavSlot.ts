@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 export type NavSlotState = {
   liveActive: boolean
@@ -13,6 +13,7 @@ type CachedState = { liveActive: boolean; tiendaActive: boolean }
 
 const CACHE_KEY = 'nav_slot_state'
 const CACHE_TTL = 60_000
+const NAV_SLOT_CHANGED = 'nav-slot-changed'
 
 let memCache: { value: CachedState; ts: number } | null = null
 
@@ -49,20 +50,7 @@ const DEFAULT = resolve({ liveActive: false, tiendaActive: false })
 export function useNavSlot(): NavSlotState {
   const [navState, setNavState] = useState<NavSlotState>(DEFAULT)
 
-  useEffect(() => {
-    // 1. Caché en memoria (instantáneo)
-    if (memCache && Date.now() - memCache.ts < CACHE_TTL) {
-      setNavState(resolve(memCache.value))
-      return
-    }
-    // 2. sessionStorage
-    const cached = readCache()
-    if (cached) {
-      memCache = { value: cached, ts: Date.now() }
-      setNavState(resolve(cached))
-      return
-    }
-    // 3. Fetch
+  const fetchFresh = useCallback(() => {
     Promise.all([
       fetch('/api/admin/live-control').then(r => r.ok ? r.json() : null).catch(() => null),
       fetch('/api/admin/merchan-toggle').then(r => r.ok ? r.json() : null).catch(() => null),
@@ -77,10 +65,32 @@ export function useNavSlot(): NavSlotState {
     })
   }, [])
 
+  useEffect(() => {
+    // Carga inicial: caché en memoria → sessionStorage → fetch
+    if (memCache && Date.now() - memCache.ts < CACHE_TTL) {
+      setNavState(resolve(memCache.value))
+    } else {
+      const cached = readCache()
+      if (cached) {
+        memCache = { value: cached, ts: Date.now() }
+        setNavState(resolve(cached))
+      } else {
+        fetchFresh()
+      }
+    }
+
+    // Escuchar cambios desde admin (toggle o live)
+    const handler = () => fetchFresh()
+    window.addEventListener(NAV_SLOT_CHANGED, handler)
+    return () => window.removeEventListener(NAV_SLOT_CHANGED, handler)
+  }, [fetchFresh])
+
   return navState
 }
 
+/** Llamar desde admin al cambiar toggle o live — limpia caché y notifica al hook */
 export function invalidateNavSlotCache() {
   memCache = null
   try { sessionStorage.removeItem(CACHE_KEY) } catch { /* ignore */ }
+  window.dispatchEvent(new Event(NAV_SLOT_CHANGED))
 }
