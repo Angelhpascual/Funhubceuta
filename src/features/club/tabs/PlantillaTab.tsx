@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import type { Group, Player } from '../clubTypes'
 import { flag } from '@/lib/nationality'
+import { proxyImage } from '@/lib/proxyImage'
 import { STAFF } from '@/lib/staff'
 
 function capitalize(s: string): string {
@@ -53,7 +54,7 @@ function StaffCard({ name, role, photo }: { name: string; role: string; photo?: 
       <div className="absolute left-0 top-0 w-1 h-full bg-ceuta-black" />
       <div className="ml-1 size-12 shrink-0 rounded-full bg-ceuta-bg-mid border-2 border-ceuta-border flex items-center justify-center overflow-hidden">
         {photo ? (
-          <Image src={photo} alt={name} width={48} height={48} className="size-12 object-cover object-top" />
+          <Image src={proxyImage(photo) ?? photo} alt={name} width={48} height={48} className="size-12 object-cover object-top" />
         ) : (
           <AvatarSilhouette />
         )}
@@ -96,13 +97,12 @@ function PlayerCard({ player }: { player: Player }) {
           <div className="relative z-[2] w-[88px] h-[128px] flex items-end justify-center">
             {player.photo_url ? (
               <Image
-                src={`/api/proxy/image?url=${encodeURIComponent(player.photo_url)}&w=176&q=75`}
+                src={proxyImage(player.photo_url) ?? ''}
                 alt={player.name}
                 width={88}
                 height={128}
                 sizes="88px"
                 className="w-full h-full object-cover object-top"
-                unoptimized
               />
             ) : (
               <PlayerSilhouette />
