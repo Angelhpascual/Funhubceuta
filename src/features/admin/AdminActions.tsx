@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import type React from 'react'
 import { useRouter } from 'next/navigation'
 import { MvpAdmin } from './MvpAdmin'
@@ -197,6 +197,8 @@ export function AdminActions({ syncOnly, notifOnly, deviceOnly }: { syncOnly?: b
   const router = useRouter()
   const poll = useCronPoller()
   const elapsedRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const mountedRef = useRef(true)
+  useEffect(() => { mountedRef.current = true; return () => { mountedRef.current = false } }, [])
 
   const [syncNews, setSyncNews] = useState<SyncState>(IDLE)
   const [syncNewsImages, setSyncNewsImages] = useState<SyncState>(IDLE)
@@ -250,7 +252,7 @@ export function AdminActions({ syncOnly, notifOnly, deviceOnly }: { syncOnly?: b
       clearInterval(phaseInterval)
       stopElapsed()
       set({ status: 'error', phase: '', result: { lines: [(e as Error).message], ok: false }, elapsed: 0 })
-      setTimeout(() => set(IDLE), 8000)
+      setTimeout(() => { if (mountedRef.current) set(IDLE) }, 8000)
       return
     }
 
@@ -259,7 +261,6 @@ export function AdminActions({ syncOnly, notifOnly, deviceOnly }: { syncOnly?: b
       clearInterval(phaseInterval)
       stopElapsed()
       const lines: string[] = []
-      // Trigger wraps the cron result under `result`
       const raw = directResult as Record<string, unknown>
       const d = (raw.result ?? raw) as Record<string, unknown>
       if (typeof d.optimized === 'number') lines.push(`${d.optimized} fotos optimizadas`)
@@ -272,7 +273,7 @@ export function AdminActions({ syncOnly, notifOnly, deviceOnly }: { syncOnly?: b
       if (lines.length === 0) lines.push('OK')
       const hasError = typeof d.failed === 'number' && d.failed > 0
       set({ status: hasError ? 'error' : 'ok', phase: '', result: { lines, ok: !hasError }, elapsed: 0 })
-      setTimeout(() => set(IDLE), 15000)
+      setTimeout(() => { if (mountedRef.current) set(IDLE) }, 15000)
       return
     }
 
@@ -284,13 +285,13 @@ export function AdminActions({ syncOnly, notifOnly, deviceOnly }: { syncOnly?: b
         stopElapsed()
         const result = buildResult(log)
         set({ status: result.ok ? 'ok' : 'error', phase: '', result, elapsed: 0 })
-        setTimeout(() => set(IDLE), 10000)
+        setTimeout(() => { if (mountedRef.current) set(IDLE) }, 10000)
       },
       () => {
         clearInterval(phaseInterval)
         stopElapsed()
         set({ status: 'error', phase: '', result: { lines: ['Sin respuesta del servidor'], ok: false }, elapsed: 0 })
-        setTimeout(() => set(IDLE), 8000)
+        setTimeout(() => { if (mountedRef.current) set(IDLE) }, 8000)
       }
     )
   }
@@ -312,7 +313,7 @@ export function AdminActions({ syncOnly, notifOnly, deviceOnly }: { syncOnly?: b
       setPushResult((e as Error).message)
       setPushStatus('error')
     }
-    setTimeout(() => setPushStatus('idle'), 6000)
+    setTimeout(() => { if (mountedRef.current) setPushStatus('idle') }, 6000)
   }
 
   async function registerDevice() {
@@ -360,7 +361,7 @@ export function AdminActions({ syncOnly, notifOnly, deviceOnly }: { syncOnly?: b
       setDeviceStatus('error')
       setDeviceMsg((e as Error).message ?? 'Error desconocido')
     }
-    setTimeout(() => { setDeviceStatus('idle'); setDeviceMsg('') }, 6000)
+    setTimeout(() => { if (mountedRef.current) { setDeviceStatus('idle'); setDeviceMsg('') } }, 6000)
   }
 
   async function handleLogout() {
