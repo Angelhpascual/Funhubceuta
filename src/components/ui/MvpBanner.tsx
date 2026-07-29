@@ -83,27 +83,26 @@ export function MvpBanner() {
     } catch { /* ignore */ }
   }, [computeState])
 
-  useEffect(() => {
-    load()
+  // Carga inicial única
+  useEffect(() => { load() }, [load])
 
-    // Realtime: actualización instantánea si la tabla tiene replicación activada en Supabase
+  // Realtime + polling: solo cuando hay sesión activa
+  useEffect(() => {
+    if (!session) return
+
     const channel = supabase
       .channel('mvp_sessions_status')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'mvp_sessions' }, () => {
-        load()
-      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'mvp_sessions' }, () => { load() })
       .subscribe()
 
-    return () => { supabase.removeChannel(channel) }
-  }, [load])
-
-  // Polling: solo cuando hay sesión activa (realtime cubre cambios de estado)
-  useEffect(() => {
-    if (!session) return // realtime se encarga si se abre una sesión
     const interval = session.status === 'closed' ? 120_000 : 60_000
     const id = setInterval(load, interval)
-    return () => clearInterval(id)
-  }, [load, session?.status])
+
+    return () => {
+      supabase.removeChannel(channel)
+      clearInterval(id)
+    }
+  }, [load, session?.id, session?.status])
 
   function trackEvent(sessionId: string, event: string) {
     fetch('/api/mvp/event', {
