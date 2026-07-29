@@ -162,7 +162,7 @@ function Topbar({ pathname, router }: { pathname: string; router: ReturnType<typ
               onClick={() => router.push(href)}
             >
               {icon}
-              {label}
+              <span suppressHydrationWarning>{label}</span>
             </button>
           )
         })}
@@ -244,7 +244,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   </span>
                 </span>
               ) : icon}
-              <span className="nav-label">{label}</span>
+              <span className="nav-label" suppressHydrationWarning>{label}</span>
             </button>
           )
         })}

@@ -9,17 +9,12 @@ export type NavSlotState = {
   slotMode: 'live' | 'tienda' | 'mercado'
 }
 
-const CACHE_KEY = 'nav_slot_state'
-const CACHE_TTL = 60_000 // 1 minuto
-
 type CachedState = { liveActive: boolean; tiendaActive: boolean }
 
-let memCache: { value: CachedState; ts: number } | null = null
+const CACHE_KEY = 'nav_slot_state'
+const CACHE_TTL = 60_000
 
-function isPreseason(): boolean {
-  const month = new Date().getMonth() + 1
-  return month === 7 || month === 8
-}
+let memCache: { value: CachedState; ts: number } | null = null
 
 function readCache(): CachedState | null {
   try {
@@ -39,21 +34,35 @@ function writeCache(value: CachedState) {
   } catch { /* ignore */ }
 }
 
-const DEFAULT_STATE: CachedState = { liveActive: false, tiendaActive: false }
+function resolve(s: CachedState): NavSlotState {
+  const slotMode: 'live' | 'tienda' | 'mercado' = s.liveActive ? 'live' : s.tiendaActive ? 'tienda' : 'mercado'
+  return {
+    liveActive: s.liveActive,
+    slotHref: slotMode === 'live' ? '/live' : slotMode === 'tienda' ? '/merchan' : '/mercado',
+    slotLabel: slotMode === 'live' ? 'Live' : slotMode === 'tienda' ? 'Tienda' : 'Mercado',
+    slotMode,
+  }
+}
+
+const DEFAULT = resolve({ liveActive: false, tiendaActive: false })
 
 export function useNavSlot(): NavSlotState {
-  const [mounted, setMounted] = useState(false)
-  const [state, setState] = useState<CachedState>(DEFAULT_STATE)
+  const [navState, setNavState] = useState<NavSlotState>(DEFAULT)
 
   useEffect(() => {
-    const cached = readCache() ?? (memCache && Date.now() - memCache.ts < CACHE_TTL ? memCache.value : null)
-    if (cached !== null) {
-      memCache = { value: cached, ts: Date.now() }
-      setState(cached)
-      setMounted(true)
+    // 1. Caché en memoria (instantáneo)
+    if (memCache && Date.now() - memCache.ts < CACHE_TTL) {
+      setNavState(resolve(memCache.value))
       return
     }
-
+    // 2. sessionStorage
+    const cached = readCache()
+    if (cached) {
+      memCache = { value: cached, ts: Date.now() }
+      setNavState(resolve(cached))
+      return
+    }
+    // 3. Fetch
     Promise.all([
       fetch('/api/admin/live-control').then(r => r.ok ? r.json() : null).catch(() => null),
       fetch('/api/admin/merchan-toggle').then(r => r.ok ? r.json() : null).catch(() => null),
@@ -64,29 +73,13 @@ export function useNavSlot(): NavSlotState {
       }
       memCache = { value: fresh, ts: Date.now() }
       writeCache(fresh)
-      setState(fresh)
-      setMounted(true)
+      setNavState(resolve(fresh))
     })
   }, [])
 
-  // Antes de hidratar devolvemos siempre mercado para que SSR y cliente coincidan
-  const { liveActive, tiendaActive } = mounted ? state : DEFAULT_STATE
-
-  const slotMode: 'live' | 'tienda' | 'mercado' = liveActive
-    ? 'live'
-    : tiendaActive
-      ? 'tienda'
-      : 'mercado'
-
-  return {
-    liveActive,
-    slotHref: slotMode === 'live' ? '/live' : slotMode === 'tienda' ? '/merchan' : '/mercado',
-    slotLabel: slotMode === 'live' ? 'Live' : slotMode === 'tienda' ? 'Tienda' : 'Mercado',
-    slotMode,
-  }
+  return navState
 }
 
-/** Llamar desde admin al cambiar toggle o live para invalidar la caché inmediatamente */
 export function invalidateNavSlotCache() {
   memCache = null
   try { sessionStorage.removeItem(CACHE_KEY) } catch { /* ignore */ }
