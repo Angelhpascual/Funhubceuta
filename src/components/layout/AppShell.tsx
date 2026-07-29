@@ -130,8 +130,7 @@ const NAV_DESKTOP = [
 const SSR_ROUTES = ['/clasificacion', '/partidos', '/club', '/noticias', '/alineacion', '/mercado', '/live', '/merchan']
 
 // Topbar rendered on SSR routes AND on home in desktop-only mode
-function Topbar({ pathname, router }: { pathname: string; router: ReturnType<typeof useRouter> }) {
-  const { liveActive, slotHref, slotLabel, slotMode } = useNavSlot()
+function Topbar({ pathname, router, liveActive, slotHref, slotLabel, slotMode }: { pathname: string; router: ReturnType<typeof useRouter>; liveActive: boolean; slotHref: string; slotLabel: string; slotMode: string }) {
   return (
     <div className="topbar">
       {/* Desktop: escudo + título a la izquierda */}
@@ -204,7 +203,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <>
         <InstallModal />
         <div className="desktop-topbar-overlay">
-          <Topbar pathname={pathname} router={router}  />
+          <Topbar pathname={pathname} router={router} liveActive={liveActive} slotHref={slotHref} slotLabel={slotLabel} slotMode={slotMode} />
         </div>
         {children}
       </>
@@ -214,7 +213,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div id="app-root">
       <InstallModal />
-      <Topbar pathname={pathname} router={router}  />
+      <Topbar pathname={pathname} router={router} liveActive={liveActive} slotHref={slotHref} slotLabel={slotLabel} slotMode={slotMode} />
 
       <div className="scroll-area">{children}</div>
 
