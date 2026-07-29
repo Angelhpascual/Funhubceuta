@@ -32,6 +32,8 @@ export function LiveControl() {
   const [mockActive, setMockActive] = useState<string | null>(null)
   const [lastResult, setLastResult] = useState<LastResult | null>(null)
   const [clearingResult, setClearingResult] = useState(false)
+  const [tiendaActive, setTiendaActive] = useState<boolean | null>(null)
+  const [savingTienda, setSavingTienda] = useState(false)
 
   const fetch_ = (url: string, opts?: RequestInit) => fetch(url, opts)
 
@@ -69,7 +71,26 @@ export function LiveControl() {
     }
   }
 
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    load()
+    fetch('/api/admin/merchan-toggle')
+      .then(r => r.json())
+      .then(d => setTiendaActive(d.mercadoActive === false))
+      .catch(() => {})
+  }, [])
+
+  async function toggleTienda() {
+    if (tiendaActive === null) return
+    setSavingTienda(true)
+    const next = !tiendaActive
+    await fetch('/api/admin/merchan-toggle', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mercadoActive: !next }),
+    })
+    setTiendaActive(next)
+    setSavingTienda(false)
+  }
 
   async function activate() {
     setActing(true)
@@ -264,6 +285,37 @@ export function LiveControl() {
         <p className="text-[11px] text-[var(--muted)] leading-tight">
           «Preparar siguiente partido» carga el próximo partido de la base de datos en estado previo. «Limpiar» borra todos los datos del mock.
         </p>
+      </div>
+
+      {/* ── Slot nav: Tienda / Mercado ── */}
+      <div className="mt-4 rounded-[12px] border border-[var(--border)] bg-white p-4">
+        <div className="mb-3 font-display text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--muted)]">
+          Slot nav (cuando no hay partido)
+        </div>
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <div className="font-display text-[15px] font-black uppercase leading-tight text-[var(--black)]">
+              {tiendaActive === null ? '…' : tiendaActive ? 'Tienda activa' : 'Mercado activo'}
+            </div>
+            <p className="mt-0.5 text-[12px] leading-snug text-[var(--muted)]">
+              {tiendaActive
+                ? 'Nav muestra "Tienda" → /merchan'
+                : 'Nav muestra "Mercado" → /mercado'}
+            </p>
+          </div>
+          <button
+            onClick={toggleTienda}
+            disabled={savingTienda || tiendaActive === null}
+            className={`relative flex h-8 w-14 shrink-0 items-center rounded-full transition-colors disabled:opacity-60 ${
+              tiendaActive ? 'bg-ceuta-gold' : 'bg-[var(--black)]'
+            }`}
+            aria-label="Toggle tienda/mercado"
+          >
+            <span className={`absolute size-6 rounded-full bg-white shadow transition-transform ${
+              tiendaActive ? 'translate-x-7' : 'translate-x-1'
+            }`} />
+          </button>
+        </div>
       </div>
 
       {/* ── Simulador de escenarios individuales ── */}
