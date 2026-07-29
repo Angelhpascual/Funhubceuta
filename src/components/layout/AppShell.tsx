@@ -130,7 +130,8 @@ const NAV_DESKTOP = [
 const SSR_ROUTES = ['/clasificacion', '/partidos', '/club', '/noticias', '/alineacion', '/mercado', '/live', '/merchan']
 
 // Topbar rendered on SSR routes AND on home in desktop-only mode
-function Topbar({ pathname, router, liveActive, mercadoActive }: { pathname: string; router: ReturnType<typeof useRouter>; liveActive: boolean; mercadoActive: boolean }) {
+function Topbar({ pathname, router }: { pathname: string; router: ReturnType<typeof useRouter> }) {
+  const { liveActive, slotHref, slotLabel, slotMode } = useNavSlot()
   return (
     <div className="topbar">
       {/* Desktop: escudo + título a la izquierda */}
@@ -151,9 +152,9 @@ function Topbar({ pathname, router, liveActive, mercadoActive }: { pathname: str
         {NAV_DESKTOP.map((n) => {
           const isDynamicSlot = n.id === '/mercado'
           const isLiveTab = isDynamicSlot && liveActive
-          const href = isLiveTab ? '/live' : isDynamicSlot && !mercadoActive ? '/merchan' : n.id
-          const label = isLiveTab ? 'Live' : isDynamicSlot && !mercadoActive ? 'Tienda' : n.label
-          const icon = isLiveTab ? LIVE_ICON : isDynamicSlot && !mercadoActive ? TIENDA_ICON : n.icon
+          const href = isDynamicSlot ? slotHref : n.id
+          const label = isDynamicSlot ? slotLabel : n.label
+          const icon = isLiveTab ? LIVE_ICON : isDynamicSlot && slotMode === 'tienda' ? TIENDA_ICON : n.icon
           return (
             <button
               key={n.id}
@@ -179,10 +180,12 @@ function removeHtmlLoader() {
 }
 
 import { TIENDA_ICON, LIVE_ICON } from '@/components/icons/navIcons'
+import { useNavSlot } from '@/hooks/useNavSlot'
 
-export function AppShell({ children, liveActive, mercadoActive }: { children: React.ReactNode; liveActive: boolean; mercadoActive: boolean }) {
+export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
+  const { liveActive, slotHref, slotLabel, slotMode } = useNavSlot()
 
   // SSR routes + admin: remove loader immediately on hydration (page is ready)
   useEffect(() => {
@@ -201,7 +204,7 @@ export function AppShell({ children, liveActive, mercadoActive }: { children: Re
       <>
         <InstallModal />
         <div className="desktop-topbar-overlay">
-          <Topbar pathname={pathname} router={router} liveActive={liveActive} mercadoActive={mercadoActive} />
+          <Topbar pathname={pathname} router={router}  />
         </div>
         {children}
       </>
@@ -211,7 +214,7 @@ export function AppShell({ children, liveActive, mercadoActive }: { children: Re
   return (
     <div id="app-root">
       <InstallModal />
-      <Topbar pathname={pathname} router={router} liveActive={liveActive} mercadoActive={mercadoActive} />
+      <Topbar pathname={pathname} router={router}  />
 
       <div className="scroll-area">{children}</div>
 
@@ -220,13 +223,12 @@ export function AppShell({ children, liveActive, mercadoActive }: { children: Re
       {/* Bottom nav: mobile only */}
       <div className="bottom-nav">
         {NAV_MOBILE.map((n) => {
-          // Slot dinámico: Live > Mercado > Tienda
           const isDynamicSlot = n.id === '/mercado'
           const isLiveTab = isDynamicSlot && liveActive
-          const href = isLiveTab ? '/live' : isDynamicSlot && !mercadoActive ? '/merchan' : n.id
-          const label = isLiveTab ? 'Live' : isDynamicSlot && !mercadoActive ? 'Tienda' : n.label
-          const icon = isLiveTab ? LIVE_ICON : isDynamicSlot && !mercadoActive ? TIENDA_ICON : n.icon
-          const isActive = pathname === href || (isDynamicSlot && !mercadoActive && pathname === '/merchan')
+          const href = isDynamicSlot ? slotHref : n.id
+          const label = isDynamicSlot ? slotLabel : n.label
+          const icon = isLiveTab ? LIVE_ICON : isDynamicSlot && slotMode === 'tienda' ? TIENDA_ICON : n.icon
+          const isActive = pathname === href || (isDynamicSlot && pathname === slotHref)
           return (
             <button
               key={n.id}

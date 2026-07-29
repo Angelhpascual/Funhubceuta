@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { LiveSimulator } from './LiveSimulator'
+import { invalidateNavSlotCache } from '@/hooks/useNavSlot'
 
 type Status = 'idle' | 'loading' | 'active' | 'error'
 
@@ -90,19 +91,20 @@ export function LiveControl() {
     })
     setTiendaActive(next)
     setSavingTienda(false)
+    invalidateNavSlotCache()
   }
 
   async function activate() {
     setActing(true)
     const res = await fetch_('/api/admin/live-control', { method: 'POST' })
-    if (res.ok) await load()
+    if (res.ok) { await load(); invalidateNavSlotCache() }
     setActing(false)
   }
 
   async function deactivate() {
     setActing(true)
     const res = await fetch_('/api/admin/live-control', { method: 'DELETE' })
-    if (res.ok) await load()
+    if (res.ok) { await load(); invalidateNavSlotCache() }
     setActing(false)
   }
 
@@ -306,9 +308,8 @@ export function LiveControl() {
           <button
             onClick={toggleTienda}
             disabled={savingTienda || tiendaActive === null}
-            className={`relative flex h-8 w-14 shrink-0 items-center rounded-full transition-colors disabled:opacity-60 ${
-              tiendaActive ? 'bg-ceuta-gold' : 'bg-[var(--black)]'
-            }`}
+            style={{ backgroundColor: tiendaActive ? '#f2c300' : '#111111' }}
+            className="relative flex h-8 w-14 shrink-0 items-center rounded-full transition-colors disabled:opacity-60"
             aria-label="Toggle tienda/mercado"
           >
             <span className={`absolute size-6 rounded-full bg-white shadow transition-transform ${
