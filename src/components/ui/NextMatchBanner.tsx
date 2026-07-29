@@ -47,7 +47,7 @@ function shortName(name: string): string {
 export function NextMatchBanner({ match }: { match: NextMatchData }) {
   const { homeTeam, awayTeam, date, time, isHome, matchday, ticketsUrl } = match
 
-  const dateLabel = new Date(`${date}T12:00:00`)
+  const dateLabel = new Date(`${String(date).slice(0, 10)}T12:00:00`)
     .toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' })
     .replace(/^\w/, c => c.toUpperCase())
 
