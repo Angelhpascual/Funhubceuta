@@ -39,17 +39,18 @@ function writeCache(value: CachedState) {
   } catch { /* ignore */ }
 }
 
+const DEFAULT_STATE: CachedState = { liveActive: false, tiendaActive: false }
+
 export function useNavSlot(): NavSlotState {
-  const [state, setState] = useState<CachedState>(() => {
-    if (memCache && Date.now() - memCache.ts < CACHE_TTL) return memCache.value
-    return { liveActive: false, tiendaActive: false }
-  })
+  const [mounted, setMounted] = useState(false)
+  const [state, setState] = useState<CachedState>(DEFAULT_STATE)
 
   useEffect(() => {
-    const cached = readCache()
+    const cached = readCache() ?? (memCache && Date.now() - memCache.ts < CACHE_TTL ? memCache.value : null)
     if (cached !== null) {
       memCache = { value: cached, ts: Date.now() }
       setState(cached)
+      setMounted(true)
       return
     }
 
@@ -64,11 +65,13 @@ export function useNavSlot(): NavSlotState {
       memCache = { value: fresh, ts: Date.now() }
       writeCache(fresh)
       setState(fresh)
+      setMounted(true)
     })
   }, [])
 
-  const { liveActive, tiendaActive } = state
-  // Live siempre gana; si no hay live: el toggle de admin manda; en pretemporada el default es mercado
+  // Antes de hidratar devolvemos siempre mercado para que SSR y cliente coincidan
+  const { liveActive, tiendaActive } = mounted ? state : DEFAULT_STATE
+
   const slotMode: 'live' | 'tienda' | 'mercado' = liveActive
     ? 'live'
     : tiendaActive
