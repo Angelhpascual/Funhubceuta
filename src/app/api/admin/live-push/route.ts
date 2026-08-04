@@ -2,12 +2,11 @@ import { NextResponse } from 'next/server'
 import webpush from 'web-push'
 import { getAllSubscriptions, deleteSubscription } from '@/infrastructure/supabase/PushSubscriptionsRepository'
 import { MSG } from '@/app/api/cron/live/messages'
-
-// Admin-only proxy for sending push notifications during simulations.
-// No TEST_SECRET needed — admin routes are protected by session.
-// Only available in non-production environments.
+import { checkAdminAuth, unauthorizedResponse } from '@/infrastructure/admin/auth'
 
 export async function POST(request: Request) {
+  if (!(await checkAdminAuth())) return unauthorizedResponse()
+
   if (process.env.VERCEL_ENV === 'production') {
     return NextResponse.json({ error: 'Not available in production' }, { status: 403 })
   }
@@ -39,7 +38,7 @@ export async function POST(request: Request) {
   }
 
   webpush.setVapidDetails(
-    'mailto:angelhpascual@gmail.com',
+    process.env.VAPID_CONTACT ?? 'mailto:angelhpascual@gmail.com',
     process.env.VAPID_PUBLIC_KEY!,
     process.env.VAPID_PRIVATE_KEY!
   )

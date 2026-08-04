@@ -1,5 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
+vi.mock('@/infrastructure/admin/auth', () => ({
+  checkAdminAuth: vi.fn(),
+  unauthorizedResponse: () => new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 }),
+}))
 vi.mock('@/infrastructure/supabase/PredictionRepository', () => ({
   createPredictionSession: vi.fn(),
   openPredictionSession: vi.fn(),
@@ -7,6 +11,7 @@ vi.mock('@/infrastructure/supabase/PredictionRepository', () => ({
 vi.mock('@/infrastructure/supabase/adminClient', () => ({ supabaseAdmin: { from: vi.fn() } }))
 vi.mock('@/infrastructure/push/sendPush', () => ({ sendPush: vi.fn().mockResolvedValue({ sent: 0, total: 0 }) }))
 
+import { checkAdminAuth } from '@/infrastructure/admin/auth'
 import { createPredictionSession, openPredictionSession } from '@/infrastructure/supabase/PredictionRepository'
 import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
 import { sendPush } from '@/infrastructure/push/sendPush'
@@ -14,6 +19,7 @@ import { POST, PUT } from '../route'
 
 beforeEach(() => {
   vi.resetAllMocks()
+  vi.mocked(checkAdminAuth).mockResolvedValue(true)
   vi.mocked(sendPush).mockResolvedValue({ sent: 0, total: 0 })
 })
 
@@ -56,8 +62,8 @@ describe('PUT /api/admin/predictions/session', () => {
 
   it('opens session successfully', async () => {
     vi.mocked(openPredictionSession).mockResolvedValue({ error: null })
-    const single = vi.fn().mockResolvedValue({ data: { match_label: 'Ceuta vs X', jornada: 'J20' } })
-    vi.mocked(supabaseAdmin.from).mockReturnValue({ select: vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ single }) }) } as never)
+    const maybeSingle = vi.fn().mockResolvedValue({ data: { match_label: 'Ceuta vs X', jornada: 'J20' } })
+    vi.mocked(supabaseAdmin.from).mockReturnValue({ select: vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ maybeSingle }) }) } as never)
 
     const res = await PUT(makeReq('PUT', { sessionId: 's1', action: 'open' }))
     const body = await res.json()

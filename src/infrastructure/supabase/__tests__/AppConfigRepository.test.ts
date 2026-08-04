@@ -19,7 +19,7 @@ describe('AppConfigRepository', () => {
       const chain = {
         select: vi.fn().mockReturnThis(),
         eq: vi.fn().mockReturnThis(),
-        single: vi.fn().mockResolvedValue({ data: { value: 'W,W,L' }, error: null }),
+        maybeSingle: vi.fn().mockResolvedValue({ data: { value: 'W,W,L' }, error: null }),
       }
       mockFrom.mockReturnValue(chain)
       expect(await getConfig('ceuta_form')).toBe('W,W,L')
@@ -29,7 +29,7 @@ describe('AppConfigRepository', () => {
       const chain = {
         select: vi.fn().mockReturnThis(),
         eq: vi.fn().mockReturnThis(),
-        single: vi.fn().mockResolvedValue({ data: null, error: null }),
+        maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
       }
       mockFrom.mockReturnValue(chain)
       expect(await getConfig('missing_key')).toBeNull()

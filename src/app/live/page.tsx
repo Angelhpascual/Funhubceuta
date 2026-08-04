@@ -27,7 +27,6 @@ function toMatchLineup(players: LiveLineupPlayer[]): MatchLineup {
     photoUrl: p.photoUrl ?? null,
   }))
 
-  // Inferir formación contando por líneas (excluyendo GK)
   const defs = starters.filter(p => ['CB','RB','LB','WB'].includes(p.positionAbbr)).length
   const mids = starters.filter(p => ['DM','CM','CAM','LM','RM'].includes(p.positionAbbr)).length
   const atta = starters.filter(p => ['RW','LW','ST','CF','FW'].includes(p.positionAbbr)).length
@@ -36,6 +35,14 @@ function toMatchLineup(players: LiveLineupPlayer[]): MatchLineup {
   return { formation, starters, bench, events: [], available: true }
 }
 
+function SectionHeader({ title }: { title: string }) {
+  return (
+    <div className="mb-3 flex items-center gap-2">
+      <span className="inline-block h-4 w-1 shrink-0 rounded-[2px] bg-[var(--red)]" />
+      <span className="font-display text-[16px] font-extrabold uppercase tracking-[0.05em]">{title}</span>
+    </div>
+  )
+}
 
 function GoalFlash({ show }: { show: boolean }) {
   if (!show) return null
@@ -46,35 +53,35 @@ function GoalFlash({ show }: { show: boolean }) {
   )
 }
 
-
 function LiveLineupPanel({ lineup }: { lineup: MatchLineup }) {
   const [open, setOpen] = useState(false)
   return (
-    <div style={{ margin: '0 0 0' }}>
+    <div>
       <button
         onClick={() => setOpen(o => !o)}
-        style={{
-          width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '14px 16px', background: 'none', border: 'none', cursor: 'pointer',
-          borderTop: '1px solid var(--border)',
-        }}
+        className="flex w-full cursor-pointer items-center justify-between border-none border-t border-[var(--border)] bg-transparent px-4 py-[14px]"
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ width: 4, height: 16, background: 'var(--red)', borderRadius: 2, display: 'inline-block', flexShrink: 0 }} />
-          <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 16, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+        <div className="flex items-center gap-2">
+          <span className="inline-block h-4 w-1 shrink-0 rounded-[2px] bg-[var(--red)]" />
+          <span className="font-display text-[16px] font-extrabold uppercase tracking-[0.05em]">
             Alineación AD Ceuta FC
           </span>
-          <span style={{ fontFamily: 'var(--font-display)', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', background: 'var(--bg-soft)', borderRadius: 4, padding: '2px 7px', color: 'var(--muted)' }}>
+          <span className="rounded-[4px] bg-[var(--bg-soft)] px-[7px] py-[2px] font-display text-[11px] font-bold tracking-[0.1em] text-[var(--muted)]">
             {lineup.formation}
           </span>
         </div>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
-          style={{ width: 18, height: 18, color: 'var(--muted)', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          className={`size-[18px] text-[var(--muted)] transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+        >
           <path d="M6 9l6 6 6-6" />
         </svg>
       </button>
       {open && (
-        <div style={{ padding: '0 16px 20px' }}>
+        <div className="px-4 pb-5">
           <LineupField lineup={lineup} />
         </div>
       )}
@@ -83,7 +90,7 @@ function LiveLineupPanel({ lineup }: { lineup: MatchLineup }) {
 }
 
 const POLL_MS = 60_000
-const PTR_THRESHOLD = 70 // px to pull before triggering refresh
+const PTR_THRESHOLD = 70
 
 export default function LivePage() {
   const [match, setMatch] = useState<LiveMatch | null>(null)
@@ -124,7 +131,6 @@ export default function LivePage() {
     return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
   }, [])
 
-  // Pull-to-refresh
   useEffect(() => {
     const el = scrollRef.current
     if (!el) return
@@ -152,8 +158,6 @@ export default function LivePage() {
   const isPost = match?.state === 'post'
   const ceutaIsHome = match ? match.homeTeam.toLowerCase().includes('ceuta') : true
   const rival = match ? (ceutaIsHome ? match.awayTeam : match.homeTeam) : ''
-  const ceutaScore = match ? (ceutaIsHome ? match.homeScore : match.awayScore) : 0
-  const rivalScore = match ? (ceutaIsHome ? match.awayScore : match.homeScore) : 0
   const sortedEvents = match
     ? [...match.events].sort((a, b) => (parseInt(b.minute) || 0) - (parseInt(a.minute) || 0))
     : []
@@ -164,8 +168,8 @@ export default function LivePage() {
 
       {/* Pull-to-refresh indicator */}
       {refreshing && (
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '10px 0', background: 'var(--bg)' }}>
-          <svg style={{ width: 20, height: 20, animation: 'spin 0.8s linear infinite', color: 'var(--red)' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+        <div className="flex justify-center bg-[var(--bg)] py-[10px]">
+          <svg className="size-5 animate-spin text-[var(--red)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
             <path d="M21 12a9 9 0 11-6.219-8.56" strokeLinecap="round" />
           </svg>
         </div>
@@ -179,40 +183,37 @@ export default function LivePage() {
 
         {/* No data */}
         {!loading && !match && (
-          <div style={{ margin: '16px 16px 0', background: 'var(--bg-soft)', borderRadius: 14, padding: '24px 20px', textAlign: 'center' }}>
-            <div style={{ fontSize: 28, marginBottom: 8 }}>⚽</div>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 900, textTransform: 'uppercase', color: 'var(--black)' }}>Sin partido en curso</div>
-            <p style={{ marginTop: 4, fontSize: 13, color: 'var(--muted)' }}>El modo live se activará antes del partido.</p>
+          <div className="mx-4 mt-4 rounded-[14px] bg-[var(--bg-soft)] px-5 py-6 text-center">
+            <div className="mb-2 text-[28px]">⚽</div>
+            <div className="font-display text-[16px] font-black uppercase text-[var(--black)]">Sin partido en curso</div>
+            <p className="mt-1 text-[13px] text-[var(--muted)]">El modo live se activará antes del partido.</p>
           </div>
         )}
 
         {/* Pre-match */}
         {match?.state === 'pre' && (
-          <div style={{ margin: '16px 16px 0', background: 'var(--bg-soft)', borderRadius: 14, padding: 20 }}>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.14em', color: 'var(--red)', marginBottom: 4 }}>Próximamente</div>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 900, textTransform: 'uppercase', lineHeight: 1.1 }}>El partido está a punto de comenzar</div>
-            <p style={{ marginTop: 8, fontSize: 13, color: 'var(--muted)' }}>Las alineaciones y actualizaciones aparecerán aquí en cuanto empiece.</p>
+          <div className="mx-4 mt-4 rounded-[14px] bg-[var(--bg-soft)] p-5">
+            <div className="mb-1 font-display text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--red)]">Próximamente</div>
+            <div className="font-display text-[20px] font-black uppercase leading-[1.1]">El partido está a punto de comenzar</div>
+            <p className="mt-2 text-[13px] text-[var(--muted)]">Las alineaciones y actualizaciones aparecerán aquí en cuanto empiece.</p>
           </div>
         )}
 
         {/* ── Timeline ── */}
         {(isLive || isPost) && (
-          <div style={{ padding: '18px 16px 6px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-              <span style={{ width: 4, height: 16, background: 'var(--red)', borderRadius: 2, display: 'inline-block', flexShrink: 0 }} />
-              <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 16, letterSpacing: '0.05em', textTransform: 'uppercase' }}>Minuto a minuto</span>
-            </div>
+          <div className="px-4 pb-[6px] pt-[18px]">
+            <SectionHeader title="Minuto a minuto" />
             {sortedEvents.length === 0 ? (
-              <p style={{ fontSize: 13, color: 'var(--muted)', padding: '8px 0' }}>Sin eventos registrados aún.</p>
+              <p className="py-2 text-[13px] text-[var(--muted)]">Sin eventos registrados aún.</p>
             ) : (
               <div>
                 {/* Cabecera equipos */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 40px 1fr', alignItems: 'center', marginBottom: 8, paddingBottom: 8, borderBottom: '1px solid var(--border)' }}>
-                  <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: ceutaIsHome ? 'var(--red)' : 'var(--muted)' }}>
+                <div className="mb-2 grid grid-cols-[1fr_40px_1fr] items-center border-b border-[var(--border)] pb-2">
+                  <span className={`font-display text-[11px] font-extrabold uppercase tracking-[0.08em] ${ceutaIsHome ? 'text-[var(--red)]' : 'text-[var(--muted)]'}`}>
                     {match.homeTeam}
                   </span>
                   <span />
-                  <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: !ceutaIsHome ? 'var(--red)' : 'var(--muted)', textAlign: 'right' }}>
+                  <span className={`text-right font-display text-[11px] font-extrabold uppercase tracking-[0.08em] ${!ceutaIsHome ? 'text-[var(--red)]' : 'text-[var(--muted)]'}`}>
                     {match.awayTeam}
                   </span>
                 </div>
@@ -227,52 +228,55 @@ export default function LivePage() {
                     if (isGoal && isCeuta) {
                       if (ev.photoUrl) {
                         // eslint-disable-next-line @next/next/no-img-element
-                        return <img src={ev.photoUrl} alt={ev.playerName} style={{ width: 28, height: 28, objectFit: 'cover', objectPosition: 'top', borderRadius: '50%' }} />
+                        return <img src={ev.photoUrl} alt={ev.playerName} className="size-7 rounded-full object-cover object-top" />
                       }
-                      return <span style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 11, color: '#fff' }}>{ev.minute}&apos;</span>
+                      return <span className="font-display text-[11px] font-black text-white">{ev.minute}&apos;</span>
                     }
-                    if (isGoal) return <span style={{ fontSize: 16 }}>⚽</span>
-                    if (isYellow) return <div style={{ width: 12, height: 17, background: '#F5C518', borderRadius: 2, border: '1.5px solid rgba(0,0,0,0.18)', transform: 'rotate(-8deg)' }} />
-                    if (isRed) return <div style={{ width: 12, height: 17, background: '#E01020', borderRadius: 2, border: '1.5px solid rgba(0,0,0,0.18)', transform: 'rotate(-8deg)' }} />
-                    if (ev.type === 'substitution') return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: 13, height: 13 }}><path d="M17 1l4 4-4 4" /><path d="M3 11V9a4 4 0 014-4h14" /><path d="M7 23l-4-4 4-4" /><path d="M21 13v2a4 4 0 01-4 4H3" /></svg>
+                    if (isGoal) return <span className="text-[16px]">⚽</span>
+                    if (isYellow) return <div className="h-[17px] w-3 -rotate-[8deg] rounded-[2px] border-[1.5px] border-black/[0.18] bg-[#F5C518]" />
+                    if (isRed) return <div className="h-[17px] w-3 -rotate-[8deg] rounded-[2px] border-[1.5px] border-black/[0.18] bg-[#E01020]" />
+                    if (ev.type === 'substitution') return (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-[13px]">
+                        <path d="M17 1l4 4-4 4" /><path d="M3 11V9a4 4 0 014-4h14" />
+                        <path d="M7 23l-4-4 4-4" /><path d="M21 13v2a4 4 0 01-4 4H3" />
+                      </svg>
+                    )
                     return null
                   }
 
                   const playerLabel = ev.playerName || (isGoal ? (isCeuta ? '¡Gol AD Ceuta FC!' : `Gol ${rival}`) : ev.type === 'yellowCard' ? 'Amarilla' : ev.type === 'redCard' ? 'Roja' : 'Cambio')
 
                   return (
-                    <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 40px 1fr', alignItems: 'center', gap: 4, padding: '8px 0', borderBottom: '1px solid var(--border)' }}
-                      className="last:border-none">
+                    <div
+                      key={i}
+                      className="grid grid-cols-[1fr_40px_1fr] items-center gap-1 border-b border-[var(--border)] py-2 last:border-none"
+                    >
                       {/* Columna izquierda (home) */}
                       {isHome ? (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                          <span style={{ width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden', background: isGoal && isCeuta ? 'var(--red)' : 'var(--bg-soft)' }}>
+                        <div className="flex items-center gap-1.5">
+                          <span className={`flex size-7 shrink-0 items-center justify-center overflow-hidden rounded-full ${isGoal && isCeuta ? 'bg-[var(--red)]' : 'bg-[var(--bg-soft)]'}`}>
                             <EventIcon />
                           </span>
-                          <div>
-                            <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 13, textTransform: 'uppercase', lineHeight: 1.2, color: isGoal && isCeuta ? 'var(--red)' : 'var(--black)' }}>
-                              {playerLabel}
-                            </div>
+                          <div className={`font-display text-[13px] font-bold uppercase leading-[1.2] ${isGoal && isCeuta ? 'text-[var(--red)]' : 'text-[var(--black)]'}`}>
+                            {playerLabel}
                           </div>
                         </div>
                       ) : <div />}
 
                       {/* Minuto central */}
-                      <div style={{ textAlign: 'center' }}>
-                        <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 12, color: isGoal ? 'var(--red)' : 'var(--muted)' }}>
+                      <div className="text-center">
+                        <span className={`font-display text-[12px] font-extrabold ${isGoal ? 'text-[var(--red)]' : 'text-[var(--muted)]'}`}>
                           {ev.minute}&apos;
                         </span>
                       </div>
 
                       {/* Columna derecha (away) */}
                       {!isHome ? (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'flex-end' }}>
-                          <div style={{ textAlign: 'right' }}>
-                            <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 13, textTransform: 'uppercase', lineHeight: 1.2, color: isGoal && isCeuta ? 'var(--red)' : 'var(--black)' }}>
-                              {playerLabel}
-                            </div>
+                        <div className="flex items-center justify-end gap-1.5">
+                          <div className={`text-right font-display text-[13px] font-bold uppercase leading-[1.2] ${isGoal && isCeuta ? 'text-[var(--red)]' : 'text-[var(--black)]'}`}>
+                            {playerLabel}
                           </div>
-                          <span style={{ width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden', background: isGoal && isCeuta ? 'var(--red)' : 'var(--bg-soft)' }}>
+                          <span className={`flex size-7 shrink-0 items-center justify-center overflow-hidden rounded-full ${isGoal && isCeuta ? 'bg-[var(--red)]' : 'bg-[var(--bg-soft)]'}`}>
                             <EventIcon />
                           </span>
                         </div>
@@ -287,23 +291,18 @@ export default function LivePage() {
 
         {/* ── Estadísticas ── */}
         {(isLive || isPost) && match?.stats && match.stats.length > 0 && (
-          <div style={{ padding: '18px 16px 6px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-              <span style={{ width: 4, height: 16, background: 'var(--red)', borderRadius: 2, display: 'inline-block', flexShrink: 0 }} />
-              <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 16, letterSpacing: '0.05em', textTransform: 'uppercase' }}>Estadísticas</span>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div className="px-4 pb-[6px] pt-[18px]">
+            <SectionHeader title="Estadísticas" />
+            <div className="flex flex-col gap-[14px]">
               {match.stats.map((stat) => {
                 const isPct = stat.name === 'possessionPct' || stat.name === 'passPct'
                 const homeRaw = parseFloat(stat.home) || 0
                 const awayRaw = parseFloat(stat.away) || 0
                 const total = homeRaw + awayRaw || 1
 
-                // For percentages ESPN gives 0–100 directly; for counts use proportion
                 const homePct = isPct ? homeRaw : (homeRaw / total) * 100
                 const awayPct = isPct ? awayRaw : (awayRaw / total) * 100
 
-                // Display values: percentages show %, counts show raw
                 const homeDisplay = isPct ? `${Math.round(homeRaw)}%` : String(Math.round(homeRaw))
                 const awayDisplay = isPct ? `${Math.round(awayRaw)}%` : String(Math.round(awayRaw))
 
@@ -315,18 +314,16 @@ export default function LivePage() {
 
                 return (
                   <div key={stat.name}>
-                    {/* Label centrado */}
-                    <div style={{ textAlign: 'center', fontFamily: 'var(--font-display)', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--muted)', marginBottom: 6 }}>
+                    <div className="mb-[6px] text-center font-display text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--muted)]">
                       {stat.displayName}
                     </div>
-                    {/* Valores + barra */}
-                    <div style={{ display: 'grid', gridTemplateColumns: '40px 1fr 40px', alignItems: 'center', gap: 8 }}>
-                      <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 15, textAlign: 'right', color: 'var(--red)' }}>{ceutaDisplay}</span>
-                      <div style={{ display: 'flex', height: 6, borderRadius: 3, overflow: 'hidden', background: 'var(--border)' }}>
-                        <div style={{ width: `${ceutaPct}%`, background: 'var(--red)', borderRadius: '3px 0 0 3px', transition: 'width 0.6s ease' }} />
-                        <div style={{ width: `${rivalPct}%`, background: 'var(--black)', borderRadius: '0 3px 3px 0', transition: 'width 0.6s ease' }} />
+                    <div className="grid grid-cols-[40px_1fr_40px] items-center gap-2">
+                      <span className="text-right font-display text-[15px] font-extrabold text-[var(--red)]">{ceutaDisplay}</span>
+                      <div className="flex h-[6px] overflow-hidden rounded-[3px] bg-[var(--border)]">
+                        <div className="rounded-l-[3px] bg-[var(--red)] transition-[width] duration-[600ms] ease-out" style={{ width: `${ceutaPct}%` }} />
+                        <div className="rounded-r-[3px] bg-[var(--black)] transition-[width] duration-[600ms] ease-out" style={{ width: `${rivalPct}%` }} />
                       </div>
-                      <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 15, textAlign: 'left', color: 'var(--black)' }}>{rivalDisplay}</span>
+                      <span className="font-display text-[15px] font-extrabold text-[var(--black)]">{rivalDisplay}</span>
                     </div>
                   </div>
                 )
@@ -341,7 +338,6 @@ export default function LivePage() {
           if (!ceutaLineup?.length) return null
           return <LiveLineupPanel lineup={toMatchLineup(ceutaLineup)} />
         })()}
-
 
       </div>
     </div>

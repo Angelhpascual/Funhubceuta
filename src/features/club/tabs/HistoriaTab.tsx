@@ -87,8 +87,7 @@ const STADIUM_FACTS = [
 
 const TAGS = [
   { label: 'Los caballas', red: true, dark: false },
-  { label: 'Blanquinegros', red: false, dark: true },  
-  
+  { label: 'Blanquinegros', red: false, dark: true },
 ]
 
 const MURUBE_PHOTO = '/api/proxy/image?url=' + encodeURIComponent('https://static.elpueblodeceuta.es/clip/f2461653-947e-4115-b9e3-e53a34fc5db7_16-9-aspect-ratio_1600w_0.webp')
@@ -97,7 +96,7 @@ function MLabel({ children }: { children: React.ReactNode }) {
   return (
     <div className="hist-label">
       {children}
-      <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
+      <div className="flex-1 h-px bg-[var(--border)]" />
     </div>
   )
 }
@@ -108,7 +107,7 @@ function IdentityBlock() {
       <div className="hist-identity-inner">
         <div className="hist-identity-crest">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/escudo.webp" alt="Escudo AD Ceuta" style={{ width: '78%', height: '78%', objectFit: 'contain' }} />
+          <img src="/escudo.webp" alt="Escudo AD Ceuta" className="w-[78%] h-[78%] object-contain" />
         </div>
         <div className="hist-identity-text-col">
           <div className="hist-identity-eyebrow">
@@ -117,7 +116,7 @@ function IdentityBlock() {
           </div>
           <div className="hist-identity-title">Caballas de corazón</div>
           <div className="hist-identity-body">
-            La AD Ceuta FC es el club de una ciudad única en Europa: <strong style={{ color: 'var(--black)' }}>cuatro culturas</strong> —cristiana, musulmana, judía e hindú— conviven en apenas 19 km². Sus aficionados, conocidos como <strong style={{ color: 'var(--black)' }}>los caballas</strong>, llenan el <strong style={{ color: 'var(--black)' }}>Estadio Alfonso Murube</strong> semana a semana con una sola voz, la misma desde 1956: orgullo de ciudad.
+            La AD Ceuta FC es el club de una ciudad única en Europa: <strong className="text-[var(--black)]">cuatro culturas</strong> —cristiana, musulmana, judía e hindú— conviven en apenas 19 km². Sus aficionados, conocidos como <strong className="text-[var(--black)]">los caballas</strong>, llenan el <strong className="text-[var(--black)]">Estadio Alfonso Murube</strong> semana a semana con una sola voz, la misma desde 1956: orgullo de ciudad.
           </div>
           <div className="hist-culture-row" aria-label="Culturas presentes en Ceuta">
             {CULTURES.map((culture) => (
@@ -127,10 +126,21 @@ function IdentityBlock() {
               </span>
             ))}
           </div>
-          
+
           <div className="hist-tags">
             {TAGS.map((t, i) => (
-              <span key={i} style={{ fontFamily: 'var(--font-display)', fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', padding: '6px 12px', borderRadius: 999, background: t.red ? 'var(--red)' : t.dark ? 'var(--black)' : 'var(--white)', border: `1.5px solid ${t.red ? 'var(--red)' : t.dark ? 'var(--black)' : 'var(--border)'}`, color: (t.red || t.dark) ? 'var(--white)' : 'var(--black)' }}>{t.label}</span>
+              <span
+                key={i}
+                className={`font-display text-[11px] font-bold tracking-[0.06em] uppercase px-3 py-[6px] rounded-full border-[1.5px] ${
+                  t.red
+                    ? 'bg-[var(--red)] border-[var(--red)] text-white'
+                    : t.dark
+                    ? 'bg-[var(--black)] border-[var(--black)] text-white'
+                    : 'bg-white border-[var(--border)] text-[var(--black)]'
+                }`}
+              >
+                {t.label}
+              </span>
             ))}
           </div>
         </div>
@@ -141,27 +151,30 @@ function IdentityBlock() {
 
 function StadiumCard() {
   return (
-    <div style={{ border: '1px solid var(--border)', borderRadius: 14, overflow: 'hidden', background: 'var(--white)' }}>
+    <div className="border border-[var(--border)] rounded-[14px] overflow-hidden bg-white">
       <div className="hist-stadium-photo">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={MURUBE_PHOTO} alt="Estadio Alfonso Murube" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 40%, rgba(14,14,14,0.5) 100%)' }} />
+        <img src={MURUBE_PHOTO} alt="Estadio Alfonso Murube" className="absolute inset-0 w-full h-full object-cover" />
+        <div
+          className="absolute inset-0"
+          style={{ background: 'linear-gradient(to bottom, transparent 40%, rgba(14,14,14,0.5) 100%)' }}
+        />
         <div className="hist-stadium-badge">
           <MapPin size={14} strokeWidth={2.6} />
           Murube
         </div>
       </div>
-      <div style={{ padding: '14px 16px 16px' }}>
+      <div className="px-4 pt-[14px] pb-4">
         <div className="hist-stadium-title">
           <Landmark size={18} strokeWidth={2.4} />
           Alfonso Murube
         </div>
-        <div style={{ fontSize: 12.5, color: 'var(--muted)', marginTop: 4 }}>Ceuta · Inaugurado en 1944</div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, marginTop: 14, background: 'var(--border)', border: '1px solid var(--border)', borderRadius: 8, overflow: 'hidden' }}>
+        <div className="text-[12.5px] text-[var(--muted)] mt-1">Ceuta · Inaugurado en 1944</div>
+        <div className="grid grid-cols-2 gap-px mt-[14px] bg-[var(--border)] border border-[var(--border)] rounded-lg overflow-hidden">
           {STADIUM_FACTS.map((f, i) => (
-            <div key={i} style={{ background: 'var(--white)', padding: '11px 13px' }}>
+            <div key={i} className="bg-white px-[13px] py-[11px]">
               <div className="hist-fact-num">{f.num}</div>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--muted)', marginTop: 2 }}>{f.lbl}</div>
+              <div className="font-display text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--muted)] mt-0.5">{f.lbl}</div>
             </div>
           ))}
         </div>
@@ -177,16 +190,23 @@ function Timeline() {
       <div className="hist-tl-line" />
       {HISTORY.map((e, i) => {
         const Icon = e.icon as LucideIcon
+        const dotClass = e.tone === 'key'
+          ? 'bg-[var(--red)] border-[var(--red)]'
+          : e.tone === 'gold'
+          ? 'bg-[var(--gold)] border-[var(--gold)]'
+          : 'bg-white border-[var(--muted)]'
+        const yearClass = e.tone === 'key'
+          ? 'text-[var(--red)]'
+          : e.tone === 'gold'
+          ? 'text-[var(--gold)]'
+          : 'text-[var(--black)]'
 
         return (
-          <div key={i} className="hist-tl-item" style={{ paddingBottom: i === HISTORY.length - 1 ? 0 : undefined }}>
-            <div className="hist-tl-dot" style={{
-              background: e.tone === 'key' ? 'var(--red)' : e.tone === 'gold' ? 'var(--gold)' : 'var(--white)',
-              borderColor: e.tone === 'key' ? 'var(--red)' : e.tone === 'gold' ? 'var(--gold)' : 'var(--muted)',
-            }} />
+          <div key={i} className={`hist-tl-item${i === HISTORY.length - 1 ? ' pb-0' : ''}`}>
+            <div className={`hist-tl-dot ${dotClass}`} />
             <div className="hist-tl-kicker">
               <Icon size={14} strokeWidth={2.4} />
-              <div className="hist-tl-year" style={{ color: e.tone === 'key' ? 'var(--red)' : e.tone === 'gold' ? 'var(--gold)' : 'var(--black)' }}>{e.year}</div>
+              <div className={`hist-tl-year ${yearClass}`}>{e.year}</div>
             </div>
             <div className="hist-tl-title">{e.title}</div>
             <div className="hist-tl-desc">{e.desc}</div>
@@ -568,7 +588,7 @@ export function HistoriaTab() {
             Orgullo caballa
           </div>
           <div className="hist-hero-title">
-            70 años de <em style={{ fontStyle: 'normal', color: 'var(--gold)' }}>fútbol</em> en Ceuta
+            70 años de <em className="not-italic text-[var(--gold)]">fútbol</em> en Ceuta
           </div>
           <div className="hist-hero-sub">
             Del primer balón que rodó frente al Estrecho al debut en el fútbol profesional. Esta es la historia de la AD Ceuta.

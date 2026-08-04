@@ -42,7 +42,6 @@ const PULL_THRESHOLD = 70
 
 export default function NoticiasPage() {
   const [news, setNews] = useState<NewsItem[]>([])
-  const [offset, setOffset] = useState(0)
   const [loading, setLoading] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
   const [hasMore, setHasMore] = useState(true)
@@ -81,7 +80,6 @@ export default function NoticiasPage() {
       loadingMoreRef.current = false
       setLoadingMore(false)
     })
-    setOffset(next)
   }, [fetchNews])
 
   // Infinite scroll — scroll event adaptativo: scroll-area en móvil, window en desktop
@@ -114,7 +112,6 @@ export default function NoticiasPage() {
     if (refreshing) return
     setRefreshing(true)
     await fetchNews(0, false)
-    setOffset(0)
     offsetRef.current = 0
     hasMoreRef.current = true
     setHasMore(true)
@@ -190,8 +187,7 @@ export default function NoticiasPage() {
         />
         <Link
           href="/"
-          className="mb-3 flex items-center gap-1.5 text-ceuta-muted no-underline"
-          style={{ width: 'fit-content' }}
+          className="mb-3 flex w-fit items-center gap-1.5 text-ceuta-muted no-underline"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M19 12H5M12 5l-7 7 7 7" />
@@ -226,8 +222,8 @@ export default function NoticiasPage() {
                   href={n.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-3 border-b border-ceuta-border px-[14px] py-[12px] active:bg-ceuta-bg-soft"
-                  style={{ textDecoration: 'none', borderLeftWidth: 3, borderLeftStyle: 'solid', borderLeftColor: src?.color ?? 'var(--muted)' }}
+                  className="flex items-center gap-3 border-b border-ceuta-border no-underline px-[14px] py-[12px] active:bg-ceuta-bg-soft"
+                  style={{ borderLeftWidth: 3, borderLeftStyle: 'solid', borderLeftColor: src?.color ?? 'var(--muted)' }}
                 >
                   {image ? (
                     <div className="relative size-[48px] shrink-0 overflow-hidden rounded-[8px]">

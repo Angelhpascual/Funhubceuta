@@ -1,13 +1,23 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
+vi.mock('@/infrastructure/admin/auth', () => ({
+  checkAdminAuth: vi.fn(),
+  unauthorizedResponse: () => new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 }),
+}))
 vi.mock('@/infrastructure/supabase/PredictionRepository', () => ({
   getPredictionHistory: vi.fn(),
+  getPredictionSeasonRanking: vi.fn(),
 }))
 
-import { getPredictionHistory } from '@/infrastructure/supabase/PredictionRepository'
+import { checkAdminAuth } from '@/infrastructure/admin/auth'
+import { getPredictionHistory, getPredictionSeasonRanking } from '@/infrastructure/supabase/PredictionRepository'
 import { GET } from '../route'
 
-beforeEach(() => { vi.resetAllMocks() })
+beforeEach(() => {
+  vi.resetAllMocks()
+  vi.mocked(checkAdminAuth).mockResolvedValue(true)
+  vi.mocked(getPredictionSeasonRanking).mockResolvedValue([])
+})
 
 describe('GET /api/admin/predictions/history', () => {
   it('returns history list', async () => {

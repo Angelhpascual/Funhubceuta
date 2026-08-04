@@ -31,8 +31,8 @@ function GoalsBar({ value, max, variant }: { value: number; max: number; variant
   return (
     <div className="mt-1.5 h-[8px] overflow-hidden rounded-full bg-[var(--bg-mid)]">
       <div
-        className="h-full rounded-full"
-        style={{ width: `${pct}%`, background: variant === 'black' ? 'var(--black)' : 'var(--red)' }}
+        className={`h-full rounded-full ${variant === 'black' ? 'bg-[var(--black)]' : 'bg-[var(--red)]'}`}
+        style={{ width: `${pct}%` }}
       />
     </div>
   )
@@ -367,19 +367,16 @@ export function EstadisticasTab({
               {protagonistas.map(({ label, sub, player, gold }) => (
                 <div
                   key={label}
-                  className="relative flex items-center gap-4 overflow-hidden rounded-[14px] border bg-[var(--white)] p-4"
-                  style={{ borderColor: gold ? 'var(--gold)' : 'var(--border)' }}
+                  className={`relative flex items-center gap-4 overflow-hidden rounded-[14px] border bg-[var(--white)] p-4 ${gold ? 'border-[var(--gold)]' : 'border-[var(--border)]'}`}
                 >
                   {/* Left accent bar */}
                   <span
-                    className="absolute left-0 top-0 h-full w-[5px]"
-                    style={{ background: gold ? 'var(--gold)' : 'var(--red)' }}
+                    className={`absolute left-0 top-0 h-full w-[5px] ${gold ? 'bg-[var(--gold)]' : 'bg-[var(--red)]'}`}
                   />
 
                   {/* Avatar */}
                   <div
-                    className="ml-2 flex size-[56px] shrink-0 items-center justify-center overflow-hidden rounded-full border-2"
-                    style={{ borderColor: gold ? 'var(--gold)' : 'var(--border)', background: 'var(--bg-mid)' }}
+                    className={`ml-2 flex size-[56px] shrink-0 items-center justify-center overflow-hidden rounded-full border-2 bg-[var(--bg-mid)] ${gold ? 'border-[var(--gold)]' : 'border-[var(--border)]'}`}
                   >
                     {player?.photo ? (
                       // eslint-disable-next-line @next/next/no-img-element
@@ -392,8 +389,7 @@ export function EstadisticasTab({
                   </div>
 
                   <div className="min-w-0 flex-1">
-                    <p className="font-display text-[10px] font-bold uppercase tracking-[0.14em]"
-                      style={{ color: gold ? '#7A6100' : 'var(--red)' }}>
+                    <p className={`font-display text-[10px] font-bold uppercase tracking-[0.14em] ${gold ? 'text-[#7A6100]' : 'text-[var(--red)]'}`}>
                       {label}
                     </p>
                     <p className="truncate font-display text-[19px] font-black uppercase leading-tight text-[var(--black)]">

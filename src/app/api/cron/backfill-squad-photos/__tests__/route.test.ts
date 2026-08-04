@@ -2,6 +2,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('@/lib/constants', () => ({ CURRENT_SEASON: '2526' }))
 vi.mock('@/infrastructure/supabase/logCron', () => ({ logCron: vi.fn() }))
+vi.mock('@/infrastructure/cron/auth', () => ({
+  checkCronAuth: vi.fn().mockReturnValue(true),
+  cronUnauthorized: () => new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 }),
+}))
 vi.mock('@/infrastructure/supabase/SquadSupabaseRepository', () => ({
   getPlayersWithExternalPhotos: vi.fn(),
   updatePlayerPhotoUrl: vi.fn(),
@@ -14,10 +18,12 @@ vi.mock('@/infrastructure/storage/imageUploader', () => ({
 import { getPlayersWithExternalPhotos, updatePlayerPhotoUrl } from '@/infrastructure/supabase/SquadSupabaseRepository'
 import { downloadAndUploadImage } from '@/infrastructure/storage/imageUploader'
 import { logCron } from '@/infrastructure/supabase/logCron'
+import { checkCronAuth } from '@/infrastructure/cron/auth'
 import { GET, POST } from '../route'
 
 beforeEach(() => {
   vi.resetAllMocks()
+  vi.mocked(checkCronAuth).mockReturnValue(true)
   vi.mocked(getPlayersWithExternalPhotos).mockResolvedValue([])
   vi.mocked(updatePlayerPhotoUrl).mockResolvedValue(undefined)
   vi.mocked(downloadAndUploadImage).mockResolvedValue(null)
@@ -27,6 +33,7 @@ beforeEach(() => {
 
 describe('GET /api/cron/backfill-squad-photos', () => {
   it('returns 405 in production without secret', async () => {
+    vi.mocked(checkCronAuth).mockReturnValue(true)
     vi.stubEnv('NODE_ENV', 'production')
     const res = await GET(new Request('http://localhost/api/cron/backfill-squad-photos'))
     expect(res.status).toBe(405)

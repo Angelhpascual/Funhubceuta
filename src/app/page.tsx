@@ -170,7 +170,7 @@ function AppInner() {
   const [ready, setReady] = useState(false)
   const [loaderVisible, setLoaderVisible] = useState(true)
   const [refreshKey, setRefreshKey] = useState(0)
-  const { liveActive, slotHref, slotLabel, slotMode } = useNavSlot()
+  const { slotHref, slotLabel, slotMode } = useNavSlot()
 
   const handleRefresh = useCallback(async () => {
     setRefreshKey(k => k + 1)
@@ -178,7 +178,6 @@ function AppInner() {
   }, [])
 
   const { pullY, refreshing, onTouchStart, onTouchMove, onTouchEnd } = usePullToRefresh(handleRefresh)
-  const pullProgress = Math.min(pullY / PULL_THRESHOLD, 1)
 
   // Safari bfcache: when restored from cache, force a full reload so React re-initialises
   useEffect(() => {
@@ -221,8 +220,8 @@ function AppInner() {
       )}
 
       {/* Main app */}
-      <div style={{ display: modal ? 'none' : 'contents' }}>
-        <div className="topbar home-topbar-mobile" style={{ justifyContent: 'center' }}>
+      <div className={modal ? 'hidden' : 'contents'}>
+        <div className="topbar home-topbar-mobile justify-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/escudo.webp"
@@ -235,20 +234,12 @@ function AppInner() {
         {/* Pull-to-refresh indicator */}
         {(pullY > 0 || refreshing) && (
           <div
+            className="absolute left-0 right-0 z-50 flex items-center justify-center bg-[var(--black)] will-change-transform"
             style={{
-              position: 'absolute',
               top: 'var(--top-h)',
-              left: 0,
-              right: 0,
-              zIndex: 50,
               height: PULL_MAX,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              background: 'var(--black)',
               transform: `translateY(${refreshing ? 0 : pullY - PULL_MAX}px)`,
               transition: refreshing || pullY > 0 ? 'none' : 'transform 0.25s cubic-bezier(0.25,0.46,0.45,0.94)',
-              willChange: 'transform',
             }}
           >
             <svg

@@ -3,7 +3,7 @@ import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
 
 export async function notifyAdmin(title: string, body: string) {
   webpush.setVapidDetails(
-    'mailto:angelhpascual@gmail.com',
+    process.env.VAPID_CONTACT ?? 'mailto:angelhpascual@gmail.com',
     process.env.VAPID_PUBLIC_KEY!,
     process.env.VAPID_PRIVATE_KEY!
   )

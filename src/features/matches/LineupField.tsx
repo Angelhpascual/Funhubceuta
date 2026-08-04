@@ -38,8 +38,7 @@ function PlayerDot({ player }: { player: LineupPlayer }) {
             />
           ) : null}
           <span
-            className="player-dot__jersey font-display font-black text-white"
-            style={{ display: player.photoUrl ? 'none' : 'flex' }}
+            className={`player-dot__jersey font-display font-black text-white ${player.photoUrl ? 'hidden' : 'flex'}`}
           >
             {player.jersey}
           </span>
@@ -50,8 +49,7 @@ function PlayerDot({ player }: { player: LineupPlayer }) {
         </span>
       </div>
       <span
-        className="player-dot__name truncate text-center font-display font-black uppercase tracking-wide text-white"
-        style={{ textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}
+        className="player-dot__name truncate text-center font-display font-black uppercase tracking-wide text-white [text-shadow:0_1px_4px_rgba(0,0,0,0.8)]"
       >
         {displayName}
       </span>
@@ -104,7 +102,7 @@ export function LineupField({ lineup }: { lineup: MatchLineup }) {
   return (
     <div className="flex flex-col gap-4">
       {/* ── PITCH ── */}
-      <div className="mx-auto w-full" style={{ maxWidth: 620 }}>
+      <div className="mx-auto w-full max-w-[620px]">
         <div className="mb-2 flex items-center justify-between px-1">
           <span className="font-display text-[10px] font-bold uppercase tracking-[0.14em] text-ceuta-muted">
             Once inicial · AD Ceuta FC
@@ -115,12 +113,8 @@ export function LineupField({ lineup }: { lineup: MatchLineup }) {
         </div>
 
         <div
-          className="relative overflow-hidden rounded-[16px]"
-          style={{
-            background: '#1a7a1a',
-            aspectRatio: '100 / 160',
-            containerType: 'inline-size',
-          }}
+          className="relative overflow-hidden rounded-[16px] bg-[#1a7a1a] aspect-[100/160]"
+          style={{ containerType: 'inline-size' }}
         >
           {/* base grass */}
           <div
@@ -133,10 +127,9 @@ export function LineupField({ lineup }: { lineup: MatchLineup }) {
 
           {/* pitch lines SVG */}
           <svg
-            className="absolute inset-0 size-full"
+            className="absolute inset-0 size-full opacity-55"
             viewBox="0 0 100 160"
             preserveAspectRatio="none"
-            style={{ opacity: 0.55 }}
           >
             {/* outer border */}
             <rect

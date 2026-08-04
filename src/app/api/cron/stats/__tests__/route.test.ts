@@ -2,13 +2,19 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('@/infrastructure/supabase/AppConfigRepository', () => ({ setConfig: vi.fn() }))
 vi.mock('@/infrastructure/supabase/logCron', () => ({ logCron: vi.fn() }))
+vi.mock('@/infrastructure/cron/auth', () => ({
+  checkCronAuth: vi.fn().mockReturnValue(true),
+  cronUnauthorized: () => new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 }),
+}))
 
 import { setConfig } from '@/infrastructure/supabase/AppConfigRepository'
 import { logCron } from '@/infrastructure/supabase/logCron'
+import { checkCronAuth } from '@/infrastructure/cron/auth'
 import { GET } from '../route'
 
 beforeEach(() => {
   vi.resetAllMocks()
+  vi.mocked(checkCronAuth).mockReturnValue(true)
   process.env.TEST_SECRET = 'test-secret'
 })
 
@@ -34,11 +40,10 @@ function mockLaLigaFetch(ok: boolean, data?: unknown) {
 }
 
 describe('cron/stats GET', () => {
-  it('returns 401 in production without secret', async () => {
-    vi.stubEnv('NODE_ENV', 'production')
+  it('returns 401 without cron auth', async () => {
+    vi.mocked(checkCronAuth).mockReturnValue(false)
     const res = await GET(new Request('http://localhost/api/cron/stats'))
     expect(res.status).toBe(401)
-    vi.unstubAllEnvs()
   })
 
   it('scrapes LaLiga and stores leaders', async () => {
