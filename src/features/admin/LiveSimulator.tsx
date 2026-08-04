@@ -98,86 +98,82 @@ export function LiveSimulator() {
   const progress = running && step >= 0 ? Math.round(((step + 1) / SIM_STEPS.length) * 100) : 0
 
   return (
-    <div style={{ marginTop: 20, borderRadius: 12, border: '1.5px dashed var(--border)', padding: 16 }}>
+    <div className="mt-5 rounded-[12px] border-[1.5px] border-dashed border-[var(--border)] p-4">
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-        <span style={{ background: '#FEF3C7', color: '#92400E', fontFamily: 'var(--font-display)', fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', padding: '3px 7px', borderRadius: 4 }}>
+      <div className="flex items-center gap-2 mb-[14px]">
+        <span className="bg-[#FEF3C7] text-[#92400E] font-display text-[10px] font-extrabold uppercase tracking-[0.1em] px-[7px] py-[3px] rounded">
           Solo preview
         </span>
-        <span style={{ fontFamily: 'var(--font-display)', fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--muted)' }}>
+        <span className="font-display text-[12px] font-bold uppercase tracking-[0.1em] text-[var(--muted)]">
           Simulación completa · 5 min
         </span>
       </div>
 
       {/* Description */}
-      <p style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 14, lineHeight: 1.5 }}>
+      <p className="text-[12px] text-[var(--muted)] mb-[14px] leading-[1.5]">
         Simula un partido completo en 5 minutos ({SIM_STEPS.length} pasos de 30s). Actualiza el mock, estadísticas y envía push notifications reales a los dispositivos admin.
       </p>
 
       {/* Progress */}
       {running && (
-        <div style={{ marginBottom: 14 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-            <span style={{ fontFamily: 'var(--font-display)', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--red)' }}>
+        <div className="mb-[14px]">
+          <div className="flex justify-between mb-1">
+            <span className="font-display text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--red)]">
               {SIM_STEPS[step]?.label ?? '…'}
             </span>
-            <span style={{ fontFamily: 'var(--font-display)', fontSize: 11, fontWeight: 700, color: 'var(--muted)' }}>
+            <span className="font-display text-[11px] font-bold text-[var(--muted)]">
               {step + 1}/{SIM_STEPS.length}
             </span>
           </div>
-          <div style={{ height: 4, background: 'var(--border)', borderRadius: 2, overflow: 'hidden' }}>
-            <div style={{ height: '100%', width: `${progress}%`, background: 'var(--red)', borderRadius: 2, transition: 'width 0.4s ease' }} />
+          <div className="h-1 bg-[var(--border)] rounded-[2px] overflow-hidden">
+            <div
+              className="h-full bg-[var(--red)] rounded-[2px] transition-[width] duration-400 ease-out"
+              style={{ width: `${progress}%` }}
+            />
           </div>
-          <p style={{ marginTop: 4, fontSize: 11, color: 'var(--muted)' }}>
-            Siguiente paso en ~30s · <a href="/live" target="_blank" style={{ color: 'var(--red)', textDecoration: 'underline' }}>Ver /live</a>
+          <p className="mt-1 text-[11px] text-[var(--muted)]">
+            Siguiente paso en ~30s · <a href="/live" target="_blank" className="text-[var(--red)] underline">Ver /live</a>
           </p>
         </div>
       )}
 
       {/* Steps list */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 14 }}>
+      <div className="flex flex-col gap-1 mb-[14px]">
         {SIM_STEPS.map((s, i) => (
-          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{
-              width: 18, height: 18, borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-              background: step > i ? 'var(--black)' : step === i ? 'var(--red)' : 'var(--border)',
-              transition: 'background 0.3s',
-            }}>
+          <div key={i} className="flex items-center gap-2">
+            <span
+              className={`w-[18px] h-[18px] rounded-full shrink-0 flex items-center justify-center transition-[background] duration-300 ${
+                step > i ? 'bg-[var(--black)]' : step === i ? 'bg-[var(--red)]' : 'bg-[var(--border)]'
+              }`}
+            >
               {step > i
-                ? <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" style={{ width: 10, height: 10 }}><polyline points="20 6 9 17 4 12" /></svg>
-                : <span style={{ fontFamily: 'var(--font-display)', fontSize: 9, fontWeight: 800, color: step === i ? '#fff' : 'var(--muted)' }}>{i + 1}</span>
+                ? <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" className="w-[10px] h-[10px]"><polyline points="20 6 9 17 4 12" /></svg>
+                : <span className={`font-display text-[9px] font-extrabold ${step === i ? 'text-white' : 'text-[var(--muted)]'}`}>{i + 1}</span>
               }
             </span>
-            <span style={{ fontSize: 12, color: step > i ? 'var(--muted)' : step === i ? 'var(--black)' : 'var(--muted)', fontWeight: step === i ? 700 : 400 }}>
+            <span className={`text-[12px] ${step === i ? 'text-[var(--black)] font-bold' : 'text-[var(--muted)] font-normal'}`}>
               {s.label}
-              {s.push && <span style={{ marginLeft: 4, fontSize: 10, color: 'var(--red)' }}>🔔</span>}
+              {s.push && <span className="ml-1 text-[10px] text-[var(--red)]">🔔</span>}
             </span>
           </div>
         ))}
       </div>
 
       {/* Buttons */}
-      <div style={{ display: 'flex', gap: 8 }}>
+      <div className="flex gap-2">
         <button
           onClick={start}
           disabled={running}
-          style={{
-            flex: 1, padding: '10px 0', borderRadius: 10, border: 'none', cursor: running ? 'not-allowed' : 'pointer',
-            background: running ? 'var(--border)' : 'var(--black)', color: '#fff',
-            fontFamily: 'var(--font-display)', fontSize: 12, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em',
-            opacity: running ? 0.5 : 1,
-          }}
+          className={`flex-1 py-[10px] rounded-[10px] border-none font-display text-[12px] font-extrabold uppercase tracking-[0.08em] text-white transition-opacity ${
+            running ? 'bg-[var(--border)] opacity-50 cursor-not-allowed' : 'bg-[var(--black)] cursor-pointer'
+          }`}
         >
           {running ? 'En curso…' : '▶ Iniciar simulación'}
         </button>
         {running && (
           <button
             onClick={stop}
-            style={{
-              padding: '10px 16px', borderRadius: 10, border: 'none', cursor: 'pointer',
-              background: 'var(--red)', color: '#fff',
-              fontFamily: 'var(--font-display)', fontSize: 12, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em',
-            }}
+            className="px-4 py-[10px] rounded-[10px] border-none cursor-pointer bg-[var(--red)] text-white font-display text-[12px] font-extrabold uppercase tracking-[0.08em]"
           >
             Detener
           </button>
@@ -186,9 +182,9 @@ export function LiveSimulator() {
 
       {/* Log */}
       {log.length > 0 && (
-        <div style={{ marginTop: 12, background: 'var(--black)', borderRadius: 8, padding: '10px 12px', maxHeight: 140, overflowY: 'auto' }}>
+        <div className="mt-3 bg-[var(--black)] rounded-lg px-3 py-[10px] max-h-[140px] overflow-y-auto">
           {log.map((l, i) => (
-            <div key={i} style={{ fontFamily: 'monospace', fontSize: 11, color: i === 0 ? '#fff' : 'rgba(255,255,255,0.45)', lineHeight: 1.6 }}>
+            <div key={i} className={`font-mono text-[11px] leading-[1.6] ${i === 0 ? 'text-white' : 'text-white/45'}`}>
               {l}
             </div>
           ))}

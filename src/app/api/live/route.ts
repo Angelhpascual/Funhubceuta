@@ -2,13 +2,13 @@ import { NextResponse } from 'next/server'
 import { ESPN_SCOREBOARD, ESPN_SUMMARY } from '@/lib/constants'
 import { getConfig, deleteConfig } from '@/infrastructure/supabase/AppConfigRepository'
 import { MatchesSupabaseRepository } from '@/infrastructure/supabase/MatchesSupabaseRepository'
-import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
+import { supabase } from '@/infrastructure/supabase/client'
 import type { LiveEvent, LiveMatch, LineupPlayer, MatchStat } from '@/domain/match/LiveMatch'
 
 const matchesRepo = new MatchesSupabaseRepository()
 
 async function getSquadPhotoMap(): Promise<Map<string, string>> {
-  const { data } = await supabaseAdmin
+  const { data } = await supabase
     .from('squad')
     .select('name, photo_url')
     .not('photo_url', 'is', null)

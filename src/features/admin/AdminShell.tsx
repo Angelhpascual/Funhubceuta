@@ -69,7 +69,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 mobile-only">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/escudo.webp" alt="AD Ceuta FC" className="w-10 h-10 object-contain" />
-          <span className="font-display text-[10px] font-extrabold tracking-[0.14em] uppercase bg-[var(--red)] text-white px-[7px] py-[3px] rounded">
+          <span className="font-display text-[10px] font-extrabold tracking-[0.14em] uppercase bg-ceuta-red text-white px-[7px] py-[3px] rounded">
             Admin
           </span>
         </div>
@@ -84,7 +84,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           <span className="topbar-title">
             AD CEUTA <b>Info</b>
           </span>
-          <span className="font-display text-[10px] font-extrabold tracking-[0.14em] uppercase bg-[var(--red)] text-white px-[7px] py-[3px] rounded ml-1">
+          <span className="font-display text-[10px] font-extrabold tracking-[0.14em] uppercase bg-ceuta-red text-white px-[7px] py-[3px] rounded ml-1">
             Admin
           </span>
         </div>

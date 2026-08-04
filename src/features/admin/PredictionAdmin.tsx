@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react'
 import { TEAMS_2627 } from '@/lib/teams2627'
 import type { PredictionSession } from '@/domain/predictions/PredictionSession'
+import { MatchFormPreview } from './MatchFormPreview'
+import { LogoPicker } from './LogoPicker'
 
 type Vote = { nickname: string | null; fingerprint: string; home_score: number; away_score: number; points: number | null }
 type HistorySession = { id: string; match_label: string; jornada: string | null; result: { home: number; away: number } | null; closed_at: string | null; votes: Vote[] }
@@ -111,39 +113,7 @@ export function PredictionAdmin() {
           </div>
 
           {/* Preview */}
-          <div className="flex items-center justify-center gap-3 py-3 rounded-[12px] bg-ceuta-bg-soft border border-ceuta-border">
-            {ceutaHome ? (
-              <>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={CEUTA.logo} alt="AD Ceuta" width={32} height={32} className="object-contain" />
-                <div className="text-center">
-                  <div className="text-[10px] font-bold text-ceuta-black">AD Ceuta</div>
-                  <div className="text-[9px] text-ceuta-muted font-bold uppercase tracking-widest">vs</div>
-                  <div className="text-[10px] font-bold text-ceuta-black">{rivalName || 'Rival'}</div>
-                </div>
-                {rivalLogo
-                  // eslint-disable-next-line @next/next/no-img-element
-                  ? <img src={rivalLogo} alt="" width={32} height={32} className="object-contain" />
-                  : <div className="w-8 h-8 rounded-full bg-ceuta-bg-mid flex items-center justify-center text-[9px] font-black text-ceuta-muted">{rivalName ? rivalName.slice(0,3).toUpperCase() : '?'}</div>
-                }
-              </>
-            ) : (
-              <>
-                {rivalLogo
-                  // eslint-disable-next-line @next/next/no-img-element
-                  ? <img src={rivalLogo} alt="" width={32} height={32} className="object-contain" />
-                  : <div className="w-8 h-8 rounded-full bg-ceuta-bg-mid flex items-center justify-center text-[9px] font-black text-ceuta-muted">{rivalName ? rivalName.slice(0,3).toUpperCase() : '?'}</div>
-                }
-                <div className="text-center">
-                  <div className="text-[10px] font-bold text-ceuta-black">{rivalName || 'Rival'}</div>
-                  <div className="text-[9px] text-ceuta-muted font-bold uppercase tracking-widest">vs</div>
-                  <div className="text-[10px] font-bold text-ceuta-black">AD Ceuta</div>
-                </div>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={CEUTA.logo} alt="AD Ceuta" width={32} height={32} className="object-contain" />
-              </>
-            )}
-          </div>
+          <MatchFormPreview ceutaHome={ceutaHome} rivalName={rivalName} rivalLogo={rivalLogo} />
 
           {/* Selector rival */}
           <select
@@ -173,28 +143,11 @@ export function PredictionAdmin() {
               {rivalLogo ? 'Cambiar escudo' : 'Elegir escudo →'}
             </button>
             {showLogoPicker && (
-              <div className="mt-2 grid grid-cols-5 gap-2 max-h-40 overflow-y-auto p-2 rounded-[10px] bg-ceuta-bg-soft border border-ceuta-border">
-                <button
-                  type="button"
-                  className={`flex flex-col items-center gap-1 p-1.5 rounded-[8px] border ${!rivalLogo ? 'border-ceuta-red bg-red-50' : 'border-transparent'}`}
-                  onClick={() => { setRivalLogo(null); setShowLogoPicker(false) }}
-                >
-                  <div className="w-8 h-8 rounded-full bg-ceuta-bg-mid flex items-center justify-center text-[8px] font-black text-ceuta-muted">?</div>
-                  <span className="text-[8px] text-ceuta-muted">Sin escudo</span>
-                </button>
-                {teams.filter(t => t.logo).map(t => (
-                  <button
-                    key={t.name}
-                    type="button"
-                    className={`flex flex-col items-center gap-1 p-1.5 rounded-[8px] border ${rivalLogo === t.logo ? 'border-ceuta-red bg-red-50' : 'border-transparent'}`}
-                    onClick={() => { setRivalLogo(t.logo); setShowLogoPicker(false) }}
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={t.logo!} alt={t.name} width={32} height={32} className="object-contain" />
-                    <span className="text-[8px] text-ceuta-muted text-center leading-tight">{t.name.split(' ').slice(-1)[0]}</span>
-                  </button>
-                ))}
-              </div>
+              <LogoPicker
+                teams={teams}
+                selectedLogo={rivalLogo}
+                onSelect={(logo) => { setRivalLogo(logo); setShowLogoPicker(false) }}
+              />
             )}
           </div>
 

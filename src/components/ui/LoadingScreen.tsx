@@ -55,28 +55,20 @@ export function LoadingScreen({ fadeOut, onFadeOutDone }: { fadeOut?: boolean; o
 
   return (
     <div
+      className="fixed inset-0 z-[999] flex flex-col items-center justify-center gap-8 bg-[var(--white)] transition-opacity duration-500 ease-out"
       style={{
-        position: 'fixed',
-        inset: 0,
-        background: 'var(--white)',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 32,
-        zIndex: 999,
-        transition: 'opacity 0.5s ease',
         opacity: fadeOut ? 0 : 1,
         pointerEvents: fadeOut ? 'none' : 'auto',
       }}
     >
       {/* Escudo + spinner */}
-      <div style={{ position: 'relative', width: 120, height: 120 }}>
+      <div className="relative size-[120px]">
         <svg
           width="120"
           height="120"
           viewBox="0 0 120 120"
-          style={{ position: 'absolute', inset: 0, animation: 'spin 1.4s linear infinite' }}
+          className="absolute inset-0"
+          style={{ animation: 'spin 1.4s linear infinite' }}
         >
           <circle cx="60" cy="60" r="52" fill="none" stroke="var(--bg-mid)" strokeWidth="4" />
           <circle
@@ -92,45 +84,28 @@ export function LoadingScreen({ fadeOut, onFadeOutDone }: { fadeOut?: boolean; o
             style={{ transformOrigin: '60px 60px', animation: 'arc 1.4s ease-in-out infinite' }}
           />
         </svg>
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
+        <div className="absolute inset-0 flex items-center justify-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/escudo.webp" alt="AD Ceuta" style={{ width: 68, height: 68, objectFit: 'contain' }} />
+          <img src="/escudo.webp" alt="AD Ceuta" className="size-[68px] object-contain" />
         </div>
       </div>
 
       {/* TrueFocus words */}
-      <div style={{ position: 'relative', display: 'flex', gap: 16, alignItems: 'center' }}>
+      <div className="relative flex items-center gap-4">
         <span
           ref={boxRef}
+          className="pointer-events-none absolute rounded-[6px] border-2 border-[var(--red)]"
           style={{
-            position: 'absolute',
-            border: '2px solid var(--red)',
-            borderRadius: 6,
             boxShadow: '0 0 8px var(--red)',
             transition: 'all 0.45s cubic-bezier(0.25,0.46,0.45,0.94)',
-            pointerEvents: 'none',
           }}
         />
         {WORDS.map((word, i) => (
           <span
             key={word}
             ref={words[i]}
-            style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: 22,
-              fontWeight: 900,
-              letterSpacing: '0.12em',
-              color: 'var(--black)',
-              transition: 'filter 0.45s ease',
-            }}
+            className="font-display text-[22px] font-black tracking-[0.12em] text-[var(--black)]"
+            style={{ transition: 'filter 0.45s ease' }}
           >
             {word}
           </span>

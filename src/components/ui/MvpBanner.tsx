@@ -6,17 +6,9 @@ import { MvpSheet, type BannerState as SheetState } from './MvpSheet'
 import type { MvpSession, MvpVoteTally } from '@/infrastructure/supabase/MvpRepository'
 import { supabase } from '@/infrastructure/supabase/client'
 import { getLocalLogo } from '@/lib/teamLogos'
+import { getFingerprint } from '@/lib/fingerprint'
 
 type BannerState = 'none' | SheetState
-
-function getFingerprint(): string {
-  let fp = localStorage.getItem('mvp_fp')
-  if (!fp) {
-    fp = Math.random().toString(36).slice(2) + Date.now().toString(36)
-    localStorage.setItem('mvp_fp', fp)
-  }
-  return fp
-}
 
 function getVotedSession(): string | null {
   return localStorage.getItem('mvp_voted_session')

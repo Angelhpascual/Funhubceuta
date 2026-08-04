@@ -25,16 +25,12 @@ function TeamCrest({ name, size = 54 }: { name: string; size?: number }) {
   const logo = getLocalLogo(name)
   return (
     <div
-      className="rounded-full flex items-center justify-center flex-shrink-0"
-      style={{
-        width: size, height: size,
-        background: 'rgba(255,255,255,0.06)',
-        border: '1px solid rgba(255,255,255,0.14)',
-      }}
+      className="rounded-full flex items-center justify-center flex-shrink-0 bg-white/[0.06] border border-white/[0.14]"
+      style={{ width: size, height: size }}
     >
       {logo
         // eslint-disable-next-line @next/next/no-img-element
-        ? <img src={logo} alt={name} style={{ width: size * 0.74, height: size * 0.74 }} className="object-contain" />
+        ? <img src={logo} alt={name} className="object-contain" style={{ width: size * 0.74, height: size * 0.74 }} />
         : <span className="font-display font-black text-white/85" style={{ fontSize: size * 0.3 }}>
             {name.slice(0, 3).toUpperCase()}
           </span>
@@ -47,16 +43,12 @@ function SmallCrest({ name, size = 32 }: { name: string; size?: number }) {
   const logo = getLocalLogo(name)
   return (
     <div
-      className="rounded-full flex items-center justify-center flex-shrink-0"
-      style={{
-        width: size, height: size,
-        background: 'var(--bg-soft)',
-        border: '1px solid var(--border)',
-      }}
+      className="rounded-full flex items-center justify-center flex-shrink-0 bg-[var(--bg-soft)] border border-[var(--border)]"
+      style={{ width: size, height: size }}
     >
       {logo
         // eslint-disable-next-line @next/next/no-img-element
-        ? <img src={logo} alt={name} style={{ width: size * 0.68, height: size * 0.68 }} className="object-contain" />
+        ? <img src={logo} alt={name} className="object-contain" style={{ width: size * 0.68, height: size * 0.68 }} />
         : <span className="font-display font-black text-[var(--muted)]" style={{ fontSize: size * 0.3 }}>
             {name.slice(0, 3).toUpperCase()}
           </span>
@@ -84,8 +76,7 @@ function NextMatchCard({ m }: { m: MatchRow }) {
 // Compact upcoming match row
 function UpcomingRow({ m }: { m: MatchRow }) {
   return (
-    <div className="mx-0 mb-2 bg-white border border-[var(--border)] rounded-[var(--radius)] px-[14px] py-3 grid items-center gap-2"
-      style={{ gridTemplateColumns: '1fr auto 1fr' }}>
+    <div className="mx-0 mb-2 bg-white border border-[var(--border)] rounded-[var(--radius)] px-[14px] py-3 grid grid-cols-[1fr_auto_1fr] items-center gap-2">
       {/* Home */}
       <div className="flex items-center gap-2 min-w-0">
         <SmallCrest name={m.home_team} size={32} />
@@ -132,8 +123,7 @@ function UpcomingRow({ m }: { m: MatchRow }) {
 
 function ResultCard({ r }: { r: MatchRow }) {
   return (
-    <div className="mx-0 mb-2 bg-white border border-[var(--border)] rounded-[var(--radius)] px-[14px] py-3 grid items-center gap-2"
-      style={{ gridTemplateColumns: '1fr auto 1fr' }}>
+    <div className="mx-0 mb-2 bg-white border border-[var(--border)] rounded-[var(--radius)] px-[14px] py-3 grid grid-cols-[1fr_auto_1fr] items-center gap-2">
       {/* Home */}
       <div className="flex items-center gap-2 min-w-0">
         <SmallCrest name={r.home_team} size={32} />

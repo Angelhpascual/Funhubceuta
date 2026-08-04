@@ -95,7 +95,7 @@ export function HimnoPage({ onBack }: Props) {
       {/* ── LETRA ── */}
       <div className="flex flex-col gap-0 px-4 pb-10 pt-6">
         {VERSES.map((verse, vi) => (
-          <div key={vi} className={`mb-8 ${verse.chorus ? '' : ''}`}>
+          <div key={vi} className="mb-8">
 
             {verse.chorus ? (
               /* ── ESTRIBILLO ── */
@@ -121,7 +121,7 @@ export function HimnoPage({ onBack }: Props) {
                   {verse.lines.map((line, li) => (
                     <p
                       key={li}
-                      className="font-body text-[17px] leading-[1.6] text-[var(--text)]"
+                      className="font-body text-[17px] leading-[1.6] text-[var(--black)]"
                     >
                       {line}
                     </p>

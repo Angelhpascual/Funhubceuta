@@ -36,11 +36,9 @@ export function LiveControl() {
   const [tiendaActive, setTiendaActive] = useState<boolean | null>(null)
   const [savingTienda, setSavingTienda] = useState(false)
 
-  const fetch_ = (url: string, opts?: RequestInit) => fetch(url, opts)
-
   async function setMock(scenario: string) {
     setMockLoading(scenario)
-    await fetch_('/api/admin/live-mock', {
+    await fetch('/api/admin/live-mock', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ scenario }),
@@ -48,7 +46,7 @@ export function LiveControl() {
     // Send push notification if this scenario has one
     const s = SCENARIOS.find(sc => sc.id === scenario)
     if (s?.push) {
-      await fetch_('/api/admin/live-push', {
+      await fetch('/api/admin/live-push', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ rival: 'FC Andorra', ...s.push }),
@@ -61,7 +59,7 @@ export function LiveControl() {
   async function load() {
     setStatus('loading')
     try {
-      const res = await fetch_('/api/admin/live-control')
+      const res = await fetch('/api/admin/live-control')
       if (!res.ok) { setStatus('error'); return }
       const data = await res.json()
       setStatus(data.active ? 'active' : 'idle')
@@ -96,14 +94,14 @@ export function LiveControl() {
 
   async function activate() {
     setActing(true)
-    const res = await fetch_('/api/admin/live-control', { method: 'POST' })
+    const res = await fetch('/api/admin/live-control', { method: 'POST' })
     if (res.ok) { await load(); invalidateNavSlotCache() }
     setActing(false)
   }
 
   async function deactivate() {
     setActing(true)
-    const res = await fetch_('/api/admin/live-control', { method: 'DELETE' })
+    const res = await fetch('/api/admin/live-control', { method: 'DELETE' })
     if (res.ok) { await load(); invalidateNavSlotCache() }
     setActing(false)
   }
@@ -111,13 +109,13 @@ export function LiveControl() {
   async function toggleResult() {
     setClearingResult(true)
     if (lastResult) {
-      await fetch_('/api/admin/live-control', {
+      await fetch('/api/admin/live-control', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({}),
       })
     } else {
-      await fetch_('/api/admin/live-control', {
+      await fetch('/api/admin/live-control', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'activate_result' }),
@@ -169,11 +167,9 @@ export function LiveControl() {
         <button
           onClick={isActive ? deactivate : activate}
           disabled={acting || status === 'loading'}
-          className="w-full rounded-[10px] py-2.5 font-display text-[12px] font-black uppercase tracking-[0.08em] transition-opacity disabled:opacity-40"
-          style={{
-            background: isActive ? '#fff' : 'var(--red)',
-            color: isActive ? 'var(--red)' : '#fff',
-          }}
+          className={`w-full rounded-[10px] py-2.5 font-display text-[12px] font-black uppercase tracking-[0.08em] transition-opacity disabled:opacity-40 ${
+            isActive ? 'bg-white text-ceuta-red' : 'bg-ceuta-red text-white'
+          }`}
         >
           {acting
             ? '...'
@@ -190,8 +186,8 @@ export function LiveControl() {
       </div>
 
       {/* ── Estado del banner de inicio ── */}
-      <div className="mt-4 rounded-[12px] border border-[var(--border)] bg-white p-4">
-        <div className="mb-3 font-display text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--muted)]">
+      <div className="mt-4 rounded-[12px] border border-ceuta-border bg-white p-4">
+        <div className="mb-3 font-display text-[11px] font-bold uppercase tracking-[0.12em] text-ceuta-muted">
           Estado del banner de inicio
         </div>
 
@@ -203,9 +199,9 @@ export function LiveControl() {
               className={`flex-1 rounded-[8px] py-2 text-center font-display text-[10px] font-black uppercase tracking-[0.08em] transition-all ${
                 bannerState === s
                   ? s === 2
-                    ? 'bg-[var(--red)] text-white'
-                    : 'bg-[var(--black)] text-white'
-                  : 'bg-[var(--bg-soft)] text-[var(--muted)]'
+                    ? 'bg-ceuta-red text-white'
+                    : 'bg-ceuta-black text-white'
+                  : 'bg-ceuta-bg-soft text-ceuta-muted'
               }`}
             >
               <div className="text-[8px] opacity-60 mb-0.5">Estado {s}</div>
@@ -216,23 +212,23 @@ export function LiveControl() {
 
         {/* Current state info + action */}
         {bannerState === 1 && (
-          <p className="text-[12px] text-[var(--muted)] leading-tight">
+          <p className="text-[12px] text-ceuta-muted leading-tight">
             Mostrando la fecha del próximo partido. Activa el modo live para cambiar al estado 2.
           </p>
         )}
         {bannerState === 2 && (
-          <p className="text-[12px] text-[var(--muted)] leading-tight">
+          <p className="text-[12px] text-ceuta-muted leading-tight">
             Banner en modo live. Desactiva el modo live para volver al estado 1 o 3.
           </p>
         )}
         {/* State 3 toggle */}
-        <div className="mt-4 pt-3 border-t border-[var(--border)]">
+        <div className="mt-4 pt-3 border-t border-ceuta-border">
           <div className="flex items-center justify-between mb-2">
             <div>
-              <div className="font-display text-[12px] font-black uppercase tracking-[0.06em] text-[var(--black)]">
+              <div className="font-display text-[12px] font-black uppercase tracking-[0.06em] text-ceuta-black">
                 Resultado reciente
               </div>
-              <div className="text-[11px] text-[var(--muted)] leading-tight mt-0.5">
+              <div className="text-[11px] text-ceuta-muted leading-tight mt-0.5">
                 Muestra el resultado del último partido en el banner
               </div>
             </div>
@@ -240,7 +236,7 @@ export function LiveControl() {
               onClick={toggleResult}
               disabled={clearingResult || status === 'loading'}
               className={`relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 disabled:opacity-40 ${
-                lastResult ? 'bg-[var(--black)]' : 'bg-[var(--border)]'
+                lastResult ? 'bg-ceuta-black' : 'bg-ceuta-border'
               }`}
             >
               <span
@@ -251,11 +247,11 @@ export function LiveControl() {
             </button>
           </div>
           {lastResult && (
-            <div className="rounded-[8px] bg-[var(--bg-soft)] px-3 py-2 text-center">
-              <div className="font-display text-[15px] font-black text-[var(--black)]">
+            <div className="rounded-[8px] bg-ceuta-bg-soft px-3 py-2 text-center">
+              <div className="font-display text-[15px] font-black text-ceuta-black">
                 {lastResult.homeScore} – {lastResult.awayScore}
               </div>
-              <div className="font-display text-[10px] uppercase text-[var(--muted)] mt-0.5">
+              <div className="font-display text-[10px] uppercase text-ceuta-muted mt-0.5">
                 {lastResult.homeTeam} vs {lastResult.awayTeam}
               </div>
             </div>
@@ -264,42 +260,42 @@ export function LiveControl() {
       </div>
 
       {/* ── Gestión del partido — visible siempre ── */}
-      <div className="mt-4 rounded-[12px] border border-[var(--border)] bg-white p-4 space-y-3">
-        <div className="font-display text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--muted)]">
+      <div className="mt-4 rounded-[12px] border border-ceuta-border bg-white p-4 space-y-3">
+        <div className="font-display text-[11px] font-bold uppercase tracking-[0.12em] text-ceuta-muted">
           Gestión del partido
         </div>
         <div className="flex gap-2">
           <button
             onClick={() => setMock('pre')}
             disabled={mockLoading !== null}
-            className="flex-1 rounded-[10px] bg-[var(--black)] py-2.5 font-display text-[11px] font-black uppercase tracking-[0.08em] text-white disabled:opacity-40"
+            className="flex-1 rounded-[10px] bg-ceuta-black py-2.5 font-display text-[11px] font-black uppercase tracking-[0.08em] text-white disabled:opacity-40"
           >
             {mockLoading === 'pre' ? '...' : 'Preparar siguiente partido'}
           </button>
           <button
             onClick={() => setMock('clear')}
             disabled={mockLoading !== null}
-            className="rounded-[10px] border border-[var(--red)]/30 bg-[var(--red)]/5 px-4 py-2.5 font-display text-[11px] font-black uppercase tracking-[0.08em] text-[var(--red)] disabled:opacity-40"
+            className="rounded-[10px] border border-ceuta-red/30 bg-ceuta-red/5 px-4 py-2.5 font-display text-[11px] font-black uppercase tracking-[0.08em] text-ceuta-red disabled:opacity-40"
           >
             {mockLoading === 'clear' ? '...' : 'Limpiar'}
           </button>
         </div>
-        <p className="text-[11px] text-[var(--muted)] leading-tight">
+        <p className="text-[11px] text-ceuta-muted leading-tight">
           «Preparar siguiente partido» carga el próximo partido de la base de datos en estado previo. «Limpiar» borra todos los datos del mock.
         </p>
       </div>
 
       {/* ── Slot nav: Tienda / Mercado ── */}
-      <div className="mt-4 rounded-[12px] border border-[var(--border)] bg-white p-4">
-        <div className="mb-3 font-display text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--muted)]">
+      <div className="mt-4 rounded-[12px] border border-ceuta-border bg-white p-4">
+        <div className="mb-3 font-display text-[11px] font-bold uppercase tracking-[0.12em] text-ceuta-muted">
           Slot nav (cuando no hay partido)
         </div>
         <div className="flex items-center justify-between gap-4">
           <div>
-            <div className="font-display text-[15px] font-black uppercase leading-tight text-[var(--black)]">
+            <div className="font-display text-[15px] font-black uppercase leading-tight text-ceuta-black">
               {tiendaActive === null ? '…' : tiendaActive ? 'Tienda activa' : 'Mercado activo'}
             </div>
-            <p className="mt-0.5 text-[12px] leading-snug text-[var(--muted)]">
+            <p className="mt-0.5 text-[12px] leading-snug text-ceuta-muted">
               {tiendaActive
                 ? 'Nav muestra "Tienda" → /merchan'
                 : 'Nav muestra "Mercado" → /mercado'}
@@ -308,8 +304,7 @@ export function LiveControl() {
           <button
             onClick={toggleTienda}
             disabled={savingTienda || tiendaActive === null}
-            style={{ backgroundColor: tiendaActive ? '#f2c300' : '#111111' }}
-            className="relative flex h-8 w-14 shrink-0 items-center rounded-full transition-colors disabled:opacity-60"
+            className={`relative flex h-8 w-14 shrink-0 items-center rounded-full transition-colors disabled:opacity-60 ${tiendaActive ? 'bg-[#f2c300]' : 'bg-[#111111]'}`}
             aria-label="Toggle tienda/mercado"
           >
             <span className={`absolute size-6 rounded-full bg-white shadow transition-transform ${
@@ -321,12 +316,12 @@ export function LiveControl() {
 
       {/* ── Simulador de escenarios individuales ── */}
       {process.env.NEXT_PUBLIC_VERCEL_ENV !== 'production' && (
-        <div className="mt-5 rounded-[12px] border border-dashed border-[var(--border)] p-4">
+        <div className="mt-5 rounded-[12px] border border-dashed border-ceuta-border p-4">
           <div className="mb-3 flex items-center gap-2">
             <span className="rounded bg-amber-100 px-1.5 py-0.5 font-display text-[10px] font-black uppercase tracking-[0.1em] text-amber-700">
               Solo local / preview
             </span>
-            <span className="font-display text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--muted)]">
+            <span className="font-display text-[11px] font-bold uppercase tracking-[0.12em] text-ceuta-muted">
               Escenario manual
             </span>
           </div>
@@ -338,8 +333,8 @@ export function LiveControl() {
                 disabled={mockLoading !== null}
                 className={`rounded-[8px] border px-3 py-1.5 font-display text-[11px] font-bold uppercase tracking-[0.08em] transition-all disabled:opacity-40 ${
                   mockActive === s.id
-                    ? 'border-[var(--black)] bg-[var(--black)] text-white'
-                    : 'border-[var(--border)] bg-white text-[var(--black)] hover:border-[var(--black)]'
+                    ? 'border-ceuta-black bg-ceuta-black text-white'
+                    : 'border-ceuta-border bg-white text-ceuta-black hover:border-ceuta-black'
                 }`}
               >
                 {mockLoading === s.id ? '...' : s.label}
@@ -348,15 +343,15 @@ export function LiveControl() {
             <button
               onClick={() => setMock('clear')}
               disabled={mockLoading !== null || mockActive === null}
-              className="rounded-[8px] border border-[var(--red)]/30 bg-[var(--red)]/5 px-3 py-1.5 font-display text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--red)] disabled:opacity-30"
+              className="rounded-[8px] border border-ceuta-red/30 bg-ceuta-red/5 px-3 py-1.5 font-display text-[11px] font-bold uppercase tracking-[0.08em] text-ceuta-red disabled:opacity-30"
             >
               Limpiar mock
             </button>
           </div>
           {mockActive && (
-            <p className="mt-2.5 text-[11px] text-[var(--muted)]">
-              Mock activo: <strong className="text-[var(--black)]">{mockActive}</strong> —{' '}
-              <a href="/live" target="_blank" className="text-[var(--red)] underline">ver /live</a>
+            <p className="mt-2.5 text-[11px] text-ceuta-muted">
+              Mock activo: <strong className="text-ceuta-black">{mockActive}</strong> —{' '}
+              <a href="/live" target="_blank" className="text-ceuta-red underline">ver /live</a>
             </p>
           )}
 

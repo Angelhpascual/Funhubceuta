@@ -93,7 +93,7 @@ export function CaballatiTab() {
             style={{ background: 'linear-gradient(0deg, #0A0A0A 4%, rgba(10,10,10,.25) 55%, rgba(10,10,10,.15))' }}
           />
         </div>
-        <div className="relative px-5 pb-6" style={{ marginTop: '-46px' }}>
+        <div className="relative -mt-[46px] px-5 pb-6">
           <div className="flex items-center gap-2 font-display text-[11px] font-bold uppercase tracking-[0.16em] text-[var(--red)]">
             <span className="w-[18px] h-0.5 bg-[var(--red)]" />
             La mascota
@@ -129,10 +129,9 @@ export function CaballatiTab() {
 
       {/* Timeline */}
       <SectionLabel>Su historia</SectionLabel>
-      <div className="relative pl-[38px] pr-4" style={{ paddingLeft: '38px' }}>
+      <div className="relative pl-[38px] pr-4">
         <div
-          className="absolute top-[6px] bottom-[6px] w-0.5 bg-[var(--border)]"
-          style={{ left: '22px' }}
+          className="absolute left-[22px] top-[6px] bottom-[6px] w-0.5 bg-[var(--border)]"
         />
         {TIMELINE.map((e) => (
           <div key={e.year} className="relative pb-6 pl-[18px] last:pb-[6px]">

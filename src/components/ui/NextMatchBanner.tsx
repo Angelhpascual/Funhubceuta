@@ -17,12 +17,8 @@ function TeamCrest({ name, size = 54 }: { name: string; size?: number }) {
   const logo = getLocalLogo(name)
   return (
     <div
-      className="rounded-full flex items-center justify-center flex-shrink-0"
-      style={{
-        width: size, height: size,
-        background: 'rgba(255,255,255,0.06)',
-        border: '1px solid rgba(255,255,255,0.14)',
-      }}
+      className="rounded-full flex items-center justify-center flex-shrink-0 bg-white/[0.06] border border-white/[0.14]"
+      style={{ width: size, height: size }}
     >
       {logo
         // eslint-disable-next-line @next/next/no-img-element
@@ -76,7 +72,7 @@ export function NextMatchBanner({ match }: { match: NextMatchData }) {
       </div>
 
       {/* Teams */}
-      <div className="relative z-[1] mt-4 grid items-center gap-[10px]" style={{ gridTemplateColumns: '1fr auto 1fr' }}>
+      <div className="relative z-[1] mt-4 grid grid-cols-[1fr_auto_1fr] items-center gap-[10px]">
         {/* Home team */}
         <div className="flex flex-col items-center gap-[7px] text-center">
           <TeamCrest name={homeTeam} size={54} />

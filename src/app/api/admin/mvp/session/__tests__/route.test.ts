@@ -80,8 +80,8 @@ describe('PATCH /api/admin/mvp/session', () => {
 
   it('opens session', async () => {
     vi.mocked(openMvpSession).mockResolvedValue({ error: null })
-    const single = vi.fn().mockResolvedValue({ data: { match_label: 'Ceuta vs X', jornada: 'J20' } })
-    vi.mocked(supabaseAdmin.from).mockReturnValue({ select: vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ single }) }) } as never)
+    const maybeSingle = vi.fn().mockResolvedValue({ data: { match_label: 'Ceuta vs X', jornada: 'J20' } })
+    vi.mocked(supabaseAdmin.from).mockReturnValue({ select: vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ maybeSingle }) }) } as never)
 
     const res = await PATCH(makeReq('PATCH', { sessionId: 's1', action: 'open' }))
     expect(res.status).toBe(200)

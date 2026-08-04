@@ -3,8 +3,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import type React from 'react'
 import { useRouter } from 'next/navigation'
-import { MvpAdmin } from './MvpAdmin'
-import { PredictionAdmin } from './PredictionAdmin'
 
 type Status = 'idle' | 'running' | 'ok' | 'error'
 
@@ -373,7 +371,6 @@ export function AdminActions({ syncOnly, notifOnly, deviceOnly }: { syncOnly?: b
   const showSync = !notifOnly && !deviceOnly
   const showNotif = !syncOnly && !deviceOnly
   const showDevice = !syncOnly && !notifOnly
-  const showMvp = !syncOnly && !notifOnly && !deviceOnly
 
   return (
     <div className="space-y-6">
@@ -533,11 +530,6 @@ export function AdminActions({ syncOnly, notifOnly, deviceOnly }: { syncOnly?: b
         </div>
       </section>}
 
-      {/* MVP Voting */}
-      {showMvp && <section><MvpAdmin /></section>}
-
-      {/* Predicciones */}
-      {showMvp && <section><PredictionAdmin /></section>}
 
     </div>
   )

@@ -5,15 +5,7 @@ import { PredictionSheet } from './PredictionSheet'
 import { supabase } from '@/infrastructure/supabase/client'
 import type { PredictionSession, UserPrediction } from '@/domain/predictions/PredictionSession'
 import { getLocalLogo } from '@/lib/teamLogos'
-
-function getFingerprint(): string {
-  let fp = localStorage.getItem('mvp_fp')
-  if (!fp) {
-    fp = Math.random().toString(36).slice(2) + Date.now().toString(36)
-    localStorage.setItem('mvp_fp', fp)
-  }
-  return fp
-}
+import { getFingerprint } from '@/lib/fingerprint'
 
 const IconTrophy = () => (
   <svg viewBox="0 0 24 24" fill="none" width="18" height="18">

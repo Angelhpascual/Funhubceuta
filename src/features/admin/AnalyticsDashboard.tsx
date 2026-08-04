@@ -117,8 +117,7 @@ export function AnalyticsDashboard({ data }: Props) {
           ].map((k) => (
             <div key={k.label} className="relative overflow-hidden rounded-[14px] border border-ceuta-border bg-white px-4 py-4">
               <div
-                className="absolute bottom-0 left-0 top-0 w-1 rounded-l-[14px]"
-                style={{ background: k.accent === 'gold' ? 'var(--gold)' : 'var(--red)' }}
+                className={`absolute bottom-0 left-0 top-0 w-1 rounded-l-[14px] ${k.accent === 'gold' ? 'bg-[var(--gold)]' : 'bg-[var(--red)]'}`}
               />
               <div className="font-display text-[34px] font-black leading-none tracking-tight text-ceuta-black">
                 {k.n}
@@ -292,11 +291,8 @@ export function AnalyticsDashboard({ data }: Props) {
               {[22, 28, 24, 100, 30, 26, 23, 92, 27].map((h, i) => (
                 <span
                   key={i}
-                  className="w-3 rounded-t-[3px]"
-                  style={{
-                    height: `${h}%`,
-                    background: h > 50 ? 'var(--red)' : 'rgba(255,255,255,0.25)',
-                  }}
+                  className={`w-3 rounded-t-[3px] ${h > 50 ? 'bg-[var(--red)]' : 'bg-white/25'}`}
+                  style={{ height: `${h}%` }}
                 />
               ))}
             </div>

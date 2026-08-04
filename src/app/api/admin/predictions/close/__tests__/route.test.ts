@@ -1,13 +1,21 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
+vi.mock('@/infrastructure/admin/auth', () => ({
+  checkAdminAuth: vi.fn(),
+  unauthorizedResponse: () => new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 }),
+}))
 vi.mock('@/infrastructure/supabase/PredictionRepository', () => ({
   closePredictionSession: vi.fn(),
 }))
 
+import { checkAdminAuth } from '@/infrastructure/admin/auth'
 import { closePredictionSession } from '@/infrastructure/supabase/PredictionRepository'
 import { POST } from '../route'
 
-beforeEach(() => { vi.resetAllMocks() })
+beforeEach(() => {
+  vi.resetAllMocks()
+  vi.mocked(checkAdminAuth).mockResolvedValue(true)
+})
 
 function makeReq(body: unknown) {
   return new Request('http://localhost/api/admin/predictions/close', {
