@@ -1,3 +1,4 @@
+import 'server-only'
 import { NextResponse } from 'next/server'
 
 export function apiError(err: unknown, status = 500): NextResponse {

@@ -1,3 +1,4 @@
+import 'server-only'
 import { supabase } from '@/infrastructure/supabase/client'
 import { TeamsSupabaseRepository } from '@/infrastructure/supabase/TeamsSupabaseRepository'
 import { MatchesSupabaseRepository } from '@/infrastructure/supabase/MatchesSupabaseRepository'
