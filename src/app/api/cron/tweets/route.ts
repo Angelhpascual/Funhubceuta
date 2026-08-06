@@ -3,6 +3,7 @@ import { Receiver } from '@upstash/qstash'
 import { scrapeLatestTweets } from '@/infrastructure/scrapers/twitterScraper'
 import { upsertTweets } from '@/infrastructure/supabase/TweetsRepository'
 import { logCron } from '@/infrastructure/supabase/logCron'
+import { withApi } from '@/lib/apiError'
 
 async function syncTweets() {
   const t0 = Date.now()
@@ -18,7 +19,7 @@ async function syncTweets() {
   return tweets.length
 }
 
-export async function POST(request: Request) {
+export const POST = withApi(async (request: Request) => {
   const receiver = new Receiver({
     currentSigningKey: process.env.QSTASH_CURRENT_SIGNING_KEY!,
     nextSigningKey: process.env.QSTASH_NEXT_SIGNING_KEY!,
@@ -32,12 +33,12 @@ export async function POST(request: Request) {
 
   const count = await syncTweets()
   return NextResponse.json({ ok: true, count })
-}
+})
 
-export async function GET(req: NextRequest) {
+export const GET = withApi(async (req: NextRequest) => {
   if (process.env.NODE_ENV === 'production') {
     return NextResponse.json({ error: 'Use POST via QStash in production' }, { status: 405 })
   }
   const count = await syncTweets()
   return NextResponse.json({ ok: true, count })
-}
+})

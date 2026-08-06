@@ -9,9 +9,10 @@ import {
 } from '@/infrastructure/supabase/MvpRepository'
 import { sendPush } from '@/infrastructure/push/sendPush'
 import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
+import { withApi } from '@/lib/apiError'
 
 // POST /api/admin/mvp/session — create a new session
-export async function POST(request: Request) {
+export const POST = withApi(async (request: Request) => {
   if (!(await checkAdminAuth())) return unauthorizedResponse()
 
   const { matchLabel, candidates, matchMeta } = await request.json()
@@ -22,10 +23,10 @@ export async function POST(request: Request) {
   const { data, error } = await createMvpSession(matchLabel, candidates as MvpCandidate[], matchMeta as MvpMatchMeta | undefined)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ session: data })
-}
+})
 
 // PATCH /api/admin/mvp/session — open or close a session
-export async function PATCH(request: Request) {
+export const PATCH = withApi(async (request: Request) => {
   if (!(await checkAdminAuth())) return unauthorizedResponse()
 
   const { sessionId, action } = await request.json()
@@ -62,10 +63,10 @@ export async function PATCH(request: Request) {
   }
 
   return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
-}
+})
 
 // DELETE /api/admin/mvp/session — remove session and hide banner
-export async function DELETE(request: Request) {
+export const DELETE = withApi(async (request: Request) => {
   if (!(await checkAdminAuth())) return unauthorizedResponse()
 
   const { sessionId } = await request.json()
@@ -74,4 +75,4 @@ export async function DELETE(request: Request) {
   const { error } = await supabaseAdmin.from('mvp_sessions').delete().eq('id', sessionId)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ ok: true })
-}
+})

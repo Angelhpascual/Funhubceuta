@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '@/infrastructure/supabase/client'
 import { STANDINGS_CURRENT_SEASON } from '@/lib/constants'
+import { withApi } from '@/lib/apiError'
 
 const TEAMS: Array<{ id: string; name: string }> = [
   { id: '2737', name: 'Albacete' },
@@ -27,7 +28,7 @@ const TEAMS: Array<{ id: string; name: string }> = [
   { id: '245', name: 'Tenerife' },
 ]
 
-export async function GET(request: Request) {
+export const GET = withApi(async (request: Request) => {
   const { searchParams } = new URL(request.url)
   if (searchParams.get('secret') !== process.env.TEST_SECRET) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -46,4 +47,4 @@ export async function GET(request: Request) {
   if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 })
 
   return NextResponse.json({ ok: true, total: rows.length })
-}
+})

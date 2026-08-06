@@ -5,8 +5,9 @@ import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
 import { sendPush } from '@/infrastructure/push/sendPush'
 import { logNotification } from '@/infrastructure/supabase/logCron'
 import { checkAdminAuth, unauthorizedResponse } from '@/infrastructure/admin/auth'
+import { withApi } from '@/lib/apiError'
 
-export async function GET() {
+export const GET = withApi(async () => {
   if (!(await checkAdminAuth())) return unauthorizedResponse()
 
   const { data } = await supabaseAdmin
@@ -18,9 +19,9 @@ export async function GET() {
     .limit(20)
 
   return NextResponse.json({ items: data ?? [] })
-}
+})
 
-export async function POST(req: Request) {
+export const POST = withApi(async (req: Request) => {
   if (!(await checkAdminAuth())) return unauthorizedResponse()
 
   const { id, action } = await req.json() as { id: string; action: 'send' | 'publish' | 'notify' | 'discard' }
@@ -76,4 +77,4 @@ export async function POST(req: Request) {
   })
 
   return NextResponse.json({ ok: true, sent: result.sent })
-}
+})

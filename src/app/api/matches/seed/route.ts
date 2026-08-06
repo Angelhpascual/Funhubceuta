@@ -2,8 +2,9 @@ import { NextResponse } from 'next/server'
 import { scrapeAllScheduled } from '@/infrastructure/scrapers/adceutaScraper'
 import { supabase } from '@/infrastructure/supabase/client'
 import { CURRENT_MATCH_SEASON, COMPETITION } from '@/lib/constants'
+import { withApi } from '@/lib/apiError'
 
-export async function GET(request: Request) {
+export const GET = withApi(async (request: Request) => {
   const { searchParams } = new URL(request.url)
   const secret = searchParams.get('secret')
 
@@ -43,4 +44,4 @@ export async function GET(request: Request) {
   if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 })
 
   return NextResponse.json({ ok: true, inserted: matches.length, season: CURRENT_MATCH_SEASON })
-}
+})

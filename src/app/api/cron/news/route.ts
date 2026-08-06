@@ -13,6 +13,7 @@ import { sendNewsNotification } from '@/infrastructure/push/sendNewsNotification
 import { notifyAdmin } from '@/infrastructure/push/notifyAdmin'
 import { logCron, logNotification } from '@/infrastructure/supabase/logCron'
 import { getRecentNotifTitles, getQueuedTitles, getDiscardedTitles, markNotifyQueued, getSubscriberCount } from '@/infrastructure/supabase/NotificationRepository'
+import { withApi } from '@/lib/apiError'
 import {
   downloadAndUploadImage,
   isStoredNewsImage,
@@ -234,7 +235,7 @@ async function syncNews() {
   return { summary, queued: newlyQueued > 0 ? newlyQueued : null }
 }
 
-export async function POST(request: Request) {
+export const POST = withApi(async (request: Request) => {
   const { searchParams } = new URL(request.url)
   const secret = searchParams.get('secret')
 
@@ -260,10 +261,10 @@ export async function POST(request: Request) {
 
   const result = await syncNews()
   return NextResponse.json({ ok: true, ...result })
-}
+})
 
 // Llamada manual (dev o producción con TEST_SECRET)
-export async function GET(request: Request) {
+export const GET = withApi(async (request: Request) => {
   const { searchParams } = new URL(request.url)
   const secret = searchParams.get('secret')
   const testSecret = process.env.TEST_SECRET
@@ -274,4 +275,4 @@ export async function GET(request: Request) {
 
   const result = await syncNews()
   return NextResponse.json({ ok: true, ...result })
-}
+})

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import webpush from 'web-push'
 import { getAllSubscriptions, deleteSubscription } from '@/infrastructure/supabase/PushSubscriptionsRepository'
+import { withApi } from '@/lib/apiError'
 
 export interface PushPayload {
   title: string
@@ -9,7 +10,7 @@ export interface PushPayload {
   url?: string
 }
 
-export async function POST(request: Request) {
+export const POST = withApi(async (request: Request) => {
   webpush.setVapidDetails(
     'mailto:angelhpascual@gmail.com',
     process.env.VAPID_PUBLIC_KEY!,
@@ -41,4 +42,4 @@ export async function POST(request: Request) {
 
   const sent = results.filter((r) => r.status === 'fulfilled').length
   return NextResponse.json({ ok: true, sent, total: subs.length })
-}
+})

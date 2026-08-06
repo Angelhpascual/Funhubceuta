@@ -2,8 +2,9 @@ import { NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
 import { checkAdminAuth, unauthorizedResponse } from '@/infrastructure/admin/auth'
+import { withApi } from '@/lib/apiError'
 
-export async function GET() {
+export const GET = withApi(async () => {
   if (!(await checkAdminAuth())) return unauthorizedResponse()
 
   const { data, error } = await supabaseAdmin
@@ -15,9 +16,9 @@ export async function GET() {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ items: data ?? [] })
-}
+})
 
-export async function DELETE(req: Request) {
+export const DELETE = withApi(async (req: Request) => {
   if (!(await checkAdminAuth())) return unauthorizedResponse()
 
   const { id } = await req.json()
@@ -33,4 +34,4 @@ export async function DELETE(req: Request) {
   revalidatePath('/noticias')
 
   return NextResponse.json({ ok: true })
-}
+})

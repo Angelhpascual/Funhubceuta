@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server'
 import { getActiveMvpSession, getMvpVoteTallies } from '@/infrastructure/supabase/MvpRepository'
+import { withApi } from '@/lib/apiError'
 
 export const revalidate = 0
 
-export async function GET() {
+export const GET = withApi(async () => {
   const session = await getActiveMvpSession()
   if (!session) return NextResponse.json({ session: null })
 
@@ -12,4 +13,4 @@ export async function GET() {
     : []
 
   return NextResponse.json({ session, tallies })
-}
+})

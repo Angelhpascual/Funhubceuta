@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server'
 import { castMvpVote, hasVoted, getActiveMvpSession } from '@/infrastructure/supabase/MvpRepository'
+import { withApi } from '@/lib/apiError'
 
-export async function POST(request: Request) {
+export const POST = withApi(async (request: Request) => {
   const { sessionId, candidateId, fingerprint } = await request.json()
 
   if (!sessionId || !candidateId || !fingerprint) {
@@ -27,4 +28,4 @@ export async function POST(request: Request) {
   }
 
   return NextResponse.json({ ok: true })
-}
+})

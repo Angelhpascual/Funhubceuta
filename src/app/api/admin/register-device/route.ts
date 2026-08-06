@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server'
 import { checkAdminAuth, unauthorizedResponse } from '@/infrastructure/admin/auth'
 import { markSubscriptionAsAdmin } from '@/infrastructure/supabase/PushSubscriptionsRepository'
+import { withApi } from '@/lib/apiError'
 
-export async function POST(req: Request) {
+export const POST = withApi(async (req: Request) => {
   if (!(await checkAdminAuth())) return unauthorizedResponse()
 
   const { endpoint } = await req.json()
@@ -11,4 +12,4 @@ export async function POST(req: Request) {
   const { error } = await markSubscriptionAsAdmin(endpoint)
   if (error) return NextResponse.json({ error }, { status: 500 })
   return NextResponse.json({ ok: true })
-}
+})

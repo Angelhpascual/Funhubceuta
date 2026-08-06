@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server'
 import { getActivePredictionSession, getUserPrediction } from '@/infrastructure/supabase/PredictionRepository'
+import { withApi } from '@/lib/apiError'
 
-export async function GET(request: Request) {
+export const GET = withApi(async (request: Request) => {
   const { searchParams } = new URL(request.url)
   const fingerprint = searchParams.get('fp') ?? ''
 
@@ -14,4 +15,4 @@ export async function GET(request: Request) {
     { session, mine },
     { headers: { 'Cache-Control': 'no-store' } }
   )
-}
+})
