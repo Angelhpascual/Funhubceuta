@@ -1,209 +1,26 @@
 'use client'
 
-import { usePathname, useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import { usePathname } from 'next/navigation'
 import { InstallModal } from '@/components/ui/InstallModal'
 import { MvpBanner } from '@/components/ui/MvpBanner'
-
-const NAV_MOBILE = [
-  {
-    id: '/',
-    label: 'Inicio',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-        <polyline points="9 22 9 12 15 12 15 22" />
-      </svg>
-    ),
-  },
-  {
-    id: '/mercado',
-    label: 'Mercado',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
-        <line x1="3" y1="6" x2="21" y2="6" />
-        <path d="M16 10a4 4 0 01-8 0" />
-      </svg>
-    ),
-  },
-  {
-    id: '/clasificacion',
-    label: 'Clasificación',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <line x1="8" y1="6" x2="21" y2="6" />
-        <line x1="8" y1="12" x2="21" y2="12" />
-        <line x1="8" y1="18" x2="21" y2="18" />
-        <line x1="3" y1="6" x2="3.01" y2="6" />
-        <line x1="3" y1="12" x2="3.01" y2="12" />
-        <line x1="3" y1="18" x2="3.01" y2="18" />
-      </svg>
-    ),
-  },
-  {
-    id: '/partidos',
-    label: 'Partidos',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="10" />
-        <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
-        <line x1="2" y1="12" x2="22" y2="12" />
-      </svg>
-    ),
-  },
-  {
-    id: '/club',
-    label: 'Club',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
-        <circle cx="9" cy="7" r="4" />
-        <path d="M23 21v-2a4 4 0 00-3-3.87" />
-        <path d="M16 3.13a4 4 0 010 7.75" />
-      </svg>
-    ),
-  },
-]
-
-const NAV_DESKTOP = [
-  {
-    id: '/',
-    label: 'Inicio',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-        <polyline points="9 22 9 12 15 12 15 22" />
-      </svg>
-    ),
-  },
-  {
-    id: '/mercado',
-    label: 'Mercado',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
-        <line x1="3" y1="6" x2="21" y2="6" />
-        <path d="M16 10a4 4 0 01-8 0" />
-      </svg>
-    ),
-  },
-  {
-    id: '/clasificacion',
-    label: 'Clasificación',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <line x1="8" y1="6" x2="21" y2="6" />
-        <line x1="8" y1="12" x2="21" y2="12" />
-        <line x1="8" y1="18" x2="21" y2="18" />
-        <line x1="3" y1="6" x2="3.01" y2="6" />
-        <line x1="3" y1="12" x2="3.01" y2="12" />
-        <line x1="3" y1="18" x2="3.01" y2="18" />
-      </svg>
-    ),
-  },
-  {
-    id: '/partidos',
-    label: 'Partidos',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="10" />
-        <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
-        <line x1="2" y1="12" x2="22" y2="12" />
-      </svg>
-    ),
-  },
-  {
-    id: '/club',
-    label: 'Club',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
-        <circle cx="9" cy="7" r="4" />
-        <path d="M23 21v-2a4 4 0 00-3-3.87" />
-        <path d="M16 3.13a4 4 0 010 7.75" />
-      </svg>
-    ),
-  },
-]
-
-const SSR_ROUTES = ['/clasificacion', '/partidos', '/club', '/noticias', '/alineacion', '/mercado', '/live', '/merchan']
-
-// Topbar rendered on SSR routes AND on home in desktop-only mode
-function Topbar({ pathname, router, liveActive, slotHref, slotLabel, slotMode }: { pathname: string; router: ReturnType<typeof useRouter>; liveActive: boolean; slotHref: string; slotLabel: string; slotMode: string }) {
-  return (
-    <div className="topbar">
-      {/* Desktop: escudo + título a la izquierda */}
-      <div className="topbar-logo cursor-pointer desktop-only" onClick={() => router.push('/')}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/escudo.webp" alt="AD Ceuta" className="w-10 h-10 object-contain" />
-        <span className="topbar-title">AD CEUTA <b>INFO</b></span>
-      </div>
-      {/* Móvil: escudo centrado absolutamente */}
-      <div
-        className="absolute left-1/2 -translate-x-1/2 cursor-pointer mobile-only"
-        onClick={() => router.push('/')}
-      >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/escudo.webp" alt="AD Ceuta" className="w-10 h-10 object-contain" />
-      </div>
-      <nav className="top-nav desktop-only">
-        {NAV_DESKTOP.map((n) => {
-          const isDynamicSlot = n.id === '/mercado'
-          const isLiveTab = isDynamicSlot && liveActive
-          const href = isDynamicSlot ? slotHref : n.id
-          const label = isDynamicSlot ? slotLabel : n.label
-          const icon = isLiveTab ? LIVE_ICON : isDynamicSlot && slotMode === 'tienda' ? TIENDA_ICON : n.icon
-          return (
-            <button
-              key={n.id}
-              className={`top-nav-item ${pathname === href ? 'active' : ''} ${isLiveTab ? 'text-[var(--red)]' : ''}`}
-              onClick={() => router.push(href)}
-            >
-              {icon}
-              <span suppressHydrationWarning>{label}</span>
-            </button>
-          )
-        })}
-      </nav>
-    </div>
-  )
-}
-
-function removeHtmlLoader() {
-  const el = document.getElementById('html-loader')
-  if (!el) return
-  el.style.opacity = '0'
-  el.style.pointerEvents = 'none'
-  el.style.transition = 'opacity 0.3s ease'
-}
-
-import { TIENDA_ICON, LIVE_ICON } from '@/components/icons/navIcons'
-import { useNavSlot } from '@/hooks/useNavSlot'
+import { Topbar } from '@/components/layout/Topbar'
+import { BottomNav } from '@/components/layout/BottomNav'
+import { isSSRRoute } from '@/components/layout/nav.config'
+import { useHtmlLoader } from '@/hooks/useHtmlLoader'
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const router = useRouter()
-  const { liveActive, slotHref, slotLabel, slotMode } = useNavSlot()
-
-  // SSR routes + admin: remove loader immediately on hydration (page is ready)
-  useEffect(() => {
-    const isSSR = SSR_ROUTES.some((r) => pathname === r || pathname.startsWith(r + '/'))
-    if (isSSR || pathname.startsWith('/admin')) removeHtmlLoader()
-    // Home: LoadingScreen handles it
-  }, [pathname])
+  useHtmlLoader(pathname)
 
   if (pathname.startsWith('/admin')) return <>{children}</>
 
-  const isSSRRoute = SSR_ROUTES.some((r) => pathname === r || pathname.startsWith(r + '/'))
-
-  // Home page has its own mobile shell; on desktop we inject a topbar above it via CSS
-  if (!isSSRRoute) {
+  // Home page: Topbar overlay on desktop; page.tsx handles its own mobile topbar
+  if (!isSSRRoute(pathname)) {
     return (
       <>
         <InstallModal />
         <div className="desktop-topbar-overlay">
-          <Topbar pathname={pathname} router={router} liveActive={liveActive} slotHref={slotHref} slotLabel={slotLabel} slotMode={slotMode} />
+          <Topbar />
         </div>
         {children}
       </>
@@ -213,41 +30,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div id="app-root">
       <InstallModal />
-      <Topbar pathname={pathname} router={router} liveActive={liveActive} slotHref={slotHref} slotLabel={slotLabel} slotMode={slotMode} />
-
+      <Topbar />
       <div className="scroll-area">{children}</div>
-
       <MvpBanner />
-
-      {/* Bottom nav: mobile only */}
-      <div className="bottom-nav">
-        {NAV_MOBILE.map((n) => {
-          const isDynamicSlot = n.id === '/mercado'
-          const isLiveTab = isDynamicSlot && liveActive
-          const href = isDynamicSlot ? slotHref : n.id
-          const label = isDynamicSlot ? slotLabel : n.label
-          const icon = isLiveTab ? LIVE_ICON : isDynamicSlot && slotMode === 'tienda' ? TIENDA_ICON : n.icon
-          const isActive = pathname === href || (isDynamicSlot && pathname === slotHref)
-          return (
-            <button
-              key={n.id}
-              className={`nav-item ${isActive ? 'active' : ''} ${isLiveTab ? 'text-[var(--red)]' : ''}`}
-              onClick={() => router.push(href)}
-            >
-              {isLiveTab ? (
-                <span className="relative">
-                  {icon}
-                  <span className="absolute -right-0.5 -top-0.5 flex size-2 items-center justify-center">
-                    <span className="absolute inline-flex size-full animate-ping rounded-full bg-[var(--red)] opacity-75" />
-                    <span className="relative inline-flex size-1.5 rounded-full bg-[var(--red)]" />
-                  </span>
-                </span>
-              ) : icon}
-              <span className="nav-label" suppressHydrationWarning>{label}</span>
-            </button>
-          )
-        })}
-      </div>
+      <BottomNav />
     </div>
   )
 }

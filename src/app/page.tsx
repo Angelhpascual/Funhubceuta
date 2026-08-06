@@ -221,12 +221,12 @@ function AppInner() {
 
       {/* Main app */}
       <div className={modal ? 'hidden' : 'contents'}>
-        <div className="topbar home-topbar-mobile justify-center">
+        <div className="topbar home-topbar-mobile">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/escudo.webp"
             alt="AD Ceuta"
-            className="w-10 h-10 object-contain cursor-pointer"
+            className="absolute left-1/2 -translate-x-1/2 w-10 h-10 object-contain cursor-pointer"
             onClick={() => router.push('/')}
           />
         </div>
