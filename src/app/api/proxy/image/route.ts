@@ -25,7 +25,7 @@ const ALLOWED_DOMAINS = [
   'i.ytimg.com',
   'upload.wikimedia.org',
   'doragonsports.com',
-  'onguesyapdtatsadsxmc.supabase.co',
+  new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? 'https://placeholder.supabase.co').hostname,
   'ceutadeportiva.com',
   'www.ceutadeportiva.com',
 ]

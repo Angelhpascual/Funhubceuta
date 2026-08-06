@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import webpush from 'web-push'
+import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
 import { deleteSubscription } from '@/infrastructure/supabase/PushSubscriptionsRepository'
 
 // GET /api/push/test?secret=xxx
@@ -18,7 +19,7 @@ export async function GET(request: Request) {
     process.env.VAPID_PRIVATE_KEY!
   )
 
-  const { data: subs } = await supabase
+  const { data: subs } = await supabaseAdmin
     .from('push_subscriptions')
     .select('id, endpoint, p256dh, auth, user_agent, created_at')
 

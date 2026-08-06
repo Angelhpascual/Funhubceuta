@@ -24,7 +24,8 @@ async function getNextMatch(): Promise<{ homeTeam: string; awayTeam: string; ven
   }
 }
 
-const PHOTO_BASE = 'https://onguesyapdtatsadsxmc.supabase.co/storage/v1/object/public/player-photos/players'
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? 'https://placeholder.supabase.co'
+const PHOTO_BASE = `${SUPABASE_URL}/storage/v1/object/public/player-photos/players`
 const CEUTA_PHOTOS: Record<string, string> = {
   'Pedro López':   `${PHOTO_BASE}/13b9af2f-c17b-45c3-a5bb-3a27c0831944.webp`,
   'Bodiger':       `${PHOTO_BASE}/449a4ff9-6cc7-408f-9c99-20281644d751.webp`,
