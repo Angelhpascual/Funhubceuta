@@ -3,6 +3,7 @@ import { fetchPhotosByDorsal } from '@/infrastructure/supabase/SquadSupabaseRepo
 import { parseLineupEvents } from '../parseLineupEvents'
 import { ESPN_BASE as ESPN, ESPN_CEUTA_ID as CEUTA_ID, CURRENT_SEASON } from '@/lib/constants'
 import { apiError } from '@/lib/apiError'
+import { fetchWithTimeout } from '@/lib/fetchWithTimeout'
 import type { LineupPlayer, MatchEvent, MatchLineup } from '@/domain/match/Lineup'
 
 export type { LineupPlayer, MatchEvent, MatchLineup }
@@ -59,9 +60,9 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'eventId required' }, { status: 400 })
   }
 
-  const res = await fetch(`${ESPN}/summary?event=${eventId}`, {
-    next: { revalidate: 120 }, // cache 2 min
-  })
+  const res = await fetchWithTimeout(`${ESPN}/summary?event=${eventId}`, {
+    next: { revalidate: 120 },
+  }, 15_000)
 
   if (!res.ok) {
     return NextResponse.json({ error: 'ESPN unavailable' }, { status: 502 })

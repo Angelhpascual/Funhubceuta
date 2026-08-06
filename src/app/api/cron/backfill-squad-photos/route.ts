@@ -4,6 +4,7 @@ import { getPlayersWithExternalPhotos, updatePlayerPhotoUrl } from '@/infrastruc
 import { downloadAndUploadImage, PLAYER_BUCKET } from '@/infrastructure/storage/imageUploader'
 import { logCron } from '@/infrastructure/supabase/logCron'
 import { checkCronAuth, cronUnauthorized } from '@/infrastructure/cron/auth'
+import { withApi } from '@/lib/apiError'
 
 export const maxDuration = 60
 
@@ -45,7 +46,7 @@ async function backfillPhotos() {
   return { pending: players.length, optimized, failed }
 }
 
-export async function GET(request: Request) {
+export const GET = withApi(async (request: Request) => {
   if (!checkCronAuth(request)) return cronUnauthorized()
   const { searchParams } = new URL(request.url)
   const secret = searchParams.get('secret')
@@ -54,9 +55,9 @@ export async function GET(request: Request) {
   }
   const result = await backfillPhotos()
   return NextResponse.json({ ok: true, ...result })
-}
+})
 
-export async function POST(req: NextRequest) {
+export const POST = withApi(async (req: NextRequest) => {
   const result = await backfillPhotos()
   return NextResponse.json({ ok: true, ...result })
-}
+})

@@ -1,3 +1,4 @@
+import Image from 'next/image'
 interface Team { name: string; logo: string | null }
 
 interface Props {
@@ -25,7 +26,7 @@ export function LogoPicker({ teams, selectedLogo, onSelect }: Props) {
           onClick={() => onSelect(t.logo)}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={t.logo!} alt={t.name} width={32} height={32} className="object-contain" />
+          <Image src={t.logo!} alt={t.name} width={32} height={32} className="object-contain" />
           <span className="text-[8px] text-ceuta-muted text-center leading-tight">{t.name.split(' ').slice(-1)[0]}</span>
         </button>
       ))}

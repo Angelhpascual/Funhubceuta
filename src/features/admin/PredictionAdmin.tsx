@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { TEAMS_2627 } from '@/lib/teams2627'
+import { TEAMS_2627 } from '@/data/teams2627'
 import type { PredictionSession } from '@/domain/predictions/PredictionSession'
 import { MatchFormPreview } from './MatchFormPreview'
 import { LogoPicker } from './LogoPicker'

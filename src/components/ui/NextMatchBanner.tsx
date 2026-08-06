@@ -1,7 +1,7 @@
 'use client'
 
-import { getLocalLogo } from '@/lib/teamLogos'
-import { getMatchVenue } from '@/lib/stadiums'
+import { getLocalLogo } from '@/data/teamLogos'
+import { getMatchVenue } from '@/data/stadiums'
 
 export interface NextMatchData {
   homeTeam: string

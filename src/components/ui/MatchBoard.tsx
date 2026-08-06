@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { getLocalLogo } from '@/lib/teamLogos'
+import { getLocalLogo } from '@/data/teamLogos'
 import type { LiveMatch } from '@/domain/match/LiveMatch'
 
 function TeamCrest({ name, size = 52 }: { name: string; size?: number }) {

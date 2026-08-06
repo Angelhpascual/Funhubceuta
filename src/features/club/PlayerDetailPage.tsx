@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import type { CareerEntry, Player } from './clubTypes'
-import { getLocalLogo } from '@/lib/teamLogos'
+import { getLocalLogo } from '@/data/teamLogos'
 import { flag } from '@/lib/nationality'
 
 const NATIONAL_TEAMS = new Set([

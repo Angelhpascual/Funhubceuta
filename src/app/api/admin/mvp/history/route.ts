@@ -3,8 +3,9 @@ import { checkAdminAuth, unauthorizedResponse } from '@/infrastructure/admin/aut
 import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
 import { APP_ENV } from '@/lib/appEnv'
 import { getMvpSeasonRanking } from '@/infrastructure/supabase/MvpRepository'
+import { withApi } from '@/lib/apiError'
 
-export async function GET() {
+export const GET = withApi(async () => {
   if (!(await checkAdminAuth())) return unauthorizedResponse()
 
   const { data: sessions } = await supabaseAdmin
@@ -55,4 +56,4 @@ export async function GET() {
   })
 
   return NextResponse.json({ history, seasonRanking })
-}
+})

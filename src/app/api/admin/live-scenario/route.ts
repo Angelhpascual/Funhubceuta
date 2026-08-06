@@ -16,6 +16,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
 import { sendPushDev } from '@/infrastructure/push/sendPush'
+import { withApi } from '@/lib/apiError'
 
 const HOME = 'FC Andorra'
 const AWAY = 'Ceuta'
@@ -110,7 +111,7 @@ const STEPS: Record<
   },
 }
 
-export async function GET(request: NextRequest) {
+export const GET = withApi(async (request: NextRequest) => {
   const secret = request.nextUrl.searchParams.get('secret')
   if (secret !== process.env.TEST_SECRET) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
@@ -248,4 +249,4 @@ export async function GET(request: NextRequest) {
   )
 
   return NextResponse.json({ ok: true, step, label: data.label, score, state: data.state, notifications })
-}
+})

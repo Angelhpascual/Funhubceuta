@@ -7,10 +7,11 @@ import {
   newsImageFilename,
 } from '@/infrastructure/storage/imageUploader'
 import { fetchOgImage } from '@/infrastructure/rss/fetchOgImage'
+import { withApi } from '@/lib/apiError'
 
 export const maxDuration = 60
 
-export async function POST(request: Request) {
+export const POST = withApi(async (request: Request) => {
   if (!(await checkAdminAuth())) {
     return unauthorizedResponse()
   }
@@ -64,4 +65,4 @@ export async function POST(request: Request) {
     hasMore,
     nextOffset: offset + batchSize,
   })
-}
+})

@@ -1,13 +1,14 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { checkAdminAuth, unauthorizedResponse } from '@/infrastructure/admin/auth'
+import { withApi } from '@/lib/apiError'
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-export async function POST(request: Request) {
+export const POST = withApi(async (request: Request) => {
   if (!(await checkAdminAuth())) return unauthorizedResponse()
 
   const formData = await request.formData()
@@ -37,4 +38,4 @@ export async function POST(request: Request) {
 
   const { data } = supabaseAdmin.storage.from('news-images').getPublicUrl(path)
   return NextResponse.json({ url: data.publicUrl })
-}
+})

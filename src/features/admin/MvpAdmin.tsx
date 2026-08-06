@@ -1,7 +1,8 @@
 'use client'
+import Image from 'next/image'
 
 import { useState, useEffect } from 'react'
-import { TEAMS_2627 } from '@/lib/teams2627'
+import { TEAMS_2627 } from '@/data/teams2627'
 import { MatchFormPreview } from './MatchFormPreview'
 import { LogoPicker } from './LogoPicker'
 
@@ -339,7 +340,7 @@ export function MvpAdmin() {
                               )}
                               {p.photo_url ? (
                                 // eslint-disable-next-line @next/next/no-img-element
-                                <img src={p.photo_url} alt={p.name} width={36} height={36}
+                                <Image src={p.photo_url} alt={p.name} width={36} height={36}
                                   className={`w-9 h-9 rounded-full object-cover object-top border-2 ${sel ? 'border-white/20' : 'border-ceuta-border'}`} />
                               ) : (
                                 <div className={`w-9 h-9 rounded-full flex items-center justify-center font-display font-black text-[15px] ${sel ? 'bg-white/10 text-white' : 'bg-ceuta-bg-mid text-ceuta-muted'}`}>

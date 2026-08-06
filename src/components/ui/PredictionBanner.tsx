@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { PredictionSheet } from './PredictionSheet'
 import { supabase } from '@/infrastructure/supabase/client'
 import type { PredictionSession, UserPrediction } from '@/domain/predictions/PredictionSession'
-import { getLocalLogo } from '@/lib/teamLogos'
+import { getLocalLogo } from '@/data/teamLogos'
 import { getFingerprint } from '@/lib/fingerprint'
 
 const IconTrophy = () => (

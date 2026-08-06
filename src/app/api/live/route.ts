@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { ESPN_SCOREBOARD, ESPN_SUMMARY } from '@/lib/constants'
+import { fetchWithTimeout } from '@/lib/fetchWithTimeout'
 import { getConfig, deleteConfig } from '@/infrastructure/supabase/AppConfigRepository'
 import { MatchesSupabaseRepository } from '@/infrastructure/supabase/MatchesSupabaseRepository'
 import { supabase } from '@/infrastructure/supabase/client'
@@ -36,10 +37,10 @@ export type { LiveEvent, LiveMatch }
 export const revalidate = 0
 
 async function fetchEspn(url: string) {
-  const res = await fetch(url, {
+  const res = await fetchWithTimeout(url, {
     headers: { 'User-Agent': 'Mozilla/5.0' },
     next: { revalidate: 60 },
-  })
+  }, 15_000)
   if (!res.ok) return null
   return res.json()
 }

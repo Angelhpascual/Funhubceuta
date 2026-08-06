@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { getLocalLogo } from '@/lib/teamLogos'
+import { getLocalLogo } from '@/data/teamLogos'
 import { shortTeamName } from './matchUtils'
 import Link from 'next/link'
 import { NextMatchBanner } from '@/components/ui/NextMatchBanner'

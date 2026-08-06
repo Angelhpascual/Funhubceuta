@@ -67,8 +67,7 @@ export function LoadingScreen({ fadeOut, onFadeOutDone }: { fadeOut?: boolean; o
           width="120"
           height="120"
           viewBox="0 0 120 120"
-          className="absolute inset-0"
-          style={{ animation: 'spin 1.4s linear infinite' }}
+          className="absolute inset-0 animate-[spin_1.4s_linear_infinite]"
         >
           <circle cx="60" cy="60" r="52" fill="none" stroke="var(--bg-mid)" strokeWidth="4" />
           <circle
@@ -104,8 +103,7 @@ export function LoadingScreen({ fadeOut, onFadeOutDone }: { fadeOut?: boolean; o
           <span
             key={word}
             ref={words[i]}
-            className="font-display text-[22px] font-black tracking-[0.12em] text-[var(--black)]"
-            style={{ transition: 'filter 0.45s ease' }}
+            className="font-display text-[22px] font-black tracking-[0.12em] text-[var(--black)] [transition:filter_0.45s_ease]"
           >
             {word}
           </span>

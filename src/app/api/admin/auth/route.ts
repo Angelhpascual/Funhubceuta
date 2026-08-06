@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server'
 import { deriveToken } from '@/infrastructure/admin/auth'
+import { withApi } from '@/lib/apiError'
 
-export async function POST(request: Request) {
+export const POST = withApi(async (request: Request) => {
   const { password } = await request.json()
 
   if (!process.env.ADMIN_PASSWORD || password !== process.env.ADMIN_PASSWORD) {
@@ -18,4 +19,4 @@ export async function POST(request: Request) {
     path: '/',
   })
   return res
-}
+})

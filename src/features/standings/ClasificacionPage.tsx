@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { StandingEntry } from '@/domain/standings/Standings'
-import { getLocalLogo } from '@/lib/teamLogos'
+import { getLocalLogo } from '@/data/teamLogos'
 import { FormPill } from '@/components/ui/FormPill'
 
 function getZone(pos: number, total: number): 'promo' | 'playoff' | 'relegation' | 'none' {
@@ -40,8 +40,8 @@ const ZONE_POS: Record<string, string> = {
 function SkeletonRow({ i }: { i: number }) {
   return (
     <div
-      className="grid items-center gap-1 border-b border-ceuta-border px-[14px] py-[11px]"
-      style={{ gridTemplateColumns: '32px 1fr repeat(4, 28px) 34px', opacity: 1 - i * 0.03 }}
+      className="grid items-center gap-1 border-b border-ceuta-border px-[14px] py-[11px] grid-cols-[32px_1fr_repeat(4,28px)_34px]"
+      style={{ opacity: 1 - i * 0.03 }}
     >
       <div className="mx-auto h-[14px] w-4 animate-pulse rounded-[3px] bg-ceuta-bg-mid" />
       <div className="flex items-center gap-2">
@@ -69,8 +69,7 @@ function StandingsTable({ entries }: { entries: StandingEntry[] }) {
   return (
     <div className="mt-2 bg-white">
       <div
-        className="grid items-center gap-1 border-b-2 border-ceuta-black px-[14px] pb-2"
-        style={{ gridTemplateColumns: '32px 1fr repeat(4, 28px) 34px' }}
+        className="grid items-center gap-1 border-b-2 border-ceuta-black px-[14px] pb-2 grid-cols-[32px_1fr_repeat(4,28px)_34px]"
       >
         {['#', 'Equipo', 'PJ', 'DG', 'GF', 'GC', 'PTS'].map((h, i) => (
           <div
@@ -88,8 +87,7 @@ function StandingsTable({ entries }: { entries: StandingEntry[] }) {
         return (
           <div
             key={t.id ?? t.externalId}
-            className={`relative grid items-center gap-1 border-b border-ceuta-border px-[14px] py-[11px] active:bg-ceuta-bg-soft ${mine ? 'bg-gradient-to-r from-ceuta-red-soft to-transparent' : ''}`}
-            style={{ gridTemplateColumns: '32px 1fr repeat(4, 28px) 34px' }}
+            className={`relative grid grid-cols-[32px_1fr_repeat(4,28px)_34px] items-center gap-1 border-b border-ceuta-border px-[14px] py-[11px] active:bg-ceuta-bg-soft ${mine ? 'bg-gradient-to-r from-ceuta-red-soft to-transparent' : ''}`}
           >
             {zone !== 'none' && (
               <div className={`absolute left-0 top-1/2 h-[22px] w-[3px] -translate-y-1/2 rounded-r-sm ${mine ? 'w-[4px] bg-ceuta-red' : ZONE_BAR[zone]}`} />

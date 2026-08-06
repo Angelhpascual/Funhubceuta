@@ -1,4 +1,5 @@
 'use client'
+import Image from 'next/image'
 
 import { useState, useRef, useCallback, useEffect } from 'react'
 import type React from 'react'
@@ -172,7 +173,7 @@ function SyncCard({
             <span className="text-[11px] text-ceuta-black font-medium">{state.phase}</span>
           </div>
           <div className="w-full h-0.5 bg-ceuta-border rounded-full overflow-hidden">
-            <div className="h-full bg-ceuta-black rounded-full animate-pulse" style={{ width: '60%' }} />
+            <div className="h-full bg-ceuta-black rounded-full animate-pulse w-[60%]" />
           </div>
         </div>
       )}
@@ -457,7 +458,7 @@ export function AdminActions({ syncOnly, notifOnly, deviceOnly }: { syncOnly?: b
               <div className="font-display text-[9px] font-bold tracking-[0.14em] uppercase text-ceuta-muted mb-2">Vista previa</div>
               <div className="flex items-start gap-2.5 bg-white rounded-lg px-3 py-2.5 shadow-sm">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/escudo.webp" alt="" width={28} height={28} className="object-contain shrink-0 mt-0.5" />
+                <Image src="/escudo.webp" alt="" width={28} height={28} className="object-contain shrink-0 mt-0.5" />
                 <div className="flex-1 min-w-0">
                   <div className="font-semibold text-[12px] text-ceuta-black leading-tight truncate">
                     {pushTitle || 'Título de la notificación'}

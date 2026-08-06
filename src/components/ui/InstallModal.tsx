@@ -87,8 +87,7 @@ export function InstallModal() {
     <button
       onClick={handleAndroidInstall}
       disabled={installing}
-      style={{ backgroundColor: 'var(--red)', boxShadow: '0 4px 20px rgba(218,26,34,0.4)' }}
-      className="flex w-full items-center justify-center gap-2 rounded-[14px] py-4 font-display text-[15px] font-black uppercase tracking-[0.08em] text-white disabled:opacity-60"
+      className="flex w-full items-center justify-center gap-2 rounded-[14px] py-4 font-display text-[15px] font-black uppercase tracking-[0.08em] text-white disabled:opacity-60 bg-[var(--red)] shadow-[0_4px_20px_rgba(218,26,34,0.4)]"
     >
       <span>{installing ? '...' : label}</span>
     </button>
@@ -238,7 +237,7 @@ export function InstallModal() {
               { icon: '🏆', text: 'Plantilla, fichajes y clasificación' },
             ].map(({ icon, text }) => (
               <div key={text} className="flex items-center gap-3">
-                <div style={{ width: 40, height: 40, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 10, backgroundColor: 'rgba(255,255,255,0.08)', fontSize: 22 }}>{icon}</div>
+                <div className="size-10 shrink-0 flex items-center justify-center rounded-[10px] bg-white/[0.08] text-[22px]">{icon}</div>
                 <span className="font-display text-[13px] font-bold uppercase tracking-[0.06em] text-white/80">{text}</span>
               </div>
             ))}

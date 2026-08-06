@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { fetchWithTimeout } from '@/lib/fetchWithTimeout'
 import { StandingsSupabaseRepository } from '@/infrastructure/supabase/StandingsSupabaseRepository'
 import { TeamsSupabaseRepository } from '@/infrastructure/supabase/TeamsSupabaseRepository'
 import { ESPN_STANDINGS as ESPN, STANDINGS_CURRENT_SEASON as CURRENT_SEASON } from '@/lib/constants'
@@ -11,7 +12,7 @@ function getDescription(position: number, total: number): string {
 }
 
 async function syncFromEspn(season: string) {
-  const res = await fetch(ESPN, { cache: 'no-store' })
+  const res = await fetchWithTimeout(ESPN, { cache: 'no-store' }, 15_000)
   if (!res.ok) throw new Error(`ESPN responded ${res.status}`)
 
   const data = await res.json()

@@ -3,6 +3,7 @@ import { setConfig, deleteConfig } from '@/infrastructure/supabase/AppConfigRepo
 import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
 import type { LiveMatch, LineupPlayer, MatchStat } from '@/domain/match/LiveMatch'
 import { checkAdminAuth, unauthorizedResponse } from '@/infrastructure/admin/auth'
+import { withApi } from '@/lib/apiError'
 
 async function getNextMatch(): Promise<{ homeTeam: string; awayTeam: string; venue: string; startDate: string }> {
   const { data } = await supabaseAdmin
@@ -230,7 +231,7 @@ function buildScenarios(homeTeam: string, awayTeam: string, venue: string, start
   }
 }
 
-export async function POST(req: Request) {
+export const POST = withApi(async (req: Request) => {
   if (!(await checkAdminAuth())) return unauthorizedResponse()
   const { scenario } = await req.json()
 
@@ -247,4 +248,4 @@ export async function POST(req: Request) {
 
   await setConfig('live_match_mock', JSON.stringify(mock))
   return NextResponse.json({ ok: true, scenario, match: mock })
-}
+})

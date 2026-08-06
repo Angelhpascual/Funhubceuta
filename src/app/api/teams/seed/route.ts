@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '@/infrastructure/supabase/client'
+import { withApi } from '@/lib/apiError'
 
 // Estadios Liga Hypermotion 2025-2026
 const VENUES: Record<string, string> = {
@@ -30,7 +31,7 @@ const VENUES: Record<string, string> = {
   'UD Almería': 'Estadio Power Horse',
 }
 
-export async function POST() {
+export const POST = withApi(async () => {
   const updates = await Promise.allSettled(
     Object.entries(VENUES).map(([name, venue]) =>
       supabase
@@ -48,4 +49,4 @@ export async function POST() {
   )
 
   return NextResponse.json({ ok: true, venues: Object.keys(VENUES).length })
-}
+})
