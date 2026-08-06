@@ -16,7 +16,7 @@ describe('GET /api/merchan', () => {
     ]
     vi.mocked(getMerchanProducts).mockResolvedValue(products as never)
 
-    const res = await GET(new Request('http://localhost/api/merchan'))
+    const res = await GET()
     expect(res.status).toBe(200)
     const body = await res.json()
     expect(body.products).toEqual(products)
@@ -24,7 +24,7 @@ describe('GET /api/merchan', () => {
 
   it('returns 500 on error', async () => {
     vi.mocked(getMerchanProducts).mockRejectedValue(new Error('DB error'))
-    const res = await GET(new Request('http://localhost/api/merchan'))
+    const res = await GET()
     expect(res.status).toBe(500)
   })
 })

@@ -47,7 +47,7 @@ function mockFrom(sessions: unknown[], votes: unknown[]) {
 describe('GET /api/admin/mvp/history', () => {
   it('returns 401 without auth', async () => {
     vi.mocked(checkAdminAuth).mockResolvedValue(false)
-    const res = await GET(new Request('http://localhost'))
+    const res = await GET()
     expect(res.status).toBe(401)
   })
 
@@ -57,7 +57,7 @@ describe('GET /api/admin/mvp/history', () => {
     mockFrom([session], [vote])
     vi.mocked(getMvpSeasonRanking).mockResolvedValue([{ name: 'Marcos', wins: 3, votes: 120, photo_url: null }])
 
-    const res = await GET(new Request('http://localhost'))
+    const res = await GET()
     expect(res.status).toBe(200)
     const body = await res.json()
     expect(body.history).toHaveLength(1)
@@ -67,7 +67,7 @@ describe('GET /api/admin/mvp/history', () => {
 
   it('returns empty history when no sessions', async () => {
     mockFrom([], [])
-    const res = await GET(new Request('http://localhost'))
+    const res = await GET()
     const body = await res.json()
     expect(body.history).toEqual([])
   })
@@ -76,7 +76,7 @@ describe('GET /api/admin/mvp/history', () => {
     vi.mocked(supabaseAdmin.from).mockImplementation(() => {
       throw new Error('DB error')
     })
-    const res = await GET(new Request('http://localhost'))
+    const res = await GET()
     expect(res.status).toBe(500)
   })
 })

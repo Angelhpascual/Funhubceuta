@@ -46,7 +46,7 @@ function mockFrom(sessions: unknown[], events: unknown[]) {
 describe('GET /api/admin/mvp/analytics', () => {
   it('returns 401 without auth', async () => {
     vi.mocked(checkAdminAuth).mockResolvedValue(false)
-    const res = await GET(new Request('http://localhost'))
+    const res = await GET()
     expect(res.status).toBe(401)
   })
 
@@ -60,7 +60,7 @@ describe('GET /api/admin/mvp/analytics', () => {
     ]
     mockFrom([session], events)
 
-    const res = await GET(new Request('http://localhost'))
+    const res = await GET()
     expect(res.status).toBe(200)
     const body = await res.json()
     expect(body.sessions).toHaveLength(1)
@@ -74,7 +74,7 @@ describe('GET /api/admin/mvp/analytics', () => {
 
   it('returns empty sessions when none', async () => {
     mockFrom([], [])
-    const res = await GET(new Request('http://localhost'))
+    const res = await GET()
     const body = await res.json()
     expect(body.sessions).toEqual([])
   })
@@ -83,7 +83,7 @@ describe('GET /api/admin/mvp/analytics', () => {
     vi.mocked(supabaseAdmin.from).mockImplementation(() => {
       throw new Error('DB error')
     })
-    const res = await GET(new Request('http://localhost'))
+    const res = await GET()
     expect(res.status).toBe(500)
   })
 })

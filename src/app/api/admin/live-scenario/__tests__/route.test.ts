@@ -7,7 +7,7 @@ vi.mock('@/infrastructure/supabase/adminClient', () => ({
   },
 }))
 vi.mock('@/infrastructure/push/sendPush', () => ({
-  sendPushDev: vi.fn().mockResolvedValue({ sent: 2 }),
+  sendPushDev: vi.fn().mockResolvedValue({ sent: 2, total: 2 }),
 }))
 
 import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
@@ -37,7 +37,7 @@ function mockSupabase(prevState: unknown = null) {
 beforeEach(() => {
   vi.resetAllMocks()
   process.env.TEST_SECRET = 'test-secret'
-  vi.mocked(sendPushDev).mockResolvedValue({ sent: 2 })
+  vi.mocked(sendPushDev).mockResolvedValue({ sent: 2, total: 2 })
   mockSupabase()
 })
 

@@ -21,7 +21,7 @@ beforeEach(() => {
 describe('GET /api/admin/merchan-toggle', () => {
   it('returns mercadoActive true when config is "true"', async () => {
     vi.mocked(getConfig).mockResolvedValue('true')
-    const res = await GET(new Request('http://localhost/api/admin/merchan-toggle'))
+    const res = await GET()
     const body = await res.json()
     expect(res.status).toBe(200)
     expect(body.mercadoActive).toBe(true)
@@ -29,7 +29,7 @@ describe('GET /api/admin/merchan-toggle', () => {
 
   it('returns mercadoActive false when config is not "true"', async () => {
     vi.mocked(getConfig).mockResolvedValue(null)
-    const res = await GET(new Request('http://localhost/api/admin/merchan-toggle'))
+    const res = await GET()
     const body = await res.json()
     expect(body.mercadoActive).toBe(false)
   })
