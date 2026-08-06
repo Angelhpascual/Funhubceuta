@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { MvpSheet, type BannerState as SheetState } from './MvpSheet'
 import type { MvpSession, MvpVoteTally } from '@/infrastructure/supabase/MvpRepository'
 import { supabase } from '@/infrastructure/supabase/client'
-import { getLocalLogo } from '@/lib/teamLogos'
+import { getLocalLogo } from '@/data/teamLogos'
 import { getFingerprint } from '@/lib/fingerprint'
 
 type BannerState = 'none' | SheetState

@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import type { Transfer } from '@/infrastructure/supabase/TransfersRepository'
-import { getLocalLogo } from '@/lib/teamLogos'
+import { getLocalLogo } from '@/data/teamLogos'
 
 const POSITIONS: Record<string, string> = {
   POR: 'Portero', DEF: 'Defensa', MED: 'Centrocampista', DEL: 'Delantero',

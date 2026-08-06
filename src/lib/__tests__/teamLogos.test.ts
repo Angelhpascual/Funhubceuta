@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { getLocalLogo } from '../teamLogos'
+import { getLocalLogo } from '../../data/teamLogos'
 
 describe('getLocalLogo', () => {
   it('returns local path for exact slug match', () => {

@@ -6,7 +6,7 @@ import Image from 'next/image'
 import type { Group, Player } from '../clubTypes'
 import { flag } from '@/lib/nationality'
 import { proxyImage } from '@/lib/proxyImage'
-import { STAFF } from '@/lib/staff'
+import { STAFF } from '@/data/staff'
 
 function capitalize(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase()

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { StandingEntry } from '@/domain/standings/Standings'
-import { getLocalLogo } from '@/lib/teamLogos'
+import { getLocalLogo } from '@/data/teamLogos'
 import { FormPill } from '@/components/ui/FormPill'
 
 function getZone(pos: number, total: number): 'promo' | 'playoff' | 'relegation' | 'none' {

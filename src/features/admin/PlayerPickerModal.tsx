@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
-import { STAFF as STAFF_DATA } from '@/lib/staff'
+import { STAFF as STAFF_DATA } from '@/data/staff'
 
 interface SquadPlayer {
   id: string
