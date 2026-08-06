@@ -173,7 +173,7 @@ function SyncCard({
             <span className="text-[11px] text-ceuta-black font-medium">{state.phase}</span>
           </div>
           <div className="w-full h-0.5 bg-ceuta-border rounded-full overflow-hidden">
-            <div className="h-full bg-ceuta-black rounded-full animate-pulse" style={{ width: '60%' }} />
+            <div className="h-full bg-ceuta-black rounded-full animate-pulse w-[60%]" />
           </div>
         </div>
       )}
