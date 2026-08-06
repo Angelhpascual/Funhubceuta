@@ -11,10 +11,3 @@ export function proxyImage(url: string | null | undefined): string | null {
 
   return `/api/proxy/image?url=${encodeURIComponent(url)}`
 }
-
-// For team crests/logos: small size, aggressively cached at the edge
-export function proxyLogo(url: string | null | undefined): string | null {
-  if (!url) return null
-  if (url.startsWith('/')) return url
-  return `/api/proxy/image?url=${encodeURIComponent(url)}&w=64&q=85`
-}
