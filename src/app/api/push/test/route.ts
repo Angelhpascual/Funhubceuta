@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import webpush from 'web-push'
-import { supabase } from '@/infrastructure/supabase/client'
+import { deleteSubscription } from '@/infrastructure/supabase/PushSubscriptionsRepository'
 
 // GET /api/push/test?secret=xxx
 // Sends a test notification to every subscription and returns per-device results.
@@ -62,7 +62,7 @@ export async function GET(request: Request) {
 
         // Auto-remove dead subscriptions
         if (e.statusCode === 410 || e.statusCode === 404) {
-          await supabase.from('push_subscriptions').delete().eq('endpoint', sub.endpoint)
+          await deleteSubscription(sub.endpoint)
         }
 
         return {

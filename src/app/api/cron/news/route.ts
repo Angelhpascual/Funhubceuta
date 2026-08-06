@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { Receiver } from '@upstash/qstash'
-
-export const maxDuration = 60
 import { RSS_SOURCES } from '@/infrastructure/rss/sources'
 import { fetchSource, ParsedArticle } from '@/infrastructure/rss/RssFetcher'
 import { fetchAdceutaOfficialNews } from '@/infrastructure/rss/adceutaFetcher'
@@ -19,6 +17,8 @@ import {
   isStoredNewsImage,
   newsImageFilename,
 } from '@/infrastructure/storage/imageUploader'
+
+export const maxDuration = 60
 
 const repo = new NewsSupabaseRepository()
 

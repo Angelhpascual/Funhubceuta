@@ -90,7 +90,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, teams: count })
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
-    console.error('[standings/sync]', msg)
     return NextResponse.json({ error: msg }, { status: 500 })
   }
 }
