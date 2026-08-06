@@ -164,9 +164,8 @@ export function MvpBanner() {
             <div className="mb-teams">
               <div className="mb-team">
                 <div className="mb-logo">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   {logoFor(meta.home.name, meta.home.logo)
-                    ? <img src={logoFor(meta.home.name, meta.home.logo)!} alt={meta.home.name} width={40} height={40} className="object-contain" />
+                    ? <Image src={logoFor(meta.home.name, meta.home.logo)!} alt={meta.home.name} width={40} height={40} className="object-contain" />
                     : <span className="mb-logo-init">{meta.home.name?.[0]}</span>}
                 </div>
                 <span className="mb-team-name">{meta.home.name}</span>
@@ -188,9 +187,8 @@ export function MvpBanner() {
 
               <div className="mb-team">
                 <div className="mb-logo">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   {logoFor(meta.away.name, meta.away.logo)
-                    ? <img src={logoFor(meta.away.name, meta.away.logo)!} alt={meta.away.name} width={40} height={40} className="object-contain" />
+                    ? <Image src={logoFor(meta.away.name, meta.away.logo)!} alt={meta.away.name} width={40} height={40} className="object-contain" />
                     : <span className="mb-logo-init">{meta.away.name?.[0]}</span>}
                 </div>
                 <span className="mb-team-name">{meta.away.name}</span>

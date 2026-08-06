@@ -1,4 +1,5 @@
 'use client'
+import Image from 'next/image'
 
 type Props = {
   data: {
@@ -90,7 +91,7 @@ export function AnalyticsDashboard({ data }: Props) {
         />
         <div className="relative z-10 mx-auto flex max-w-4xl flex-wrap items-center gap-4 px-5 py-5">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logos/ceuta.webp" alt="AD Ceuta" className="size-11 object-contain" />
+          <Image src="/logos/ceuta.webp" alt="AD Ceuta" width={44} height={44} className="size-11 object-contain" />
           <div>
             <div className="font-display text-[26px] font-black uppercase leading-none tracking-tight">
               Analíticas
