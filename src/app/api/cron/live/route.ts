@@ -5,13 +5,14 @@ import type { LiveMatch, LiveEvent } from '@/domain/match/LiveMatch'
 import { getConfig, setConfig, deleteConfig } from '@/infrastructure/supabase/AppConfigRepository'
 import { deleteSubscription } from '@/infrastructure/supabase/PushSubscriptionsRepository'
 import { ESPN_BASE as ESPN } from '@/lib/constants'
+import { fetchWithTimeout } from '@/lib/fetchWithTimeout'
 import { MSG } from './messages'
 import { logCron } from '@/infrastructure/supabase/logCron'
 
 // ── Fetch live match from ESPN (same logic as /api/live) ──────────────────
 
 async function fetchLiveMatch(): Promise<LiveMatch | null> {
-  const res = await fetch(`${ESPN}/scoreboard`, { cache: 'no-store' })
+  const res = await fetchWithTimeout(`${ESPN}/scoreboard`, { cache: 'no-store' }, 15_000)
   if (!res.ok) return null
 
   const sb = await res.json()
@@ -28,7 +29,7 @@ async function fetchLiveMatch(): Promise<LiveMatch | null> {
 
   let events: LiveEvent[] = []
   if (state === 'in' || state === 'post') {
-    const sum = await fetch(`${ESPN}/summary?event=${event.id}`, { cache: 'no-store' })
+    const sum = await fetchWithTimeout(`${ESPN}/summary?event=${event.id}`, { cache: 'no-store' }, 15_000)
     if (sum.ok) {
       const sumData = await sum.json()
       events = (sumData.plays ?? [])

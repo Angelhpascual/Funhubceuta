@@ -1,6 +1,7 @@
 import { ParsedArticle } from './RssFetcher'
 import { downloadAndUploadImage } from '@/infrastructure/storage/imageUploader'
 import { decodeEntities } from '@/lib/decodeEntities'
+import { fetchWithTimeout } from '@/lib/fetchWithTimeout'
 
 interface WPPost {
   id: number
@@ -15,10 +16,10 @@ interface WPPost {
 }
 
 export async function fetchAdceutaOfficialNews(limit = 15): Promise<ParsedArticle[]> {
-  const res = await fetch(`https://adceutafc.com/wp-json/wp/v2/posts?per_page=${limit}&_embed=1`, {
+  const res = await fetchWithTimeout(`https://adceutafc.com/wp-json/wp/v2/posts?per_page=${limit}&_embed=1`, {
     headers: { 'User-Agent': 'FunHubCeuta/1.0' },
     next: { revalidate: 0 },
-  })
+  }, 15_000)
 
   if (!res.ok) return []
 

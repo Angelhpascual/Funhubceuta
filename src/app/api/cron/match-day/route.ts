@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { Receiver } from '@upstash/qstash'
 import webpush from 'web-push'
 import { ESPN_BASE as ESPN } from '@/lib/constants'
+import { fetchWithTimeout } from '@/lib/fetchWithTimeout'
 import { logCron } from '@/infrastructure/supabase/logCron'
 import {
   getAllSubscriptions,
@@ -10,7 +11,7 @@ import {
 import { MSG } from '../live/messages'
 
 async function getTodayMatch() {
-  const res = await fetch(`${ESPN}/scoreboard`, { cache: 'no-store' })
+  const res = await fetchWithTimeout(`${ESPN}/scoreboard`, { cache: 'no-store' }, 15_000)
   if (!res.ok) return null
 
   const sb = await res.json()

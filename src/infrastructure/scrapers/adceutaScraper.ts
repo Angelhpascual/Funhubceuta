@@ -1,4 +1,5 @@
 import { ESPN_BASE as ESPN, ESPN_CEUTA_ID as CEUTA_ID } from '@/lib/constants'
+import { fetchWithTimeout } from '@/lib/fetchWithTimeout'
 
 export type { ScrapedMatch, ScrapedResult } from '@/domain/match/ScrapedMatch'
 import type { ScrapedMatch, ScrapedResult } from '@/domain/match/ScrapedMatch'
@@ -18,7 +19,7 @@ function parseScore(raw: unknown): number {
 
 async function fetchSchedule(): Promise<Record<string, unknown>[]> {
   // Try team endpoint first (faster, scoped)
-  const teamRes = await fetch(`${ESPN}/teams/${CEUTA_ID}/schedule`, { next: { revalidate: 0 } })
+  const teamRes = await fetchWithTimeout(`${ESPN}/teams/${CEUTA_ID}/schedule`, { next: { revalidate: 0 } }, 15_000)
   if (teamRes.ok) {
     const data = await teamRes.json()
     const events = (data.events ?? []) as Record<string, unknown>[]
@@ -26,9 +27,10 @@ async function fetchSchedule(): Promise<Record<string, unknown>[]> {
   }
 
   // Fallback: full scoreboard filtered to Ceuta (covers seasons where ESPN team endpoint lags)
-  const scoreRes = await fetch(
+  const scoreRes = await fetchWithTimeout(
     `https://site.api.espn.com/apis/site/v2/sports/soccer/esp.2/scoreboard?dates=20260801-20270630&limit=500`,
-    { next: { revalidate: 0 } }
+    { next: { revalidate: 0 } },
+    15_000
   )
   if (!scoreRes.ok) return []
   const scoreData = await scoreRes.json()

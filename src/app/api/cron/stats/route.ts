@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { setConfig } from '@/infrastructure/supabase/AppConfigRepository'
 import { logCron } from '@/infrastructure/supabase/logCron'
 import { checkCronAuth, cronUnauthorized } from '@/infrastructure/cron/auth'
+import { fetchWithTimeout } from '@/lib/fetchWithTimeout'
 
 const LALIGA_URL = 'https://www.laliga.com/en-GB/clubs/ad-ceuta-fc/stats'
 const CDN_BASE = 'https://assets.laliga.com/squad/2025/t14705'
@@ -27,10 +28,10 @@ interface LaLigaPlayer {
 }
 
 async function scrapeLeaders() {
-  const res = await fetch(LALIGA_URL, {
+  const res = await fetchWithTimeout(LALIGA_URL, {
     headers: { 'User-Agent': 'Mozilla/5.0 (compatible; FunHubCeuta/1.0)' },
     next: { revalidate: 0 },
-  })
+  }, 20_000)
   if (!res.ok) throw new Error(`LaLiga responded ${res.status}`)
 
   const html = await res.text()
