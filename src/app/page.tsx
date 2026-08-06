@@ -268,7 +268,7 @@ function AppInner() {
             const label = isDynamic ? slotLabel : n.label
             const icon = isDynamic && slotMode === 'tienda' ? TIENDA_ICON : n.icon
             return (
-              <button
+              <button type="button"
                 key={n.id}
                 className={`nav-item ${n.id === 'inicio' ? 'active' : ''} ${isDynamic && slotMode === 'live' ? 'text-[var(--red)]' : ''}`}
                 onClick={() => isDynamic ? router.push(href) : handleNav(n.id)}

@@ -21,7 +21,7 @@ export function BottomNav() {
         const isActive = pathname === href || (isDynamicSlot && pathname === slotHref)
 
         return (
-          <button
+          <button type="button"
             key={n.id}
             className={`nav-item ${isActive ? 'active' : ''} ${isLiveTab ? 'text-[var(--red)]' : ''}`}
             onClick={() => router.push(href)}

@@ -98,7 +98,7 @@ export function MvpActiveSession({ session, tallies, totalVotes, busy, onAction 
       {/* Acciones */}
       <div className="flex gap-2 pt-1">
         {session.status === 'pending' && (
-          <button
+          <button type="button"
             disabled={busy}
             onClick={() => onAction('/api/admin/mvp/session', 'PATCH', { sessionId: session.id, action: 'open' })}
             className="flex-1 py-2.5 rounded-xl font-display text-[12px] font-bold tracking-[0.08em] uppercase bg-[#1E9E4B] text-white disabled:opacity-40 transition-opacity"
@@ -107,7 +107,7 @@ export function MvpActiveSession({ session, tallies, totalVotes, busy, onAction 
           </button>
         )}
         {session.status === 'open' && (
-          <button
+          <button type="button"
             disabled={busy}
             onClick={() => onAction('/api/admin/mvp/session', 'PATCH', { sessionId: session.id, action: 'close' })}
             className="flex-1 py-2.5 rounded-xl font-display text-[12px] font-bold tracking-[0.08em] uppercase bg-ceuta-red text-white disabled:opacity-40 transition-opacity"
@@ -115,7 +115,7 @@ export function MvpActiveSession({ session, tallies, totalVotes, busy, onAction 
             {busy ? '⏳' : '■ Cerrar y proclamar MVP'}
           </button>
         )}
-        <button
+        <button type="button"
           disabled={busy}
           onClick={() => {
             if (!confirm('¿Quitar el banner del MVP? Se borrará la sesión y sus votos.')) return

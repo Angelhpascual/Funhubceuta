@@ -69,7 +69,7 @@ export function HimnoPage({ onBack }: Props) {
           }}
         />
         {/* Back button */}
-        <button
+        <button type="button"
           onClick={onBack}
           className="relative mb-4 flex size-9 items-center justify-center rounded-full bg-white/10 transition-colors active:bg-white/20"
         >

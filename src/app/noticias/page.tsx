@@ -268,7 +268,7 @@ export default function NoticiasPage() {
       {/* Sticky: siempre visible sin llegar al fondo */}
       {!loading && hasMore && !loadingMore && news.length > 0 && (
         <div className="sticky bottom-0 z-10 px-3 pb-3 pt-6" style={{ background: 'linear-gradient(to bottom, transparent, white 40%)' }}>
-          <button
+          <button type="button"
             onClick={loadNextPage}
             className="w-full rounded-[14px] border-2 border-ceuta-black bg-white py-4 font-display text-[12px] font-black uppercase tracking-[0.12em] text-ceuta-black shadow-[4px_4px_0_var(--red)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0_var(--red)] transition-all"
           >

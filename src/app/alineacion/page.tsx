@@ -47,7 +47,7 @@ function LineupContent() {
 
           {/* todo el contenido con z-10 para quedar por encima de las rayas */}
           <div className="relative z-10">
-            <button
+            <button type="button"
               onClick={() => router.back()}
               className="mb-3 flex items-center gap-2 font-display text-[11px] font-bold uppercase tracking-[0.14em] text-ceuta-red"
             >

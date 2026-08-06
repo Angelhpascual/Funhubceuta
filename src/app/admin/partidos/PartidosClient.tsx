@@ -88,7 +88,7 @@ export function PartidosClient({ matches }: { matches: Match[] }) {
                   onChange={(e) => update(m.id, 'time', e.target.value)}
                   className="w-[90px] rounded-[8px] border border-white/10 bg-white/10 px-3 py-2 text-[13px] text-white outline-none focus:ring-1 focus:ring-ceuta-red [color-scheme:dark]"
                 />
-                <button
+                <button type="button"
                   onClick={() => save(m.id)}
                   disabled={row.saving}
                   className="rounded-[8px] bg-ceuta-red px-4 py-2 font-display text-[12px] font-black uppercase text-white disabled:opacity-50 shrink-0"

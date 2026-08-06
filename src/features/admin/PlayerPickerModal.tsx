@@ -59,7 +59,7 @@ export function PlayerPickerModal({
             <span className="text-[13px] font-extrabold uppercase tracking-[0.08em] font-display">
               Seleccionar jugador
             </span>
-            <button
+            <button type="button"
               onClick={onClose}
               className="text-[18px] text-ceuta-muted leading-none bg-transparent border-none cursor-pointer"
             >
@@ -83,7 +83,7 @@ export function PlayerPickerModal({
             <div className="p-8 text-center text-ceuta-muted text-[13px]">Sin resultados</div>
           ) : (
             filtered.map((p) => (
-              <button
+              <button type="button"
                 key={p.id}
                 onClick={() => onSelect(p)}
                 className="flex items-center gap-3 w-full px-4 py-3 bg-transparent border-none border-b border-ceuta-border cursor-pointer text-left"

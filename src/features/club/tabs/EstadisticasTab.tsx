@@ -53,7 +53,7 @@ function Leaderboard({ leaders }: { leaders: LeadersMap }) {
       {/* Tabs — scrollable */}
       <div className="flex overflow-x-auto border-b border-[var(--border)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {visibleKeys.map(({ key, label }) => (
-          <button
+          <button type="button"
             key={key}
             onClick={() => setActiveKey(key)}
             className={[
@@ -163,8 +163,8 @@ export function EstadisticasTab({
       <div className="pb-8">
         {/* Season chips */}
         <div className="chips chips-center mb-4 mt-1 px-3">
-          <button className="chip" onClick={() => setSeason('2526')}>Temp. 25/26</button>
-          <button className="chip active" onClick={() => setSeason('2627')}>Temp. 26/27</button>
+          <button type="button" className="chip" onClick={() => setSeason('2526')}>Temp. 25/26</button>
+          <button type="button" className="chip active" onClick={() => setSeason('2627')}>Temp. 26/27</button>
         </div>
 
         {/* Pre-season hero */}
@@ -181,7 +181,7 @@ export function EstadisticasTab({
             <p className="mt-3 text-[13px] leading-relaxed text-white/70">
               Todavía no se ha disputado ningún partido oficial. En cuanto ruede el balón verás el balance jornada a jornada.
             </p>
-            <button
+            <button type="button"
               onClick={() => setSeason('2526')}
               className="mt-5 flex items-center gap-2 rounded-[10px] bg-[var(--red)] px-5 py-3 font-display text-[12px] font-bold uppercase tracking-wide text-white"
             >
@@ -221,8 +221,8 @@ export function EstadisticasTab({
     <div className="pb-8">
       {/* ── Season chips ── */}
       <div className="chips chips-center mb-4 mt-1 px-3">
-        <button className="chip active" onClick={() => setSeason('2526')}>Temp. 25/26</button>
-        <button className="chip" onClick={() => setSeason('2627')}>Temp. 26/27</button>
+        <button type="button" className="chip active" onClick={() => setSeason('2526')}>Temp. 25/26</button>
+        <button type="button" className="chip" onClick={() => setSeason('2627')}>Temp. 26/27</button>
       </div>
 
       <div className="flex flex-col gap-3 px-3">

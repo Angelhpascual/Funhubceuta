@@ -144,7 +144,7 @@ export function MvpBanner() {
         </div>
       </div>
       <div className="px-4 pt-3">
-        <button className={`mvp-banner st-${bannerState}`} onClick={() => {
+        <button type="button" className={`mvp-banner st-${bannerState}`} onClick={() => {
           if (session) trackEvent(session.id, 'banner_click')
           setSheetOpen(true)
         }}>

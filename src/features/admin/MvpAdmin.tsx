@@ -165,7 +165,7 @@ export function MvpAdmin() {
             }
           />
         ) : (
-          <button onClick={() => { setCreating(true); setMsg(null) }}
+          <button type="button" onClick={() => { setCreating(true); setMsg(null) }}
             className="w-full py-3 rounded-xl border-[1.5px] border-dashed border-ceuta-border font-display text-[12px] font-bold tracking-[0.1em] uppercase text-ceuta-muted hover:border-ceuta-black hover:text-ceuta-black transition-colors">
             + Nueva votación MVP
           </button>

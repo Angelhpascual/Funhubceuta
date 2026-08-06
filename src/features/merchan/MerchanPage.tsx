@@ -169,7 +169,7 @@ export default function MerchanPage() {
       {/* Chips */}
       <div className="chips sticky top-0 z-[100] bg-white/80 backdrop-blur-md pt-4 pb-4 mt-4 border-b border-[var(--border)]">
         {CATS.map(c => (
-          <button key={c} className={`chip ${activeCat === c ? 'active' : ''}`} onClick={() => setActiveCat(c)}>
+          <button type="button" key={c} className={`chip ${activeCat === c ? 'active' : ''}`} onClick={() => setActiveCat(c)}>
             {c}
           </button>
         ))}

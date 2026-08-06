@@ -92,7 +92,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         {/* Desktop nav */}
         <nav className="top-nav desktop-only">
           {ADMIN_NAV.map((n) => (
-            <button
+            <button type="button"
               key={n.id}
               className={`top-nav-item ${pathname === n.id ? 'active' : ''}`}
               onClick={() => router.push(n.id)}
@@ -110,7 +110,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       {/* Bottom nav: mobile only — mismo patrón que AppShell */}
       <div className="bottom-nav">
         {ADMIN_NAV.map((n) => (
-          <button
+          <button type="button"
             key={n.id}
             className={`nav-item ${pathname === n.id ? 'active' : ''}`}
             onClick={() => router.push(n.id)}

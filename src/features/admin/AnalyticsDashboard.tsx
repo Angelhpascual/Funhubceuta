@@ -302,8 +302,8 @@ export function AnalyticsDashboard({ data }: Props) {
 
         {/* Export */}
         <div className="flex justify-center">
-          <button
-            type="button"
+          <button type="button"
+            
             onClick={() => window.print()}
             className="flex min-h-[48px] items-center gap-2.5 rounded-[12px] bg-ceuta-red px-8 py-4 font-display text-[15px] font-black uppercase tracking-[0.08em] text-white transition hover:bg-[#9C0C24]"
           >

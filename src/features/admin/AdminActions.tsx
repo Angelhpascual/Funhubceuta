@@ -127,7 +127,7 @@ function SyncCard({
       busy ? 'border-ceuta-black bg-white' :
       'border-ceuta-border bg-white'
     }`}>
-      <button
+      <button type="button"
         onClick={onClick}
         disabled={busy}
         className="w-full text-left p-4 disabled:cursor-not-allowed"
@@ -410,8 +410,8 @@ export function AdminActions({ syncOnly, notifOnly, deviceOnly }: { syncOnly?: b
         <div className={`bg-white rounded-[14px] border-2 p-4 space-y-3 transition-colors ${pushEnv === 'development' ? 'border-amber-300' : 'border-ceuta-border'}`}>
           {/* Toggle entorno */}
           <div className="flex gap-1 p-1 bg-ceuta-bg-soft rounded-xl">
-            <button
-              type="button"
+            <button type="button"
+              
               onClick={() => setPushEnv('production')}
               className={`flex-1 py-2 rounded-lg font-display text-[11px] font-bold tracking-[0.08em] uppercase transition-all ${
                 pushEnv === 'production' ? 'bg-ceuta-black text-white shadow-sm' : 'text-ceuta-muted'
@@ -419,8 +419,8 @@ export function AdminActions({ syncOnly, notifOnly, deviceOnly }: { syncOnly?: b
             >
               🔔 Producción
             </button>
-            <button
-              type="button"
+            <button type="button"
+              
               onClick={() => setPushEnv('development')}
               className={`flex-1 py-2 rounded-lg font-display text-[11px] font-bold tracking-[0.08em] uppercase transition-all ${
                 pushEnv === 'development' ? 'bg-amber-500 text-white shadow-sm' : 'text-ceuta-muted'
@@ -470,7 +470,7 @@ export function AdminActions({ syncOnly, notifOnly, deviceOnly }: { syncOnly?: b
               </div>
             </div>
           )}
-          <button
+          <button type="button"
             onClick={sendPush}
             disabled={pushStatus === 'running' || !pushTitle.trim() || !pushBody.trim()}
             className={`w-full rounded-xl py-3 text-[13px] font-bold transition-colors disabled:opacity-50 ${
@@ -491,7 +491,7 @@ export function AdminActions({ syncOnly, notifOnly, deviceOnly }: { syncOnly?: b
       {/* Este dispositivo + logout */}
       {showDevice && <section>
         <div className="space-y-2">
-          <button
+          <button type="button"
             onClick={registerDevice}
             disabled={deviceStatus === 'running'}
             className={`w-full rounded-[14px] border-2 p-4 text-left transition-colors disabled:opacity-60 ${
@@ -521,7 +521,7 @@ export function AdminActions({ syncOnly, notifOnly, deviceOnly }: { syncOnly?: b
             </div>
           </button>
 
-          <button
+          <button type="button"
             onClick={handleLogout}
             disabled={logoutLoading}
             className="w-full rounded-[14px] border-2 border-ceuta-border bg-white p-4 text-left text-[14px] font-bold text-ceuta-muted disabled:opacity-50 transition-colors hover:border-ceuta-red hover:text-ceuta-red"

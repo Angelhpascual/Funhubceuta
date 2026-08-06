@@ -115,7 +115,7 @@ export function MvpCreateForm({
             Candidatos {selectedIds.size > 0 && <span className="text-ceuta-black">({selectedIds.size} seleccionados)</span>}
           </div>
           {selectedIds.size > 0 && (
-            <button onClick={onClearSelection} className="text-[10px] text-ceuta-red font-bold">Limpiar</button>
+            <button type="button" onClick={onClearSelection} className="text-[10px] text-ceuta-red font-bold">Limpiar</button>
           )}
         </div>
         {squad.length === 0 ? (
@@ -129,7 +129,7 @@ export function MvpCreateForm({
                   {players.map(p => {
                     const sel = selectedIds.has(p.id)
                     return (
-                      <button key={p.id} onClick={() => onTogglePlayer(p.id)}
+                      <button type="button" key={p.id} onClick={() => onTogglePlayer(p.id)}
                         className={`relative flex flex-col items-center gap-1 py-2.5 px-1 rounded-[10px] border-2 transition-all text-center ${
                           sel
                             ? 'bg-ceuta-black border-ceuta-black text-white'
@@ -166,14 +166,14 @@ export function MvpCreateForm({
       </div>
 
       <div className="flex gap-2">
-        <button
+        <button type="button"
           disabled={busy || !awayName || selectedIds.size < 2}
           onClick={handleSubmit}
           className="flex-1 py-2.5 rounded-[10px] bg-ceuta-black text-white text-[12px] font-bold uppercase disabled:opacity-40"
         >
           Crear ({selectedIds.size} jugadores)
         </button>
-        <button onClick={onCancel}
+        <button type="button" onClick={onCancel}
           className="px-4 py-2.5 rounded-[10px] bg-ceuta-bg-mid text-ceuta-black text-[12px] font-bold">
           Cancelar
         </button>

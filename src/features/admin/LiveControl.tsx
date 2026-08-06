@@ -164,7 +164,7 @@ export function LiveControl() {
           )}
         </div>
 
-        <button
+        <button type="button"
           onClick={isActive ? deactivate : activate}
           disabled={acting || status === 'loading'}
           className={`w-full rounded-[10px] py-2.5 font-display text-[12px] font-black uppercase tracking-[0.08em] transition-opacity disabled:opacity-40 ${
@@ -232,7 +232,7 @@ export function LiveControl() {
                 Muestra el resultado del último partido en el banner
               </div>
             </div>
-            <button
+            <button type="button"
               onClick={toggleResult}
               disabled={clearingResult || status === 'loading'}
               className={`relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 disabled:opacity-40 ${
@@ -265,14 +265,14 @@ export function LiveControl() {
           Gestión del partido
         </div>
         <div className="flex gap-2">
-          <button
+          <button type="button"
             onClick={() => setMock('pre')}
             disabled={mockLoading !== null}
             className="flex-1 rounded-[10px] bg-ceuta-black py-2.5 font-display text-[11px] font-black uppercase tracking-[0.08em] text-white disabled:opacity-40"
           >
             {mockLoading === 'pre' ? '...' : 'Preparar siguiente partido'}
           </button>
-          <button
+          <button type="button"
             onClick={() => setMock('clear')}
             disabled={mockLoading !== null}
             className="rounded-[10px] border border-ceuta-red/30 bg-ceuta-red/5 px-4 py-2.5 font-display text-[11px] font-black uppercase tracking-[0.08em] text-ceuta-red disabled:opacity-40"
@@ -301,7 +301,7 @@ export function LiveControl() {
                 : 'Nav muestra "Mercado" → /mercado'}
             </p>
           </div>
-          <button
+          <button type="button"
             onClick={toggleTienda}
             disabled={savingTienda || tiendaActive === null}
             className={`relative flex h-8 w-14 shrink-0 items-center rounded-full transition-colors disabled:opacity-60 ${tiendaActive ? 'bg-[#f2c300]' : 'bg-[#111111]'}`}
@@ -327,7 +327,7 @@ export function LiveControl() {
           </div>
           <div className="flex flex-wrap gap-2">
             {SCENARIOS.map((s) => (
-              <button
+              <button type="button"
                 key={s.id}
                 onClick={() => setMock(s.id)}
                 disabled={mockLoading !== null}
@@ -340,7 +340,7 @@ export function LiveControl() {
                 {mockLoading === s.id ? '...' : s.label}
               </button>
             ))}
-            <button
+            <button type="button"
               onClick={() => setMock('clear')}
               disabled={mockLoading !== null || mockActive === null}
               className="rounded-[8px] border border-ceuta-red/30 bg-ceuta-red/5 px-3 py-1.5 font-display text-[11px] font-bold uppercase tracking-[0.08em] text-ceuta-red disabled:opacity-30"

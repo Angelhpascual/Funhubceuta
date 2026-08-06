@@ -222,7 +222,7 @@ export function ClasificacionPage({ entries = [], previousEntries = [], form = [
                   { id: 'actual', l: 'Temporada actual' },
                   { id: 'anterior', l: 'Temp. 25/26' },
                 ].map((t) => (
-                  <button
+                  <button type="button"
                     key={t.id}
                     className={`chip ${tab === t.id ? 'active' : ''}`}
                     onClick={() => setTab(t.id)}
@@ -268,7 +268,7 @@ export function ClasificacionPage({ entries = [], previousEntries = [], form = [
               { id: 'actual', l: 'Temporada actual' },
               { id: 'anterior', l: 'Temp. 25/26' },
             ].map((t) => (
-              <button
+              <button type="button"
                 key={t.id}
                 className={`chip ${tab === t.id ? 'active' : ''}`}
                 onClick={() => setTab(t.id)}

@@ -133,11 +133,11 @@ export function MvpSheet({ session, tallies, bannerState, votedId, fingerprint, 
               ) : session.match_label}
             </div>
             </div>
-            <button className="mvp-close" onClick={onClose}><IconClose /></button>
+            <button type="button" className="mvp-close" onClick={onClose}><IconClose /></button>
           </div>
           <div className="mvp-tabs">
-            <button className={`mvp-tab${tab === 'partido' ? ' active' : ''}`} onClick={() => setTab('partido')}>Este partido</button>
-            <button className={`mvp-tab${tab === 'temporada' ? ' active' : ''}`} onClick={() => setTab('temporada')}>Temporada</button>
+            <button type="button" className={`mvp-tab${tab === 'partido' ? ' active' : ''}`} onClick={() => setTab('partido')}>Este partido</button>
+            <button type="button" className={`mvp-tab${tab === 'temporada' ? ' active' : ''}`} onClick={() => setTab('temporada')}>Temporada</button>
           </div>
         </div>
 
@@ -177,7 +177,7 @@ export function MvpSheet({ session, tallies, bannerState, votedId, fingerprint, 
                 ))}
               </div>
               <div className="mvp-ctabar">
-                <button className="mvp-cta" disabled={!pickedId || submitting} onClick={handleConfirm}>
+                <button type="button" className="mvp-cta" disabled={!pickedId || submitting} onClick={handleConfirm}>
                   <IconCheck /> {submitting ? 'Enviando...' : 'Confirmar mi voto'}
                 </button>
                 <div className="mvp-cta-note">Un voto por aficionado · se cierra a medianoche</div>
@@ -263,7 +263,7 @@ function PlayerCard({
   votable: boolean
 }) {
   return (
-    <button
+    <button type="button"
       className={`mvp-row${picked ? ' picked' : ''}`}
       onClick={onClick}
       disabled={!votable}

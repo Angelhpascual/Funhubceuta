@@ -161,7 +161,7 @@ export function LiveSimulator() {
 
       {/* Buttons */}
       <div className="flex gap-2">
-        <button
+        <button type="button"
           onClick={start}
           disabled={running}
           className={`flex-1 py-[10px] rounded-[10px] border-none font-display text-[12px] font-extrabold uppercase tracking-[0.08em] text-white transition-opacity ${
@@ -171,7 +171,7 @@ export function LiveSimulator() {
           {running ? 'En curso…' : '▶ Iniciar simulación'}
         </button>
         {running && (
-          <button
+          <button type="button"
             onClick={stop}
             className="px-4 py-[10px] rounded-[10px] border-none cursor-pointer bg-[var(--red)] text-white font-display text-[12px] font-extrabold uppercase tracking-[0.08em]"
           >

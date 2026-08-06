@@ -18,7 +18,7 @@ export function MvpHistory({ history, expandedId, onToggle }: Props) {
       <div className="space-y-1.5">
         {history.map(h => (
           <div key={h.id} className="rounded-xl border border-ceuta-border overflow-hidden">
-            <button
+            <button type="button"
               className="w-full flex items-center justify-between px-3 py-2.5 text-left bg-ceuta-bg-soft hover:bg-ceuta-bg-mid transition-colors"
               onClick={() => onToggle(h.id)}
             >
