@@ -392,6 +392,7 @@ export function MvpBanner() {
           onVoted={(sid, cid) => { trackEvent(sid, 'vote_cast'); handleVoted(sid, cid) }}
           onRefresh={load}
           onOpen={() => { if (session) trackEvent(session.id, 'sheet_open') }}
+          startInChangeMode={bannerState === 'votado'}
         />
       )}
     </>

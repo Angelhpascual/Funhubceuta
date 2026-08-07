@@ -16,6 +16,7 @@ type Props = {
   onVoted: (sessionId: string, candidateId: string) => void
   onRefresh: () => void
   onOpen?: () => void
+  startInChangeMode?: boolean
 }
 
 type Tab = 'partido' | 'temporada'
@@ -42,13 +43,13 @@ function pct(votes: number, total: number) {
   return Math.round((votes / total) * 100)
 }
 
-export function MvpSheet({ session, tallies, bannerState, votedId, fingerprint, onClose, onVoted, onRefresh, onOpen }: Props) {
+export function MvpSheet({ session, tallies, bannerState, votedId, fingerprint, onClose, onVoted, onRefresh, onOpen, startInChangeMode }: Props) {
   const [tab, setTab] = useState<Tab>('partido')
-  const [pickedId, setPickedId] = useState<string | null>(null)
+  const [pickedId, setPickedId] = useState<string | null>(startInChangeMode ? votedId : null)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [season, setSeason] = useState<SeasonEntry[]>([])
-  const [changingVote, setChangingVote] = useState(false)
+  const [changingVote, setChangingVote] = useState(!!startInChangeMode)
 
   useEffect(() => {
     document.body.style.overflow = 'hidden'
