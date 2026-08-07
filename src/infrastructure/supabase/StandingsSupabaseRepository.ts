@@ -6,7 +6,7 @@ export class StandingsSupabaseRepository implements StandingsRepository {
   async getBySeason(season: string): Promise<Standings | null> {
     const { data, error } = await supabase
       .from('standings')
-      .select('*')
+      .select('id, external_id, season, position, team_name, team_logo, played, won, drawn, lost, goals_for, goals_against, goal_difference, points, form, description, created_at, updated_at')
       .eq('season', season)
       .order('position', { ascending: true })
 

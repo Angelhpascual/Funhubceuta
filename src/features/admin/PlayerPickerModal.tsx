@@ -23,15 +23,20 @@ const STAFF_PLAYERS: SquadPlayer[] = STAFF_DATA.map((s) => ({
 export function PlayerPickerModal({
   onSelect,
   onClose,
+  players: playersProp,
 }: {
   onSelect: (p: SquadPlayer) => void
   onClose: () => void
+  players?: SquadPlayer[]
 }) {
-  const [players, setPlayers] = useState<SquadPlayer[]>([])
-  const [loading, setLoading] = useState(true)
+  const [players, setPlayers] = useState<SquadPlayer[]>(() =>
+    playersProp ? [...STAFF_PLAYERS, ...playersProp] : []
+  )
+  const [loading, setLoading] = useState(!playersProp)
   const [search, setSearch] = useState('')
 
   useEffect(() => {
+    if (playersProp) return
     fetch('/api/squad')
       .then((r) => r.json())
       .then((data) => {
@@ -42,7 +47,7 @@ export function PlayerPickerModal({
         setPlayers(all)
         setLoading(false)
       })
-  }, [])
+  }, [playersProp])
 
   const filtered = players.filter(
     (p) => !search || p.name.toLowerCase().includes(search.toLowerCase())

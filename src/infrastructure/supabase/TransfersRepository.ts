@@ -34,7 +34,7 @@ function mapRow(row: Record<string, unknown>): Transfer {
 export async function getTransfers(): Promise<Transfer[]> {
   const { data, error } = await supabase
     .from('transfers')
-    .select('*')
+    .select('id, name, position, type, club_from, club_to, reliability, photo_url, notes, created_at')
     .order('created_at', { ascending: false })
 
   if (error || !data) return []

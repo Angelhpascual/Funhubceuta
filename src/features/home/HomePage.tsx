@@ -4,7 +4,6 @@ import { useEffect } from 'react'
 import Link from 'next/link'
 import { SocialLinks } from '@/components/social/TwitterTimeline'
 import { LiveMatchCard } from './LiveMatchCard'
-import { MvpBanner } from '@/components/ui/MvpBanner'
 import { NotificationBanner } from '@/components/ui/NotificationBanner'
 import { PredictionBanner } from '@/components/ui/PredictionBanner'
 import { useHomeNews } from '@/hooks/useHomeNews'
@@ -70,7 +69,6 @@ export function HomePage({
       <PredictionBanner />
 
       {/* ── PRÓXIMO PARTIDO ── */}
-      <MvpBanner />
       <div className="flex items-end justify-between px-4 pb-3 pt-6">
         <div>
           <div className="mb-1.5 font-display text-[11px] font-bold uppercase tracking-[0.14em] text-ceuta-red">

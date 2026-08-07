@@ -33,7 +33,7 @@ export type MvpVoteTally = { candidate_id: string; count: number }
 export async function getActiveMvpSession(): Promise<MvpSession | null> {
   const { data } = await supabaseAdmin
     .from('mvp_sessions')
-    .select('*')
+    .select('id, status, match_label, match_meta, candidates, winner_id, winner_name, winner_votes, opened_at, closed_at, created_at')
     .eq('environment', APP_ENV)
     .in('status', ['pending', 'open', 'closed'])
     .order('created_at', { ascending: false })

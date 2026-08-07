@@ -13,7 +13,7 @@ export async function GET(request: Request) {
   try {
     const raw = await repo.getLatest(limit, offset)
     const news = raw.map(n => ({ ...n, title: decodeEntities(n.title) }))
-    return NextResponse.json({ news })
+    return NextResponse.json({ news }, { headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300' } })
   } catch (err) {
     return apiError(err)
   }

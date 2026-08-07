@@ -59,7 +59,7 @@ export class MatchesSupabaseRepository {
   async fetchBySeason(season: string, limit = 60) {
     const { data } = await supabase
       .from('matches')
-      .select('*')
+      .select('id, external_id, home_team, away_team, date, time, weekday, is_home, tickets_url, status, season, competition, home_score, away_score, result, espn_event_id, matchday')
       .eq('season', season)
       .order('date', { ascending: false })
       .limit(limit)
@@ -92,7 +92,7 @@ export class MatchesSupabaseRepository {
 
     const { data, error } = await supabase
       .from('matches')
-      .select('*')
+      .select('home_team, away_team, date, time, weekday, is_home, tickets_url, espn_event_id')
       .eq('status', 'scheduled')
       .gte('date', today)
       .order('date', { ascending: true })

@@ -11,7 +11,7 @@ export type Tweet = {
 export async function getLatestTweets(limit = 5): Promise<Tweet[]> {
   const { data } = await supabase
     .from('tweets')
-    .select('*')
+    .select('tweet_id, text, created_at_twitter, url, image_url')
     .order('created_at_twitter', { ascending: false })
     .limit(limit)
   return (data ?? []) as Tweet[]
