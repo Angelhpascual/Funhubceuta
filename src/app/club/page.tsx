@@ -1,54 +1,26 @@
-import type { Metadata } from 'next'
 import { Suspense } from 'react'
-import { ClubPage } from '@/features/club/ClubPage'
+import type { Metadata } from 'next'
+import { ClubHero } from '@/features/club/ClubHero'
+import { ClubContent } from '@/features/club/ClubContent'
+import { ClubContentSkeleton } from '@/features/club/ClubContentSkeleton'
 
 export const metadata: Metadata = {
   title: 'Club | AD Ceuta FC Info',
   description: 'Estadísticas, plantilla, historia y toda la información del AD Ceuta FC.',
 }
-import { standingsService } from '@/lib/services'
-import { CURRENT_SEASON, PREVIOUS_SEASON, STANDINGS_CURRENT_SEASON, STANDINGS_PREVIOUS_SEASON } from '@/lib/constants'
-import { fetchCeutaForm, fetchSquadBySeason, fetchLeadersBySeason } from '@/lib/serverFetches'
 
 export const revalidate = 300
 
-async function fetchCeuta(season: string) {
-  const standings = await standingsService.getStandings(season)
-  return standings?.entries?.find((e) => e.teamName.toLowerCase().includes('ceuta')) ?? null
-}
-
-export default async function ClubServerPage() {
-  const [
-    { grouped, total },
-    { grouped: previousGrouped, total: previousTotal },
-    ceuta,
-    ceutaPrevious,
-    form,
-    leaders,
-    previousLeaders,
-  ] = await Promise.all([
-    fetchSquadBySeason(CURRENT_SEASON),
-    fetchSquadBySeason(PREVIOUS_SEASON),
-    fetchCeuta(STANDINGS_CURRENT_SEASON),
-    fetchCeuta(STANDINGS_PREVIOUS_SEASON),
-    fetchCeutaForm(),
-    fetchLeadersBySeason(CURRENT_SEASON),
-    fetchLeadersBySeason(PREVIOUS_SEASON),
-  ])
-
+export default function ClubServerPage() {
   return (
-    <Suspense>
-      <ClubPage
-        grouped={grouped}
-        total={total}
-        previousGrouped={previousGrouped}
-        previousTotal={previousTotal}
-        ceuta={ceuta}
-        ceutaPrevious={ceutaPrevious}
-        form={form}
-        leaders={leaders}
-        previousLeaders={previousLeaders}
-      />
-    </Suspense>
+    <div className="page">
+      {/* Renders immediately — no await */}
+      <ClubHero />
+
+      {/* Dynamic sections stream in; skeleton shown while awaiting data */}
+      <Suspense fallback={<ClubContentSkeleton />}>
+        <ClubContent />
+      </Suspense>
+    </div>
   )
 }

@@ -1,5 +1,8 @@
+import { Suspense } from 'react'
 import type { Metadata } from 'next'
+import { MerchanHero } from '@/features/merchan/MerchanHero'
 import MerchanPage from '@/features/merchan/MerchanPage'
+import { MerchanContentSkeleton } from '@/features/merchan/MerchanContentSkeleton'
 
 export const metadata: Metadata = {
   title: 'Tienda | AD Ceuta FC Info',
@@ -7,5 +10,15 @@ export const metadata: Metadata = {
 }
 
 export default function Page() {
-  return <MerchanPage />
+  return (
+    <div className="page">
+      {/* Renders immediately — no await */}
+      <MerchanHero />
+
+      {/* Client component with internal loading state; Suspense acts as boundary */}
+      <Suspense fallback={<MerchanContentSkeleton />}>
+        <MerchanPage />
+      </Suspense>
+    </div>
+  )
 }
