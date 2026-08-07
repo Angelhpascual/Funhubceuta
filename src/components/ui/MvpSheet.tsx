@@ -321,7 +321,8 @@ function FifaCard({
         <div className="fc-rays" />
         <div className="fc-seam" />
         <div className="fc-shine" />
-        <Image src="/escudo.webp" alt="" width={28} height={33} className="fc-escudo" />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/escudo.webp" alt="" width={28} height={33} className="fc-escudo" />
         <div className="fc-top">
           <div>
             <div className="fc-rating">{votePct}<span>% votos</span></div>

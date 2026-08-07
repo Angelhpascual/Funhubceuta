@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { Suspense } from 'react'
-import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { HomePage } from '@/features/home/HomePage'
 import { HimnoPage } from '@/features/himno/HimnoPage'
@@ -49,12 +48,8 @@ function AppInner() {
       {modal === 'himno' && (
         <>
           <div className="topbar home-topbar-mobile">
-            <Image
-              src="/escudo.webp"
-              alt="AD Ceuta"
-              width={40} height={40}
-              className="absolute left-1/2 -translate-x-1/2 w-10 h-10 object-contain"
-            />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/escudo.webp" alt="AD Ceuta" className="absolute left-1/2 -translate-x-1/2 w-10 h-10 object-contain" />
           </div>
           <div className="scroll-area">
             <HimnoPage onBack={() => setModal(null)} />
@@ -65,13 +60,8 @@ function AppInner() {
       {/* Main app */}
       <div className={modal ? 'hidden' : 'contents'}>
         <div className="topbar home-topbar-mobile">
-          <Image
-            src="/escudo.webp"
-            alt="AD Ceuta"
-            width={40} height={40}
-            className="absolute left-1/2 -translate-x-1/2 w-10 h-10 object-contain cursor-pointer"
-            onClick={() => router.push('/')}
-          />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/escudo.webp" alt="AD Ceuta" className="absolute left-1/2 -translate-x-1/2 w-10 h-10 object-contain cursor-pointer" onClick={() => router.push('/')} />
         </div>
 
         {/* Pull-to-refresh indicator */}

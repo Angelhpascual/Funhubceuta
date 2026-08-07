@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image'
 import Link from 'next/link'
 import { getLocalLogo } from '@/data/teamLogos'
 import type { LiveMatch } from '@/domain/match/LiveMatch'
@@ -15,13 +14,8 @@ function TeamCrest({ name, size = 52 }: { name: string; size?: number }) {
         style={{ width: size, height: size }}
         className="rounded-full bg-white flex items-center justify-center shrink-0"
       >
-        <Image
-          src={logo}
-          alt={name}
-          width={innerSize}
-          height={innerSize}
-          className="object-contain"
-        />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={logo} alt={name} style={{ width: innerSize, height: innerSize }} className="object-contain" />
       </div>
     )
   }
@@ -68,7 +62,8 @@ export function MatchBoard({ match, loading = false, showLiveLink = false }: Mat
             Día de partido
           </span>
         )}
-        <Image src="/liga-hypermotion-white.webp" alt="Liga Hypermotion" height={12} width={60} className="h-3 w-auto opacity-55" />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/liga-hypermotion-white.webp" alt="Liga Hypermotion" className="h-3 w-auto opacity-55" />
       </div>
 
       {/* Score grid */}

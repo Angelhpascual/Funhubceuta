@@ -22,6 +22,9 @@ const nextConfig: NextConfig = {
     localPatterns: [
       { pathname: '/api/proxy/image' },
       { pathname: '/mascota/**' },
+      { pathname: '/*.webp' },
+      { pathname: '/*.png' },
+      { pathname: '/logos/**' },
     ],
     remotePatterns: [
       { protocol: 'https', hostname: 'r2.thesportsdb.com' },
