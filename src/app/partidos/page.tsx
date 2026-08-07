@@ -1,6 +1,8 @@
+import { Suspense } from 'react'
 import type { Metadata } from 'next'
-import { PartidosPage } from '@/features/matches/PartidosPage'
-import { fetchSeasonMatches, fetchPreviousSeasonMatches } from '@/lib/serverFetches'
+import { PartidosHero } from '@/features/matches/PartidosHero'
+import { PartidosContent } from '@/features/matches/PartidosContent'
+import { PartidosContentSkeleton } from '@/features/matches/PartidosContentSkeleton'
 
 export const metadata: Metadata = {
   title: 'Partidos | AD Ceuta FC Info',
@@ -9,21 +11,16 @@ export const metadata: Metadata = {
 
 export const revalidate = 300
 
-export default async function PartidosServerPage() {
-  const [{ upcoming, results }, previousSeason] = await Promise.all([
-    fetchSeasonMatches(),
-    fetchPreviousSeasonMatches(),
-  ])
-
-  const previous = previousSeason
-    .filter((m) => m.status === 'finished')
-    .sort((a, b) => b.date.localeCompare(a.date))
-
+export default function PartidosServerPage() {
   return (
-    <PartidosPage
-      upcoming={upcoming}
-      results={results}
-      previousSeason={previous}
-    />
+    <div className="page">
+      {/* Renders immediately — no await */}
+      <PartidosHero />
+
+      {/* Dynamic sections stream in; skeleton shown while awaiting data */}
+      <Suspense fallback={<PartidosContentSkeleton />}>
+        <PartidosContent />
+      </Suspense>
+    </div>
   )
 }
