@@ -146,7 +146,7 @@ export function MvpBanner() {
           if (session) trackEvent(session.id, 'banner_click')
           setSheetOpen(true)
         }}
-        className="relative mx-4 mt-3 block w-full overflow-hidden rounded-[18px] bg-[var(--black)] px-[17px] pb-[17px] pt-4 text-left"
+        className="relative mx-4 mt-3 block w-full overflow-hidden rounded-[18px] !bg-[var(--black)] px-[17px] pb-[17px] pt-4 text-left"
       >
         {/* Diagonal stripes */}
         <div
