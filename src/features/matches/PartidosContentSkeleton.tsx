@@ -52,6 +52,7 @@ export function PartidosContentSkeleton() {
       <div className="chips mt-4 mb-2">
         <button type="button" className="chip active" disabled>Próximos</button>
         <button type="button" className="chip" disabled>Resultados</button>
+        <button type="button" className="chip" disabled>Temp. 25/26</button>
       </div>
 
       <div className="px-4 pt-2 pb-8">
