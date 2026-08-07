@@ -1,17 +1,16 @@
 import { NextResponse } from 'next/server'
 import { checkAdminAuth, unauthorizedResponse } from '@/infrastructure/admin/auth'
 import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
-import { APP_ENV } from '@/lib/appEnv'
-import { getMvpSeasonRanking } from '@/infrastructure/supabase/MvpRepository'
 import { withApi } from '@/lib/apiError'
 
 export const GET = withApi(async () => {
   if (!(await checkAdminAuth())) return unauthorizedResponse()
 
+  // Admin always sees production history regardless of current deploy environment
   const { data: sessions } = await supabaseAdmin
     .from('mvp_sessions')
     .select('id, match_label, winner_name, winner_votes, closed_at, candidates')
-    .eq('environment', APP_ENV)
+    .eq('environment', 'production')
     .eq('status', 'closed')
     .order('closed_at', { ascending: false })
     .limit(20)
@@ -28,7 +27,26 @@ export const GET = withApi(async () => {
     votes = data ?? []
   }
 
-  const seasonRanking = await getMvpSeasonRanking()
+  // Season ranking always from production data
+  const { data: rankingData } = await supabaseAdmin
+    .from('mvp_sessions')
+    .select('winner_name, winner_votes, candidates')
+    .eq('environment', 'production')
+    .eq('status', 'closed')
+    .not('winner_name', 'is', null)
+
+  const winCounts: Record<string, { name: string; wins: number; votes: number; photo_url?: string }> = {}
+  for (const s of rankingData ?? []) {
+    if (!s.winner_name) continue
+    const key = s.winner_name
+    if (!winCounts[key]) {
+      const photo = (s.candidates as { name: string; photo_url?: string }[])?.find(c => c.name === key)?.photo_url
+      winCounts[key] = { name: key, wins: 0, votes: 0, photo_url: photo }
+    }
+    winCounts[key].wins++
+    winCounts[key].votes += s.winner_votes ?? 0
+  }
+  const seasonRanking = Object.values(winCounts).sort((a, b) => b.wins - a.wins || b.votes - a.votes)
 
   const history = (sessions ?? []).map((s: {
     id: string
