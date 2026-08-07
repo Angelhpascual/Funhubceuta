@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useState, useEffect } from 'react'
 import type { MvpSession, MvpVoteTally } from '@/infrastructure/supabase/MvpRepository'
 
@@ -269,10 +270,9 @@ function PlayerCard({
       disabled={!votable}
     >
       {/* foto integrada con fondo oscuro + gradiente */}
-      <div className="mvp-row-photo">
+      <div className="mvp-row-photo relative">
         {candidate.photo_url ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={candidate.photo_url} alt={candidate.name} className="mvp-row-photo-img" />
+          <Image src={candidate.photo_url} alt={candidate.name} fill className="mvp-row-photo-img object-cover object-top" />
         ) : (
           <svg viewBox="0 0 120 150" className="mvp-row-photo-bust">
             <circle cx="60" cy="50" r="25" fill="#CFC9BF" />
@@ -321,8 +321,7 @@ function FifaCard({
         <div className="fc-rays" />
         <div className="fc-seam" />
         <div className="fc-shine" />
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/escudo.webp" alt="" width={28} height={33} className="fc-escudo" />
+        <Image src="/escudo.webp" alt="" width={28} height={33} className="fc-escudo" />
         <div className="fc-top">
           <div>
             <div className="fc-rating">{votePct}<span>% votos</span></div>
@@ -331,8 +330,7 @@ function FifaCard({
         </div>
         <div className="fc-photo">
           {candidate.photo_url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={candidate.photo_url} alt={candidate.name} />
+            <Image src={candidate.photo_url} alt={candidate.name} fill className="object-cover object-top" />
           ) : (
             <div className="fc-photo-bust" />
           )}
@@ -368,10 +366,9 @@ function SeasonRanking({ ranking }: { ranking: SeasonEntry[] }) {
       {ranking.map((entry, i) => (
         <div key={entry.name} className={`mvp-srow${i === 0 ? ' top1' : i === 1 ? ' top2' : i === 2 ? ' top3' : ''}`}>
           <div className="sr-pos">{i + 1}</div>
-          <div className="sr-photo">
+          <div className="sr-photo relative">
             {entry.photo_url
-              // eslint-disable-next-line @next/next/no-img-element
-              ? <img src={entry.photo_url} alt={entry.name} />
+              ? <Image src={entry.photo_url} alt={entry.name} fill className="object-cover object-top" />
               : <div className="sr-photo-placeholder" />
             }
           </div>

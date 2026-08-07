@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import Image from 'next/image'
 import { StandingEntry } from '@/domain/standings/Standings'
 import type { LeadersMap } from '../clubTypes'
 
@@ -81,13 +82,11 @@ function Leaderboard({ leaders }: { leaders: LeadersMap }) {
         {/* Featured #1 */}
         {top && (
           <div className="relative mb-3 flex items-center gap-3 overflow-hidden rounded-[12px] bg-[var(--black)] p-4">
-            <div className="absolute right-0 top-0 h-full w-24 opacity-[0.06]"
-              style={{ background: 'repeating-linear-gradient(-45deg,#fff 0 10px,transparent 10px 20px)' }} />
+            <div className="absolute right-0 top-0 h-full w-24 opacity-[0.06] bg-[repeating-linear-gradient(-45deg,#fff_0_10px,transparent_10px_20px)]" />
             <span className="relative font-display text-[18px] font-black text-[var(--red)]">1</span>
             <div className="relative flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-[var(--red)] bg-[#1c1c1c]">
               {top.photo ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={top.photo} alt={top.name} className="size-full object-cover object-top" />
+                <Image src={top.photo} alt={top.name} fill className="object-cover object-top" />
               ) : (
                 <span className="font-display text-[15px] font-black text-white">{initials(top.name)}</span>
               )}
@@ -108,10 +107,9 @@ function Leaderboard({ leaders }: { leaders: LeadersMap }) {
               <span className="w-5 shrink-0 text-center font-display text-[13px] font-black text-[var(--muted-2)]">
                 {i + 2}
               </span>
-              <div className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[var(--border)] bg-[var(--bg-mid)]">
+              <div className="relative flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[var(--border)] bg-[var(--bg-mid)]">
                 {r.photo ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={r.photo} alt={r.name} className="size-full object-cover object-top" />
+                  <Image src={r.photo} alt={r.name} fill className="object-cover object-top" />
                 ) : (
                   <span className="font-display text-[11px] font-black text-[var(--muted)]">{initials(r.name)}</span>
                 )}
@@ -376,11 +374,10 @@ export function EstadisticasTab({
 
                   {/* Avatar */}
                   <div
-                    className={`ml-2 flex size-[56px] shrink-0 items-center justify-center overflow-hidden rounded-full border-2 bg-[var(--bg-mid)] ${gold ? 'border-[var(--gold)]' : 'border-[var(--border)]'}`}
+                    className={`relative ml-2 flex size-[56px] shrink-0 items-center justify-center overflow-hidden rounded-full border-2 bg-[var(--bg-mid)] ${gold ? 'border-[var(--gold)]' : 'border-[var(--border)]'}`}
                   >
                     {player?.photo ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={player.photo} alt={player.name} className="size-full object-cover object-top" />
+                      <Image src={player.photo} alt={player.name} fill className="object-cover object-top" />
                     ) : (
                       <span className="font-display text-[18px] font-black text-[var(--muted)]">
                         {initials(player?.name ?? '')}

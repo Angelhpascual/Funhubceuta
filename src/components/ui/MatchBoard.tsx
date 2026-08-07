@@ -1,23 +1,35 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import { getLocalLogo } from '@/data/teamLogos'
 import type { LiveMatch } from '@/domain/match/LiveMatch'
 
 function TeamCrest({ name, size = 52 }: { name: string; size?: number }) {
   const logo = getLocalLogo(name)
-  const sizeClass = size === 52 ? 'w-[52px] h-[52px]' : `w-[${size}px] h-[${size}px]`
+  // dynamic width — Tailwind can't generate runtime px values; using style instead
   const innerSize = Math.round(size * 0.69)
   if (logo) {
     return (
-      <div className={`${sizeClass} rounded-full bg-white flex items-center justify-center shrink-0`}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={logo} alt={name} className={`w-[${innerSize}px] h-[${innerSize}px] object-contain`} />
+      <div
+        style={{ width: size, height: size }}
+        className="rounded-full bg-white flex items-center justify-center shrink-0"
+      >
+        <Image
+          src={logo}
+          alt={name}
+          width={innerSize}
+          height={innerSize}
+          className="object-contain"
+        />
       </div>
     )
   }
   return (
-    <div className={`${sizeClass} rounded-full bg-white flex items-center justify-center shrink-0 font-display text-[13px] font-black text-[var(--black)]`}>
+    <div
+      style={{ width: size, height: size }}
+      className="rounded-full bg-white flex items-center justify-center shrink-0 font-display text-[13px] font-black text-[var(--black)]"
+    >
       {name.slice(0, 3).toUpperCase()}
     </div>
   )
@@ -39,8 +51,7 @@ export function MatchBoard({ match, loading = false, showLiveLink = false }: Mat
   return (
     <div className="bg-[var(--black)] text-white relative overflow-hidden px-5 pb-5">
       {/* Diagonal stripes */}
-      <div className="absolute top-0 right-0 bottom-0 w-[130px] pointer-events-none"
-        style={{ background: 'repeating-linear-gradient(-45deg,transparent 0 10px,rgba(255,255,255,0.05) 10px 20px)' }} />
+      <div className="absolute top-0 right-0 bottom-0 w-[130px] pointer-events-none bg-[repeating-linear-gradient(-45deg,transparent_0_10px,rgba(255,255,255,0.05)_10px_20px)]" />
 
       {/* Top row: state badge + competition */}
       <div className="flex items-center justify-between relative z-[1] pt-[18px]">
@@ -57,8 +68,7 @@ export function MatchBoard({ match, loading = false, showLiveLink = false }: Mat
             Día de partido
           </span>
         )}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/liga-hypermotion-white.webp" alt="Liga Hypermotion" className="h-3 w-auto opacity-55" />
+        <Image src="/liga-hypermotion-white.webp" alt="Liga Hypermotion" height={12} width={60} className="h-3 w-auto opacity-55" />
       </div>
 
       {/* Score grid */}

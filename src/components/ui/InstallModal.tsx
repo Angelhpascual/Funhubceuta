@@ -87,7 +87,7 @@ export function InstallModal() {
     <button type="button"
       onClick={handleAndroidInstall}
       disabled={installing}
-      className="flex w-full items-center justify-center gap-2 rounded-[14px] py-4 font-display text-[15px] font-black uppercase tracking-[0.08em] text-white disabled:opacity-60 bg-[var(--red)] shadow-[0_4px_20px_rgba(218,26,34,0.4)]"
+      className="flex w-full items-center justify-center gap-2 rounded-[14px] py-4 font-display text-[15px] font-black uppercase tracking-[0.08em] text-white disabled:opacity-60 !bg-[var(--red)] shadow-[0_4px_20px_rgba(218,26,34,0.4)]"
     >
       <span>{installing ? '...' : label}</span>
     </button>
