@@ -86,7 +86,7 @@ function Leaderboard({ leaders }: { leaders: LeadersMap }) {
             <span className="relative font-display text-[18px] font-black text-[var(--red)]">1</span>
             <div className="relative flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-[var(--red)] bg-[#1c1c1c]">
               {top.photo ? (
-                <Image src={top.photo} alt={top.name} fill className="object-cover object-top" />
+                <Image src={top.photo} alt={top.name} fill sizes="48px" className="object-cover object-top" />
               ) : (
                 <span className="font-display text-[15px] font-black text-white">{initials(top.name)}</span>
               )}
@@ -109,7 +109,7 @@ function Leaderboard({ leaders }: { leaders: LeadersMap }) {
               </span>
               <div className="relative flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[var(--border)] bg-[var(--bg-mid)]">
                 {r.photo ? (
-                  <Image src={r.photo} alt={r.name} fill className="object-cover object-top" />
+                  <Image src={r.photo} alt={r.name} fill sizes="36px" className="object-cover object-top" />
                 ) : (
                   <span className="font-display text-[11px] font-black text-[var(--muted)]">{initials(r.name)}</span>
                 )}
@@ -377,7 +377,7 @@ export function EstadisticasTab({
                     className={`relative ml-2 flex size-[56px] shrink-0 items-center justify-center overflow-hidden rounded-full border-2 bg-[var(--bg-mid)] ${gold ? 'border-[var(--gold)]' : 'border-[var(--border)]'}`}
                   >
                     {player?.photo ? (
-                      <Image src={player.photo} alt={player.name} fill className="object-cover object-top" />
+                      <Image src={player.photo} alt={player.name} fill sizes="56px" className="object-cover object-top" />
                     ) : (
                       <span className="font-display text-[18px] font-black text-[var(--muted)]">
                         {initials(player?.name ?? '')}

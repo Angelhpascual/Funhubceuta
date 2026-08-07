@@ -272,7 +272,7 @@ function PlayerCard({
       {/* foto integrada con fondo oscuro + gradiente */}
       <div className="mvp-row-photo relative">
         {candidate.photo_url ? (
-          <Image src={candidate.photo_url} alt={candidate.name} fill className="mvp-row-photo-img object-cover object-top" />
+          <Image src={candidate.photo_url} alt={candidate.name} fill sizes="64px" className="mvp-row-photo-img object-cover object-top" />
         ) : (
           <svg viewBox="0 0 120 150" className="mvp-row-photo-bust">
             <circle cx="60" cy="50" r="25" fill="#CFC9BF" />
@@ -331,7 +331,7 @@ function FifaCard({
         </div>
         <div className="fc-photo">
           {candidate.photo_url ? (
-            <Image src={candidate.photo_url} alt={candidate.name} fill className="object-cover object-top" />
+            <Image src={candidate.photo_url} alt={candidate.name} fill sizes="220px" className="object-cover object-top" />
           ) : (
             <div className="fc-photo-bust" />
           )}
@@ -369,7 +369,7 @@ function SeasonRanking({ ranking }: { ranking: SeasonEntry[] }) {
           <div className="sr-pos">{i + 1}</div>
           <div className="sr-photo relative">
             {entry.photo_url
-              ? <Image src={entry.photo_url} alt={entry.name} fill className="object-cover object-top" />
+              ? <Image src={entry.photo_url} alt={entry.name} fill sizes="40px" className="object-cover object-top" />
               : <div className="sr-photo-placeholder" />
             }
           </div>
