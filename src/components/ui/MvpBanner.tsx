@@ -188,7 +188,7 @@ export function MvpBanner() {
       >
         <div
           className="pointer-events-none absolute inset-0"
-          style={{ background: 'repeating-linear-gradient(-45deg,transparent 0 13px,rgba(255,255,255,0.055) 13px 26px)' }}
+          style={{ background: 'repeating-linear-gradient(-45deg,transparent 0 13px,rgba(255,255,255,0.03) 13px 26px)' }}
         />
 
         <div className="relative z-[2]">
