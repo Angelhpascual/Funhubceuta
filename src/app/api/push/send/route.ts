@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import webpush from 'web-push'
 import { getAllSubscriptions, deleteSubscription } from '@/infrastructure/supabase/PushSubscriptionsRepository'
 import { withApi } from '@/lib/apiError'
+import { checkAdminAuth, unauthorizedResponse } from '@/infrastructure/admin/auth'
 
 export interface PushPayload {
   title: string
@@ -11,6 +12,8 @@ export interface PushPayload {
 }
 
 export const POST = withApi(async (request: Request) => {
+  if (!(await checkAdminAuth())) return unauthorizedResponse()
+
   webpush.setVapidDetails(
     'mailto:angelhpascual@gmail.com',
     process.env.VAPID_PUBLIC_KEY!,

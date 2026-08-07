@@ -1,5 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
+vi.mock('@/infrastructure/admin/auth', () => ({
+  checkAdminAuth: vi.fn(),
+  unauthorizedResponse: vi.fn(() => new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 })),
+}))
 vi.mock('@/infrastructure/supabase/PushSubscriptionsRepository', () => ({
   getAllSubscriptions: vi.fn(),
   deleteSubscription: vi.fn(),
@@ -13,9 +17,13 @@ vi.mock('web-push', () => ({
 
 import { getAllSubscriptions, deleteSubscription } from '@/infrastructure/supabase/PushSubscriptionsRepository'
 import webpush from 'web-push'
+import { checkAdminAuth } from '@/infrastructure/admin/auth'
 import { POST } from '../route'
 
-beforeEach(() => { vi.resetAllMocks() })
+beforeEach(() => {
+  vi.resetAllMocks()
+  vi.mocked(checkAdminAuth).mockResolvedValue(true)
+})
 
 const sub = { endpoint: 'https://push.example.com/1', p256dh: 'key1', auth: 'auth1' }
 const payload = { title: 'Gol!', body: 'Ceuta marca' }
@@ -29,6 +37,12 @@ function makeRequest() {
 }
 
 describe('POST /api/push/send', () => {
+  it('returns 401 when not authenticated', async () => {
+    vi.mocked(checkAdminAuth).mockResolvedValue(false)
+    const res = await POST(makeRequest())
+    expect(res.status).toBe(401)
+  })
+
   it('returns sent:0 when no subscriptions', async () => {
     vi.mocked(getAllSubscriptions).mockResolvedValue([])
     const res = await POST(makeRequest())

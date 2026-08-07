@@ -265,23 +265,6 @@ export async function GET() {
     })
   }
 
-  const match: LiveMatch = {
-    espnId: ceutaEvent.id as string,
-    state: (guardedState as 'pre' | 'in' | 'post') ?? 'pre',
-    status: statusDesc ?? '',
-    clock: guardedState === 'in' ? clockDisplay || '' : '',
-    homeTeam: (homeTeamData?.displayName as string) ?? '',
-    awayTeam: (awayTeamData?.displayName as string) ?? '',
-    homeScore: parseInt((home?.score as string) ?? '0'),
-    awayScore: parseInt((away?.score as string) ?? '0'),
-    events: liveEvents,
-    venue: ((venue as Record<string, unknown>)?.fullName as string) ?? '',
-    startDate: (ceutaEvent.date as string) ?? '',
-    homeLineup: homeLineup?.length ? homeLineup : undefined,
-    awayLineup: awayLineup?.length ? awayLineup : undefined,
-    stats,
-  }
-
   // Don't show a finished match that ended more than 3 hours ago
   if (guardedState === 'post') {
     const matchDate = new Date(ceutaEvent.date as string)
@@ -302,6 +285,24 @@ export async function GET() {
         }
       }
     }
+  }
+
+  // Build match after post-branch may have updated liveEvents from stored state
+  const match: LiveMatch = {
+    espnId: ceutaEvent.id as string,
+    state: (guardedState as 'pre' | 'in' | 'post') ?? 'pre',
+    status: statusDesc ?? '',
+    clock: guardedState === 'in' ? clockDisplay || '' : '',
+    homeTeam: (homeTeamData?.displayName as string) ?? '',
+    awayTeam: (awayTeamData?.displayName as string) ?? '',
+    homeScore: parseInt((home?.score as string) ?? '0'),
+    awayScore: parseInt((away?.score as string) ?? '0'),
+    events: liveEvents,
+    venue: ((venue as Record<string, unknown>)?.fullName as string) ?? '',
+    startDate: (ceutaEvent.date as string) ?? '',
+    homeLineup: homeLineup?.length ? homeLineup : undefined,
+    awayLineup: awayLineup?.length ? awayLineup : undefined,
+    stats,
   }
 
   // Write enriched result to Supabase cache so next requests skip ESPN
