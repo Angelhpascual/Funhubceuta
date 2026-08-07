@@ -48,14 +48,10 @@ function SkeletonUpcomingRow() {
 export function PartidosContentSkeleton() {
   return (
     <>
-      {/* Chips skeleton */}
+      {/* Chips — estáticos con texto real para evitar salto visual */}
       <div className="chips mt-4 mb-2">
-        {['Próximos', 'Resultados'].map((label) => (
-          <div
-            key={label}
-            className="h-[30px] w-20 animate-pulse rounded-full bg-[var(--bg-mid)]"
-          />
-        ))}
+        <button type="button" className="chip active" disabled>Próximos</button>
+        <button type="button" className="chip" disabled>Resultados</button>
       </div>
 
       <div className="px-4 pt-2 pb-8">
