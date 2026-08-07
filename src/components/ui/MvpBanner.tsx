@@ -144,7 +144,7 @@ export function MvpBanner() {
         </div>
       </div>
       <div className="px-4 pt-3">
-        <button className={`mvp-banner st-${bannerState}`} onClick={() => {
+        <button type="button" className={`mvp-banner st-${bannerState}`} onClick={() => {
           if (session) trackEvent(session.id, 'banner_click')
           setSheetOpen(true)
         }}>
@@ -175,7 +175,7 @@ export function MvpBanner() {
               <div className="mb-center">
                 {bannerState === 'cerrada' && winner?.photo_url ? (
                   <div className="mb-winner-photo">
-                    <Image src={winner.photo_url} alt={winner.name} width={52} height={52} className="w-full h-full object-cover object-top" />
+                    <Image src={winner.photo_url} alt={winner.name} width={52} height={52} priority className="w-full h-full object-cover object-top" />
                   </div>
                 ) : (
                   <div className="mb-center-ic">{cfg.icon}</div>

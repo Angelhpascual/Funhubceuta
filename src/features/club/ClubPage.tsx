@@ -73,7 +73,7 @@ export function ClubPage({
 
       <div className="chips mt-4 mb-3">
         {TABS.map((t) => (
-          <button
+          <button type="button"
             key={t.id}
             className={`chip ${tab === t.id ? 'active' : ''}`}
             onClick={() => setTab(t.id)}

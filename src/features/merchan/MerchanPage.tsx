@@ -1,8 +1,25 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
-import { MERCHAN_PRODUCTS, MERCHAN_CATEGORIES, type MerchanProduct } from '@/data/merchan'
+
+type MerchanProduct = {
+  id: number
+  name: string
+  price: string
+  url: string
+  image: string
+  category: 'equipaciones' | 'entrenamiento' | 'paseo' | 'merchandising'
+  tag?: 'nuevo' | 'top' | null
+  featured: boolean
+}
+
+const MERCHAN_CATEGORIES = [
+  { id: 'equipaciones',  label: 'Equipaciones' },
+  { id: 'entrenamiento', label: 'Entrenamiento' },
+  { id: 'paseo',         label: 'Paseo' },
+  { id: 'merchandising', label: 'Merchandising' },
+] as const
 
 const IconExt = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" className="w-[13px] h-[13px]">
@@ -15,7 +32,6 @@ const IconExt = () => (
 function FeaturedCard({ product }: { product: MerchanProduct }) {
   return (
     <div className="-mt-[38px] mx-3 relative z-[2] rounded-[18px] overflow-hidden shadow-[0_8px_28px_rgba(0,0,0,0.18)]">
-      {/* Imagen full-bleed */}
       <div className="relative h-[260px]">
         <Image
           src={product.image}
@@ -28,7 +44,6 @@ function FeaturedCard({ product }: { product: MerchanProduct }) {
         <span className="absolute top-[10px] left-[10px] bg-[var(--gold)] text-[var(--black)] font-display font-extrabold text-[10px] tracking-[0.1em] uppercase px-[9px] py-[5px] rounded-[6px] z-[2]">
           Novedad · Retro
         </span>
-        {/* Gradient overlay */}
         <div
           className="absolute inset-x-0 bottom-0 px-[15px] pt-10 pb-[15px] z-[1]"
           style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.5) 55%, transparent 100%)' }}
@@ -72,7 +87,6 @@ function ProductCard({ product }: { product: MerchanProduct }) {
       rel="noopener noreferrer"
       className="relative rounded-[18px] overflow-hidden aspect-[3/4] block shadow-[0_4px_16px_rgba(0,0,0,0.12)] active:scale-[0.97] transition-transform"
     >
-      {/* Imagen full-bleed */}
       <Image
         src={product.image}
         alt={product.name}
@@ -81,15 +95,11 @@ function ProductCard({ product }: { product: MerchanProduct }) {
         className="object-cover object-top"
         loading="lazy"
       />
-
-      {/* Badge */}
       {product.tag && (
         <span className={`absolute top-2 left-2 z-10 font-display font-extrabold text-[9px] tracking-[0.1em] uppercase px-[7px] py-[4px] rounded-[5px] ${product.tag === 'nuevo' ? 'bg-[var(--red)] text-white' : 'bg-[var(--black)] text-white'}`}>
           {TAG_LABELS[product.tag]}
         </span>
       )}
-
-      {/* Gradient + info overlay */}
       <div className="absolute inset-x-0 bottom-0 z-10 px-[11px] pt-8 pb-[11px]"
         style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)' }}
       >
@@ -115,11 +125,21 @@ const CAT_MAP: Record<string, string> = Object.fromEntries(MERCHAN_CATEGORIES.ma
 
 export default function MerchanPage() {
   const [activeCat, setActiveCat] = useState(ALL_CAT)
+  const [products, setProducts] = useState<MerchanProduct[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const featured = MERCHAN_PRODUCTS.find(p => p.featured)
+  useEffect(() => {
+    fetch('/api/merchan')
+      .then(r => r.json())
+      .then(data => setProducts(data.products ?? []))
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [])
+
+  const featured = products.find(p => p.featured)
   const filtered = activeCat === ALL_CAT
-    ? MERCHAN_PRODUCTS
-    : MERCHAN_PRODUCTS.filter(p => p.category === CAT_MAP[activeCat])
+    ? products
+    : products.filter(p => p.category === CAT_MAP[activeCat])
 
   return (
     <div>
@@ -144,12 +164,12 @@ export default function MerchanPage() {
       </div>
 
       {/* Featured card */}
-      {featured && <FeaturedCard product={featured} />}
+      {!loading && featured && <FeaturedCard product={featured} />}
 
       {/* Chips */}
       <div className="chips sticky top-0 z-[100] bg-white/80 backdrop-blur-md pt-4 pb-4 mt-4 border-b border-[var(--border)]">
         {CATS.map(c => (
-          <button key={c} className={`chip ${activeCat === c ? 'active' : ''}`} onClick={() => setActiveCat(c)}>
+          <button type="button" key={c} className={`chip ${activeCat === c ? 'active' : ''}`} onClick={() => setActiveCat(c)}>
             {c}
           </button>
         ))}
@@ -160,13 +180,23 @@ export default function MerchanPage() {
         <span className="font-display font-extrabold text-[16px] tracking-[0.02em] uppercase">
           {activeCat === ALL_CAT ? 'Todo el catálogo' : activeCat}
         </span>
-        <span className="text-[12px] text-[var(--muted)]">{filtered.length} artículos</span>
+        <span className="text-[12px] text-[var(--muted)]">
+          {loading ? '—' : `${filtered.length} artículos`}
+        </span>
       </div>
 
       {/* Product grid */}
-      <div key={activeCat} className="grid grid-cols-2 gap-3 px-3 pt-[10px] isolate">
-        {filtered.map(p => <ProductCard key={p.url} product={p} />)}
-      </div>
+      {loading ? (
+        <div className="grid grid-cols-2 gap-3 px-3 pt-[10px]">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="aspect-[3/4] rounded-[18px] bg-[var(--bg-soft)] animate-pulse" />
+          ))}
+        </div>
+      ) : (
+        <div key={activeCat} className="grid grid-cols-2 gap-3 px-3 pt-[10px] isolate">
+          {filtered.map(p => <ProductCard key={p.id} product={p} />)}
+        </div>
+      )}
 
       {/* Store note */}
       <div className="relative mx-3 mt-[18px] mb-2 bg-[var(--black)] rounded-[16px] px-[17px] py-4 text-white flex items-center gap-[14px] overflow-hidden">

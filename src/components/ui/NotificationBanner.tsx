@@ -138,10 +138,10 @@ export function NotificationBanner() {
           </div>
         </div>
         <div className="notif-banner-actions">
-          <button className="notif-btn-activate" onClick={handleActivate} disabled={loading}>
+          <button type="button" className="notif-btn-activate" onClick={handleActivate} disabled={loading}>
             {loading ? '...' : 'Activar'}
           </button>
-          <button className="notif-btn-dismiss" onClick={() => setDismissed(true)}>
+          <button type="button" className="notif-btn-dismiss" onClick={() => setDismissed(true)}>
             Ahora no
           </button>
         </div>

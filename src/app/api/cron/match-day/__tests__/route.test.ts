@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { NextRequest } from 'next/server'
 
 vi.mock('@/lib/constants', () => ({ ESPN_BASE: 'https://espn.com' }))
 vi.mock('@/infrastructure/supabase/logCron', () => ({ logCron: vi.fn() }))
@@ -53,7 +54,7 @@ beforeEach(() => {
 describe('cron/match-day GET', () => {
   it('returns 405 in production', async () => {
     vi.stubEnv('NODE_ENV', 'production')
-    const res = await GET()
+    const res = await GET(new NextRequest('http://localhost'))
     expect(res.status).toBe(405)
     vi.unstubAllEnvs()
   })
@@ -62,7 +63,7 @@ describe('cron/match-day GET', () => {
     vi.spyOn(global, 'fetch').mockResolvedValue(
       new Response(JSON.stringify({ events: [] }), { status: 200 })
     )
-    const res = await GET()
+    const res = await GET(new NextRequest('http://localhost'))
     expect(res.status).toBe(200)
     const body = await res.json()
     expect(body.match).toBe('none')
@@ -75,7 +76,7 @@ describe('cron/match-day GET', () => {
       new Response(JSON.stringify(makeScoreboard('pre')), { status: 200 })
     )
     vi.mocked(getAllSubscriptions).mockResolvedValue([sub])
-    const res = await GET()
+    const res = await GET(new NextRequest('http://localhost'))
     expect(res.status).toBe(200)
     const body = await res.json()
     expect(body.match).toBe('found')
@@ -90,7 +91,7 @@ describe('cron/match-day GET', () => {
     vi.spyOn(global, 'fetch').mockResolvedValue(
       new Response(JSON.stringify(makeScoreboard('in')), { status: 200 })
     )
-    const res = await GET()
+    const res = await GET(new NextRequest('http://localhost'))
     const body = await res.json()
     expect(body.match).toBe('none') // state !== 'pre' → getTodayMatch returns null
     expect(webpush.sendNotification).not.toHaveBeenCalled()
@@ -98,7 +99,7 @@ describe('cron/match-day GET', () => {
 
   it('logs error and rethrows on ESPN failure', async () => {
     vi.spyOn(global, 'fetch').mockRejectedValue(new Error('network'))
-    await expect(GET()).rejects.toThrow('network')
+    await expect(GET(undefined as never)).rejects.toThrow('network')
     expect(logCron).toHaveBeenCalledWith('match-day', 'error', expect.any(Number), expect.any(Object))
   })
 })
@@ -106,7 +107,7 @@ describe('cron/match-day GET', () => {
 describe('cron/match-day POST', () => {
   it('returns 401 for invalid QStash signature', async () => {
     mockVerify.mockRejectedValue(new Error('bad sig'))
-    const res = await POST(new Request('http://localhost/api/cron/match-day', { method: 'POST', body: '{}' }))
+    const res = await POST(new NextRequest('http://localhost/api/cron/match-day', { method: 'POST', body: '{}' }))
     expect(res.status).toBe(401)
   })
 
@@ -115,7 +116,7 @@ describe('cron/match-day POST', () => {
     vi.spyOn(global, 'fetch').mockResolvedValue(
       new Response(JSON.stringify({ events: [] }), { status: 200 })
     )
-    const res = await POST(new Request('http://localhost/api/cron/match-day', {
+    const res = await POST(new NextRequest('http://localhost/api/cron/match-day', {
       method: 'POST',
       headers: { 'Upstash-Signature': 'valid' },
       body: '{}',

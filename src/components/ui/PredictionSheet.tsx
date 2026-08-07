@@ -75,9 +75,9 @@ function ScorePicker({ home, setHome, away, setAway, session }: {
               : <div className="pred-picker-badge pred-picker-badge-empty" />}
           </div>
           <span className="pred-picker-name">{meta?.home.name ?? 'Local'}</span>
-          <button className="pred-step-btn" onClick={() => setHome(Math.min(9, home + 1))}><IconPlus /></button>
+          <button type="button" className="pred-step-btn" onClick={() => setHome(Math.min(9, home + 1))}><IconPlus /></button>
           <div className="pred-step-value">{home}</div>
-          <button className="pred-step-btn" onClick={() => setHome(Math.max(0, home - 1))}><IconMinus /></button>
+          <button type="button" className="pred-step-btn" onClick={() => setHome(Math.max(0, home - 1))}><IconMinus /></button>
         </div>
 
         <div className="pred-picker-colon">:</div>
@@ -91,9 +91,9 @@ function ScorePicker({ home, setHome, away, setAway, session }: {
               : <div className="pred-picker-badge pred-picker-badge-empty" />}
           </div>
           <span className="pred-picker-name">{meta?.away.name ?? 'Visitante'}</span>
-          <button className="pred-step-btn" onClick={() => setAway(Math.min(9, away + 1))}><IconPlus /></button>
+          <button type="button" className="pred-step-btn" onClick={() => setAway(Math.min(9, away + 1))}><IconPlus /></button>
           <div className="pred-step-value">{away}</div>
-          <button className="pred-step-btn" onClick={() => setAway(Math.max(0, away - 1))}><IconMinus /></button>
+          <button type="button" className="pred-step-btn" onClick={() => setAway(Math.max(0, away - 1))}><IconMinus /></button>
         </div>
       </div>
     </div>
@@ -264,11 +264,11 @@ export function PredictionSheet({ session, mine, fingerprint, onClose, onPredict
                 {session.jornada && <span className="pred-jornada">{session.jornada}</span>}
               </div>
             </div>
-            <button className="pred-close" onClick={onClose}><IconClose /></button>
+            <button type="button" className="pred-close" onClick={onClose}><IconClose /></button>
           </div>
           <div className="pred-tabs">
-            <button className={`pred-tab${tab === 'partido' ? ' active' : ''}`} onClick={() => setTab('partido')}>Este partido</button>
-            <button className={`pred-tab${tab === 'ranking' ? ' active' : ''}`} onClick={() => setTab('ranking')}>Ranking</button>
+            <button type="button" className={`pred-tab${tab === 'partido' ? ' active' : ''}`} onClick={() => setTab('partido')}>Este partido</button>
+            <button type="button" className={`pred-tab${tab === 'ranking' ? ' active' : ''}`} onClick={() => setTab('ranking')}>Ranking</button>
           </div>
         </div>
 
@@ -300,7 +300,7 @@ export function PredictionSheet({ session, mine, fingerprint, onClose, onPredict
                   <span className="pred-points-legend-desc">Fallas el resultado</span>
                 </div>
               </div>
-              <button
+              <button type="button"
                 className="pred-cta-btn"
                 disabled={submitting}
                 onClick={handleSubmit}
@@ -327,14 +327,14 @@ export function PredictionSheet({ session, mine, fingerprint, onClose, onPredict
                 // eslint-disable-next-line jsx-a11y/no-autofocus
                 autoFocus
               />
-              <button
+              <button type="button"
                 className="pred-cta-btn"
                 disabled={!nicknameInput.trim() || submitting}
                 onClick={handleNicknameConfirm}
               >
                 <IconCheck /> {submitting ? 'Enviando...' : 'Confirmar y enviar'}
               </button>
-              <button className="pred-cta-btn ghost mt-2" onClick={() => setAskNickname(false)}>
+              <button type="button" className="pred-cta-btn ghost mt-2" onClick={() => setAskNickname(false)}>
                 Volver
               </button>
               {error && <p className="pred-error">{error}</p>}
@@ -345,7 +345,7 @@ export function PredictionSheet({ session, mine, fingerprint, onClose, onPredict
             <>
               <div className="pred-submitted-label">Tu predicción</div>
               <ScoreDisplay session={session} mine={{ home: mine.home_score, away: mine.away_score }} />
-              <button className="pred-cta-btn ghost" onClick={() => setEditing(true)}>
+              <button type="button" className="pred-cta-btn ghost" onClick={() => setEditing(true)}>
                 <IconDice /> Cambiar predicción
               </button>
               <p className="pred-note">Puedes cambiarla hasta el pitido inicial</p>

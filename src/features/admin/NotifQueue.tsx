@@ -100,28 +100,28 @@ export function NotifQueue() {
             </div>
           ) : (
             <div className="grid grid-cols-2 border-t border-ceuta-border">
-              <button
+              <button type="button"
                 onClick={() => act(article.id, 'discard')}
                 disabled={busy === article.id}
                 className="py-3 font-display text-[11px] font-bold tracking-[0.08em] uppercase text-ceuta-muted border-r border-ceuta-border hover:bg-ceuta-bg-soft transition-colors disabled:opacity-40"
               >
                 Descartar
               </button>
-              <button
+              <button type="button"
                 onClick={() => act(article.id, 'publish')}
                 disabled={busy === article.id}
                 className="py-3 font-display text-[11px] font-bold tracking-[0.08em] uppercase text-ceuta-black hover:bg-ceuta-bg-soft transition-colors disabled:opacity-40"
               >
                 {busy === article.id ? '⏳' : 'Solo publicar'}
               </button>
-              <button
+              <button type="button"
                 onClick={() => act(article.id, 'notify')}
                 disabled={busy === article.id}
                 className="py-3 font-display text-[11px] font-bold tracking-[0.08em] uppercase text-ceuta-black border-r border-t border-ceuta-border hover:bg-ceuta-bg-soft transition-colors disabled:opacity-40"
               >
                 {busy === article.id ? '⏳' : 'Solo notificar'}
               </button>
-              <button
+              <button type="button"
                 onClick={() => act(article.id, 'send')}
                 disabled={busy === article.id}
                 className="py-3 font-display text-[11px] font-bold tracking-[0.08em] uppercase border-t border-ceuta-border bg-ceuta-red text-white hover:bg-ceuta-red-dark transition-colors disabled:opacity-40"

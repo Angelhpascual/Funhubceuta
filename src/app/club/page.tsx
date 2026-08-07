@@ -1,5 +1,11 @@
+import type { Metadata } from 'next'
 import { Suspense } from 'react'
 import { ClubPage } from '@/features/club/ClubPage'
+
+export const metadata: Metadata = {
+  title: 'Club | AD Ceuta FC Info',
+  description: 'Estadísticas, plantilla, historia y toda la información del AD Ceuta FC.',
+}
 import { standingsService } from '@/lib/services'
 import { CURRENT_SEASON, PREVIOUS_SEASON, STANDINGS_CURRENT_SEASON, STANDINGS_PREVIOUS_SEASON } from '@/lib/constants'
 import { fetchCeutaForm, fetchSquadBySeason, fetchLeadersBySeason } from '@/lib/serverFetches'

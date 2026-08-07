@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { NextRequest } from 'next/server'
 
 vi.mock('@/lib/constants', () => ({ CURRENT_SEASON: '2526' }))
 vi.mock('@/infrastructure/supabase/logCron', () => ({ logCron: vi.fn() }))
@@ -35,13 +36,13 @@ describe('GET /api/cron/backfill-squad-photos', () => {
   it('returns 405 in production without secret', async () => {
     vi.mocked(checkCronAuth).mockReturnValue(true)
     vi.stubEnv('NODE_ENV', 'production')
-    const res = await GET(new Request('http://localhost/api/cron/backfill-squad-photos'))
+    const res = await GET(new NextRequest('http://localhost/api/cron/backfill-squad-photos'))
     expect(res.status).toBe(405)
     vi.unstubAllEnvs()
   })
 
   it('returns ok with zero pending when no players to process', async () => {
-    const res = await GET(new Request('http://localhost/api/cron/backfill-squad-photos?secret=test-secret'))
+    const res = await GET(new NextRequest('http://localhost/api/cron/backfill-squad-photos?secret=test-secret'))
     expect(res.status).toBe(200)
     const body = await res.json()
     expect(body.ok).toBe(true)
@@ -57,7 +58,7 @@ describe('GET /api/cron/backfill-squad-photos', () => {
     vi.mocked(getPlayersWithExternalPhotos).mockResolvedValue(players)
     vi.mocked(downloadAndUploadImage).mockResolvedValue('https://onguesyapdtatsadsxmc.supabase.co/storage/v1/object/public/player-photos/players/p1.webp')
 
-    const res = await GET(new Request('http://localhost/api/cron/backfill-squad-photos?secret=test-secret'))
+    const res = await GET(new NextRequest('http://localhost/api/cron/backfill-squad-photos?secret=test-secret'))
     expect(res.status).toBe(200)
     const body = await res.json()
     expect(body.optimized).toBe(2)
@@ -71,7 +72,7 @@ describe('GET /api/cron/backfill-squad-photos', () => {
     ])
     vi.mocked(downloadAndUploadImage).mockResolvedValue(null)
 
-    const res = await GET(new Request('http://localhost/api/cron/backfill-squad-photos?secret=test-secret'))
+    const res = await GET(new NextRequest('http://localhost/api/cron/backfill-squad-photos?secret=test-secret'))
     const body = await res.json()
     expect(body.failed).toBe(1)
     expect(body.optimized).toBe(0)
@@ -81,7 +82,7 @@ describe('GET /api/cron/backfill-squad-photos', () => {
 
 describe('POST /api/cron/backfill-squad-photos', () => {
   it('runs backfill and returns ok', async () => {
-    const res = await POST()
+    const res = await POST(new NextRequest('http://localhost', { method: 'POST', body: '{}' }))
     expect(res.status).toBe(200)
     const body = await res.json()
     expect(body.ok).toBe(true)

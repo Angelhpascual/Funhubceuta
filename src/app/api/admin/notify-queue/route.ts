@@ -2,10 +2,13 @@ import { NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { SOURCE_LABELS } from '@/lib/constants'
 import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
+import { NewsSupabaseRepository } from '@/infrastructure/supabase/NewsSupabaseRepository'
 import { sendPush } from '@/infrastructure/push/sendPush'
 import { logNotification } from '@/infrastructure/supabase/logCron'
 import { checkAdminAuth, unauthorizedResponse } from '@/infrastructure/admin/auth'
 import { withApi } from '@/lib/apiError'
+
+const newsRepo = new NewsSupabaseRepository()
 
 export const GET = withApi(async () => {
   if (!(await checkAdminAuth())) return unauthorizedResponse()
@@ -28,7 +31,7 @@ export const POST = withApi(async (req: Request) => {
   if (!id || !action) return NextResponse.json({ error: 'Missing id or action' }, { status: 400 })
 
   if (action === 'discard') {
-    await supabaseAdmin.from('news').update({ notify_queued: false, published: false, discarded: true }).eq('id', id)
+    await newsRepo.setDiscarded(id)
     revalidatePath('/noticias')
     revalidatePath('/')
     return NextResponse.json({ ok: true })
@@ -45,10 +48,8 @@ export const POST = withApi(async (req: Request) => {
   const willPublish = action === 'publish' || action === 'send' || action === 'notify'
   const willNotify  = action === 'notify'  || action === 'send'
 
-  await supabaseAdmin
-    .from('news')
-    .update({ notify_queued: false, ...(willPublish ? { published: true } : {}) })
-    .eq('id', id)
+  if (willPublish) await newsRepo.setPublished(id)
+  else await newsRepo.clearNotifyQueued(id)
 
   if (willPublish) {
     revalidatePath('/noticias')

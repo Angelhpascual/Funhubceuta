@@ -8,6 +8,7 @@ vi.mock('@/infrastructure/supabase/MvpRepository', () => ({
   createMvpSession: vi.fn(),
   openMvpSession: vi.fn(),
   closeMvpSession: vi.fn(),
+  deleteMvpSession: vi.fn().mockResolvedValue({ error: null }),
 }))
 vi.mock('@/infrastructure/supabase/adminClient', () => ({
   supabaseAdmin: { from: vi.fn() },
@@ -15,7 +16,7 @@ vi.mock('@/infrastructure/supabase/adminClient', () => ({
 vi.mock('@/infrastructure/push/sendPush', () => ({ sendPush: vi.fn().mockResolvedValue({ sent: 0, total: 0 }) }))
 
 import { checkAdminAuth } from '@/infrastructure/admin/auth'
-import { createMvpSession, openMvpSession, closeMvpSession } from '@/infrastructure/supabase/MvpRepository'
+import { createMvpSession, openMvpSession, closeMvpSession, deleteMvpSession } from '@/infrastructure/supabase/MvpRepository'
 import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
 import { sendPush } from '@/infrastructure/push/sendPush'
 import { POST, PATCH, DELETE } from '../route'
@@ -114,11 +115,10 @@ describe('DELETE /api/admin/mvp/session', () => {
   })
 
   it('deletes session', async () => {
-    const eq = vi.fn().mockResolvedValue({ error: null })
-    vi.mocked(supabaseAdmin.from).mockReturnValue({ delete: vi.fn().mockReturnValue({ eq }) } as never)
+    vi.mocked(deleteMvpSession).mockResolvedValue({ error: null } as never)
 
     const res = await DELETE(makeReq('DELETE', { sessionId: 's1' }))
     expect(res.status).toBe(200)
-    expect(eq).toHaveBeenCalledWith('id', 's1')
+    expect(deleteMvpSession).toHaveBeenCalledWith('s1')
   })
 })

@@ -82,7 +82,7 @@ export function PredictionBanner() {
         </div>
       </div>
       <div className="px-4 pt-3">
-        <button className="pred-banner" onClick={() => setSheetOpen(true)}>
+        <button type="button" className="pred-banner" onClick={() => setSheetOpen(true)}>
           <div className="pred-banner-strp" />
 
           {/* tag + jornada */}

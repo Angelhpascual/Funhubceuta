@@ -6,6 +6,8 @@ vi.mock('@/lib/constants', () => ({
 }))
 vi.mock('@/infrastructure/supabase/AppConfigRepository', () => ({
   getConfig: vi.fn(),
+  setConfig: vi.fn(),
+  deleteConfig: vi.fn(),
 }))
 vi.mock('@/infrastructure/supabase/MatchesSupabaseRepository', () => {
   const fetchByEspnId = vi.fn()

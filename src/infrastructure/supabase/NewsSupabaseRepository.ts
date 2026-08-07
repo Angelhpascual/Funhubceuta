@@ -155,7 +155,7 @@ export class NewsSupabaseRepository {
     }))
   }
 
-  async getAdminList(limit = 100) {
+    async getAdminList(limit = 100) {
     const { data } = await supabaseAdmin
       .from('news')
       .select('id, title, source, published_at, image_url, url, published, notify_queued')
@@ -163,5 +163,17 @@ export class NewsSupabaseRepository {
       .order('created_at', { ascending: false })
       .limit(limit)
     return data ?? []
+  }
+
+  async setDiscarded(id: string): Promise<void> {
+    await supabaseAdmin.from('news').update({ notify_queued: false, published: false, discarded: true }).eq('id', id)
+  }
+
+  async setPublished(id: string): Promise<void> {
+    await supabaseAdmin.from('news').update({ published: true, notify_queued: false }).eq('id', id)
+  }
+
+  async clearNotifyQueued(id: string): Promise<void> {
+    await supabaseAdmin.from('news').update({ notify_queued: false }).eq('id', id)
   }
 }

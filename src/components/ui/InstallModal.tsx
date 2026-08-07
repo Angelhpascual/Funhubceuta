@@ -84,7 +84,7 @@ export function InstallModal() {
 
   // Shared install button
   const InstallButton = ({ label }: { label: string }) => (
-    <button
+    <button type="button"
       onClick={handleAndroidInstall}
       disabled={installing}
       className="flex w-full items-center justify-center gap-2 rounded-[14px] py-4 font-display text-[15px] font-black uppercase tracking-[0.08em] text-white disabled:opacity-60 bg-[var(--red)] shadow-[0_4px_20px_rgba(218,26,34,0.4)]"
@@ -133,7 +133,7 @@ export function InstallModal() {
           onClick={e => e.stopPropagation()}
         >
           {/* Close button */}
-          <button
+          <button type="button"
             onClick={snooze}
             className="absolute right-5 top-5 flex size-8 items-center justify-center rounded-full bg-white/10 font-body text-[16px] text-white/50 hover:bg-white/20"
           >
@@ -313,7 +313,7 @@ export function InstallModal() {
           )}
 
           {/* Dismiss */}
-          <button
+          <button type="button"
             onClick={snooze}
             className="mt-6 w-full py-2 font-display text-[13px] font-bold uppercase tracking-[0.08em] text-white/60 underline underline-offset-2 hover:text-white transition-colors"
           >

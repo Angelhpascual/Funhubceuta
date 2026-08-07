@@ -241,7 +241,7 @@ export function PartidosPage({ upcoming = [], results = [], previousSeason = [] 
 
       <div className="chips mt-4 mb-2">
         {tabs.map(t => (
-          <button
+          <button type="button"
             key={t.id}
             className={`chip ${tab === t.id ? 'active' : ''}`}
             onClick={() => changePartidosTab(t.id)}

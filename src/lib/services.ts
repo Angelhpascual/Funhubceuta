@@ -1,3 +1,4 @@
+import 'server-only'
 import { StandingsService } from '@/domain/standings/StandingsService'
 import { StandingsSupabaseRepository } from '@/infrastructure/supabase/StandingsSupabaseRepository'
 

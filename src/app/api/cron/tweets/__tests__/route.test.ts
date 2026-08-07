@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { NextRequest } from 'next/server'
 
 vi.mock('@/infrastructure/scrapers/twitterScraper', () => ({ scrapeLatestTweets: vi.fn() }))
 vi.mock('@/infrastructure/supabase/TweetsRepository', () => ({ upsertTweets: vi.fn() }))
@@ -29,7 +30,7 @@ const tweet = { tweetId: '1', text: 'Gol!', createdAt: '2026-05-01', url: 'https
 describe('cron/tweets GET', () => {
   it('returns 405 in production', async () => {
     vi.stubEnv('NODE_ENV', 'production')
-    const res = await GET()
+    const res = await GET(new NextRequest('http://localhost'))
     expect(res.status).toBe(405)
     vi.unstubAllEnvs()
   })
@@ -38,7 +39,7 @@ describe('cron/tweets GET', () => {
     vi.mocked(scrapeLatestTweets).mockResolvedValue([tweet])
     vi.mocked(upsertTweets).mockResolvedValue(undefined)
     vi.mocked(logCron).mockResolvedValue(undefined)
-    const res = await GET()
+    const res = await GET(new NextRequest('http://localhost'))
     expect(res.status).toBe(200)
     const body = await res.json()
     expect(body.count).toBe(1)
@@ -47,7 +48,7 @@ describe('cron/tweets GET', () => {
   it('logs 0 when scraper returns empty', async () => {
     vi.mocked(scrapeLatestTweets).mockResolvedValue([])
     vi.mocked(logCron).mockResolvedValue(undefined)
-    const res = await GET()
+    const res = await GET(new NextRequest('http://localhost'))
     const body = await res.json()
     expect(body.count).toBe(0)
     expect(logCron).toHaveBeenCalledWith('tweets', 'success', expect.any(Number), { tweets: 0 })
@@ -57,7 +58,7 @@ describe('cron/tweets GET', () => {
 describe('cron/tweets POST', () => {
   it('returns 401 for invalid QStash signature', async () => {
     mockVerify.mockRejectedValue(new Error('bad sig'))
-    const res = await POST(new Request('http://localhost/api/cron/tweets', { method: 'POST', body: '{}' }))
+    const res = await POST(new NextRequest('http://localhost/api/cron/tweets', { method: 'POST', body: '{}' }))
     expect(res.status).toBe(401)
   })
 
@@ -66,7 +67,7 @@ describe('cron/tweets POST', () => {
     vi.mocked(scrapeLatestTweets).mockResolvedValue([tweet])
     vi.mocked(upsertTweets).mockResolvedValue(undefined)
     vi.mocked(logCron).mockResolvedValue(undefined)
-    const res = await POST(new Request('http://localhost/api/cron/tweets', {
+    const res = await POST(new NextRequest('http://localhost/api/cron/tweets', {
       method: 'POST',
       headers: { 'Upstash-Signature': 'valid-sig' },
       body: '{}',

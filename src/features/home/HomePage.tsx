@@ -141,7 +141,7 @@ export function HomePage({
 
       {/* ── HIMNO ── */}
       <div className="px-3 pt-2">
-        <button
+        <button type="button"
           onClick={onOpenHimno}
           className="w-full cursor-pointer bg-transparent p-0 text-left"
         >

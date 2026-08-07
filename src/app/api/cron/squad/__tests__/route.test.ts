@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { NextRequest } from 'next/server'
 
 vi.mock('@/infrastructure/scrapers/squadScraper', () => ({ scrapeSquad: vi.fn() }))
 vi.mock('@/infrastructure/supabase/SquadSupabaseRepository', () => ({ upsertSquad: vi.fn() }))
@@ -26,7 +27,7 @@ describe('cron/squad GET', () => {
   it('returns 405 in production without secret', async () => {
     vi.mocked(checkCronAuth).mockReturnValue(true)
     vi.stubEnv('NODE_ENV', 'production')
-    const res = await GET(new Request('http://localhost/api/cron/squad'))
+    const res = await GET(new NextRequest('http://localhost/api/cron/squad'))
     expect(res.status).toBe(405)
     vi.unstubAllEnvs()
   })
@@ -35,7 +36,7 @@ describe('cron/squad GET', () => {
     vi.mocked(scrapeSquad).mockResolvedValue([player])
     vi.mocked(upsertSquad).mockResolvedValue(undefined)
     vi.mocked(logCron).mockResolvedValue(undefined)
-    const res = await GET(new Request('http://localhost/api/cron/squad'))
+    const res = await GET(new NextRequest('http://localhost/api/cron/squad'))
     expect(res.status).toBe(200)
     const body = await res.json()
     expect(body.ok).toBe(true)
@@ -45,7 +46,7 @@ describe('cron/squad GET', () => {
   it('logs success with 0 when scraper returns empty', async () => {
     vi.mocked(scrapeSquad).mockResolvedValue([])
     vi.mocked(logCron).mockResolvedValue(undefined)
-    const res = await GET(new Request('http://localhost/api/cron/squad'))
+    const res = await GET(new NextRequest('http://localhost/api/cron/squad'))
     expect(res.status).toBe(200)
     const body = await res.json()
     expect(body.count).toBe(0)
@@ -56,7 +57,7 @@ describe('cron/squad GET', () => {
     vi.mocked(scrapeSquad).mockResolvedValue([player])
     vi.mocked(upsertSquad).mockRejectedValue(new Error('DB error'))
     vi.mocked(logCron).mockResolvedValue(undefined)
-    await expect(GET(new Request('http://localhost/api/cron/squad'))).rejects.toThrow('DB error')
+    await expect(GET(new NextRequest('http://localhost/api/cron/squad'))).rejects.toThrow('DB error')
     expect(logCron).toHaveBeenCalledWith('squad', 'error', expect.any(Number), { error: 'DB error' })
   })
 })
@@ -66,7 +67,7 @@ describe('cron/squad POST', () => {
     vi.mocked(scrapeSquad).mockResolvedValue([player, player])
     vi.mocked(upsertSquad).mockResolvedValue(undefined)
     vi.mocked(logCron).mockResolvedValue(undefined)
-    const res = await POST()
+    const res = await POST(new NextRequest('http://localhost', { method: 'POST', body: '{}' }))
     expect(res.status).toBe(200)
     const body = await res.json()
     expect(body.count).toBe(2)

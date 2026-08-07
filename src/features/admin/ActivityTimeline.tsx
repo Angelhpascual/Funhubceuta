@@ -104,7 +104,7 @@ export function ActivityTimeline() {
                 {/* Dot */}
                 <div className={`absolute left-[3px] top-[13px] w-[9px] h-[9px] rounded-full border-2 border-white ${dot}`} />
 
-                <button
+                <button type="button"
                   onClick={() => setExpanded(isExpanded ? null : log.id)}
                   className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-ceuta-bg-soft transition-colors"
                 >

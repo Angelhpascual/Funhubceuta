@@ -57,7 +57,7 @@ function LiveLineupPanel({ lineup }: { lineup: MatchLineup }) {
   const [open, setOpen] = useState(false)
   return (
     <div>
-      <button
+      <button type="button"
         onClick={() => setOpen(o => !o)}
         className="flex w-full cursor-pointer items-center justify-between border-none border-t border-[var(--border)] bg-transparent px-4 py-[14px]"
       >

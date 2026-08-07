@@ -87,7 +87,7 @@ export function PredictionAdmin() {
 
       {/* Sin sesión activa */}
       {!activeSession && !creating && (
-        <button
+        <button type="button"
           className="w-full py-3 rounded-xl border-[1.5px] border-dashed border-ceuta-border font-display text-[12px] font-bold tracking-[0.1em] uppercase text-ceuta-muted hover:border-ceuta-black hover:text-ceuta-black transition-colors"
           onClick={() => setCreating(true)}
         >
@@ -102,8 +102,8 @@ export function PredictionAdmin() {
 
           {/* Toggle casa/fuera */}
           <div className="flex items-center gap-2">
-            <button
-              type="button"
+            <button type="button"
+              
               onClick={() => setCeutaHome(h => !h)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] border border-ceuta-border bg-ceuta-bg-soft text-[10px] font-bold text-ceuta-black"
             >
@@ -135,8 +135,8 @@ export function PredictionAdmin() {
             <div className="text-[9px] font-bold uppercase tracking-widest text-ceuta-muted mb-1">
               Escudo del rival {rivalLogo ? '✓' : '(opcional)'}
             </div>
-            <button
-              type="button"
+            <button type="button"
+              
               className="w-full px-3 py-2 rounded-[10px] border border-ceuta-border text-[11px] text-ceuta-muted bg-ceuta-bg-soft text-left"
               onClick={() => setShowLogoPicker(p => !p)}
             >
@@ -163,14 +163,14 @@ export function PredictionAdmin() {
           </div>
 
           <div className="flex gap-2">
-            <button
+            <button type="button"
               className="flex-1 py-2.5 rounded-[10px] bg-ceuta-black text-white text-[12px] font-bold uppercase disabled:opacity-40"
               disabled={busy || !rivalName}
               onClick={() => apiCall('/api/admin/predictions/session', 'POST', { matchLabel, jornada, matchMeta })}
             >
               Crear predicción
             </button>
-            <button
+            <button type="button"
               className="px-4 py-2.5 rounded-[10px] bg-ceuta-bg-mid text-ceuta-black text-[12px] font-bold"
               onClick={() => setCreating(false)}
             >
@@ -200,7 +200,7 @@ export function PredictionAdmin() {
           </div>
 
           {activeSession.status === 'pending' && (
-            <button
+            <button type="button"
               className="w-full py-2.5 rounded-xl font-display text-[12px] font-bold tracking-[0.08em] uppercase bg-[#1E9E4B] text-white disabled:opacity-40 transition-opacity"
               disabled={busy}
               onClick={() => apiCall('/api/admin/predictions/session', 'PUT', { sessionId: activeSession.id, action: 'open' })}
@@ -216,22 +216,22 @@ export function PredictionAdmin() {
                 <div className="flex-1">
                   <div className="text-[9px] text-ceuta-muted mb-1">{activeSession.match_meta?.home.name ?? 'Local'}</div>
                   <div className="flex items-center gap-1.5">
-                    <button className="w-7 h-7 rounded-full border border-ceuta-border text-[14px] font-bold" onClick={() => setHomeResult(h => Math.max(0, h - 1))}>−</button>
+                    <button type="button" className="w-7 h-7 rounded-full border border-ceuta-border text-[14px] font-bold" onClick={() => setHomeResult(h => Math.max(0, h - 1))}>−</button>
                     <div className="w-10 h-10 rounded-[8px] bg-ceuta-black text-white flex items-center justify-center font-black text-[18px]">{homeResult}</div>
-                    <button className="w-7 h-7 rounded-full border border-ceuta-border text-[14px] font-bold" onClick={() => setHomeResult(h => Math.min(9, h + 1))}>+</button>
+                    <button type="button" className="w-7 h-7 rounded-full border border-ceuta-border text-[14px] font-bold" onClick={() => setHomeResult(h => Math.min(9, h + 1))}>+</button>
                   </div>
                 </div>
                 <div className="text-[18px] font-black text-ceuta-muted pb-2">:</div>
                 <div className="flex-1">
                   <div className="text-[9px] text-ceuta-muted mb-1">{activeSession.match_meta?.away.name ?? 'Visitante'}</div>
                   <div className="flex items-center gap-1.5">
-                    <button className="w-7 h-7 rounded-full border border-ceuta-border text-[14px] font-bold" onClick={() => setAwayResult(a => Math.max(0, a - 1))}>−</button>
+                    <button type="button" className="w-7 h-7 rounded-full border border-ceuta-border text-[14px] font-bold" onClick={() => setAwayResult(a => Math.max(0, a - 1))}>−</button>
                     <div className="w-10 h-10 rounded-[8px] bg-ceuta-black text-white flex items-center justify-center font-black text-[18px]">{awayResult}</div>
-                    <button className="w-7 h-7 rounded-full border border-ceuta-border text-[14px] font-bold" onClick={() => setAwayResult(a => Math.min(9, a + 1))}>+</button>
+                    <button type="button" className="w-7 h-7 rounded-full border border-ceuta-border text-[14px] font-bold" onClick={() => setAwayResult(a => Math.min(9, a + 1))}>+</button>
                   </div>
                 </div>
               </div>
-              <button
+              <button type="button"
                 className="w-full py-2.5 rounded-xl font-display text-[12px] font-bold tracking-[0.08em] uppercase bg-ceuta-red text-white disabled:opacity-40 transition-opacity"
                 disabled={busy}
                 onClick={() => apiCall('/api/admin/predictions/close', 'POST', { sessionId: activeSession.id, homeResult, awayResult })}
@@ -248,7 +248,7 @@ export function PredictionAdmin() {
                 <div className="font-display font-black text-[28px] text-white">{activeSession.result.home} — {activeSession.result.away}</div>
                 <div className="font-display text-[10px] font-bold tracking-[0.1em] uppercase text-white/50">{activeSession.match_meta?.away.name ?? 'Visitante'}</div>
               </div>
-              <button
+              <button type="button"
                 className="w-full py-2.5 rounded-xl font-display text-[12px] font-bold tracking-[0.08em] uppercase bg-white/10 text-white hover:bg-white/20 disabled:opacity-40 transition-all"
                 disabled={busy}
                 onClick={() => apiCall('/api/admin/predictions/archive', 'POST', { sessionId: activeSession.id })}
@@ -286,7 +286,7 @@ export function PredictionAdmin() {
           <div className="space-y-1.5">
             {history.map(s => (
               <div key={s.id} className="rounded-xl border border-ceuta-border overflow-hidden">
-                <button
+                <button type="button"
                   className="w-full flex items-center justify-between px-3 py-2.5 text-left bg-ceuta-bg-soft hover:bg-ceuta-bg-mid transition-colors"
                   onClick={() => setExpandedId(expandedId === s.id ? null : s.id)}
                 >

@@ -163,3 +163,20 @@ export async function getMvpSeasonRanking() {
     .map(([name, stats]) => ({ name, ...stats }))
     .sort((a, b) => b.wins - a.wins || b.votes - a.votes)
 }
+
+export async function logMvpEvent(
+  sessionId: string,
+  event: string,
+  fingerprint: string | null
+): Promise<void> {
+  await supabaseAdmin.from('mvp_events').insert({
+    session_id: sessionId,
+    event,
+    fingerprint,
+    environment: APP_ENV,
+  })
+}
+
+export async function deleteMvpSession(sessionId: string) {
+  return supabaseAdmin.from('mvp_sessions').delete().eq('id', sessionId)
+}

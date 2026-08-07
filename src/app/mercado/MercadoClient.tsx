@@ -329,7 +329,7 @@ export default function MercadoClient({ transfers }: { transfers: Transfer[] }) 
           const isLight = t.id === 'rumor' || t.id === 'renew'
 
           return (
-            <button
+            <button type="button"
               key={t.id}
               onClick={() => setTab(t.id)}
               className="relative overflow-hidden rounded-[14px] border-[1.5px] px-1.5 pb-[11px] pt-[13px] text-center shadow-[0_6px_18px_rgba(0,0,0,0.08)] transition-colors"

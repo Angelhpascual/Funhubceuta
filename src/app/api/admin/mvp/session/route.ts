@@ -4,11 +4,12 @@ import {
   createMvpSession,
   openMvpSession,
   closeMvpSession,
+  deleteMvpSession,
   type MvpCandidate,
   type MvpMatchMeta,
 } from '@/infrastructure/supabase/MvpRepository'
-import { sendPush } from '@/infrastructure/push/sendPush'
 import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
+import { sendPush } from '@/infrastructure/push/sendPush'
 import { withApi } from '@/lib/apiError'
 
 // POST /api/admin/mvp/session — create a new session
@@ -72,7 +73,7 @@ export const DELETE = withApi(async (request: Request) => {
   const { sessionId } = await request.json()
   if (!sessionId) return NextResponse.json({ error: 'sessionId required' }, { status: 400 })
 
-  const { error } = await supabaseAdmin.from('mvp_sessions').delete().eq('id', sessionId)
+  const { error } = await deleteMvpSession(sessionId)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ ok: true })
 })

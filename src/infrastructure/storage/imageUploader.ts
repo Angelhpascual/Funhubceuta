@@ -64,15 +64,11 @@ export async function downloadAndUploadImage(
       upsert: true,
     })
 
-    if (error) {
-      console.error('[imageUploader] Upload error:', error.message)
-      return null
-    }
+    if (error) return null
 
     const { data } = supabaseAdmin.storage.from(bucket).getPublicUrl(path)
     return data.publicUrl
-  } catch (err) {
-    console.error('[imageUploader] Error:', err)
+  } catch {
     return null
   }
 }

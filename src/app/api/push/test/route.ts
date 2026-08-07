@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import webpush from 'web-push'
-import { supabase } from '@/infrastructure/supabase/client'
+import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
+import { deleteSubscription } from '@/infrastructure/supabase/PushSubscriptionsRepository'
 
 // GET /api/push/test?secret=xxx
 // Sends a test notification to every subscription and returns per-device results.
@@ -18,7 +19,7 @@ export async function GET(request: Request) {
     process.env.VAPID_PRIVATE_KEY!
   )
 
-  const { data: subs } = await supabase
+  const { data: subs } = await supabaseAdmin
     .from('push_subscriptions')
     .select('id, endpoint, p256dh, auth, user_agent, created_at')
 
@@ -62,7 +63,7 @@ export async function GET(request: Request) {
 
         // Auto-remove dead subscriptions
         if (e.statusCode === 410 || e.statusCode === 404) {
-          await supabase.from('push_subscriptions').delete().eq('endpoint', sub.endpoint)
+          await deleteSubscription(sub.endpoint)
         }
 
         return {

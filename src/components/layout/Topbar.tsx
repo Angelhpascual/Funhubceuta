@@ -34,7 +34,7 @@ export function Topbar() {
           const label = isDynamicSlot ? slotLabel : n.label
           const icon = isLiveTab ? LIVE_ICON : isDynamicSlot && slotMode === 'tienda' ? TIENDA_ICON : n.icon
           return (
-            <button
+            <button type="button"
               key={n.id}
               className={`top-nav-item ${pathname === href ? 'active' : ''} ${isLiveTab ? 'text-[var(--red)]' : ''}`}
               onClick={() => router.push(href)}

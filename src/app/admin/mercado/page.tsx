@@ -187,8 +187,8 @@ export default function AdminMercadoPage() {
               <div className="flex justify-between items-center mb-3.5">
                 <span className={LABEL_CLS}>{editingId ? '✏️ Editando jugador' : 'Añadir movimiento'}</span>
                 {editingId && (
-                  <button
-                    type="button"
+                  <button type="button"
+                    
                     onClick={cancelEdit}
                     className="text-[12px] font-bold text-ceuta-muted border border-ceuta-border rounded-lg px-3 py-1 cursor-pointer bg-transparent font-display"
                   >
@@ -213,8 +213,8 @@ export default function AdminMercadoPage() {
 
               {showPlayerPicker && (
                 <div className="mb-3.5">
-                  <button
-                    type="button"
+                  <button type="button"
+                    
                     onClick={() => setShowPicker(true)}
                     className="w-full py-[11px] rounded-[10px] border-2 border-ceuta-red bg-ceuta-red/[0.06] cursor-pointer font-display text-[13px] font-extrabold text-ceuta-red uppercase tracking-[0.06em] flex items-center justify-center gap-2"
                   >
@@ -250,9 +250,9 @@ export default function AdminMercadoPage() {
                   {form.type === 'rumor' ? (
                     <div className="flex gap-2 h-[42px]">
                       {([1, 2, 3] as const).map((v) => (
-                        <button
+                        <button type="button"
                           key={v}
-                          type="button"
+                          
                           onClick={() => setForm({ ...form, reliability: v })}
                           className={`flex-1 rounded-[10px] border-none cursor-pointer font-display text-[16px] font-extrabold ${
                             form.reliability >= v ? 'bg-ceuta-black text-white' : 'bg-ceuta-bg-mid text-ceuta-muted'
@@ -299,8 +299,8 @@ export default function AdminMercadoPage() {
                   onChange={handlePhotoUpload}
                 />
                 <div className="flex gap-2 mb-2">
-                  <button
-                    type="button"
+                  <button type="button"
+                    
                     onClick={() => fileInputRef.current?.click()}
                     disabled={uploading}
                     className={`flex-1 py-[10px] rounded-[10px] border-[1.5px] border-dashed border-ceuta-border bg-ceuta-bg-soft font-display text-[12px] font-bold uppercase tracking-[0.06em] cursor-pointer ${
@@ -382,7 +382,7 @@ export default function AdminMercadoPage() {
                 const count = transfers.filter((t) => t.type === tab.id).length
                 const active = activeTab === tab.id
                 return (
-                  <button
+                  <button type="button"
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
                     className={`shrink-0 flex items-center gap-1.5 px-4 py-2.5 rounded-full font-display text-[12.5px] font-bold tracking-[0.08em] uppercase border-[1.5px] transition-all
@@ -439,13 +439,13 @@ export default function AdminMercadoPage() {
                     </div>
 
                     <div className="flex gap-2 shrink-0">
-                      <button
+                      <button type="button"
                         onClick={() => startEdit(t)}
                         className="font-display text-[12.5px] font-bold tracking-[0.1em] uppercase px-3.5 py-2 rounded-lg border-[1.5px] border-ceuta-border text-ceuta-black bg-white hover:border-ceuta-black transition-colors"
                       >
                         Editar
                       </button>
-                      <button
+                      <button type="button"
                         onClick={() => handleDelete(t.id)}
                         className="w-[38px] h-[38px] rounded-lg border-[1.5px] border-ceuta-border text-ceuta-muted flex items-center justify-center hover:border-ceuta-red hover:text-ceuta-red hover:bg-ceuta-red-soft transition-all"
                         title="Eliminar"

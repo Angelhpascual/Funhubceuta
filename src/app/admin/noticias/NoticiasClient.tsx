@@ -102,14 +102,14 @@ function NewsRow({
           <span className="font-display text-[11px] font-bold text-ceuta-black">{result}</span>
         ) : isPending ? (
           <>
-            <button
+            <button type="button"
               onClick={() => onAction(n.id, 'send')}
               disabled={!!busy}
               className="font-display text-[12.5px] font-bold tracking-[0.1em] uppercase px-4 py-2.5 rounded-lg bg-ceuta-red text-white disabled:opacity-40 hover:bg-ceuta-red-dark transition-colors"
             >
               {busy === 'send' ? '⏳' : 'Notificar'}
             </button>
-            <button
+            <button type="button"
               onClick={() => onAction(n.id, 'publish')}
               disabled={!!busy}
               className="font-display text-[12.5px] font-bold tracking-[0.1em] uppercase px-4 py-2.5 rounded-lg border-[1.5px] border-ceuta-border text-ceuta-black bg-white hover:border-ceuta-black transition-colors disabled:opacity-40"
@@ -118,7 +118,7 @@ function NewsRow({
             </button>
           </>
         ) : (
-          <button
+          <button type="button"
             onClick={() => onAction(n.id, 'publish')}
             disabled={!!busy}
             className="font-display text-[12.5px] font-bold tracking-[0.1em] uppercase px-4 py-2.5 rounded-lg border-[1.5px] border-ceuta-border text-ceuta-black bg-white hover:border-ceuta-black transition-colors disabled:opacity-40"
@@ -126,7 +126,7 @@ function NewsRow({
             {busy === 'publish' ? '⏳' : 'Editar'}
           </button>
         )}
-        <button
+        <button type="button"
           onClick={() => n.published ? onAction(n.id, 'discard') : onDelete(n.id)}
           disabled={!!busy}
           className="w-[38px] h-[38px] rounded-lg border-[1.5px] border-ceuta-border text-ceuta-muted flex items-center justify-center hover:border-ceuta-red hover:text-ceuta-red hover:bg-ceuta-red-soft transition-all disabled:opacity-40"
@@ -250,13 +250,13 @@ export function NoticiasClient({
             className="border-none outline-none bg-transparent font-body text-[14px] text-ceuta-black w-full placeholder:text-[#A9A69E]"
           />
           {search && (
-            <button onClick={() => setSearch('')} className="text-ceuta-muted hover:text-ceuta-black text-[16px] leading-none">×</button>
+            <button type="button" onClick={() => setSearch('')} className="text-ceuta-muted hover:text-ceuta-black text-[16px] leading-none">×</button>
           )}
         </div>
 
         <div className="flex gap-2 flex-wrap overflow-x-auto pb-0.5 [scrollbar-width:none]">
           {FILTERS.map((f) => (
-            <button
+            <button type="button"
               key={f.id}
               onClick={() => setStatusFilter(f.id)}
               className={`shrink-0 flex items-center gap-1.5 px-4 py-2.5 rounded-full font-display text-[12.5px] font-bold tracking-[0.08em] uppercase border-[1.5px] transition-all
@@ -270,7 +270,7 @@ export function NoticiasClient({
               </b>
             </button>
           ))}
-          <button
+          <button type="button"
             onClick={refresh}
             disabled={refreshing}
             className="shrink-0 flex items-center gap-1.5 px-4 py-2.5 rounded-full font-display text-[12.5px] font-bold tracking-[0.08em] uppercase border-[1.5px] border-ceuta-border text-ceuta-muted bg-white hover:border-ceuta-black hover:text-ceuta-black transition-all disabled:opacity-40"
@@ -306,7 +306,7 @@ export function NoticiasClient({
       {/* Footer */}
       <div className="flex items-center justify-between pt-5 pb-16 text-[13px] text-ceuta-muted">
         <span>Mostrando {filtered.length} de {news.length} noticias</span>
-        <button
+        <button type="button"
           onClick={refresh}
           disabled={refreshing}
           className="font-display text-[12.5px] font-bold tracking-[0.1em] uppercase px-4 py-2.5 rounded-lg border-[1.5px] border-ceuta-border text-ceuta-black bg-white hover:border-ceuta-black transition-colors disabled:opacity-40"

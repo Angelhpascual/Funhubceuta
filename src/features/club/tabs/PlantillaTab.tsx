@@ -139,7 +139,7 @@ function GroupHeader({
   onClick: () => void
 }) {
   return (
-    <button onClick={onClick} className="flex w-full items-center gap-[11px] py-[18px] px-0">
+    <button type="button" onClick={onClick} className="flex w-full items-center gap-[11px] py-[18px] px-0">
       <span className="w-1 h-[19px] bg-ceuta-red rounded-[2px] shrink-0" />
       <span className="font-display text-[18px] font-extrabold uppercase tracking-[0.04em] text-ceuta-black">
         {label}
@@ -220,10 +220,10 @@ export function PlantillaTab({
   return (
     <>
       <div className="chips chips-center mb-3 mt-1">
-        <button className={`chip ${season === '2526' ? 'active' : ''}`} onClick={() => setSeason('2526')}>
+        <button type="button" className={`chip ${season === '2526' ? 'active' : ''}`} onClick={() => setSeason('2526')}>
           Temp. 25/26
         </button>
-        <button className={`chip ${season === '2627' ? 'active' : ''}`} onClick={() => setSeason('2627')}>
+        <button type="button" className={`chip ${season === '2627' ? 'active' : ''}`} onClick={() => setSeason('2627')}>
           Temp. 26/27
         </button>
       </div>
