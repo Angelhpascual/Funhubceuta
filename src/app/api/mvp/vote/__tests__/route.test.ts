@@ -2,11 +2,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('@/infrastructure/supabase/MvpRepository', () => ({
   getActiveMvpSession: vi.fn(),
-  hasVoted: vi.fn(),
   castMvpVote: vi.fn(),
 }))
 
-import { getActiveMvpSession, hasVoted, castMvpVote } from '@/infrastructure/supabase/MvpRepository'
+import { getActiveMvpSession, castMvpVote } from '@/infrastructure/supabase/MvpRepository'
 import { POST } from '../route'
 
 beforeEach(() => { vi.resetAllMocks() })
@@ -46,16 +45,8 @@ describe('POST /api/mvp/vote', () => {
     expect(res.status).toBe(400)
   })
 
-  it('returns 409 when already voted', async () => {
+  it('casts vote and returns ok (first vote)', async () => {
     vi.mocked(getActiveMvpSession).mockResolvedValue({ id: 's1', status: 'open' } as never)
-    vi.mocked(hasVoted).mockResolvedValue(true)
-    const res = await POST(makeReq({ sessionId: 's1', candidateId: 'c1', fingerprint: 'fp1' }))
-    expect(res.status).toBe(409)
-  })
-
-  it('casts vote and returns ok', async () => {
-    vi.mocked(getActiveMvpSession).mockResolvedValue({ id: 's1', status: 'open' } as never)
-    vi.mocked(hasVoted).mockResolvedValue(false)
     vi.mocked(castMvpVote).mockResolvedValue({ error: null })
     const res = await POST(makeReq({ sessionId: 's1', candidateId: 'c1', fingerprint: 'fp1' }))
     expect(res.status).toBe(200)
@@ -63,17 +54,18 @@ describe('POST /api/mvp/vote', () => {
     expect(castMvpVote).toHaveBeenCalledWith('s1', 'c1', 'fp1')
   })
 
-  it('returns 409 on duplicate key error from DB', async () => {
+  it('allows changing an existing vote (upsert overwrites candidate)', async () => {
     vi.mocked(getActiveMvpSession).mockResolvedValue({ id: 's1', status: 'open' } as never)
-    vi.mocked(hasVoted).mockResolvedValue(false)
-    vi.mocked(castMvpVote).mockResolvedValue({ error: { code: '23505', message: 'duplicate' } } as never)
-    const res = await POST(makeReq({ sessionId: 's1', candidateId: 'c1', fingerprint: 'fp1' }))
-    expect(res.status).toBe(409)
+    vi.mocked(castMvpVote).mockResolvedValue({ error: null })
+    // Same fingerprint, different candidate — must NOT be blocked
+    const res = await POST(makeReq({ sessionId: 's1', candidateId: 'c2', fingerprint: 'fp1' }))
+    expect(res.status).toBe(200)
+    expect(await res.json()).toEqual({ ok: true })
+    expect(castMvpVote).toHaveBeenCalledWith('s1', 'c2', 'fp1')
   })
 
-  it('returns 500 on other DB error', async () => {
+  it('returns 500 on DB error', async () => {
     vi.mocked(getActiveMvpSession).mockResolvedValue({ id: 's1', status: 'open' } as never)
-    vi.mocked(hasVoted).mockResolvedValue(false)
     vi.mocked(castMvpVote).mockResolvedValue({ error: { code: '99999', message: 'fail' } } as never)
     const res = await POST(makeReq({ sessionId: 's1', candidateId: 'c1', fingerprint: 'fp1' }))
     expect(res.status).toBe(500)

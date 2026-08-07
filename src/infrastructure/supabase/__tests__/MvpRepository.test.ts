@@ -8,7 +8,6 @@ import {
   getActiveMvpSession,
   getMvpVoteTallies,
   castMvpVote,
-  hasVoted,
   createMvpSession,
   openMvpSession,
   closeMvpSession,
@@ -66,26 +65,22 @@ describe('getMvpVoteTallies', () => {
 })
 
 describe('castMvpVote', () => {
-  it('inserts a vote row', async () => {
-    const insert = vi.fn().mockResolvedValue({ error: null })
-    mockFrom.mockReturnValue({ insert } as never)
+  it('upserts a vote row keyed by session_id+fingerprint (allows changing vote)', async () => {
+    const upsert = vi.fn().mockResolvedValue({ error: null })
+    mockFrom.mockReturnValue({ upsert } as never)
     const { error } = await castMvpVote('s1', 'c1', 'fp1')
     expect(error).toBeNull()
-    expect(insert).toHaveBeenCalledWith(
-      expect.objectContaining({ session_id: 's1', candidate_id: 'c1', fingerprint: 'fp1', environment: 'development' })
+    expect(upsert).toHaveBeenCalledWith(
+      expect.objectContaining({ session_id: 's1', candidate_id: 'c1', fingerprint: 'fp1', environment: 'development' }),
+      expect.objectContaining({ onConflict: 'session_id,fingerprint' })
     )
   })
-})
 
-describe('hasVoted', () => {
-  it('returns true when vote exists', async () => {
-    mockFrom.mockReturnValue(chain(Promise.resolve({ data: { id: 'v1' } })) as never)
-    expect(await hasVoted('s1', 'fp1')).toBe(true)
-  })
-
-  it('returns false when no vote', async () => {
-    mockFrom.mockReturnValue(chain(Promise.resolve({ data: null })) as never)
-    expect(await hasVoted('s1', 'fp1')).toBe(false)
+  it('propagates DB errors', async () => {
+    const upsert = vi.fn().mockResolvedValue({ error: { code: '99999', message: 'fail' } })
+    mockFrom.mockReturnValue({ upsert } as never)
+    const { error } = await castMvpVote('s1', 'c1', 'fp1')
+    expect(error).toEqual({ code: '99999', message: 'fail' })
   })
 })
 

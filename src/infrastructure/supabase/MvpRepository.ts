@@ -66,17 +66,6 @@ export async function castMvpVote(sessionId: string, candidateId: string, finger
   return { error }
 }
 
-export async function hasVoted(sessionId: string, fingerprint: string): Promise<boolean> {
-  const { data } = await supabaseAdmin
-    .from('mvp_votes')
-    .select('id')
-    .eq('session_id', sessionId)
-    .eq('fingerprint', fingerprint)
-    .eq('environment', APP_ENV)
-    .maybeSingle()
-  return !!data
-}
-
 export async function createMvpSession(matchLabel: string, candidates: MvpCandidate[], matchMeta?: MvpMatchMeta) {
   const { data, error } = await supabaseAdmin
     .from('mvp_sessions')
