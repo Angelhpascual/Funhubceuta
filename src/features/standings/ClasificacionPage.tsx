@@ -185,28 +185,7 @@ export function ClasificacionPage({ entries = [], previousEntries = [], form = [
   const prevTotal = previousEntries.length
 
   return (
-    <div className="page">
-      {/* ── HERO ── */}
-      <div className="page-hero-full relative mt-2 overflow-hidden bg-ceuta-black px-[18px] pb-[52px] pt-[22px] text-white">
-        {/* diagonal stripes */}
-        <div
-          className="pointer-events-none absolute bottom-0 right-[-40px] top-0 w-[180px]"
-          style={{
-            background: 'repeating-linear-gradient(-45deg, white 0 14px, #0A0A0A 14px 28px)',
-            clipPath: 'polygon(60px 0, 100% 0, 100% 100%, 0 100%)',
-          }}
-        />
-        <div className="flex items-center gap-2 font-display text-[11px] font-bold uppercase tracking-[0.16em] text-ceuta-red">
-          <div className="h-0.5 w-[18px] bg-ceuta-red" />
-          {tab === 'actual' ? `Temporada 2026–27 · Jornada ${me?.played ?? '—'}` : 'Temporada 2025–26 · Final'}
-        </div>
-        <div className="mt-2 font-display text-[38px] font-black uppercase leading-[0.95]">
-          CLASIFI<em className="not-italic text-ceuta-gold">CACIÓN</em>
-          <br />
-          LIGA HYPERMOTION
-        </div>
-      </div>
-
+    <>
       {tab === 'anterior' && (
         <>
           {previousEntries.length === 0 ? (
@@ -308,6 +287,6 @@ export function ClasificacionPage({ entries = [], previousEntries = [], form = [
       <div className="h-4" />
         </>
       )}
-    </div>
+    </>
   )
 }
