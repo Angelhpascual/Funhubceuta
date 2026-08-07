@@ -5,6 +5,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { MvpSheet, type BannerState as SheetState } from './MvpSheet'
 import type { MvpSession, MvpVoteTally } from '@/infrastructure/supabase/MvpRepository'
 import { supabase } from '@/infrastructure/supabase/client'
+import { getLocalLogo } from '@/data/teamLogos'
 import { getFingerprint } from '@/lib/fingerprint'
 
 type BannerState = 'none' | SheetState
@@ -18,19 +19,13 @@ function getVotedCandidateId(sessionId: string): string | null {
 }
 
 const IconClock = () => (
-  <svg viewBox="0 0 24 24" fill="none" width="22" height="22">
+  <svg viewBox="0 0 24 24" fill="none" width="20" height="20">
     <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2"/>
     <path d="M12 7v5l3 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
   </svg>
 )
-const IconVote = () => (
-  <svg viewBox="0 0 24 24" fill="none" width="15" height="15">
-    <rect x="4" y="5" width="16" height="16" rx="2" stroke="currentColor" strokeWidth="2"/>
-    <path d="M8.5 13l2 2 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-)
 const IconCheck = () => (
-  <svg viewBox="0 0 24 24" fill="none" width="15" height="15">
+  <svg viewBox="0 0 24 24" fill="none" width="13" height="13">
     <path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 )
@@ -52,6 +47,41 @@ function Bust() {
       <path d="M6 150v-30c0-30 24-52 54-52s54 22 54 52v30z" fill="#EDEAE4" />
     </svg>
   )
+}
+
+function logoFor(name: string | undefined, url: string | null | undefined) {
+  return getLocalLogo(name) ?? url ?? null
+}
+
+/* ── header compartido: tag + patrocinador + línea de partido ── */
+function CardHeader({ label, matchLabel }: { label: string; matchLabel: string | null }) {
+  return (
+    <>
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-center gap-[7px]">
+          <span className="size-[7px] shrink-0 rounded-full bg-[var(--red)]" />
+          <span className="font-display text-[11px] font-bold uppercase tracking-[0.1em] text-[var(--red)]">
+            {label}
+          </span>
+        </div>
+        <div className="flex shrink-0 items-center gap-1.5">
+          <span className="font-display text-[10px] font-bold uppercase tracking-[0.08em] text-white/40">Con</span>
+          <span className="rounded-full bg-white/10 px-3 py-1 font-display text-[10px] font-bold uppercase tracking-[0.06em] text-white/70">
+            Patrocinador
+          </span>
+        </div>
+      </div>
+      {matchLabel && (
+        <div className="mt-[5px] font-display text-[12.5px] font-semibold text-white/50">
+          {matchLabel}
+        </div>
+      )}
+    </>
+  )
+}
+
+function CardDivider() {
+  return <div className="my-4 border-t border-white/10" />
 }
 
 export function MvpBanner() {
@@ -122,12 +152,20 @@ export function MvpBanner() {
 
   const total = tallies.reduce((s, t) => s + t.count, 0)
   const getCount = (id: string) => tallies.find(t => t.candidate_id === id)?.count ?? 0
-  const leader = [...session.candidates].sort((a, b) => getCount(b.id) - getCount(a.id))[0]
-  const leaderPct = total > 0 ? Math.round((getCount(leader?.id ?? '') / total) * 100) : 0
+  const sorted = [...session.candidates].sort((a, b) => getCount(b.id) - getCount(a.id))
+  const leaderId = sorted[0]?.id
   const votedPlayer = session.candidates.find(c => c.id === votedId)
+  const votedRank = votedPlayer ? sorted.findIndex(c => c.id === votedPlayer.id) : -1
+  const votedPct = votedPlayer ? (total > 0 ? Math.round((getCount(votedPlayer.id) / total) * 100) : 0) : 0
   const winner = session.status === 'closed'
-    ? session.candidates.find(c => c.id === session.winner_id) ?? leader
-    : leader
+    ? session.candidates.find(c => c.id === session.winner_id) ?? sorted[0]
+    : sorted[0]
+  const winnerPct = winner && total > 0 ? Math.round((getCount(winner.id) / total) * 100) : 0
+
+  const meta = session.match_meta
+  const matchLabel = meta
+    ? `${meta.home.name} vs ${meta.away.name}${session.match_label ? ` · ${session.match_label}` : ''}`
+    : session.match_label
 
   return (
     <>
@@ -148,102 +186,169 @@ export function MvpBanner() {
         }}
         className="relative mx-4 mt-3 block w-full overflow-hidden rounded-[18px] !bg-[var(--black)] px-[17px] pb-[17px] pt-4 text-left"
       >
-        {/* Diagonal stripes */}
         <div
           className="pointer-events-none absolute inset-0"
           style={{ background: 'repeating-linear-gradient(-45deg,transparent 0 13px,rgba(255,255,255,0.055) 13px 26px)' }}
         />
 
-        {/* Tag */}
-        <div className="relative z-[2] flex items-center gap-[7px]">
-          <span className="size-[7px] shrink-0 rounded-full bg-[var(--red)]" />
-          <span className="font-display text-[11px] font-bold uppercase tracking-[0.1em] text-[var(--red)]">
-            Votación MVP
-          </span>
-        </div>
-        {session.match_label && (
-          <div className="relative z-[2] mt-[5px] font-display text-[12px] font-semibold text-white/50">
-            {session.match_label}
-          </div>
-        )}
+        <div className="relative z-[2]">
+          <CardHeader label="Votación MVP" matchLabel={matchLabel} />
 
-        {/* Body por estado */}
-        <div className="relative z-[2] mt-3.5">
-          {bannerState === 'antes' && (
-            <div className="flex items-center gap-3">
-              <div className="flex size-[42px] shrink-0 items-center justify-center rounded-[11px] bg-white/[0.08] text-white/60">
-                <IconClock />
-              </div>
-              <div>
-                <b className="block font-display text-[16px] font-black uppercase text-white">MVP del partido</b>
-                <span className="text-[12.5px] text-white/50">Se abre al pitido final</span>
-              </div>
-            </div>
-          )}
-
-          {(bannerState === 'abierta' || bannerState === 'votado') && leader && (
+          {/* ── ANTES: escudos + vs ── */}
+          {bannerState === 'antes' && meta && (
             <>
-              <div className="flex items-center gap-[13px]">
-                <div className="relative flex size-14 shrink-0 items-end justify-center overflow-hidden rounded-[14px] bg-[radial-gradient(120%_80%_at_50%_0%,#2A2724,#0C0B0A)] shadow-[0_0_0_2px_var(--gold)]">
-                  {leader.photo_url
-                    ? <Image src={leader.photo_url} alt={leader.name} fill sizes="56px" className="object-cover object-top" />
-                    : <Bust />}
+              <div className="mt-4 grid grid-cols-3 items-center gap-2">
+                <div className="flex flex-col items-center gap-2">
+                  <div className="flex size-16 items-center justify-center rounded-full bg-white/[0.06]">
+                    {logoFor(meta.home.name, meta.home.logo)
+                      ? <Image src={logoFor(meta.home.name, meta.home.logo)!} alt={meta.home.name} width={40} height={40} className="object-contain" />
+                      : <span className="font-display text-[20px] font-black text-white/50">{meta.home.name?.[0]}</span>}
+                  </div>
+                  <span className="font-display text-[12px] font-bold uppercase tracking-[0.02em] text-white">{meta.home.name}</span>
                 </div>
-                <div className="min-w-0 flex-1">
-                  {bannerState === 'votado' ? (
-                    <>
-                      <div className="font-display text-[10px] font-bold uppercase tracking-[0.1em] text-white/50">
-                        Has votado a {votedPlayer?.name ?? ''}
-                      </div>
-                      <div className="mt-0.5 truncate font-display text-[17px] font-black uppercase leading-[1.1] text-white">
-                        Resultados en directo
-                      </div>
-                    </>
-                  ) : (
-                    <div className="truncate font-display text-[17px] font-black uppercase leading-[1.1] text-white">
-                      {leader.name}
-                    </div>
-                  )}
+                <div className="flex flex-col items-center gap-1.5 text-white/50">
+                  <IconClock />
+                  <span className="font-display text-[10px] font-bold uppercase tracking-[0.12em]">Pronto</span>
                 </div>
-                <div className="text-right leading-none">
-                  <span className="font-display text-[26px] font-black text-[var(--gold)]">{leaderPct}%</span>
-                  <span className="mt-0.5 block font-display text-[8.5px] font-bold uppercase tracking-[0.08em] text-white/40">
-                    {bannerState === 'votado' ? 'líder' : 'votos'}
-                  </span>
+                <div className="flex flex-col items-center gap-2">
+                  <div className="flex size-16 items-center justify-center rounded-full bg-white/[0.06]">
+                    {logoFor(meta.away.name, meta.away.logo)
+                      ? <Image src={logoFor(meta.away.name, meta.away.logo)!} alt={meta.away.name} width={40} height={40} className="object-contain" />
+                      : <span className="font-display text-[20px] font-black text-white/50">{meta.away.name?.[0]}</span>}
+                  </div>
+                  <span className="font-display text-[12px] font-bold uppercase tracking-[0.02em] text-white">{meta.away.name}</span>
                 </div>
               </div>
-
-              {bannerState === 'abierta' ? (
-                <div className="mt-[15px] flex w-full items-center justify-center gap-2 rounded-[11px] bg-[var(--red)] py-3 font-display text-[13.5px] font-black uppercase tracking-[0.06em] text-white">
-                  <IconVote /> Vota tú también
+              <CardDivider />
+              <b className="block font-display text-[19px] font-black uppercase text-white">MVP del partido</b>
+              <span className="text-[13px] text-white/50">La votación se abre al pitido final</span>
+            </>
+          )}
+          {bannerState === 'antes' && !meta && (
+            <>
+              <div className="mt-4 flex items-center gap-3">
+                <div className="flex size-[42px] shrink-0 items-center justify-center rounded-[11px] bg-white/[0.08] text-white/60">
+                  <IconClock />
                 </div>
-              ) : (
-                <div className="mt-[15px] flex w-full items-center justify-center gap-2 rounded-[11px] bg-white/10 py-3 font-display text-[13.5px] font-black uppercase tracking-[0.06em] text-white">
-                  <IconCheck /> Ver cómo va
-                  <span className="ml-auto flex items-center gap-1.5 rounded-full bg-white/[0.08] px-2.5 py-1">
-                    <span className="size-1.5 rounded-full bg-[#4ADE80] animate-pulse" />
-                    <span className="font-display text-[9.5px] font-bold uppercase tracking-[0.08em] text-white/70">en vivo</span>
-                  </span>
+                <div>
+                  <b className="block font-display text-[16px] font-black uppercase text-white">MVP del partido</b>
+                  <span className="text-[12.5px] text-white/50">Se abre al pitido final</span>
                 </div>
-              )}
+              </div>
             </>
           )}
 
-          {bannerState === 'cerrada' && winner && (
+          {/* ── ABIERTA: 3 candidatos ── */}
+          {bannerState === 'abierta' && (
             <>
-              <div className="flex items-center gap-[13px]">
-                <div className="flex size-[42px] shrink-0 items-center justify-center rounded-full bg-[var(--gold)] text-[#7A6100]">
-                  <IconTrophy />
+              <div className="mt-4 flex gap-2.5 overflow-x-auto">
+                {sorted.map((c) => {
+                  const pct = total > 0 ? Math.round((getCount(c.id) / total) * 100) : 0
+                  const isLeader = c.id === leaderId && total > 0
+                  return (
+                    <div
+                      key={c.id}
+                      className={`relative w-[100px] shrink-0 overflow-hidden rounded-[14px] border ${isLeader ? 'border-[var(--gold)]' : 'border-white/10'} bg-[radial-gradient(120%_80%_at_50%_0%,#2A2724,#0C0B0A)] pb-2`}
+                    >
+                      {isLeader && (
+                        <span className="absolute left-2 top-2 z-[1] rounded-full bg-[var(--gold)] px-2 py-[3px] font-display text-[8.5px] font-black uppercase tracking-[0.04em] text-[#4A3600]">
+                          Líder
+                        </span>
+                      )}
+                      <div className="relative flex h-[100px] items-end justify-center overflow-hidden">
+                        {c.photo_url
+                          ? <Image src={c.photo_url} alt={c.name} fill sizes="100px" className="object-cover object-top" />
+                          : <Bust />}
+                      </div>
+                      <div className="mt-1.5 truncate px-2 font-display text-[11.5px] font-bold uppercase text-white">
+                        {c.name}
+                      </div>
+                      <div className="px-2 font-display text-[15px] font-black text-[var(--gold)]">{pct}%</div>
+                    </div>
+                  )
+                })}
+              </div>
+              <CardDivider />
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <b className="block font-display text-[15px] font-black uppercase text-white">¿Quién fue el mejor?</b>
+                  <span className="text-[12.5px] text-white/50">Vota al MVP del partido</span>
                 </div>
-                <div className="min-w-0">
-                  <b className="block truncate font-display text-[16px] font-black uppercase text-white">
-                    {winner.name}, MVP del partido
-                  </b>
-                  <span className="text-[12.5px] text-white/50">Elegido por la afición</span>
+                <div className="flex shrink-0 items-center gap-1.5 rounded-full bg-[var(--red)] px-5 py-3 font-display text-[13px] font-black uppercase tracking-[0.05em] text-white">
+                  Votar <IconChevron />
                 </div>
               </div>
-              <div className="mt-[15px] flex w-full items-center justify-center gap-2 rounded-[11px] bg-white/10 py-3 font-display text-[13.5px] font-black uppercase tracking-[0.06em] text-white">
-                <IconChevron /> Ver resultados completos
+            </>
+          )}
+
+          {/* ── VOTADO ── */}
+          {bannerState === 'votado' && votedPlayer && (
+            <>
+              <div className="mt-4 flex items-center gap-[13px]">
+                <div className="relative flex size-14 shrink-0 items-end justify-center overflow-hidden rounded-full bg-[radial-gradient(120%_80%_at_50%_0%,#2A2724,#0C0B0A)] shadow-[0_0_0_2px_#1E7F47]">
+                  {votedPlayer.photo_url
+                    ? <Image src={votedPlayer.photo_url} alt={votedPlayer.name} fill sizes="56px" className="object-cover object-top" />
+                    : <Bust />}
+                  <span className="absolute bottom-0 right-0 flex size-[18px] items-center justify-center rounded-full bg-[#1E7F47] text-white">
+                    <IconCheck />
+                  </span>
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="font-display text-[10px] font-bold uppercase tracking-[0.1em] text-white/50">Has votado a</div>
+                  <div className="truncate font-display text-[17px] font-black uppercase leading-[1.1] text-white">{votedPlayer.name}</div>
+                  <div className="mt-0.5 text-[12px] text-white/40">{votedPlayer.position}</div>
+                </div>
+                <div className="shrink-0 text-right leading-none">
+                  <span className="font-display text-[26px] font-black text-[var(--gold)]">{votedPct}%</span>
+                  <span className="mt-0.5 block font-display text-[8.5px] font-bold uppercase tracking-[0.08em] text-white/40">
+                    {votedRank === 0 ? 'va líder' : `${votedRank + 1}º lugar`}
+                  </span>
+                </div>
+              </div>
+              <CardDivider />
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <b className="block font-display text-[15px] font-black uppercase text-white">Recuento en vivo</b>
+                  <span className="text-[12.5px] text-white/50">Se cierra al final de la jornada</span>
+                </div>
+                <div className="flex shrink-0 items-center gap-1.5 rounded-full bg-[var(--red)] px-5 py-3 font-display text-[13px] font-black uppercase tracking-[0.05em] text-white">
+                  Cambiar voto <IconChevron />
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* ── CERRADA ── */}
+          {bannerState === 'cerrada' && winner && (
+            <>
+              <div className="mt-4 flex items-center gap-[13px]">
+                <div className="relative flex size-14 shrink-0 items-end justify-center overflow-hidden rounded-full bg-[radial-gradient(120%_80%_at_50%_0%,#2A2724,#0C0B0A)] shadow-[0_0_0_2px_var(--gold)]">
+                  {winner.photo_url
+                    ? <Image src={winner.photo_url} alt={winner.name} fill sizes="56px" className="object-cover object-top" />
+                    : <Bust />}
+                  <span className="absolute bottom-0 right-0 flex size-[18px] items-center justify-center rounded-full bg-[var(--gold)] text-[#7A6100]">
+                    <IconTrophy />
+                  </span>
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="font-display text-[10px] font-bold uppercase tracking-[0.1em] text-[var(--gold)]">Ganador</div>
+                  <div className="truncate font-display text-[17px] font-black uppercase leading-[1.1] text-white">{winner.name}</div>
+                  <div className="mt-0.5 text-[12px] text-white/40">Elegido por la afición</div>
+                </div>
+                <div className="shrink-0 text-right leading-none">
+                  <span className="font-display text-[26px] font-black text-[var(--gold)]">{winnerPct}%</span>
+                  <span className="mt-0.5 block font-display text-[8.5px] font-bold uppercase tracking-[0.08em] text-white/40">de los votos</span>
+                </div>
+              </div>
+              <CardDivider />
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <b className="block font-display text-[15px] font-black uppercase text-white">Resultado final</b>
+                  <span className="text-[12.5px] text-white/50">Ver clasificación completa</span>
+                </div>
+                <div className="flex shrink-0 items-center gap-1.5 rounded-full bg-[var(--gold)] px-5 py-3 font-display text-[13px] font-black uppercase tracking-[0.05em] text-[#4A3600]">
+                  Ver resultados <IconChevron />
+                </div>
               </div>
             </>
           )}
