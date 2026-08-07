@@ -48,6 +48,7 @@ export function MvpSheet({ session, tallies, bannerState, votedId, fingerprint, 
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [season, setSeason] = useState<SeasonEntry[]>([])
+  const [changingVote, setChangingVote] = useState(false)
 
   useEffect(() => {
     document.body.style.overflow = 'hidden'
@@ -76,7 +77,7 @@ export function MvpSheet({ session, tallies, bannerState, votedId, fingerprint, 
 
   const votedPlayer = session.candidates.find((c) => c.id === votedId)
 
-  const votable = bannerState === 'abierta'
+  const votable = bannerState === 'abierta' || changingVote
 
   async function handleConfirm() {
     if (!pickedId) return
@@ -96,6 +97,7 @@ export function MvpSheet({ session, tallies, bannerState, votedId, fingerprint, 
       }
       onVoted(session.id, pickedId)
       onRefresh()
+      setChangingVote(false)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const umami = typeof window !== 'undefined' ? (window as any).umami : null
       if (umami?.track) {
@@ -179,16 +181,22 @@ export function MvpSheet({ session, tallies, bannerState, votedId, fingerprint, 
               </div>
               <div className="mvp-ctabar">
                 <button type="button" className="mvp-cta" disabled={!pickedId || submitting} onClick={handleConfirm}>
-                  <IconCheck /> {submitting ? 'Enviando...' : 'Confirmar mi voto'}
+                  <IconCheck /> {submitting ? 'Enviando...' : changingVote ? 'Confirmar cambio' : 'Confirmar mi voto'}
                 </button>
-                <div className="mvp-cta-note">Un voto por aficionado · se cierra a medianoche</div>
+                {changingVote ? (
+                  <p onClick={() => { setChangingVote(false); setError(null) }} className="mvp-cta-note mvp-cta-note-link">
+                    Cancelar cambio
+                  </p>
+                ) : (
+                  <div className="mvp-cta-note">Un voto por aficionado · se cierra a medianoche</div>
+                )}
               </div>
               {error && <p className="text-[12px] text-red-600 font-semibold mt-2 text-center">{error}</p>}
             </>
           )}
 
           {/* VOTADO — lista con resultados */}
-          {tab === 'partido' && bannerState === 'votado' && (
+          {tab === 'partido' && bannerState === 'votado' && !changingVote && (
             <>
               <div className="mvp-votedhead">
                 <div className="vh-ic"><IconCheck /></div>
@@ -211,6 +219,13 @@ export function MvpSheet({ session, tallies, bannerState, votedId, fingerprint, 
                   />
                 ))}
               </div>
+              <button
+                type="button"
+                onClick={() => { setPickedId(votedId); setChangingVote(true) }}
+                className="mvp-cta mvp-cta-ghost"
+              >
+                Cambiar voto
+              </button>
             </>
           )}
 

@@ -54,7 +54,7 @@ function logoFor(name: string | undefined, url: string | null | undefined) {
 }
 
 /* ── header compartido: tag + patrocinador + línea de partido ── */
-function CardHeader({ label, matchLabel }: { label: string; matchLabel: string | null }) {
+function CardHeader({ label, matchLabel, children }: { label: string; matchLabel: string | null; children?: React.ReactNode }) {
   return (
     <>
       <div className="flex items-start justify-between gap-3">
@@ -71,12 +71,29 @@ function CardHeader({ label, matchLabel }: { label: string; matchLabel: string |
           </span>
         </div>
       </div>
-      {matchLabel && (
+      {children ?? (matchLabel && (
         <div className="mt-[5px] font-display text-[12.5px] font-semibold text-white/50">
           {matchLabel}
         </div>
-      )}
+      ))}
     </>
+  )
+}
+
+/* ── chip compacto de equipo: escudo pequeño + nombre, con fondo para legibilidad ── */
+function TeamChip({ name, logo }: { name: string; logo?: string | null }) {
+  const src = logoFor(name, logo)
+  return (
+    <div className="flex items-center gap-1.5 rounded-full bg-white/[0.07] py-1 pl-1 pr-2.5">
+      <div className="flex size-[18px] shrink-0 items-center justify-center overflow-hidden rounded-full bg-white/10">
+        {src
+          ? <Image src={src} alt={name} width={13} height={13} className="object-contain" />
+          : <span className="font-display text-[8px] font-black text-white/60">{name?.[0]}</span>}
+      </div>
+      <span className="truncate font-display text-[10.5px] font-bold uppercase tracking-[0.02em] text-white/80">
+        {name}
+      </span>
+    </div>
   )
 }
 
@@ -192,7 +209,15 @@ export function MvpBanner() {
         />
 
         <div className="relative z-[2]">
-          <CardHeader label="Votación MVP" matchLabel={matchLabel} />
+          <CardHeader label="Votación MVP" matchLabel={matchLabel}>
+            {bannerState === 'abierta' && meta ? (
+              <div className="mt-[7px] flex items-center gap-2">
+                <TeamChip name={meta.home.name} logo={meta.home.logo} />
+                <span className="font-display text-[10px] font-bold uppercase text-white/30">vs</span>
+                <TeamChip name={meta.away.name} logo={meta.away.logo} />
+              </div>
+            ) : undefined}
+          </CardHeader>
 
           {/* ── ANTES: escudos + vs ── */}
           {bannerState === 'antes' && meta && (

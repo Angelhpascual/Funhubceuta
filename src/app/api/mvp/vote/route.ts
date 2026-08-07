@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { castMvpVote, hasVoted, getActiveMvpSession } from '@/infrastructure/supabase/MvpRepository'
+import { castMvpVote, getActiveMvpSession } from '@/infrastructure/supabase/MvpRepository'
 import { withApi } from '@/lib/apiError'
 
 // In-memory rate limit: max 5 attempts per IP per minute
@@ -34,16 +34,9 @@ export const POST = withApi(async (request: Request) => {
     return NextResponse.json({ error: 'Votación no activa' }, { status: 400 })
   }
 
-  const voted = await hasVoted(sessionId, fingerprint)
-  if (voted) {
-    return NextResponse.json({ error: 'Ya has votado' }, { status: 409 })
-  }
-
+  // Upsert por (session_id, fingerprint): primer voto inserta, votos siguientes actualizan el candidato
   const { error } = await castMvpVote(sessionId, candidateId, fingerprint)
   if (error) {
-    if ((error as { code?: string }).code === '23505') {
-      return NextResponse.json({ error: 'Ya has votado' }, { status: 409 })
-    }
     return NextResponse.json({ error: 'Error al votar' }, { status: 500 })
   }
 

@@ -59,7 +59,10 @@ export async function getMvpVoteTallies(sessionId: string): Promise<MvpVoteTally
 export async function castMvpVote(sessionId: string, candidateId: string, fingerprint: string) {
   const { error } = await supabaseAdmin
     .from('mvp_votes')
-    .insert({ session_id: sessionId, candidate_id: candidateId, fingerprint, environment: APP_ENV })
+    .upsert(
+      { session_id: sessionId, candidate_id: candidateId, fingerprint, environment: APP_ENV },
+      { onConflict: 'session_id,fingerprint' }
+    )
   return { error }
 }
 
