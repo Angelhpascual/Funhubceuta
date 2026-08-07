@@ -53,7 +53,7 @@ function AppInner() {
               src="/escudo.webp"
               alt="AD Ceuta"
               width={40} height={40}
-              className="absolute left-1/2 -translate-x-1/2 object-contain"
+              className="absolute left-1/2 -translate-x-1/2 w-10 h-10 object-contain"
             />
           </div>
           <div className="scroll-area">
@@ -69,7 +69,7 @@ function AppInner() {
             src="/escudo.webp"
             alt="AD Ceuta"
             width={40} height={40}
-            className="absolute left-1/2 -translate-x-1/2 object-contain cursor-pointer"
+            className="absolute left-1/2 -translate-x-1/2 w-10 h-10 object-contain cursor-pointer"
             onClick={() => router.push('/')}
           />
         </div>
