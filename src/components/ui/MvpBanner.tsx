@@ -163,9 +163,8 @@ export function MvpBanner() {
   const winnerPct = winner && total > 0 ? Math.round((getCount(winner.id) / total) * 100) : 0
 
   const meta = session.match_meta
-  const matchLabel = meta
-    ? `${meta.home.name} vs ${meta.away.name}${session.match_label ? ` · ${session.match_label}` : ''}`
-    : session.match_label
+  const matchLabel = session.match_label
+    ?? (meta ? `${meta.home.name} vs ${meta.away.name}` : null)
 
   return (
     <>
