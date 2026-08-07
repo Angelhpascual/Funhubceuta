@@ -2,7 +2,6 @@
 
 import { usePathname } from 'next/navigation'
 import { InstallModal } from '@/components/ui/InstallModal'
-import { MvpBanner } from '@/components/ui/MvpBanner'
 import { Topbar } from '@/components/layout/Topbar'
 import { BottomNav } from '@/components/layout/BottomNav'
 import { isSSRRoute } from '@/components/layout/nav.config'
@@ -32,7 +31,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <InstallModal />
       <Topbar />
       <div className="scroll-area">{children}</div>
-      <MvpBanner />
       <BottomNav />
     </div>
   )

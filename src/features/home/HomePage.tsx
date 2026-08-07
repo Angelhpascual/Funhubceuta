@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { SocialLinks } from '@/components/social/TwitterTimeline'
 import { LiveMatchCard } from './LiveMatchCard'
 import { NotificationBanner } from '@/components/ui/NotificationBanner'
+import { MvpBanner } from '@/components/ui/MvpBanner'
 import { PredictionBanner } from '@/components/ui/PredictionBanner'
 import { useHomeNews } from '@/hooks/useHomeNews'
 import { useNearViewport } from '@/hooks/useNearViewport'
@@ -66,6 +67,7 @@ export function HomePage({
       )}
 
       <NotificationBanner />
+      <MvpBanner />
       <PredictionBanner />
 
       {/* ── PRÓXIMO PARTIDO ── */}
