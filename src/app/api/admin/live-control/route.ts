@@ -74,10 +74,15 @@ async function loadPreMock() {
   const venue    = data?.venue ?? ''
 
   // Combine date + time if available (e.g. "2026-08-15" + "20:00" → ISO string)
+  // `date` may come back as a plain date ("2026-08-15") or a full timestamp
+  // ("2026-08-15 00:00:00+00") depending on the column type — normalize to
+  // just the date part before appending the time.
   let startDate = new Date().toISOString()
   if (data?.date) {
-    const dateStr = data.time ? `${data.date}T${data.time}:00` : `${data.date}T00:00:00`
-    startDate = new Date(dateStr).toISOString()
+    const datePart = String(data.date).slice(0, 10)
+    const dateStr = data.time ? `${datePart}T${data.time}:00` : `${datePart}T00:00:00`
+    const parsed = new Date(dateStr)
+    if (!Number.isNaN(parsed.getTime())) startDate = parsed.toISOString()
   }
 
   const mock: LiveMatch = {
