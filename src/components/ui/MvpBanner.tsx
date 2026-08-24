@@ -53,6 +53,10 @@ function logoFor(name: string | undefined, url: string | null | undefined) {
   return getLocalLogo(name) ?? url ?? null
 }
 
+// Patrocinador del banner MVP: sin acuerdo cerrado aún, oculto en producción
+// pero el bloque se conserva para reactivarlo cuando haya patrocinador.
+const SHOW_MVP_SPONSOR = false
+
 /* ── header compartido: tag + patrocinador + línea de partido ── */
 function CardHeader({ label, matchLabel, children }: { label: string; matchLabel: string | null; children?: React.ReactNode }) {
   return (
@@ -64,12 +68,14 @@ function CardHeader({ label, matchLabel, children }: { label: string; matchLabel
             {label}
           </span>
         </div>
-        <div className="flex shrink-0 items-center gap-1.5">
-          <span className="font-display text-[10px] font-bold uppercase tracking-[0.08em] text-white/40">Con</span>
-          <span className="rounded-full bg-white/10 px-3 py-1 font-display text-[10px] font-bold uppercase tracking-[0.06em] text-white/70">
-            Patrocinador
-          </span>
-        </div>
+        {SHOW_MVP_SPONSOR && (
+          <div className="flex shrink-0 items-center gap-1.5">
+            <span className="font-display text-[10px] font-bold uppercase tracking-[0.08em] text-white/40">Con</span>
+            <span className="rounded-full bg-white/10 px-3 py-1 font-display text-[10px] font-bold uppercase tracking-[0.06em] text-white/70">
+              Patrocinador
+            </span>
+          </div>
+        )}
       </div>
       {children ?? (matchLabel && (
         <div className="mt-[5px] font-display text-[12.5px] font-semibold text-white/50">
