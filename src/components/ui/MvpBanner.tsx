@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import { useState, useEffect, useCallback } from 'react'
 import { MvpSheet, type BannerState as SheetState } from './MvpSheet'
+import { FifaCard } from './FifaCard'
 import type { MvpSession, MvpVoteTally } from '@/infrastructure/supabase/MvpRepository'
 import { supabase } from '@/infrastructure/supabase/client'
 import { getLocalLogo } from '@/data/teamLogos'
@@ -336,6 +337,41 @@ export function MvpBanner() {
                   </span>
                 </div>
               </div>
+              <CardDivider />
+
+              {winner && (
+                <FifaCard
+                  candidate={winner}
+                  votePct={winnerPct}
+                  voteCount={getCount(winner.id)}
+                  eyebrow="Líder ahora mismo"
+                />
+              )}
+
+              <div className="space-y-2">
+                {sorted.map((c, i) => {
+                  const p = total > 0 ? Math.round((getCount(c.id) / total) * 100) : 0
+                  const isVoted = c.id === votedId
+                  return (
+                    <div key={c.id} className="flex items-center gap-2.5">
+                      <span className="w-4 shrink-0 text-center font-display text-[10px] font-bold text-white/30">{i + 1}</span>
+                      <span className={`w-[74px] shrink-0 truncate font-display text-[11px] font-bold uppercase ${isVoted ? 'text-white' : 'text-white/60'}`}>
+                        {c.name}
+                      </span>
+                      <div className="h-[5px] flex-1 overflow-hidden rounded-full bg-white/10">
+                        <div
+                          className={`h-full rounded-full ${isVoted ? 'bg-[var(--red)]' : 'bg-white/30'}`}
+                          style={{ width: `${p}%` }}
+                        />
+                      </div>
+                      <span className={`w-8 shrink-0 text-right font-display text-[11px] font-black ${isVoted ? 'text-[var(--gold)]' : 'text-white/40'}`}>
+                        {p}%
+                      </span>
+                    </div>
+                  )
+                })}
+              </div>
+
               <CardDivider />
               <div className="flex items-center justify-between gap-3">
                 <div>
