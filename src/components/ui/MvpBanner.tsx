@@ -340,7 +340,6 @@ export function MvpBanner() {
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <b className="block font-display text-[15px] font-black uppercase text-white">Recuento en vivo</b>
-                  <span className="text-[12.5px] text-white/50">Se cierra al final de la jornada</span>
                 </div>
                 <div className="flex shrink-0 items-center gap-1.5 rounded-full bg-[var(--red)] px-5 py-3 font-display text-[13px] font-black uppercase tracking-[0.05em] text-white">
                   Cambiar voto <IconChevron />
