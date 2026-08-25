@@ -60,4 +60,21 @@ describe('POST /api/admin/trigger', () => {
     const body = await res.json()
     expect(body.result.queued).toBe(false)
   })
+
+  it('returns sent count nested under result for push action (regression: UI read body.result.sent)', async () => {
+    vi.doMock('@/infrastructure/push/sendPush', () => ({
+      sendPush: vi.fn().mockResolvedValue({ sent: 8, total: 8 }),
+    }))
+    const { POST: freshPost } = await import('../route')
+    const res = await freshPost(makeRequest({
+      action: 'push',
+      payload: { title: 'Test', body: 'Body', tag: 'test', url: '/' },
+    }))
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body.action).toBe('push')
+    expect(body.result.sent).toBe(8)
+    expect(body.result.total).toBe(8)
+    vi.doUnmock('@/infrastructure/push/sendPush')
+  })
 })

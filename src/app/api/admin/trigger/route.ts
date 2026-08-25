@@ -71,14 +71,14 @@ export async function POST(request: Request) {
   if (action === 'push' && payload) {
     const { sendPush } = await import('@/infrastructure/push/sendPush')
     const result = await sendPush(payload)
-    return NextResponse.json({ ok: true, ...result })
+    return NextResponse.json({ ok: true, action, result })
   }
 
   // Custom push notification — develop/test subscribers only
   if (action === 'push-dev' && payload) {
     const { sendPushDev } = await import('@/infrastructure/push/sendPush')
     const result = await sendPushDev(payload)
-    return NextResponse.json({ ok: true, ...result })
+    return NextResponse.json({ ok: true, action, result })
   }
 
   // Simulate admin queue alert
