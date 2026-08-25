@@ -7,7 +7,7 @@ import { deduplicateMatches } from '@/lib/deduplicateMatches'
 export class MatchesSupabaseRepository {
   async upsertResults(results: ScrapedResult[]): Promise<void> {
     if (results.length === 0) return
-    const { error } = await supabase.from('matches').upsert(
+    const { error } = await supabaseAdmin.from('matches').upsert(
       results.map((r) => ({
         external_id: `result-${r.date}-${r.homeTeam}-${r.awayTeam}`.toLowerCase().replace(/\s+/g, '-'),
         home_team: r.homeTeam,
@@ -34,9 +34,9 @@ export class MatchesSupabaseRepository {
     if (matches.length === 0) return
 
     // Delete existing scheduled matches and replace with fresh data
-    await supabase.from('matches').delete().eq('status', 'scheduled')
+    await supabaseAdmin.from('matches').delete().eq('status', 'scheduled')
 
-    const { error } = await supabase.from('matches').insert(
+    const { error } = await supabaseAdmin.from('matches').insert(
       matches.map((m) => ({
         external_id: `${m.date}-${m.homeTeam}-${m.awayTeam}`.toLowerCase().replace(/\s+/g, '-'),
         home_team: m.homeTeam,

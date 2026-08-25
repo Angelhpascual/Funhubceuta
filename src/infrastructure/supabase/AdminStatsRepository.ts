@@ -1,4 +1,3 @@
-import { supabase } from './client'
 import { supabaseAdmin } from './adminClient'
 import { getActiveMvpSession } from './MvpRepository'
 import type { AdminStats } from '@/features/admin/AdminDashboard'
@@ -31,17 +30,17 @@ export async function getAdminStats(): Promise<AdminStats> {
     { data: subsList },
     mvpSession,
   ] = await Promise.all([
-    supabase.from('push_subscriptions').select('*', { count: 'exact', head: true }),
-    supabase.from('news').select('*', { count: 'exact', head: true }),
-    supabase.from('cron_logs').select('id, created_at, status, duration_ms, details, cron_type').order('created_at', { ascending: false }).limit(50),
-    supabase.from('notification_logs').select('id, created_at, article_title, article_source, recipients, sent_ok, sent_fail').order('created_at', { ascending: false }).limit(30),
-    supabase.from('cron_logs').select('created_at, status').eq('cron_type', 'matches').order('created_at', { ascending: false }).limit(1).maybeSingle(),
-    supabase.from('news').select('source').then(({ data }) => ({
+    supabaseAdmin.from('push_subscriptions').select('*', { count: 'exact', head: true }),
+    supabaseAdmin.from('news').select('*', { count: 'exact', head: true }),
+    supabaseAdmin.from('cron_logs').select('id, created_at, status, duration_ms, details, cron_type').order('created_at', { ascending: false }).limit(50),
+    supabaseAdmin.from('notification_logs').select('id, created_at, article_title, article_source, recipients, sent_ok, sent_fail').order('created_at', { ascending: false }).limit(30),
+    supabaseAdmin.from('cron_logs').select('created_at, status').eq('cron_type', 'matches').order('created_at', { ascending: false }).limit(1).maybeSingle(),
+    supabaseAdmin.from('news').select('source').then(({ data }) => ({
       data: data ? Object.entries(
         data.reduce((acc: Record<string, number>, r) => { acc[r.source] = (acc[r.source] ?? 0) + 1; return acc }, {})
       ).sort((a, b) => b[1] - a[1]) : [],
     })),
-    supabase.from('push_subscriptions').select('endpoint, user_agent, created_at').order('created_at', { ascending: false }),
+    supabaseAdmin.from('push_subscriptions').select('endpoint, user_agent, created_at').order('created_at', { ascending: false }),
     getActiveMvpSession(),
   ])
 

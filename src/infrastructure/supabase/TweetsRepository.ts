@@ -1,4 +1,5 @@
 import { supabase } from './client'
+import { supabaseAdmin } from './adminClient'
 
 export type Tweet = {
   tweet_id: string
@@ -25,7 +26,7 @@ export async function upsertTweets(tweets: {
   imageUrl: string | null
 }[]): Promise<void> {
   if (tweets.length === 0) return
-  const { error } = await supabase.from('tweets').upsert(
+  const { error } = await supabaseAdmin.from('tweets').upsert(
     tweets.map((t) => ({
       tweet_id: t.tweetId,
       text: t.text,

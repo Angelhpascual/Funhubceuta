@@ -33,15 +33,15 @@ const STADIUMS: Record<string, string> = {
 
 export function getStadium(teamName: string): string | null {
   if (!teamName) return null
-  const key = teamName.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim()
+  const key = teamName.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').trim()
   // exact match (sin acentos)
   for (const [k, v] of Object.entries(STADIUMS)) {
-    const normK = k.normalize('NFD').replace(/[̀-ͯ]/g, '')
+    const normK = k.normalize('NFD').replace(/\p{Diacritic}/gu, '')
     if (key === normK) return v
   }
   // partial match — por si el nombre viene con prefijo/sufijo distinto
   for (const [k, v] of Object.entries(STADIUMS)) {
-    const normK = k.normalize('NFD').replace(/[̀-ͯ]/g, '')
+    const normK = k.normalize('NFD').replace(/\p{Diacritic}/gu, '')
     if (key.includes(normK) || normK.includes(key)) return v
   }
   return null

@@ -4,12 +4,19 @@ vi.mock('../client', () => {
   const from = vi.fn()
   return { supabase: { from, __from: from } }
 })
+vi.mock('../adminClient', () => {
+  const from = vi.fn()
+  return { supabaseAdmin: { from, __from: from } }
+})
 
 import { supabase } from '../client'
+import { supabaseAdmin } from '../adminClient'
 import { StandingsSupabaseRepository } from '../StandingsSupabaseRepository'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mockFrom: ReturnType<typeof vi.fn> = (supabase as any).__from
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const mockAdminFrom: ReturnType<typeof vi.fn> = (supabaseAdmin as any).__from
 
 beforeEach(() => { vi.resetAllMocks() })
 
@@ -63,7 +70,7 @@ describe('StandingsSupabaseRepository', () => {
   describe('upsertEntries', () => {
     it('upserts entries with onConflict external_id', async () => {
       const chain = { upsert: vi.fn().mockResolvedValue({ error: null }) }
-      mockFrom.mockReturnValue(chain)
+      mockAdminFrom.mockReturnValue(chain)
       await repo.upsertEntries([{
         externalId: '2025-2026-1', season: '2025-2026', position: 1, teamName: 'AD Ceuta',
         teamLogo: null, played: 30, won: 15, drawn: 8, lost: 7,
@@ -77,7 +84,7 @@ describe('StandingsSupabaseRepository', () => {
 
     it('throws when upsert fails', async () => {
       const chain = { upsert: vi.fn().mockResolvedValue({ error: { message: 'constraint violation' } }) }
-      mockFrom.mockReturnValue(chain)
+      mockAdminFrom.mockReturnValue(chain)
       await expect(repo.upsertEntries([{
         externalId: 'x', season: '2025-2026', position: 1, teamName: 'X',
         teamLogo: null, played: 0, won: 0, drawn: 0, lost: 0,

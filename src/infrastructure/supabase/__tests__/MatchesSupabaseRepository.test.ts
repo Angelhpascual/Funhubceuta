@@ -1,11 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('../client', () => ({ supabase: { from: vi.fn() } }))
+vi.mock('../adminClient', () => ({ supabaseAdmin: { from: vi.fn() } }))
 vi.mock('@/lib/deduplicateMatches', () => ({
   deduplicateMatches: (rows: unknown[]) => rows,
 }))
 
 import { supabase } from '../client'
+import { supabaseAdmin } from '../adminClient'
 import { MatchesSupabaseRepository } from '../MatchesSupabaseRepository'
 
 const repo = new MatchesSupabaseRepository()
@@ -24,12 +26,12 @@ function makeResult(overrides = {}) {
 describe('upsertResults', () => {
   it('does nothing for empty array', async () => {
     await repo.upsertResults([])
-    expect(supabase.from).not.toHaveBeenCalled()
+    expect(supabaseAdmin.from).not.toHaveBeenCalled()
   })
 
   it('upserts results with correct shape', async () => {
     const upsertMock = vi.fn().mockResolvedValue({ error: null })
-    vi.mocked(supabase.from).mockReturnValue({ upsert: upsertMock } as never)
+    vi.mocked(supabaseAdmin.from).mockReturnValue({ upsert: upsertMock } as never)
 
     await repo.upsertResults([makeResult()])
 
@@ -50,7 +52,7 @@ describe('upsertResults', () => {
 
   it('builds external_id from result-date-teams', async () => {
     const upsertMock = vi.fn().mockResolvedValue({ error: null })
-    vi.mocked(supabase.from).mockReturnValue({ upsert: upsertMock } as never)
+    vi.mocked(supabaseAdmin.from).mockReturnValue({ upsert: upsertMock } as never)
 
     await repo.upsertResults([makeResult({ date: '2026-05-01', homeTeam: 'AD Ceuta FC', awayTeam: 'Real Madrid' })])
 
@@ -60,7 +62,7 @@ describe('upsertResults', () => {
 
   it('throws when supabase returns error', async () => {
     const upsertMock = vi.fn().mockResolvedValue({ error: { message: 'constraint violation' } })
-    vi.mocked(supabase.from).mockReturnValue({ upsert: upsertMock } as never)
+    vi.mocked(supabaseAdmin.from).mockReturnValue({ upsert: upsertMock } as never)
     await expect(repo.upsertResults([makeResult()])).rejects.toThrow('constraint violation')
   })
 })

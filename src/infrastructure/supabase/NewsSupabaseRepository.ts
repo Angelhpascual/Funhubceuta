@@ -73,11 +73,11 @@ export class NewsSupabaseRepository {
   }
 
   async updateImageUrl(externalId: string, imageUrl: string): Promise<void> {
-    await supabase.from('news').update({ image_url: imageUrl }).eq('external_id', externalId)
+    await supabaseAdmin.from('news').update({ image_url: imageUrl }).eq('external_id', externalId)
   }
 
   async updateImageUrlById(id: string, imageUrl: string): Promise<void> {
-    await supabase.from('news').update({ image_url: imageUrl }).eq('id', id)
+    await supabaseAdmin.from('news').update({ image_url: imageUrl }).eq('id', id)
   }
 
   async getLatestRowsWithImages(limit = 20): Promise<NewsImageBackfillRow[]> {

@@ -1,8 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('../client', () => ({ supabase: { from: vi.fn() } }))
+vi.mock('../adminClient', () => ({ supabaseAdmin: { from: vi.fn() } }))
 
 import { supabase } from '../client'
+import { supabaseAdmin } from '../adminClient'
 import { getLatestTweets, upsertTweets } from '../TweetsRepository'
 
 beforeEach(() => { vi.resetAllMocks() })
@@ -37,12 +39,12 @@ describe('getLatestTweets', () => {
 describe('upsertTweets', () => {
   it('does nothing for empty array', async () => {
     await upsertTweets([])
-    expect(supabase.from).not.toHaveBeenCalled()
+    expect(supabaseAdmin.from).not.toHaveBeenCalled()
   })
 
   it('upserts tweets to supabase', async () => {
     const upsertMock = vi.fn().mockResolvedValue({ error: null })
-    vi.mocked(supabase.from).mockReturnValue({ upsert: upsertMock } as never)
+    vi.mocked(supabaseAdmin.from).mockReturnValue({ upsert: upsertMock } as never)
 
     await upsertTweets([{ tweetId: '1', text: 'Hola', createdAt: '2026-01-01', url: 'https://x.com/1', imageUrl: null }])
     expect(upsertMock).toHaveBeenCalledWith(
@@ -53,7 +55,7 @@ describe('upsertTweets', () => {
 
   it('throws when supabase returns error', async () => {
     const upsertMock = vi.fn().mockResolvedValue({ error: { message: 'DB fail' } })
-    vi.mocked(supabase.from).mockReturnValue({ upsert: upsertMock } as never)
+    vi.mocked(supabaseAdmin.from).mockReturnValue({ upsert: upsertMock } as never)
     await expect(upsertTweets([{ tweetId: '1', text: 'x', createdAt: null, url: 'u', imageUrl: null }])).rejects.toThrow('DB fail')
   })
 })

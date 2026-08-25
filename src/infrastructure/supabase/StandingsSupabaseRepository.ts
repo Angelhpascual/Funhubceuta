@@ -1,6 +1,7 @@
 import { Standings, StandingEntry } from '@/domain/standings/Standings'
 import { StandingsRepository } from '@/domain/standings/StandingsRepository'
 import { supabase } from './client'
+import { supabaseAdmin } from './adminClient'
 
 export class StandingsSupabaseRepository implements StandingsRepository {
   async getBySeason(season: string): Promise<Standings | null> {
@@ -21,7 +22,7 @@ export class StandingsSupabaseRepository implements StandingsRepository {
   async upsertEntries(
     entries: Omit<StandingEntry, 'id' | 'createdAt' | 'updatedAt'>[]
   ): Promise<void> {
-    const { error } = await supabase.from('standings').upsert(
+    const { error } = await supabaseAdmin.from('standings').upsert(
       entries.map((e) => ({
         external_id: e.externalId,
         season: e.season,

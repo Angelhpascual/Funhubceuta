@@ -1,10 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('../adminClient', () => ({ supabaseAdmin: { from: vi.fn() } }))
-vi.mock('../client', () => ({ supabase: { from: vi.fn() } }))
 
 import { supabaseAdmin } from '../adminClient'
-import { supabase } from '../client'
 import { getAllSubscriptions, upsertSubscription, deleteSubscription } from '../PushSubscriptionsRepository'
 
 beforeEach(() => { vi.resetAllMocks() })
@@ -66,7 +64,7 @@ describe('getAllSubscriptions', () => {
 describe('upsertSubscription', () => {
   it('upserts with correct conflict key', async () => {
     const upsertMock = vi.fn().mockResolvedValue({})
-    vi.mocked(supabase.from).mockReturnValue({ upsert: upsertMock } as never)
+    vi.mocked(supabaseAdmin.from).mockReturnValue({ upsert: upsertMock } as never)
 
     await upsertSubscription({ endpoint: 'https://push.example.com/1', p256dh: 'abc', auth: 'xyz' })
 
@@ -78,7 +76,7 @@ describe('upsertSubscription', () => {
 
   it('defaults environment to production', async () => {
     const upsertMock = vi.fn().mockResolvedValue({})
-    vi.mocked(supabase.from).mockReturnValue({ upsert: upsertMock } as never)
+    vi.mocked(supabaseAdmin.from).mockReturnValue({ upsert: upsertMock } as never)
 
     await upsertSubscription({ endpoint: 'https://push.example.com/1', p256dh: 'abc', auth: 'xyz' })
 
@@ -90,7 +88,7 @@ describe('upsertSubscription', () => {
 
   it('stores development environment when passed', async () => {
     const upsertMock = vi.fn().mockResolvedValue({})
-    vi.mocked(supabase.from).mockReturnValue({ upsert: upsertMock } as never)
+    vi.mocked(supabaseAdmin.from).mockReturnValue({ upsert: upsertMock } as never)
 
     await upsertSubscription({ endpoint: 'https://push.example.com/1', p256dh: 'abc', auth: 'xyz', environment: 'development' })
 
@@ -105,7 +103,7 @@ describe('deleteSubscription', () => {
   it('deletes subscription by endpoint', async () => {
     const eqMock = vi.fn().mockResolvedValue({})
     const deleteMock = vi.fn().mockReturnValue({ eq: eqMock })
-    vi.mocked(supabase.from).mockReturnValue({ delete: deleteMock } as never)
+    vi.mocked(supabaseAdmin.from).mockReturnValue({ delete: deleteMock } as never)
 
     await deleteSubscription('https://push.example.com/expired')
 

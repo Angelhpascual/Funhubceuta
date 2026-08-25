@@ -25,7 +25,7 @@ export const POST = withApi(async (request: Request) => {
     .webp({ quality: 80 })
     .toBuffer()
 
-  const slug = name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+  const slug = name.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
   const path = `transfers/${slug}-${Date.now()}.webp`
 
   const { error } = await supabaseAdmin.storage.from('news-images').upload(path, webpBuffer, {

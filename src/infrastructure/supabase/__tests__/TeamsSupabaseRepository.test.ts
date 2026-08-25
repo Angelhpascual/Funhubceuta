@@ -4,13 +4,20 @@ vi.mock('../client', () => {
   const from = vi.fn()
   return { supabase: { from, __from: from } }
 })
+vi.mock('../adminClient', () => {
+  const from = vi.fn()
+  return { supabaseAdmin: { from, __from: from } }
+})
 vi.mock('@/lib/constants', () => ({ CURRENT_SEASON: '2025-2026' }))
 
 import { supabase } from '../client'
+import { supabaseAdmin } from '../adminClient'
 import { TeamsSupabaseRepository } from '../TeamsSupabaseRepository'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mockFrom: ReturnType<typeof vi.fn> = (supabase as any).__from
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const mockAdminFrom: ReturnType<typeof vi.fn> = (supabaseAdmin as any).__from
 
 beforeEach(() => { vi.resetAllMocks() })
 
@@ -25,7 +32,7 @@ describe('TeamsSupabaseRepository', () => {
 
     it('upserts teams with onConflict name,season', async () => {
       const chain = { upsert: vi.fn().mockResolvedValue({ error: null }) }
-      mockFrom.mockReturnValue(chain)
+      mockAdminFrom.mockReturnValue(chain)
       await repo.upsertTeams([{ name: 'AD Ceuta', logoUrl: 'https://espn.com/logo.png', season: '2025-2026' }])
       expect(chain.upsert).toHaveBeenCalledWith(
         expect.arrayContaining([expect.objectContaining({ name: 'AD Ceuta' })]),
@@ -35,7 +42,7 @@ describe('TeamsSupabaseRepository', () => {
 
     it('throws when upsert fails', async () => {
       const chain = { upsert: vi.fn().mockResolvedValue({ error: { message: 'DB error' } }) }
-      mockFrom.mockReturnValue(chain)
+      mockAdminFrom.mockReturnValue(chain)
       await expect(repo.upsertTeams([{ name: 'X', logoUrl: null, season: '2025-2026' }]))
         .rejects.toThrow('Failed to upsert teams')
     })

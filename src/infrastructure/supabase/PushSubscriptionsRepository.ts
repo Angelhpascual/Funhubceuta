@@ -1,4 +1,3 @@
-import { supabase } from './client'
 import { supabaseAdmin } from './adminClient'
 
 export interface PushSubscription {
@@ -18,7 +17,7 @@ export async function getAllSubscriptions(options: { adminOnly?: boolean; enviro
 export async function upsertSubscription(
   sub: PushSubscription & { user_agent?: string | null; environment?: string }
 ): Promise<void> {
-  await supabase
+  await supabaseAdmin
     .from('push_subscriptions')
     .upsert(
       {
@@ -33,7 +32,7 @@ export async function upsertSubscription(
 }
 
 export async function deleteSubscription(endpoint: string): Promise<void> {
-  await supabase.from('push_subscriptions').delete().eq('endpoint', endpoint)
+  await supabaseAdmin.from('push_subscriptions').delete().eq('endpoint', endpoint)
 }
 
 export async function markSubscriptionAsAdmin(endpoint: string): Promise<{ error: string | null }> {

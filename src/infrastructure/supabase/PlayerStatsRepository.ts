@@ -46,7 +46,7 @@ const NAME_OVERRIDES: Record<string, string> = {
 }
 
 function norm(name: string) {
-  return name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim()
+  return name.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').trim()
 }
 
 function sigWords(name: string): string[] {

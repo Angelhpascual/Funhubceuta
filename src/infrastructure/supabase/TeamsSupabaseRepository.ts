@@ -1,4 +1,5 @@
 import { supabase } from './client'
+import { supabaseAdmin } from './adminClient'
 import { CURRENT_SEASON } from '@/lib/constants'
 
 export interface TeamRecord {
@@ -13,7 +14,7 @@ function normalizeName(name: string): string {
   return name
     .toLowerCase()
     .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '') // remove accents
+    .replace(/\p{Diacritic}/gu, '') // remove accents
     .replace(/\b(fc|cf|ad|sd|ud|cd|rc|real|atletico|atletico|deportivo|balompie)\b/g, '')
     .replace(/[^a-z0-9\s]/g, '')
     .replace(/\s+/g, ' ')
@@ -24,7 +25,7 @@ export class TeamsSupabaseRepository {
   async upsertTeams(teams: TeamRecord[]): Promise<void> {
     if (teams.length === 0) return
 
-    const { error } = await supabase.from('teams').upsert(
+    const { error } = await supabaseAdmin.from('teams').upsert(
       teams.map((t) => ({
         name: t.name,
         short_name: t.shortName ?? null,
