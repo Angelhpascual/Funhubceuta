@@ -4,6 +4,14 @@ const nextConfig: NextConfig = {
   allowedDevOrigins: ['192.168.1.64'],
   experimental: {},
   serverExternalPackages: ['@sparticuz/chromium', 'puppeteer-core', 'puppeteer'],
+  // Turbopack's output tracing misses @sparticuz/chromium's binary
+  // (dynamically resolved at runtime) — include it explicitly for the
+  // Puppeteer-based scraper routes so the serverless bundle ships it.
+  outputFileTracingIncludes: {
+    '/api/cron/squad': ['./node_modules/@sparticuz/chromium/bin/**/*'],
+    '/api/cron/matches': ['./node_modules/@sparticuz/chromium/bin/**/*'],
+    '/api/matches/seed': ['./node_modules/@sparticuz/chromium/bin/**/*'],
+  },
   async headers() {
     return [
       {
