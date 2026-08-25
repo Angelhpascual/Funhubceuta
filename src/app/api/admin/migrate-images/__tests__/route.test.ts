@@ -10,24 +10,24 @@ vi.mock('@/infrastructure/storage/imageUploader', () => ({
   newsImageFilename: vi.fn(() => 'news/source/file.jpg'),
 }))
 vi.mock('@/infrastructure/rss/fetchOgImage', () => ({ fetchOgImage: vi.fn() }))
-vi.mock('@/infrastructure/supabase/client', () => {
+vi.mock('@/infrastructure/supabase/adminClient', () => {
   const update = vi.fn()
   const eq = vi.fn()
   const range = vi.fn()
   const order = vi.fn()
   const select = vi.fn()
   const from = vi.fn()
-  return { supabase: { from, __from: from, __select: select, __order: order, __range: range, __update: update, __eq: eq } }
+  return { supabaseAdmin: { from, __from: from, __select: select, __order: order, __range: range, __update: update, __eq: eq } }
 })
 
 import { checkAdminAuth } from '@/infrastructure/admin/auth'
 import { downloadAndUploadImage, isStoredNewsImage } from '@/infrastructure/storage/imageUploader'
 import { fetchOgImage } from '@/infrastructure/rss/fetchOgImage'
-import { supabase } from '@/infrastructure/supabase/client'
+import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
 import { POST } from '../route'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const mockFrom: ReturnType<typeof vi.fn> = (supabase as any).__from
+const mockFrom: ReturnType<typeof vi.fn> = (supabaseAdmin as any).__from
 
 beforeEach(() => {
   vi.resetAllMocks()

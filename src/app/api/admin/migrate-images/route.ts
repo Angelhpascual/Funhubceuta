@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { checkAdminAuth, unauthorizedResponse } from '@/infrastructure/admin/auth'
-import { supabase } from '@/infrastructure/supabase/client'
+import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
 import {
   downloadAndUploadImage,
   isStoredNewsImage,
@@ -21,7 +21,7 @@ export const POST = withApi(async (request: Request) => {
   const offset = (body.offset as number) ?? 0
 
   // Fetch articles without a stored image (null or external URL)
-  const { data: rows, error } = await supabase
+  const { data: rows, error } = await supabaseAdmin
     .from('news')
     .select('id, external_id, source, url, image_url')
     .order('created_at', { ascending: false })
@@ -48,7 +48,7 @@ export const POST = withApi(async (request: Request) => {
     const filename = newsImageFilename(row.source, row.external_id)
     const storedUrl = await downloadAndUploadImage(sourceUrl, filename)
     if (storedUrl) {
-      await supabase.from('news').update({ image_url: storedUrl }).eq('id', row.id)
+      await supabaseAdmin.from('news').update({ image_url: storedUrl }).eq('id', row.id)
       migrated++
     } else {
       failed++

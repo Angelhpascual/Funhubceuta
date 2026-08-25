@@ -3,8 +3,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 vi.mock('@/infrastructure/scrapers/adceutaScraper', () => ({
   scrapeAllScheduled: vi.fn(),
 }))
-vi.mock('@/infrastructure/supabase/client', () => ({
-  supabase: { from: vi.fn() },
+vi.mock('@/infrastructure/supabase/adminClient', () => ({
+  supabaseAdmin: { from: vi.fn() },
 }))
 vi.mock('@/lib/constants', () => ({
   CURRENT_MATCH_SEASON: '2026-27',
@@ -12,7 +12,7 @@ vi.mock('@/lib/constants', () => ({
 }))
 
 import { scrapeAllScheduled } from '@/infrastructure/scrapers/adceutaScraper'
-import { supabase } from '@/infrastructure/supabase/client'
+import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
 import { GET } from '../route'
 
 const MATCH = {
@@ -32,7 +32,7 @@ function makeReq(secret?: string) {
 }
 
 function mockSupabaseChain(insertError: unknown = null) {
-  vi.mocked(supabase.from).mockReturnValue({
+  vi.mocked(supabaseAdmin.from).mockReturnValue({
     delete: vi.fn().mockReturnThis(),
     eq: vi.fn().mockReturnThis(),
     insert: vi.fn().mockResolvedValue({ error: insertError }),
@@ -85,7 +85,7 @@ describe('GET /api/matches/seed', () => {
   it('builds external_id from date and team names', async () => {
     vi.mocked(scrapeAllScheduled).mockResolvedValue([MATCH])
     await GET(makeReq('test-secret') as never)
-    const insertCall = vi.mocked(supabase.from).mock.results
+    const insertCall = vi.mocked(supabaseAdmin.from).mock.results
       .map(r => r.value)
       .find(v => v.insert)
     expect(insertCall?.insert).toHaveBeenCalledWith(

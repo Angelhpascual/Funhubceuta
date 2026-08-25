@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '@/infrastructure/supabase/client'
+import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
 import { STANDINGS_CURRENT_SEASON } from '@/lib/constants'
 import { withApi } from '@/lib/apiError'
 
@@ -40,7 +40,7 @@ export const GET = withApi(async (request: Request) => {
     season: STANDINGS_CURRENT_SEASON,
   }))
 
-  const { error } = await supabase
+  const { error } = await supabaseAdmin
     .from('teams')
     .upsert(rows, { onConflict: 'name,season', ignoreDuplicates: false })
 

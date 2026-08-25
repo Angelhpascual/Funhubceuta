@@ -1,19 +1,19 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('@/lib/constants', () => ({ STANDINGS_CURRENT_SEASON: '2025-2026' }))
-vi.mock('@/infrastructure/supabase/client', () => {
+vi.mock('@/infrastructure/supabase/adminClient', () => {
   const upsert = vi.fn()
   const from = vi.fn(() => ({ upsert }))
-  return { supabase: { from, __from: from, __upsert: upsert } }
+  return { supabaseAdmin: { from, __from: from, __upsert: upsert } }
 })
 
-import { supabase } from '@/infrastructure/supabase/client'
+import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
 import { GET } from '../route'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const mockFrom: ReturnType<typeof vi.fn> = (supabase as any).__from
+const mockFrom: ReturnType<typeof vi.fn> = (supabaseAdmin as any).__from
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const mockUpsert: ReturnType<typeof vi.fn> = (supabase as any).__upsert
+const mockUpsert: ReturnType<typeof vi.fn> = (supabaseAdmin as any).__upsert
 
 beforeEach(() => {
   vi.resetAllMocks()

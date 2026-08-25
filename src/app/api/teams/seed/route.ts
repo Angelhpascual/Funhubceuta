@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '@/infrastructure/supabase/client'
+import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
+import { checkAdminAuth, unauthorizedResponse } from '@/infrastructure/admin/auth'
 import { withApi } from '@/lib/apiError'
 
 // Estadios Liga Hypermotion 2025-2026
@@ -32,9 +33,11 @@ const VENUES: Record<string, string> = {
 }
 
 export const POST = withApi(async () => {
+  if (!(await checkAdminAuth())) return unauthorizedResponse()
+
   const updates = await Promise.allSettled(
     Object.entries(VENUES).map(([name, venue]) =>
-      supabase
+      supabaseAdmin
         .from('teams')
         .update({ venue })
         .ilike('name', `%${name.split(' ').slice(-1)[0]}%`)
@@ -44,7 +47,7 @@ export const POST = withApi(async () => {
   // Also do exact name matches
   await Promise.allSettled(
     Object.entries(VENUES).map(([name, venue]) =>
-      supabase.from('teams').update({ venue }).eq('name', name)
+      supabaseAdmin.from('teams').update({ venue }).eq('name', name)
     )
   )
 

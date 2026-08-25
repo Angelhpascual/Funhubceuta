@@ -187,7 +187,7 @@ describe('updateCareerHistory', () => {
   it('calls update with career and espn_id on matching id', async () => {
     const eqMock = vi.fn().mockResolvedValue({})
     const updateMock = vi.fn().mockReturnValue({ eq: eqMock })
-    vi.mocked(supabase.from).mockReturnValue({ update: updateMock } as never)
+    vi.mocked(supabaseAdmin.from).mockReturnValue({ update: updateMock } as never)
 
     const career = [{ club: 'Real Madrid', years: '2020-2022' }]
     await updateCareerHistory('player-id-1', career, 'espn-999')

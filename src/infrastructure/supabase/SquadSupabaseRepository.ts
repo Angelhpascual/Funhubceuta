@@ -115,7 +115,7 @@ export async function updateCareerHistory(
   career: unknown[],
   espnId: string
 ): Promise<void> {
-  await supabase
+  await supabaseAdmin
     .from('squad')
     .update({ career_history: career, espn_id: espnId })
     .eq('id', id)

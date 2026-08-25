@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { scrapeAllScheduled } from '@/infrastructure/scrapers/adceutaScraper'
-import { supabase } from '@/infrastructure/supabase/client'
+import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
 import { CURRENT_MATCH_SEASON, COMPETITION } from '@/lib/constants'
 import { withApi } from '@/lib/apiError'
 
@@ -18,13 +18,13 @@ export const GET = withApi(async (request: Request) => {
   }
 
   // Delete all scheduled matches for current season first
-  await supabase
+  await supabaseAdmin
     .from('matches')
     .delete()
     .eq('status', 'scheduled')
     .eq('season', CURRENT_MATCH_SEASON)
 
-  const { error } = await supabase.from('matches').insert(
+  const { error } = await supabaseAdmin.from('matches').insert(
     matches.map((m) => ({
       external_id: `${m.date}-${m.homeTeam}-${m.awayTeam}`.toLowerCase().replace(/\s+/g, '-'),
       home_team: m.homeTeam,

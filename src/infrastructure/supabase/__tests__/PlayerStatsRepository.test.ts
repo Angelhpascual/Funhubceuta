@@ -1,8 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('../client', () => ({ supabase: { from: vi.fn() } }))
+vi.mock('../adminClient', () => ({ supabaseAdmin: { from: vi.fn() } }))
 
-import { supabase } from '../client'
+import { supabaseAdmin } from '../adminClient'
 import { upsertPlayerStats, PlayerStatRow } from '../PlayerStatsRepository'
 
 beforeEach(() => { vi.resetAllMocks() })
@@ -20,12 +21,12 @@ function makeRow(overrides: Partial<PlayerStatRow> = {}): PlayerStatRow {
 describe('upsertPlayerStats', () => {
   it('does nothing for empty array', async () => {
     await upsertPlayerStats([])
-    expect(supabase.from).not.toHaveBeenCalled()
+    expect(supabaseAdmin.from).not.toHaveBeenCalled()
   })
 
   it('upserts rows with correct conflict key', async () => {
     const upsertMock = vi.fn().mockResolvedValue({ error: null })
-    vi.mocked(supabase.from).mockReturnValue({ upsert: upsertMock } as never)
+    vi.mocked(supabaseAdmin.from).mockReturnValue({ upsert: upsertMock } as never)
 
     await upsertPlayerStats([makeRow()])
 
@@ -37,7 +38,7 @@ describe('upsertPlayerStats', () => {
 
   it('throws when supabase returns error', async () => {
     const upsertMock = vi.fn().mockResolvedValue({ error: { message: 'pk violation' } })
-    vi.mocked(supabase.from).mockReturnValue({ upsert: upsertMock } as never)
+    vi.mocked(supabaseAdmin.from).mockReturnValue({ upsert: upsertMock } as never)
 
     await expect(upsertPlayerStats([makeRow()])).rejects.toThrow('pk violation')
   })

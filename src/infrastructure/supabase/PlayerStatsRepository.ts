@@ -1,4 +1,5 @@
 import { supabase } from './client'
+import { supabaseAdmin } from './adminClient'
 import type { LeadersMap } from '@/features/club/clubTypes'
 
 export interface PlayerStatRow {
@@ -23,7 +24,7 @@ export interface PlayerStatRow {
 
 export async function upsertPlayerStats(rows: PlayerStatRow[]): Promise<void> {
   if (rows.length === 0) return
-  const { error } = await supabase
+  const { error } = await supabaseAdmin
     .from('player_stats')
     .upsert(rows, { onConflict: 'espn_id,season' })
   if (error) throw new Error(`Supabase upsert failed: ${error.message}`)
