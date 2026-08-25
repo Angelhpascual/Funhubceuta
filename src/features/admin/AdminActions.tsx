@@ -201,6 +201,10 @@ export function AdminActions({ syncOnly, notifOnly, deviceOnly }: { syncOnly?: b
 
   const [syncNews, setSyncNews] = useState<SyncState>(IDLE)
   const [syncNewsImages, setSyncNewsImages] = useState<SyncState>(IDLE)
+  const [syncMatches, setSyncMatches] = useState<SyncState>(IDLE)
+  const [syncStandings, setSyncStandings] = useState<SyncState>(IDLE)
+  const [syncSquad, setSyncSquad] = useState<SyncState>(IDLE)
+  const [syncPlayerStats, setSyncPlayerStats] = useState<SyncState>(IDLE)
 
   const [pushTitle, setPushTitle] = useState('')
   const [pushBody, setPushBody] = useState('')
@@ -266,6 +270,13 @@ export function AdminActions({ syncOnly, notifOnly, deviceOnly }: { syncOnly?: b
       if (typeof d.recovered === 'number' && d.recovered > 0) lines.push(`${d.recovered} fotos recuperadas`)
       if (typeof d.pending === 'number' && d.pending > 0) lines.push(`${d.pending} pendientes`)
       if (typeof d.failed === 'number' && d.failed > 0) lines.push(`⚠️ ${d.failed} fallidas`)
+      if (typeof d.teams === 'number') lines.push(`${d.teams} equipos actualizados`)
+      if (typeof d.count === 'object' && d.count && 'matches' in (d.count as Record<string, unknown>)) {
+        lines.push(`${(d.count as Record<string, unknown>).matches} partidos sincronizados`)
+      } else if (typeof d.count === 'number') {
+        lines.push(`${d.count} jugadores sincronizados`)
+      }
+      if (typeof d.updated === 'number') lines.push(`${d.updated} jugadores actualizados`)
       if (Array.isArray(d.errors) && d.errors.length > 0) {
         d.errors.slice(0, 3).forEach((e: unknown) => lines.push(`· ${String(e).slice(0, 70)}`))
       }
@@ -400,6 +411,48 @@ export function AdminActions({ syncOnly, notifOnly, deviceOnly }: { syncOnly?: b
               'Buscando fotos externas en noticias…',
               'Descargando y convirtiendo a WebP…',
               'Actualizando base de datos…',
+            ], { direct: true })}
+          />
+          <SyncCard
+            emoji="🗓️"
+            label="Partidos y resultados"
+            description="Próximos partidos, últimos resultados y racha (últimos 5)."
+            state={syncMatches}
+            onClick={() => triggerSync(setSyncMatches, 'matches', 'matches', [
+              'Consultando calendario…',
+              'Actualizando resultados…',
+              'Recalculando racha…',
+            ])}
+          />
+          <SyncCard
+            emoji="📊"
+            label="Clasificación"
+            description="Actualiza la tabla de LaLiga Hypermotion desde ESPN."
+            state={syncStandings}
+            onClick={() => triggerSync(setSyncStandings, 'standings', 'standings', [
+              'Consultando ESPN…',
+              'Actualizando clasificación…',
+            ], { direct: true })}
+          />
+          <SyncCard
+            emoji="👕"
+            label="Plantilla"
+            description="Re-scrapea la plantilla oficial (LaLiga) para la temporada actual."
+            state={syncSquad}
+            onClick={() => triggerSync(setSyncSquad, 'squad', 'squad', [
+              'Abriendo plantilla oficial…',
+              'Leyendo jugadores…',
+              'Actualizando base de datos…',
+            ], { direct: true })}
+          />
+          <SyncCard
+            emoji="⚽"
+            label="Stats de jugadores"
+            description="Goles, asistencias, tarjetas y paradas desde ESPN."
+            state={syncPlayerStats}
+            onClick={() => triggerSync(setSyncPlayerStats, 'player-stats', 'player-stats', [
+              'Consultando ESPN…',
+              'Actualizando rankings…',
             ], { direct: true })}
           />
         </div>

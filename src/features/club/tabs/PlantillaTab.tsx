@@ -207,6 +207,8 @@ function GroupSection({
 export function PlantillaTab({
   grouped,
   total,
+  previousGrouped,
+  previousTotal,
   loading,
 }: {
   grouped: Group[]
@@ -215,53 +217,54 @@ export function PlantillaTab({
   previousTotal?: number
   loading: boolean
 }) {
-  const [season, setSeason] = useState<'2526' | '2627'>('2526')
+  const [season, setSeason] = useState<'2526' | '2627'>('2627')
+
+  const shownGrouped = season === '2627' ? grouped : (previousGrouped ?? [])
+  const shownTotal = season === '2627' ? total : (previousTotal ?? 0)
 
   return (
     <>
       <div className="chips chips-center mb-3 mt-1">
-        <button type="button" className={`chip ${season === '2526' ? 'active' : ''}`} onClick={() => setSeason('2526')}>
-          Temp. 25/26
-        </button>
         <button type="button" className={`chip ${season === '2627' ? 'active' : ''}`} onClick={() => setSeason('2627')}>
           Temp. 26/27
         </button>
+        <button type="button" className={`chip ${season === '2526' ? 'active' : ''}`} onClick={() => setSeason('2526')}>
+          Temp. 25/26
+        </button>
       </div>
 
-      {season === '2627' ? (
-        <div className="flex flex-col items-center gap-3 px-3 py-12">
-          <span className="text-3xl">🔜</span>
-          <p className="font-display text-[13px] font-bold uppercase tracking-widest text-ceuta-muted text-center">
-            Plantilla por determinar
+      <div className="px-5">
+        {season === '2627' && <StaffSection />}
+        {loading ? (
+          <p className="py-8 text-center font-display text-[11px] uppercase tracking-widest text-ceuta-muted">
+            Cargando plantilla…
           </p>
-          <p className="text-[12px] text-ceuta-muted text-center">
-            La plantilla 26/27 se anunciará próximamente
-          </p>
-        </div>
-      ) : (
-        <div className="px-5">
-          <StaffSection />
-          {loading ? (
-            <p className="py-8 text-center font-display text-[11px] uppercase tracking-widest text-ceuta-muted">
-              Cargando plantilla…
+        ) : shownGrouped.length === 0 ? (
+          <div className="flex flex-col items-center gap-3 px-3 py-12">
+            <span className="text-3xl">🔜</span>
+            <p className="font-display text-[13px] font-bold uppercase tracking-widest text-ceuta-muted text-center">
+              Plantilla por determinar
             </p>
-          ) : (
-            <>
-              {grouped.map((g, i) => (
-                <GroupSection
-                  key={g.group}
-                  group={g.group}
-                  players={g.players}
-                  defaultOpen={i === 0}
-                />
-              ))}
-              <p className="py-5 text-center font-display text-[11px] font-semibold uppercase tracking-[0.14em] text-ceuta-muted">
-                Jugadores · {total} · toca un grupo para plegar
-              </p>
-            </>
-          )}
-        </div>
-      )}
+            <p className="text-[12px] text-ceuta-muted text-center">
+              La plantilla {season === '2627' ? '26/27' : '25/26'} se anunciará próximamente
+            </p>
+          </div>
+        ) : (
+          <>
+            {shownGrouped.map((g, i) => (
+              <GroupSection
+                key={g.group}
+                group={g.group}
+                players={g.players}
+                defaultOpen={i === 0}
+              />
+            ))}
+            <p className="py-5 text-center font-display text-[11px] font-semibold uppercase tracking-[0.14em] text-ceuta-muted">
+              Jugadores · {shownTotal} · toca un grupo para plegar
+            </p>
+          </>
+        )}
+      </div>
     </>
   )
 }

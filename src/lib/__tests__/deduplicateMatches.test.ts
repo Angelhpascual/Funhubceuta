@@ -47,4 +47,44 @@ describe('deduplicateMatches', () => {
     const b = makeMatch({ away_team: 'FC Barcelona' })
     expect(deduplicateMatches([a, b])).toHaveLength(2)
   })
+
+  it('deduplicates same fixture named differently by different scrapers', () => {
+    const scheduled = makeMatch({
+      date: '2026-08-15',
+      home_team: 'FC Andorra',
+      away_team: 'AD Ceuta FC',
+      result: null,
+      status: 'scheduled',
+    })
+    const finished = makeMatch({
+      date: '2026-08-15',
+      home_team: 'FC Andorra',
+      away_team: 'Ceuta',
+      result: 'L',
+      status: 'finished',
+    })
+    const out = deduplicateMatches([scheduled, finished])
+    expect(out).toHaveLength(1)
+    expect(out[0].result).toBe('L')
+  })
+
+  it('deduplicates when home/away naming also differs (UD Las Palmas vs Las Palmas)', () => {
+    const scheduled = makeMatch({
+      date: '2026-08-22',
+      home_team: 'AD Ceuta FC',
+      away_team: 'UD Las Palmas',
+      result: null,
+      status: 'scheduled',
+    })
+    const finished = makeMatch({
+      date: '2026-08-22',
+      home_team: 'Ceuta',
+      away_team: 'Las Palmas',
+      result: 'L',
+      status: 'finished',
+    })
+    const out = deduplicateMatches([scheduled, finished])
+    expect(out).toHaveLength(1)
+    expect(out[0].result).toBe('L')
+  })
 })

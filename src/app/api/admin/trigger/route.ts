@@ -50,6 +50,10 @@ const ACTIONS: Record<string, () => Promise<Record<string, unknown>>> = {
   'backfill-news-images': async () => callDirect('/api/cron/backfill-images'),
   'backfill-squad-photos': async () => callDirect('/api/cron/backfill-squad-photos'),
   'backfill-transfer-photos': async () => callDirect('/api/cron/backfill-transfer-photos'),
+  // Stats sync — run directly so the admin gets an immediate result
+  standings: async () => callDirect('/api/standings/sync'),
+  squad: async () => callDirect('/api/cron/squad'),
+  'player-stats': async () => callDirect('/api/cron/player-stats'),
 }
 
 export async function POST(request: Request) {

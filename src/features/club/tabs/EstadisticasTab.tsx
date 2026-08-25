@@ -39,7 +39,7 @@ function GoalsBar({ value, max, variant }: { value: number; max: number; variant
   )
 }
 
-function Leaderboard({ leaders }: { leaders: LeadersMap }) {
+function Leaderboard({ leaders, seasonLabel }: { leaders: LeadersMap; seasonLabel: string }) {
   const [activeKey, setActiveKey] = useState('goals')
   const visibleKeys = LB_KEYS.filter(({ key }) => leaders[key]?.leaders?.length)
   if (visibleKeys.length === 0) return null
@@ -75,7 +75,7 @@ function Leaderboard({ leaders }: { leaders: LeadersMap }) {
             {active.unit}
           </h3>
           <span className="font-display text-[10px] font-bold uppercase tracking-widest text-[var(--muted)]">
-            Temp. 25/26
+            {seasonLabel}
           </span>
         </div>
 
@@ -149,20 +149,20 @@ export function EstadisticasTab({
   leaders: LeadersMap | null
   previousLeaders?: LeadersMap | null
 }) {
-  const [season, setSeason] = useState<'2526' | '2627'>('2526')
+  const [season, setSeason] = useState<'2526' | '2627'>('2627')
 
-  const activeCeuta   = season === '2526' ? ceutaPrevious ?? null : null
-  const activeLeaders = season === '2526' ? (leaders ?? previousLeaders) : null
-  const activeForm    = season === '2526' ? form : []
+  const activeCeuta   = season === '2627' ? ceuta : (ceutaPrevious ?? null)
+  const activeLeaders = season === '2627' ? leaders : (previousLeaders ?? leaders)
+  const activeForm    = season === '2627' ? form : []
 
-  /* ─── 26/27 empty state ─── */
-  if (season === '2627') {
+  /* ─── temporada sin partidos disputados aún ─── */
+  if (!activeCeuta || (activeCeuta.played ?? 0) === 0) {
     return (
       <div className="pb-8">
         {/* Season chips */}
         <div className="chips chips-center mb-4 mt-1 px-3">
-          <button type="button" className="chip" onClick={() => setSeason('2526')}>Temp. 25/26</button>
-          <button type="button" className="chip active" onClick={() => setSeason('2627')}>Temp. 26/27</button>
+          <button type="button" className={`chip ${season === '2627' ? 'active' : ''}`} onClick={() => setSeason('2627')}>Temp. 26/27</button>
+          <button type="button" className={`chip ${season === '2526' ? 'active' : ''}`} onClick={() => setSeason('2526')}>Temp. 25/26</button>
         </div>
 
         {/* Pre-season hero */}
@@ -171,7 +171,7 @@ export function EstadisticasTab({
             style={{ background: 'repeating-linear-gradient(-45deg,#fff 0 16px,transparent 16px 32px)', clipPath: 'polygon(60px 0,100% 0,100% 100%,0 100%)' }} />
           <div className="relative">
             <p className="font-display text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--red)]">
-              Temporada 2026–27
+              Temporada {season === '2627' ? '2026–27' : '2025–26'}
             </p>
             <h2 className="mt-2 font-display text-[36px] font-black uppercase leading-[0.92] text-white">
               LA NUEVA<br /><span className="text-[var(--gold)]">TEMPORADA</span><br />ESTÁ A PUNTO.
@@ -180,10 +180,10 @@ export function EstadisticasTab({
               Todavía no se ha disputado ningún partido oficial. En cuanto ruede el balón verás el balance jornada a jornada.
             </p>
             <button type="button"
-              onClick={() => setSeason('2526')}
+              onClick={() => setSeason(season === '2627' ? '2526' : '2627')}
               className="mt-5 flex items-center gap-2 rounded-[10px] bg-[var(--red)] px-5 py-3 font-display text-[12px] font-bold uppercase tracking-wide text-white"
             >
-              Ver balance de la 25/26
+              Ver balance de la {season === '2627' ? '25/26' : '26/27'}
             </button>
           </div>
         </div>
@@ -191,7 +191,7 @@ export function EstadisticasTab({
     )
   }
 
-  /* ─── 25/26 full stats ─── */
+  /* ─── temporada con partidos disputados ─── */
   const c = activeCeuta
   const gfMax = Math.max(c?.goalsFor ?? 0, c?.goalsAgainst ?? 0, 1)
   const totalGames = (c?.played ?? 0)
@@ -219,8 +219,8 @@ export function EstadisticasTab({
     <div className="pb-8">
       {/* ── Season chips ── */}
       <div className="chips chips-center mb-4 mt-1 px-3">
-        <button type="button" className="chip active" onClick={() => setSeason('2526')}>Temp. 25/26</button>
-        <button type="button" className="chip" onClick={() => setSeason('2627')}>Temp. 26/27</button>
+        <button type="button" className={`chip ${season === '2627' ? 'active' : ''}`} onClick={() => setSeason('2627')}>Temp. 26/27</button>
+        <button type="button" className={`chip ${season === '2526' ? 'active' : ''}`} onClick={() => setSeason('2526')}>Temp. 25/26</button>
       </div>
 
       <div className="flex flex-col gap-3 px-3">
@@ -240,7 +240,7 @@ export function EstadisticasTab({
                   {c ? getZoneLabel(c.position) : ''}
                 </p>
                 <p className="mt-0.5 text-[12px] text-white/50">
-                  Liga Hypermotion · Temp. 25/26
+                  Liga Hypermotion · Temp. {season === '2627' ? '26/27' : '25/26'}
                 </p>
               </div>
             </div>
@@ -415,7 +415,7 @@ export function EstadisticasTab({
                 Rankings individuales
               </span>
             </div>
-            <Leaderboard leaders={activeLeaders} />
+            <Leaderboard leaders={activeLeaders} seasonLabel={`Temp. ${season === '2627' ? '26/27' : '25/26'}`} />
           </>
         )}
 
