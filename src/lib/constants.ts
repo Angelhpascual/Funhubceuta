@@ -31,10 +31,10 @@ export const SOURCE_LABELS: Record<string, string> = {
 }
 
 // Season & competition
-export const CURRENT_SEASON = '2025-2026'
-export const PREVIOUS_SEASON = '2024-2025'
+export const CURRENT_SEASON = '2026-2027'
+export const PREVIOUS_SEASON = '2025-2026'
 
-// Standings seasons (ESPN ya sincroniza con 2026-2027)
+// Standings seasons
 export const STANDINGS_CURRENT_SEASON = '2026-2027'
 export const STANDINGS_PREVIOUS_SEASON = '2025-2026'
 

@@ -3,6 +3,7 @@ import type { NextConfig } from 'next'
 const nextConfig: NextConfig = {
   allowedDevOrigins: ['192.168.1.64'],
   experimental: {},
+  serverExternalPackages: ['@sparticuz/chromium', 'puppeteer-core', 'puppeteer'],
   async headers() {
     return [
       {
