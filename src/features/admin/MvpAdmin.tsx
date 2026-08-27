@@ -39,6 +39,7 @@ export function MvpAdmin() {
   const [creating, setCreating] = useState(false)
   const [matchLabel, setMatchLabel] = useState('')
   const [squad, setSquad] = useState<SquadPlayer[]>([])
+  const [teams, setTeams] = useState<{ name: string; logo: string | null }[]>([])
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [awayName, setAwayName] = useState('')
   const [awayLogo, setAwayLogo] = useState<string | null>(null)
@@ -74,8 +75,17 @@ export function MvpAdmin() {
     } catch { /* ignore */ }
   }
 
+  async function loadTeams() {
+    try {
+      const res = await fetch('/api/teams')
+      const data = await res.json()
+      const rows: { name: string; logoUrl: string | null }[] = data.teams ?? []
+      setTeams(rows.map((t) => ({ name: t.name, logo: t.logoUrl })))
+    } catch { /* ignore */ }
+  }
+
   useEffect(() => { load() }, [])
-  useEffect(() => { if (creating) loadSquad() }, [creating])
+  useEffect(() => { if (creating) { loadSquad(); loadTeams() } }, [creating])
 
   async function apiCall(path: string, method: string, body: unknown) {
     setBusy(true)
@@ -133,6 +143,7 @@ export function MvpAdmin() {
         creating ? (
           <MvpCreateForm
             squad={squad}
+            teams={teams}
             busy={busy}
             ceutaHome={ceutaHome}
             awayName={awayName}

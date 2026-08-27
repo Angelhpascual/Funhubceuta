@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-vi.mock('@/lib/constants', () => ({ STANDINGS_CURRENT_SEASON: '2025-2026' }))
+vi.mock('@/lib/constants', () => ({ STANDINGS_CURRENT_SEASON: '2025-2026', ESPN_CEUTA_ID: '5404' }))
 vi.mock('@/infrastructure/supabase/adminClient', () => {
   const upsert = vi.fn()
   const from = vi.fn(() => ({ upsert }))

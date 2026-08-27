@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
-import { STANDINGS_CURRENT_SEASON } from '@/lib/constants'
+import { STANDINGS_CURRENT_SEASON, ESPN_CEUTA_ID } from '@/lib/constants'
 import { withApi } from '@/lib/apiError'
 
 const TEAMS: Array<{ id: string; name: string }> = [
@@ -9,7 +9,7 @@ const TEAMS: Array<{ id: string; name: string }> = [
   { id: '12597', name: 'Burgos' },
   { id: '11487', name: 'CD Sabadell' },
   { id: '4438', name: 'Castellón' },
-  { id: '5404', name: 'Ceuta' },
+  { id: ESPN_CEUTA_ID, name: 'Ceuta' },
   { id: '3842', name: 'Cádiz' },
   { id: '8447', name: 'Córdoba' },
   { id: '3752', name: 'Eibar' },

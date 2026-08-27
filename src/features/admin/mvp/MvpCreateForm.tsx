@@ -1,6 +1,5 @@
 'use client'
 import Image from 'next/image'
-import { TEAMS_2627 } from '@/data/teams2627'
 import { MatchFormPreview } from '../MatchFormPreview'
 import { LogoPicker } from '../LogoPicker'
 
@@ -13,6 +12,7 @@ const posOrder = ['Porteros', 'Defensas', 'Centrocampistas', 'Delanteros']
 
 interface Props {
   squad: SquadPlayer[]
+  teams: StandingTeam[]
   busy: boolean
   ceutaHome: boolean
   awayName: string
@@ -32,11 +32,11 @@ interface Props {
 }
 
 export function MvpCreateForm({
-  squad, busy, ceutaHome, awayName, awayLogo, matchLabel, selectedIds,
+  squad, teams: allTeams, busy, ceutaHome, awayName, awayLogo, matchLabel, selectedIds,
   showLogoPicker, onCeutaHomeToggle, onAwayChange, onMatchLabelChange,
   onTogglePlayer, onClearSelection, onToggleLogoPicker, onSelectLogo, onCancel, onSubmit,
 }: Props) {
-  const teams: StandingTeam[] = TEAMS_2627.filter(t => t.name !== CEUTA.name)
+  const teams: StandingTeam[] = allTeams.filter(t => t.name !== 'Ceuta')
   const grouped = posOrder
     .map(pos => ({ pos, players: squad.filter(p => p.position_group === pos) }))
     .filter(g => g.players.length > 0)

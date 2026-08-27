@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { TEAMS_2627 } from '@/data/teams2627'
 import type { PredictionSession } from '@/domain/predictions/PredictionSession'
 import { MatchFormPreview } from './MatchFormPreview'
 import { LogoPicker } from './LogoPicker'
@@ -21,6 +20,7 @@ export function PredictionAdmin() {
   const [history, setHistory] = useState<HistorySession[]>([])
   const [seasonRanking, setSeasonRanking] = useState<SeasonEntry[]>([])
   const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [teams, setTeams] = useState<{ name: string; logo: string | null }[]>([])
 
   // form state
   const [rivalName, setRivalName] = useState('')
@@ -33,7 +33,7 @@ export function PredictionAdmin() {
   const [homeResult, setHomeResult] = useState(0)
   const [awayResult, setAwayResult] = useState(0)
 
-  const teams = TEAMS_2627.filter(t => t.name !== CEUTA.name)
+  const rivalTeams = teams.filter(t => t.name !== 'Ceuta')
 
   const matchLabel = rivalName
     ? ceutaHome ? `AD Ceuta vs ${rivalName}` : `${rivalName} vs AD Ceuta`
@@ -53,13 +53,22 @@ export function PredictionAdmin() {
     }
   }
 
-  useEffect(() => { load(); loadHistory() }, [])
+  useEffect(() => { load(); loadHistory(); loadTeams() }, [])
 
   async function loadHistory() {
     const res = await fetch('/api/admin/predictions/history')
     const data = await res.json()
     setHistory(data.history ?? [])
     setSeasonRanking(data.seasonRanking ?? [])
+  }
+
+  async function loadTeams() {
+    try {
+      const res = await fetch('/api/teams')
+      const data = await res.json()
+      const rows: { name: string; logoUrl: string | null }[] = data.teams ?? []
+      setTeams(rows.map((t) => ({ name: t.name, logo: t.logoUrl })))
+    } catch { /* ignore */ }
   }
 
   async function apiCall(path: string, method: string, body: unknown) {
@@ -122,12 +131,12 @@ export function PredictionAdmin() {
             onChange={e => {
               const name = e.target.value
               setRivalName(name)
-              const found = teams.find(t => t.name === name)
+              const found = rivalTeams.find(t => t.name === name)
               if (found) setRivalLogo(found.logo)
             }}
           >
             <option value="">Selecciona el rival…</option>
-            {teams.map(t => <option key={t.name} value={t.name}>{t.name}</option>)}
+            {rivalTeams.map(t => <option key={t.name} value={t.name}>{t.name}</option>)}
           </select>
 
           {/* Escudo picker */}
@@ -144,7 +153,7 @@ export function PredictionAdmin() {
             </button>
             {showLogoPicker && (
               <LogoPicker
-                teams={teams}
+                teams={rivalTeams}
                 selectedLogo={rivalLogo}
                 onSelect={(logo) => { setRivalLogo(logo); setShowLogoPicker(false) }}
               />

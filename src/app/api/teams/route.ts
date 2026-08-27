@@ -6,5 +6,9 @@ const repo = new TeamsSupabaseRepository()
 
 export const GET = withApi(async () => {
   const teams = await repo.getAllTeams()
-  return NextResponse.json({ teams })
+  // Rivals for the current season are fixed once the calendar is set — cache generously.
+  return NextResponse.json(
+    { teams },
+    { headers: { 'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400' } }
+  )
 })
