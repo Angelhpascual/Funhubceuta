@@ -123,7 +123,15 @@ export async function GET(request: Request) {
     available: true,
   }
 
-  return NextResponse.json(lineup)
+  // A finished match's lineup never changes again — cache it aggressively.
+  // In-progress/scheduled lineups can still change, so keep those short-lived.
+  const matchState = data.header?.competitions?.[0]?.status?.type?.state as string | undefined
+  const cacheControl =
+    matchState === 'post'
+      ? 'public, s-maxage=31536000, immutable'
+      : 'public, s-maxage=60, stale-while-revalidate=30'
+
+  return NextResponse.json(lineup, { headers: { 'Cache-Control': cacheControl } })
   } catch (err) {
     return apiError(err)
   }

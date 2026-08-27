@@ -18,7 +18,7 @@ beforeEach(() => {
   vi.mocked(fetchPhotosByDorsal).mockResolvedValue({})
 })
 
-function makeEspnSummary(ceutaId = '5404', starterCount = 11) {
+function makeEspnSummary(ceutaId = '5404', starterCount = 11, state = 'post') {
   const makePlayer = (i: number, starter: boolean) => ({
     starter,
     jersey: String(i + 1),
@@ -42,7 +42,7 @@ function makeEspnSummary(ceutaId = '5404', starterCount = 11) {
       ],
     }],
     keyEvents: [],
-    header: { competitions: [{ competitors: [{ homeAway: 'home', id: ceutaId }], keyEvents: [], details: [] }] },
+    header: { competitions: [{ competitors: [{ homeAway: 'home', id: ceutaId }], keyEvents: [], details: [], status: { type: { state } } }] },
   }
 }
 
@@ -110,6 +110,24 @@ describe('GET /api/matches/lineup', () => {
     const res = await GET(makeRequest('evt1'))
     const body = await res.json()
     expect(body.starters[0].photoUrl).toBe('https://supabase.co/player1.jpg')
+  })
+
+  it('caches a finished match lineup for a year (immutable)', async () => {
+    const summary = makeEspnSummary('5404', 11, 'post')
+    vi.spyOn(global, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify(summary), { status: 200 })
+    )
+    const res = await GET(makeRequest('evt1'))
+    expect(res.headers.get('Cache-Control')).toBe('public, s-maxage=31536000, immutable')
+  })
+
+  it('uses a short cache window for an in-progress match lineup', async () => {
+    const summary = makeEspnSummary('5404', 11, 'in')
+    vi.spyOn(global, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify(summary), { status: 200 })
+    )
+    const res = await GET(makeRequest('evt1'))
+    expect(res.headers.get('Cache-Control')).toBe('public, s-maxage=60, stale-while-revalidate=30')
   })
 
   it('returns 500 on unexpected error', async () => {
