@@ -1,6 +1,7 @@
 import { supabase } from './client'
 import { supabaseAdmin } from './adminClient'
 import type { LeadersMap } from '@/features/club/clubTypes'
+import { stripAccents } from '@/lib/stripAccents'
 
 export interface PlayerStatRow {
   espn_id: string
@@ -47,7 +48,7 @@ const NAME_OVERRIDES: Record<string, string> = {
 }
 
 function norm(name: string) {
-  return name.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').trim()
+  return stripAccents(name.toLowerCase()).trim()
 }
 
 function sigWords(name: string): string[] {

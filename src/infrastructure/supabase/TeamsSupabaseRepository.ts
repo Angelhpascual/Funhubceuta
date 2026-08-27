@@ -1,6 +1,7 @@
 import { supabase } from './client'
 import { supabaseAdmin } from './adminClient'
 import { CURRENT_SEASON } from '@/lib/constants'
+import { stripAccents } from '@/lib/stripAccents'
 
 export interface TeamRecord {
   name: string
@@ -11,10 +12,7 @@ export interface TeamRecord {
 }
 
 function normalizeName(name: string): string {
-  return name
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/\p{Diacritic}/gu, '') // remove accents
+  return stripAccents(name.toLowerCase())
     .replace(/\b(fc|cf|ad|sd|ud|cd|rc|real|atletico|atletico|deportivo|balompie)\b/g, '')
     .replace(/[^a-z0-9\s]/g, '')
     .replace(/\s+/g, ' ')

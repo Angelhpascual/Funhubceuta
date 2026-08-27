@@ -1,3 +1,5 @@
+import { stripAccents } from '@/lib/stripAccents'
+
 // Static local logos bundled at build time — instant, no network request
 // Generated from ESPN teamlogos, optimized to 64x64 WebP
 const LOGOS: Record<string, string> = {
@@ -54,11 +56,11 @@ const LOGOS: Record<string, string> = {
 const STOPWORDS = new Set(['fc', 'cf', 'ad', 'sd', 'ud', 'cd', 'rc', 'real', 'atletico', 'deportivo', 'club', 'balompie'])
 
 function norm(s: string): string {
-  return s.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').replace(/[^a-z0-9]/g, '')
+  return stripAccents(s.toLowerCase()).replace(/[^a-z0-9]/g, '')
 }
 
 function keywords(name: string): string[] {
-  return name.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').replace(/[^a-z0-9\s]/g, '')
+  return stripAccents(name.toLowerCase()).replace(/[^a-z0-9\s]/g, '')
     .split(/\s+/).filter(w => w.length > 2 && !STOPWORDS.has(w))
 }
 
@@ -136,7 +138,7 @@ export function getLocalLogo(name: string | null | undefined): string | null {
   if (!name) return null
 
   // Try alias first
-  const aliasKey = name.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').replace(/[^a-z0-9\s]/g, '').trim()
+  const aliasKey = stripAccents(name.toLowerCase()).replace(/[^a-z0-9\s]/g, '').trim()
   if (ALIASES[aliasKey]) return LOGOS[ALIASES[aliasKey]] ?? null
 
   // Try exact slug match

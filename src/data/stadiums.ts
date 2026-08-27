@@ -1,3 +1,5 @@
+import { stripAccents } from '@/lib/stripAccents'
+
 // Estadios de los equipos de La Liga Hypermotion 26/27 + AD Ceuta
 // Fuente: datos oficiales. No cambian salvo ascensos/descensos de temporada.
 
@@ -31,20 +33,21 @@ const STADIUMS: Record<string, string> = {
   'tenerife':          'Estadio Heliodoro Rodríguez López',
 }
 
+// Precomputed once at module load — STADIUMS is static, no need to re-normalize on every call.
+const NORMALIZED_STADIUMS: { key: string; value: string }[] = Object.entries(STADIUMS).map(([k, v]) => ({
+  key: stripAccents(k),
+  value: v,
+}))
+
 export function getStadium(teamName: string): string | null {
   if (!teamName) return null
-  const key = teamName.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').trim()
+  const key = stripAccents(teamName.toLowerCase()).trim()
   // exact match (sin acentos)
-  for (const [k, v] of Object.entries(STADIUMS)) {
-    const normK = k.normalize('NFD').replace(/\p{Diacritic}/gu, '')
-    if (key === normK) return v
-  }
+  const exact = NORMALIZED_STADIUMS.find((s) => s.key === key)
+  if (exact) return exact.value
   // partial match — por si el nombre viene con prefijo/sufijo distinto
-  for (const [k, v] of Object.entries(STADIUMS)) {
-    const normK = k.normalize('NFD').replace(/\p{Diacritic}/gu, '')
-    if (key.includes(normK) || normK.includes(key)) return v
-  }
-  return null
+  const partial = NORMALIZED_STADIUMS.find((s) => key.includes(s.key) || s.key.includes(key))
+  return partial?.value ?? null
 }
 
 // Dado un partido, devuelve el estadio donde se juega.

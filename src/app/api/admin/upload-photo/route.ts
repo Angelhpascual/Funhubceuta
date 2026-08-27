@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { checkAdminAuth, unauthorizedResponse } from '@/infrastructure/admin/auth'
 import { withApi } from '@/lib/apiError'
+import { stripAccents } from '@/lib/stripAccents'
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -25,7 +26,7 @@ export const POST = withApi(async (request: Request) => {
     .webp({ quality: 80 })
     .toBuffer()
 
-  const slug = name.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+  const slug = stripAccents(name.toLowerCase()).replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
   const path = `transfers/${slug}-${Date.now()}.webp`
 
   const { error } = await supabaseAdmin.storage.from('news-images').upload(path, webpBuffer, {

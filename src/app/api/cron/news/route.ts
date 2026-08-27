@@ -12,6 +12,7 @@ import { notifyAdmin } from '@/infrastructure/push/notifyAdmin'
 import { logCron, logNotification } from '@/infrastructure/supabase/logCron'
 import { getRecentNotifTitles, getQueuedTitles, getDiscardedTitles, markNotifyQueued, getSubscriberCount } from '@/infrastructure/supabase/NotificationRepository'
 import { withApi } from '@/lib/apiError'
+import { stripAccents } from '@/lib/stripAccents'
 import {
   downloadAndUploadImage,
   isStoredNewsImage,
@@ -178,7 +179,7 @@ async function syncNews() {
 
   const STOPWORDS = new Set(['ceuta', 'para', 'como', 'pero', 'este', 'esta', 'desde', 'hasta', 'sobre', 'entre', 'todos', 'tiene', 'tras'])
   const keywords = (s: string): Set<string> => {
-    const words = s.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').replace(/[^a-z0-9\s]/g, '').split(/\s+/)
+    const words = stripAccents(s.toLowerCase()).replace(/[^a-z0-9\s]/g, '').split(/\s+/)
     return new Set(words.filter(w => w.length > 4 && !STOPWORDS.has(w)))
   }
   const isDuplicate = (title: string, existing: string[]): boolean =>

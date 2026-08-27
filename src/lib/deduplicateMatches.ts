@@ -1,3 +1,5 @@
+import { stripAccents } from './stripAccents'
+
 type MatchRow = {
   date: string
   home_team: string
@@ -10,12 +12,7 @@ type MatchRow = {
 // Different scrapers name the same club differently (e.g. "AD Ceuta FC" vs "Ceuta",
 // "UD Las Palmas" vs "Las Palmas"), so exact-string matching misses real duplicates.
 function normalizeTeamName(name: string): string {
-  return name
-    .normalize('NFD')
-    .replace(/\p{Diacritic}/gu, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, ' ')
-    .trim()
+  return stripAccents(name.toLowerCase()).replace(/[^a-z0-9]+/g, ' ').trim()
 }
 
 function teamsMatch(a: string, b: string): boolean {
