@@ -29,6 +29,7 @@ export function LiveControl() {
   const [status, setStatus] = useState<Status>('loading')
   const [scheduleId, setScheduleId] = useState<string | null>(null)
   const [acting, setActing] = useState(false)
+  const [actionError, setActionError] = useState<string | null>(null)
   const [mockLoading, setMockLoading] = useState<string | null>(null)
   const [mockActive, setMockActive] = useState<string | null>(null)
   const [lastResult, setLastResult] = useState<LastResult | null>(null)
@@ -94,15 +95,45 @@ export function LiveControl() {
 
   async function activate() {
     setActing(true)
-    const res = await fetch('/api/admin/live-control', { method: 'POST' })
-    if (res.ok) { await load(); invalidateNavSlotCache() }
+    setActionError(null)
+    try {
+      const res = await fetch('/api/admin/live-control', { method: 'POST' })
+      if (res.ok) {
+        await load()
+        invalidateNavSlotCache()
+      } else {
+        const data = await res.json().catch(() => null)
+        setActionError(
+          res.status === 401
+            ? 'Sesión de admin caducada — vuelve a iniciar sesión'
+            : (data?.error ?? `Error al activar (${res.status})`)
+        )
+      }
+    } catch {
+      setActionError('Error de red al activar')
+    }
     setActing(false)
   }
 
   async function deactivate() {
     setActing(true)
-    const res = await fetch('/api/admin/live-control', { method: 'DELETE' })
-    if (res.ok) { await load(); invalidateNavSlotCache() }
+    setActionError(null)
+    try {
+      const res = await fetch('/api/admin/live-control', { method: 'DELETE' })
+      if (res.ok) {
+        await load()
+        invalidateNavSlotCache()
+      } else {
+        const data = await res.json().catch(() => null)
+        setActionError(
+          res.status === 401
+            ? 'Sesión de admin caducada — vuelve a iniciar sesión'
+            : (data?.error ?? `Error al desactivar (${res.status})`)
+        )
+      }
+    } catch {
+      setActionError('Error de red al desactivar')
+    }
     setActing(false)
   }
 
@@ -182,6 +213,9 @@ export function LiveControl() {
 
         {status === 'error' && (
           <p className="mt-2 text-[11px] text-white/60">Error al cargar estado</p>
+        )}
+        {actionError && (
+          <p className="mt-2 text-[11px] font-bold text-white">⚠️ {actionError}</p>
         )}
       </div>
 
