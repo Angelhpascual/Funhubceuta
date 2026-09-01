@@ -8,6 +8,7 @@ import { ESPN_BASE as ESPN } from '@/lib/constants'
 import { fetchWithTimeout } from '@/lib/fetchWithTimeout'
 import { MSG } from './messages'
 import { logCron } from '@/infrastructure/supabase/logCron'
+import { notifyAdmin } from '@/infrastructure/push/notifyAdmin'
 
 // ── Fetch live match from ESPN (same logic as /api/live) ──────────────────
 
@@ -236,6 +237,7 @@ async function checkAndNotify(testMode = false) {
           : MSG.drawCeuta(score)
     await sendPush(m.title, m.body, 'fulltime', '/partidos', testMode)
     notifications.push('fulltime')
+    await notifyAdmin('🏁 Partido terminado', 'Abre la votación MVP cuando tengas los candidatos').catch(() => {})
   }
 
   await saveState(newState)

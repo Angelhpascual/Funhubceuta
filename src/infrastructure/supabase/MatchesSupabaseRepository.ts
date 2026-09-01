@@ -121,15 +121,15 @@ export class MatchesSupabaseRepository {
     if (error) throw new Error(error.message)
   }
 
-  async fetchScheduled(): Promise<Array<{ id: string; home_team: string; away_team: string; date: string; time: string; weekday: string; is_home: boolean }>> {
+  async fetchScheduled(): Promise<Array<{ id: string; home_team: string; away_team: string; date: string; time: string; weekday: string; is_home: boolean; venue: string | null; espn_event_id: string | null }>> {
     const today = new Date().toISOString().split('T')[0]
     const { data } = await supabaseAdmin
       .from('matches')
-      .select('id, home_team, away_team, date, time, weekday, is_home')
+      .select('id, home_team, away_team, date, time, weekday, is_home, venue, espn_event_id')
       .eq('status', 'scheduled')
       .gte('date', today)
       .order('date', { ascending: true })
-    return (data ?? []) as Array<{ id: string; home_team: string; away_team: string; date: string; time: string; weekday: string; is_home: boolean }>
+    return (data ?? []) as Array<{ id: string; home_team: string; away_team: string; date: string; time: string; weekday: string; is_home: boolean; venue: string | null; espn_event_id: string | null }>
   }
 
   async fetchRecentForm(limit = 5): Promise<string[]> {
