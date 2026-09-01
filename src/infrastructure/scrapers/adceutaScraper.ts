@@ -17,13 +17,24 @@ function parseScore(raw: unknown): number {
   return 0
 }
 
+function hasUpcomingMatch(events: Record<string, unknown>[]): boolean {
+  return events.some((e) => {
+    const comp = (e.competitions as Record<string, unknown>[])?.[0]
+    const state = (comp?.status as Record<string, unknown>)?.type as Record<string, unknown>
+    return (state?.state as string) === 'pre'
+  })
+}
+
 async function fetchSchedule(): Promise<Record<string, unknown>[]> {
-  // Try team endpoint first (faster, scoped)
+  // Try team endpoint first (faster, scoped) — but ESPN sometimes only backfills
+  // past fixtures here for a while after each matchday, omitting upcoming ones.
+  // Only trust it if it actually contains an unplayed match; otherwise fall
+  // through to the full-season scoreboard scan below.
   const teamRes = await fetchWithTimeout(`${ESPN}/teams/${CEUTA_ID}/schedule`, { next: { revalidate: 0 } }, 15_000)
   if (teamRes.ok) {
     const data = await teamRes.json()
     const events = (data.events ?? []) as Record<string, unknown>[]
-    if (events.length > 0) return events
+    if (events.length > 0 && hasUpcomingMatch(events)) return events
   }
 
   // Fallback: full scoreboard filtered to Ceuta (covers seasons where ESPN team endpoint lags)
