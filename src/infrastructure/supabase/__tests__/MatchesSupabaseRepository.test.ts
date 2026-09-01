@@ -85,6 +85,51 @@ describe('fetchBySeason', () => {
   })
 })
 
+describe('fetchScheduled', () => {
+  it('normalizes a timestamptz `date` (prod drift) down to YYYY-MM-DD', async () => {
+    // Regression: prod's `date` column returns "2026-09-05 00:00:00+00" —
+    // without slicing, this broke the .ics feed (madridDateTimeToUtc got fed
+    // an unparseable string and every event was silently dropped).
+    const rows = [{
+      id: 'uuid-1', home_team: 'Ceuta', away_team: 'RC Celta Fortuna',
+      date: '2026-09-05 00:00:00+00', time: '18:30', weekday: 'Sábado',
+      is_home: true, venue: null, espn_event_id: 'espn-1',
+    }]
+    vi.mocked(supabaseAdmin.from).mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          gte: vi.fn().mockReturnValue({
+            order: vi.fn().mockResolvedValue({ data: rows }),
+          }),
+        }),
+      }),
+    } as never)
+
+    const result = await repo.fetchScheduled()
+    expect(result[0].date).toBe('2026-09-05')
+  })
+
+  it('leaves an already-plain date untouched', async () => {
+    const rows = [{
+      id: 'uuid-2', home_team: 'Ceuta', away_team: 'Burgos',
+      date: '2026-09-11', time: '20:30', weekday: 'Viernes',
+      is_home: false, venue: null, espn_event_id: null,
+    }]
+    vi.mocked(supabaseAdmin.from).mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          gte: vi.fn().mockReturnValue({
+            order: vi.fn().mockResolvedValue({ data: rows }),
+          }),
+        }),
+      }),
+    } as never)
+
+    const result = await repo.fetchScheduled()
+    expect(result[0].date).toBe('2026-09-11')
+  })
+})
+
 describe('fetchByEspnId', () => {
   it('returns match date when found', async () => {
     const chain = { maybeSingle: vi.fn().mockResolvedValue({ data: { date: '2026-05-10' } }) }

@@ -129,7 +129,13 @@ export class MatchesSupabaseRepository {
       .eq('status', 'scheduled')
       .gte('date', today)
       .order('date', { ascending: true })
-    return (data ?? []) as Array<{ id: string; home_team: string; away_team: string; date: string; time: string; weekday: string; is_home: boolean; venue: string | null; espn_event_id: string | null }>
+    // `date` may come back as a plain date or a full timestamptz depending on
+    // the column type (prod vs dev drift) — normalize to YYYY-MM-DD, same as
+    // getNextMatch() above.
+    return (data ?? []).map((row) => ({ ...row, date: String(row.date).slice(0, 10) })) as Array<{
+      id: string; home_team: string; away_team: string; date: string; time: string
+      weekday: string; is_home: boolean; venue: string | null; espn_event_id: string | null
+    }>
   }
 
   async fetchRecentForm(limit = 5): Promise<string[]> {
