@@ -87,4 +87,48 @@ describe('buildCalendarFeed', () => {
     const feed = buildCalendarFeed([makeMatch({ date: '' })])
     expect(feed).not.toContain('BEGIN:VEVENT')
   })
+
+  describe('MVP and quiniela management events', () => {
+    it('builds 5 events per match: the match itself + 4 management reminders', () => {
+      const feed = buildCalendarFeed([makeMatch()])
+      expect(feed.match(/BEGIN:VEVENT/g)).toHaveLength(5)
+    })
+
+    it('schedules "abrir MVP" at kickoff + 110 minutes (estimated full-time)', () => {
+      // Kickoff 2026-09-20 16:15 Madrid (CEST) = 14:15 UTC → +110min = 16:05 UTC
+      const feed = buildCalendarFeed([makeMatch({ date: '2026-09-20', time: '16:15' })])
+      expect(feed).toContain('SUMMARY:⭐ Abrir MVP — AD Ceuta vs Real Valladolid')
+      expect(feed).toContain('DTSTART:20260920T160500Z')
+    })
+
+    it('schedules "cerrar MVP" 48h after the MVP-open reminder', () => {
+      const feed = buildCalendarFeed([makeMatch({ date: '2026-09-20', time: '16:15' })])
+      expect(feed).toContain('SUMMARY:🏆 Cerrar MVP — AD Ceuta vs Real Valladolid')
+      // 16:05 UTC (mvp open) + 48h = 2026-09-22 16:05 UTC
+      expect(feed).toContain('DTSTART:20260922T160500Z')
+    })
+
+    it('schedules "abrir quiniela" 3 days before kickoff', () => {
+      const feed = buildCalendarFeed([makeMatch({ date: '2026-09-20', time: '16:15' })])
+      expect(feed).toContain('SUMMARY:🔮 Abrir quiniela — AD Ceuta vs Real Valladolid')
+      expect(feed).toContain('DTSTART:20260917T141500Z')
+    })
+
+    it('schedules "cerrar quiniela" exactly at kickoff', () => {
+      const feed = buildCalendarFeed([makeMatch({ date: '2026-09-20', time: '16:15' })])
+      expect(feed).toContain('SUMMARY:🔒 Cerrar quiniela — AD Ceuta vs Real Valladolid')
+      const closeEventBlock = feed.split('quiniela-close')[1]
+      expect(closeEventBlock).toContain('DTSTART:20260920T141500Z')
+    })
+
+    it('gives management reminders an at-the-time alarm (not the day-before one used for the match)', () => {
+      const feed = buildCalendarFeed([makeMatch()])
+      expect(feed).toContain('TRIGGER:PT0S')
+    })
+
+    it('produces no management events when the match itself is skipped (invalid data)', () => {
+      const feed = buildCalendarFeed([makeMatch({ time: '' })])
+      expect(feed.match(/BEGIN:VEVENT/g)).toBeNull()
+    })
+  })
 })
