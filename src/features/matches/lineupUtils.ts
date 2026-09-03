@@ -1,27 +1,5 @@
 import { LineupPlayer } from '@/domain/match/Lineup'
 
-// Correcciones de posición para jugadores del Ceuta cuya posición ESPN es incorrecta.
-// Clave: fragmento del nombre del jugador (case-insensitive). Valor: abreviatura de posición correcta.
-const POSITION_OVERRIDES: Record<string, string> = {
-  fernández: 'CF', // Marcos Fernández — delantero centro
-  koné: 'LW', // Kialy Koné — extremo izquierdo
-  bassinga: 'RW', // Bassinga — extremo derecho
-  bodiger: 'CB', // Bodiger — central
-  capa: 'CB', // Capa — central
-  aisar: 'LB', // Aisar — lateral izquierdo
-  anuar: 'RB', // Anuar — lateral derecho
-}
-
-export function applyPositionOverrides(players: LineupPlayer[]): LineupPlayer[] {
-  return players.map((p) => {
-    const key = Object.keys(POSITION_OVERRIDES).find(
-      (k) => p.name.toLowerCase().includes(k) || p.shortName.toLowerCase().includes(k)
-    )
-    if (!key) return p
-    return { ...p, positionAbbr: POSITION_OVERRIDES[key] }
-  })
-}
-
 export const ORDER: Record<string, number> = {
   GK: 0,
   LB: 1,
