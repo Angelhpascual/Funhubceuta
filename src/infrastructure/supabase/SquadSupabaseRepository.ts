@@ -2,6 +2,7 @@ import { supabase } from './client'
 import { supabaseAdmin } from './adminClient'
 import type { Player, Group } from '@/features/club/clubTypes'
 import type { ScrapedPlayer } from '@/infrastructure/scrapers/squadScraper'
+import { stripAccents } from '@/lib/stripAccents'
 
 const GROUP_ORDER = ['Porteros', 'Defensas', 'Centrocampistas', 'Delanteros']
 
@@ -58,19 +59,51 @@ function isStoredUrl(url: string | null | undefined): boolean {
   try { return SUPABASE_HOST_RE.test(new URL(url).hostname) } catch { return false }
 }
 
+// LaLiga's plantilla page renders player names with inconsistent abbreviation
+// (e.g. "Joaquín González" one sync, "Joaquin G." the next) — matching on the
+// exact name string caused every re-sync to insert a duplicate row for the
+// same physical player. Dorsal is the stable identifier when present; when a
+// player has no dorsal yet (a brand-new signing not yet listed with a squad
+// number), fall back to a shared surname/first-name token.
+function normalizeTokens(name: string): string[] {
+  return stripAccents(name)
+    .toLowerCase()
+    .replace(/\./g, ' ')
+    .split(/\s+/)
+    .filter((t) => t.length >= 3)
+}
+
+function namesLikelyMatch(a: string, b: string): boolean {
+  const ta = normalizeTokens(a)
+  const tb = normalizeTokens(b)
+  return ta.some((t) => tb.includes(t))
+}
+
 export async function upsertSquad(players: ScrapedPlayer[], season: string): Promise<void> {
-  // Preserve already-optimized Supabase photo URLs so the scraper doesn't overwrite them
   const { data: existing } = await supabaseAdmin
     .from('squad')
-    .select('name,photo_url')
+    .select('id,name,dorsal,photo_url')
     .eq('season', season)
-  const storedPhotos = new Map<string, string>()
-  for (const row of existing ?? []) {
-    if (isStoredUrl(row.photo_url)) storedPhotos.set(row.name as string, row.photo_url as string)
-  }
+  const existingRows = (existing ?? []) as { id: string; name: string; dorsal: number | null; photo_url: string | null }[]
 
-  const { error } = await supabaseAdmin.from('squad').upsert(
-    players.map((p) => ({
+  const byDorsal = new Map<number, (typeof existingRows)[number]>()
+  for (const row of existingRows) {
+    if (row.dorsal != null) byDorsal.set(row.dorsal, row)
+  }
+  const usedIds = new Set<string>()
+
+  const toUpdate: { id: string; row: Record<string, unknown> }[] = []
+  const toInsert: Record<string, unknown>[] = []
+
+  for (const p of players) {
+    const match =
+      (p.dorsal != null ? byDorsal.get(p.dorsal) : undefined) ??
+      existingRows.find((row) => !usedIds.has(row.id) && namesLikelyMatch(row.name, p.name))
+
+    // Preserve an already-optimized Supabase photo URL so the scraper doesn't overwrite it
+    const photoUrl = match && isStoredUrl(match.photo_url) ? match.photo_url : p.photoUrl
+
+    const row = {
       dorsal: p.dorsal,
       name: p.name,
       position: p.position,
@@ -79,12 +112,27 @@ export async function upsertSquad(players: ScrapedPlayer[], season: string): Pro
       height: p.height,
       weight: p.weight,
       birth_date: p.birthDate,
-      photo_url: storedPhotos.get(p.name) ?? p.photoUrl,
+      photo_url: photoUrl,
       season,
-    })),
-    { onConflict: 'name,season', ignoreDuplicates: false }
-  )
-  if (error) throw new Error(`Failed to upsert squad: ${error.message}`)
+    }
+
+    if (match) {
+      usedIds.add(match.id)
+      toUpdate.push({ id: match.id, row })
+    } else {
+      toInsert.push(row)
+    }
+  }
+
+  for (const { id, row } of toUpdate) {
+    const { error } = await supabaseAdmin.from('squad').update(row).eq('id', id)
+    if (error) throw new Error(`Failed to update squad player: ${error.message}`)
+  }
+
+  if (toInsert.length > 0) {
+    const { error } = await supabaseAdmin.from('squad').insert(toInsert)
+    if (error) throw new Error(`Failed to insert squad player: ${error.message}`)
+  }
 }
 
 export async function updatePlayerPhotoUrl(id: string, url: string): Promise<void> {

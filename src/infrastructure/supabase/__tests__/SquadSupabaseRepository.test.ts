@@ -125,35 +125,64 @@ describe('upsertSquad', () => {
     height: null, weight: null, birthDate: null, photoUrl: null,
   }
 
-  it('upserts players with correct shape', async () => {
-    // select for existing stored photos
-    const selectMock = vi.fn().mockReturnValue({
-      eq: vi.fn().mockResolvedValue({ data: [] }),
-    })
-    const upsertMock = vi.fn().mockResolvedValue({ error: null })
-    vi.mocked(supabaseAdmin.from).mockReturnValue({ select: selectMock, upsert: upsertMock } as never)
+  function mockExistingAndOps(existing: unknown[]) {
+    const selectMock = vi.fn().mockReturnValue({ eq: vi.fn().mockResolvedValue({ data: existing }) })
+    const updateEqMock = vi.fn().mockResolvedValue({ error: null })
+    const updateMock = vi.fn().mockReturnValue({ eq: updateEqMock })
+    const insertMock = vi.fn().mockResolvedValue({ error: null })
+    vi.mocked(supabaseAdmin.from).mockReturnValue({
+      select: selectMock, update: updateMock, insert: insertMock,
+    } as never)
+    return { selectMock, updateMock, updateEqMock, insertMock }
+  }
 
+  it('inserts a brand-new player with no existing match', async () => {
+    const { insertMock, updateMock } = mockExistingAndOps([])
     await upsertSquad([scrapedPlayer], '2025-2026')
-
-    expect(upsertMock).toHaveBeenCalledWith(
-      expect.arrayContaining([
-        expect.objectContaining({
-          name: 'Test Player',
-          position_group: 'Delanteros',
-          season: '2025-2026',
-        }),
-      ]),
-      { onConflict: 'name,season', ignoreDuplicates: false }
+    expect(insertMock).toHaveBeenCalledWith(
+      expect.arrayContaining([expect.objectContaining({ name: 'Test Player', season: '2025-2026' })])
     )
+    expect(updateMock).not.toHaveBeenCalled()
   })
 
-  it('throws when supabase returns error', async () => {
-    const selectMock = vi.fn().mockReturnValue({
-      eq: vi.fn().mockResolvedValue({ data: [] }),
-    })
-    const upsertMock = vi.fn().mockResolvedValue({ error: { message: 'db error' } })
-    vi.mocked(supabaseAdmin.from).mockReturnValue({ select: selectMock, upsert: upsertMock } as never)
+  it('updates by dorsal instead of inserting a duplicate when LaLiga changes the name string (regression)', async () => {
+    const existing = [{ id: 'existing-1', name: 'O. Sadik', dorsal: 9, photo_url: null }]
+    const { updateMock, updateEqMock, insertMock } = mockExistingAndOps(existing)
+    await upsertSquad([{ ...scrapedPlayer, name: 'Omar Sadik' }], '2025-2026')
+    expect(updateMock).toHaveBeenCalledWith(expect.objectContaining({ name: 'Omar Sadik' }))
+    expect(updateEqMock).toHaveBeenCalledWith('id', 'existing-1')
+    expect(insertMock).not.toHaveBeenCalled()
+  })
+
+  it('falls back to a shared name token when dorsal is null (new signing not yet numbered)', async () => {
+    const existing = [{ id: 'existing-2', name: 'Joaquín González', dorsal: null, photo_url: 'https://x.supabase.co/photo.webp' }]
+    const { updateMock, insertMock } = mockExistingAndOps(existing)
+    await upsertSquad([{ ...scrapedPlayer, dorsal: null, name: 'Joaquin G.' }], '2025-2026')
+    expect(updateMock).toHaveBeenCalledWith(expect.objectContaining({ photo_url: 'https://x.supabase.co/photo.webp' }))
+    expect(insertMock).not.toHaveBeenCalled()
+  })
+
+  it('preserves an already-stored photo URL over a fresh scrape photo', async () => {
+    const existing = [{ id: 'existing-3', name: 'Test Player', dorsal: 9, photo_url: 'https://x.supabase.co/photo.webp' }]
+    const { updateMock } = mockExistingAndOps(existing)
+    await upsertSquad([{ ...scrapedPlayer, photoUrl: 'https://assets.laliga.com/new.png' }], '2025-2026')
+    expect(updateMock).toHaveBeenCalledWith(expect.objectContaining({ photo_url: 'https://x.supabase.co/photo.webp' }))
+  })
+
+  it('throws when the update fails', async () => {
+    const existing = [{ id: 'existing-1', name: 'Test Player', dorsal: 9, photo_url: null }]
+    const selectMock = vi.fn().mockReturnValue({ eq: vi.fn().mockResolvedValue({ data: existing }) })
+    const updateEqMock = vi.fn().mockResolvedValue({ error: { message: 'db error' } })
+    const updateMock = vi.fn().mockReturnValue({ eq: updateEqMock })
+    vi.mocked(supabaseAdmin.from).mockReturnValue({ select: selectMock, update: updateMock } as never)
     await expect(upsertSquad([scrapedPlayer], '2025-2026')).rejects.toThrow('db error')
+  })
+
+  it('throws when the insert fails', async () => {
+    const selectMock = vi.fn().mockReturnValue({ eq: vi.fn().mockResolvedValue({ data: [] }) })
+    const insertMock = vi.fn().mockResolvedValue({ error: { message: 'insert error' } })
+    vi.mocked(supabaseAdmin.from).mockReturnValue({ select: selectMock, insert: insertMock } as never)
+    await expect(upsertSquad([scrapedPlayer], '2025-2026')).rejects.toThrow('insert error')
   })
 })
 
