@@ -130,6 +130,51 @@ describe('GET /api/matches/lineup', () => {
     expect(res.headers.get('Cache-Control')).toBe('public, s-maxage=60, stale-while-revalidate=30')
   })
 
+  it('maps ESPN position names missing from the original POS_MAP (regression: Mallorca 5-4-1)', async () => {
+    const makePlayer = (jersey: string, starter: boolean, posName: string) => ({
+      starter,
+      jersey,
+      position: { displayName: posName },
+      athlete: {
+        displayName: `Jugador ${jersey}`,
+        shortName: `J. ${jersey}`,
+        headshot: { href: 'https://espn.com/photo.jpg' },
+        jerseyImages: [],
+        links: [],
+      },
+    })
+    const summary = {
+      rosters: [{
+        team: { id: '5404' },
+        formation: '5-4-1',
+        roster: [
+          makePlayer('13', true, 'Goalkeeper'),
+          makePlayer('6', true, 'Center Defender'),
+          makePlayer('5', true, 'Center Left Defender'),
+          makePlayer('23', true, 'Center Right Defender'),
+          makePlayer('16', true, 'Left Back'),
+          makePlayer('7', true, 'Right Back'),
+          makePlayer('8', true, 'Center Left Midfielder'),
+          makePlayer('20', true, 'Center Right Midfielder'),
+          makePlayer('11', true, 'Left Midfielder'),
+          makePlayer('14', true, 'Right Midfielder'),
+          makePlayer('9', true, 'Forward'),
+        ],
+      }],
+      keyEvents: [],
+      header: { competitions: [{ competitors: [{ homeAway: 'home', id: '5404' }], keyEvents: [], details: [], status: { type: { state: 'post' } } }] },
+    }
+    vi.spyOn(global, 'fetch').mockResolvedValue(new Response(JSON.stringify(summary), { status: 200 }))
+    const res = await GET(makeRequest('evt1'))
+    const body = await res.json()
+    const byJersey = Object.fromEntries(body.starters.map((p: { jersey: string; positionAbbr: string }) => [p.jersey, p.positionAbbr]))
+    expect(byJersey['6']).toBe('CB')
+    expect(byJersey['5']).toBe('CB')
+    expect(byJersey['23']).toBe('CB')
+    expect(byJersey['8']).toBe('CM')
+    expect(byJersey['20']).toBe('CM')
+  })
+
   it('returns 500 on unexpected error', async () => {
     vi.spyOn(global, 'fetch').mockRejectedValue(new Error('network'))
     const res = await GET(makeRequest('evt1'))

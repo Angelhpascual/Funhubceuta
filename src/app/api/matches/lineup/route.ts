@@ -11,6 +11,7 @@ export type { LineupPlayer, MatchEvent, MatchLineup }
 // Map ESPN position display names → short abbreviations
 const POS_MAP: Record<string, string> = {
   Goalkeeper: 'GK',
+  'Center Defender': 'CB',
   'Center Left Defender': 'CB',
   'Center Right Defender': 'CB',
   'Left Back': 'LB',
@@ -18,6 +19,8 @@ const POS_MAP: Record<string, string> = {
   'Left Midfielder': 'LM',
   'Right Midfielder': 'RM',
   'Center Midfielder': 'CM',
+  'Center Left Midfielder': 'CM',
+  'Center Right Midfielder': 'CM',
   'Defensive Midfielder': 'DM',
   'Attacking Midfielder': 'CAM',
   'Attacking Midfielder Left': 'LW',
