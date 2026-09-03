@@ -3,6 +3,7 @@ import { NextRequest } from 'next/server'
 
 vi.mock('@/infrastructure/scrapers/squadScraper', () => ({ scrapeSquad: vi.fn() }))
 vi.mock('@/infrastructure/supabase/SquadSupabaseRepository', () => ({ upsertSquad: vi.fn() }))
+vi.mock('@/infrastructure/squad/backfillSquadPhotos', () => ({ backfillSquadPhotos: vi.fn() }))
 vi.mock('@/infrastructure/supabase/logCron', () => ({ logCron: vi.fn() }))
 vi.mock('@/lib/constants', () => ({ CURRENT_SEASON: '2025-2026' }))
 vi.mock('@/infrastructure/cron/auth', () => ({
@@ -12,6 +13,7 @@ vi.mock('@/infrastructure/cron/auth', () => ({
 
 import { scrapeSquad } from '@/infrastructure/scrapers/squadScraper'
 import { upsertSquad } from '@/infrastructure/supabase/SquadSupabaseRepository'
+import { backfillSquadPhotos } from '@/infrastructure/squad/backfillSquadPhotos'
 import { logCron } from '@/infrastructure/supabase/logCron'
 import { checkCronAuth } from '@/infrastructure/cron/auth'
 import { GET, POST } from '../route'
@@ -21,6 +23,7 @@ const player = { dorsal: 9, name: 'Test', position: 'Delantero', positionGroup: 
 beforeEach(() => {
   vi.resetAllMocks()
   vi.mocked(checkCronAuth).mockReturnValue(true)
+  vi.mocked(backfillSquadPhotos).mockResolvedValue({ pending: 0, optimized: 0, failed: 0 })
 })
 
 describe('cron/squad GET', () => {
@@ -41,6 +44,7 @@ describe('cron/squad GET', () => {
     const body = await res.json()
     expect(body.ok).toBe(true)
     expect(body.count).toBe(1)
+    expect(backfillSquadPhotos).toHaveBeenCalled()
   })
 
   it('logs success with 0 when scraper returns empty', async () => {

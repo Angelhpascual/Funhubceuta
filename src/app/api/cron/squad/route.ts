@@ -3,6 +3,7 @@ export const maxDuration = 60
 import { NextRequest, NextResponse } from 'next/server'
 import { scrapeSquad } from '@/infrastructure/scrapers/squadScraper'
 import { upsertSquad } from '@/infrastructure/supabase/SquadSupabaseRepository'
+import { backfillSquadPhotos } from '@/infrastructure/squad/backfillSquadPhotos'
 import { CURRENT_SEASON } from '@/lib/constants'
 import { logCron } from '@/infrastructure/supabase/logCron'
 import { checkCronAuth, cronUnauthorized } from '@/infrastructure/cron/auth'
@@ -22,7 +23,11 @@ async function syncSquad() {
     throw err
   }
 
-  await logCron('squad', 'success', Date.now() - t0, { players: players.length })
+  // Las fotos de LaLiga son lentas de servir — se descargan y optimizan una
+  // sola vez a nuestro storage; solo cambian cuando llega plantilla oficial nueva.
+  const backfill = await backfillSquadPhotos()
+
+  await logCron('squad', 'success', Date.now() - t0, { players: players.length, photosBackfilled: backfill.optimized })
   return players.length
 }
 
