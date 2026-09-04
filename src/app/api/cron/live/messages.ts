@@ -113,6 +113,10 @@ export const MSG = {
         title: `🖤⚪ ¡Victoria del Ceuta! (${score})`,
         body: `¡Enorme trabajo del equipo! Puntos en el bolsillo. ¡La ciudad está de fiesta! 🎉`,
       },
+      {
+        title: `🖤⚪ ¡Ceuta unida celebra! (${score})`,
+        body: `Un caballa nunca se rinde, y hoy lo hemos vuelto a demostrar. ¡Gracias, afición, por empujar siempre juntos! 🎉🖤⚪`,
+      },
     ]),
 
   lossCeuta: (score: string) =>
@@ -129,6 +133,10 @@ export const MSG = {
         title: `🔥 Golpe encajado, la cabeza bien alta (${score})`,
         body: `El Ceuta no se rinde. Cada derrota nos hace más fuertes. ¡A por la siguiente, caballas! 🖤⚪`,
       },
+      {
+        title: `🖤⚪ Un caballa nunca se rinde (${score})`,
+        body: `Hoy no ha tocado, pero la unión de esta ciudad vale más que un resultado. ¡Seguimos juntos, seguimos Ceuta! 💪`,
+      },
     ]),
 
   drawCeuta: (score: string) =>
@@ -144,6 +152,10 @@ export const MSG = {
       {
         title: `🖤⚪ Empate con carácter (${score})`,
         body: `Ni un paso atrás. El Ceuta aguantó hasta el pitido final. ¡Gracias por el apoyo, afición! 💪`,
+      },
+      {
+        title: `🖤⚪ Unidos, punto a punto (${score})`,
+        body: `Un caballa nunca se rinde. Se suma un punto más y seguimos remando todos juntos. ¡Vamos Ceuta! 💪`,
       },
     ]),
 
