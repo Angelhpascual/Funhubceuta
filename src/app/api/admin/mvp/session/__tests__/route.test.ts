@@ -89,6 +89,41 @@ describe('PATCH /api/admin/mvp/session', () => {
     expect(openMvpSession).toHaveBeenCalledWith('s1')
   })
 
+  it('sends a push notifying fans that MVP voting is open (regression: no coverage previously)', async () => {
+    vi.mocked(openMvpSession).mockResolvedValue({ error: null })
+    const maybeSingle = vi.fn().mockResolvedValue({ data: { match_label: 'Ceuta vs X', jornada: 'J20' } })
+    vi.mocked(supabaseAdmin.from).mockReturnValue({ select: vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ maybeSingle }) }) } as never)
+
+    await PATCH(makeReq('PATCH', { sessionId: 's1', action: 'open' }))
+
+    expect(sendPush).toHaveBeenCalledWith({
+      title: '⭐ Vota al MVP del partido',
+      body: 'Ceuta vs X · J20',
+      tag: 'mvp',
+      url: '/',
+    })
+  })
+
+  it('falls back to match_label alone in the push body when there is no jornada', async () => {
+    vi.mocked(openMvpSession).mockResolvedValue({ error: null })
+    const maybeSingle = vi.fn().mockResolvedValue({ data: { match_label: 'Ceuta vs X', jornada: null } })
+    vi.mocked(supabaseAdmin.from).mockReturnValue({ select: vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ maybeSingle }) }) } as never)
+
+    await PATCH(makeReq('PATCH', { sessionId: 's1', action: 'open' }))
+
+    expect(sendPush).toHaveBeenCalledWith(expect.objectContaining({ body: 'Ceuta vs X' }))
+  })
+
+  it('still opens the session even if the push fails (best-effort)', async () => {
+    vi.mocked(openMvpSession).mockResolvedValue({ error: null })
+    const maybeSingle = vi.fn().mockResolvedValue({ data: { match_label: 'Ceuta vs X', jornada: 'J20' } })
+    vi.mocked(supabaseAdmin.from).mockReturnValue({ select: vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ maybeSingle }) }) } as never)
+    vi.mocked(sendPush).mockRejectedValue(new Error('push service down'))
+
+    const res = await PATCH(makeReq('PATCH', { sessionId: 's1', action: 'open' }))
+    expect(res.status).toBe(200)
+  })
+
   it('closes session', async () => {
     vi.mocked(closeMvpSession).mockResolvedValue({ error: null })
     const res = await PATCH(makeReq('PATCH', { sessionId: 's1', action: 'close' }))
