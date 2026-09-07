@@ -15,6 +15,10 @@ vi.mock('@/lib/fetchWithTimeout', () => ({ fetchWithTimeout: vi.fn() }))
 vi.mock('web-push', () => ({
   default: { setVapidDetails: vi.fn(), sendNotification: vi.fn() },
 }))
+const { markMatchFinished } = vi.hoisted(() => ({ markMatchFinished: vi.fn().mockResolvedValue(undefined) }))
+vi.mock('@/infrastructure/supabase/MatchesSupabaseRepository', () => ({
+  MatchesSupabaseRepository: function () { return { markMatchFinished } },
+}))
 
 import { fetchWithTimeout } from '@/lib/fetchWithTimeout'
 import { getConfig } from '@/infrastructure/supabase/AppConfigRepository'
@@ -47,6 +51,7 @@ beforeEach(() => {
   vi.resetAllMocks()
   vi.mocked(getAllSubscriptions).mockResolvedValue([])
   vi.mocked(notifyAdmin).mockResolvedValue(undefined)
+  markMatchFinished.mockResolvedValue(undefined)
   vi.mocked(getConfig).mockImplementation(async (key: string) => {
     if (key === 'live_match_state') {
       return JSON.stringify({ espnId: 'evt1', homeScore: 1, awayScore: 1, state: 'in', eventCount: 0 })
@@ -80,5 +85,25 @@ describe('GET /api/cron/live — match finished transition', () => {
     const res = await GET(makeReq())
     expect(res.status).toBe(200)
     expect(notifyAdmin).not.toHaveBeenCalled()
+  })
+
+  it('writes the final result to the matches table immediately (regression: results page showed the match as scheduled for a day until the weekly resync)', async () => {
+    vi.mocked(fetchWithTimeout).mockImplementation(async (url: string | URL) => {
+      if (String(url).includes('/summary')) return summaryResponse()
+      return scoreboardResponse('post')
+    })
+
+    await GET(makeReq())
+    expect(markMatchFinished).toHaveBeenCalledWith('evt1', 2, 1, 'W')
+  })
+
+  it('does not write to matches while the match is still in progress', async () => {
+    vi.mocked(fetchWithTimeout).mockImplementation(async (url: string | URL) => {
+      if (String(url).includes('/summary')) return summaryResponse()
+      return scoreboardResponse('in')
+    })
+
+    await GET(makeReq())
+    expect(markMatchFinished).not.toHaveBeenCalled()
   })
 })

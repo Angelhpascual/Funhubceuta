@@ -9,6 +9,9 @@ import { fetchWithTimeout } from '@/lib/fetchWithTimeout'
 import { MSG } from './messages'
 import { logCron } from '@/infrastructure/supabase/logCron'
 import { notifyAdmin } from '@/infrastructure/push/notifyAdmin'
+import { MatchesSupabaseRepository } from '@/infrastructure/supabase/MatchesSupabaseRepository'
+
+const matchesRepo = new MatchesSupabaseRepository()
 
 // ── Fetch live match from ESPN (same logic as /api/live) ──────────────────
 
@@ -229,15 +232,16 @@ async function checkAndNotify(testMode = false) {
     await setConfig('live_active', 'false')
     const ceutaScore = ceutaIsHome ? match.homeScore : match.awayScore
     const rivalScore = ceutaIsHome ? match.awayScore : match.homeScore
+    const result = ceutaScore > rivalScore ? 'W' : ceutaScore < rivalScore ? 'L' : 'D'
     const m =
-      ceutaScore > rivalScore
-        ? MSG.winCeuta(score)
-        : ceutaScore < rivalScore
-          ? MSG.lossCeuta(score)
-          : MSG.drawCeuta(score)
+      result === 'W' ? MSG.winCeuta(score) : result === 'L' ? MSG.lossCeuta(score) : MSG.drawCeuta(score)
     await sendPush(m.title, m.body, 'fulltime', '/partidos', testMode)
     notifications.push('fulltime')
     await notifyAdmin('🏁 Partido terminado', 'Abre la votación MVP cuando tengas los candidatos').catch(() => {})
+    // Reflejar el resultado en la tabla de partidos de inmediato — si no, el
+    // partido sigue apareciendo como "programado" hasta el próximo cron
+    // semanal de resultados (puede tardar días).
+    await matchesRepo.markMatchFinished(match.espnId, match.homeScore, match.awayScore, result).catch(() => {})
   }
 
   await saveState(newState)

@@ -138,6 +138,19 @@ export class MatchesSupabaseRepository {
     }>
   }
 
+  async markMatchFinished(
+    espnEventId: string,
+    homeScore: number,
+    awayScore: number,
+    result: 'W' | 'L' | 'D'
+  ): Promise<void> {
+    const { error } = await supabaseAdmin
+      .from('matches')
+      .update({ status: 'finished', home_score: homeScore, away_score: awayScore, result })
+      .eq('espn_event_id', espnEventId)
+    if (error) throw new Error(`Failed to mark match finished: ${error.message}`)
+  }
+
   async fetchRecentForm(limit = 5): Promise<string[]> {
     const { data } = await supabase
       .from('matches')
