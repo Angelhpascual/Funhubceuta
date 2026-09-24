@@ -61,6 +61,26 @@ describe('POST /api/squad/career', () => {
     expect(updateCareerHistory).not.toHaveBeenCalled()
   })
 
+  it('matches across accents and double surnames (regression)', async () => {
+    vi.mocked(fetchEspnRoster).mockResolvedValue([{ espnId: '290832', name: 'Adrián Lapeña Ruíz' }])
+    vi.mocked(fetchSquadNames).mockResolvedValue([{ id: 'uuid-lapena', name: 'Lapeña' }])
+    vi.mocked(scrapeCareerHistory).mockResolvedValue([{ seasons: '2024-25', club: 'Ceuta', logo: null }])
+    vi.mocked(updateCareerHistory).mockResolvedValue(undefined)
+
+    await POST(makeRequest())
+    expect(updateCareerHistory).toHaveBeenCalledWith('uuid-lapena', expect.any(Array), '290832')
+  })
+
+  it('matches an unaccented squad name to an accented ESPN name (regression)', async () => {
+    vi.mocked(fetchEspnRoster).mockResolvedValue([{ espnId: '300952', name: 'Alejandro Meléndez' }])
+    vi.mocked(fetchSquadNames).mockResolvedValue([{ id: 'uuid-melendez', name: 'A. Melendez' }])
+    vi.mocked(scrapeCareerHistory).mockResolvedValue([{ seasons: '2024-25', club: 'Ceuta', logo: null }])
+    vi.mocked(updateCareerHistory).mockResolvedValue(undefined)
+
+    await POST(makeRequest())
+    expect(updateCareerHistory).toHaveBeenCalledWith('uuid-melendez', expect.any(Array), '300952')
+  })
+
   it('records errors per player without crashing', async () => {
     vi.mocked(fetchEspnRoster).mockResolvedValue([{ espnId: '123', name: 'Jugador' }])
     vi.mocked(fetchSquadNames).mockResolvedValue([{ id: 'uuid-1', name: 'Jugador' }])

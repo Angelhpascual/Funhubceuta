@@ -2,8 +2,11 @@ import { NextResponse } from 'next/server'
 import { fetchEspnRoster, scrapeCareerHistory } from '@/infrastructure/scrapers/espnCareerScraper'
 import { fetchSquadNames, updateCareerHistory } from '@/infrastructure/supabase/SquadSupabaseRepository'
 import { CURRENT_SEASON } from '@/lib/constants'
+import { stripAccents } from '@/lib/stripAccents'
 
-// Manual overrides for players whose LaLiga abbreviated name ≠ ESPN full name
+// Manual overrides for players whose LaLiga abbreviated name ≠ ESPN full name,
+// or whose ESPN displayName shares no token with it at all (e.g. ESPN shows
+// only a first name/nickname unrelated to our stored surname).
 const MANUAL_MAP: Record<string, string> = {
   'A.romero': '409801', // Adrián Romero
   'Kone K. A': '331653', // Kialy Kone
@@ -11,6 +14,26 @@ const MANUAL_MAP: Record<string, string> = {
   'Manu Schez': '214383', // Manuel Sánchez
   'Pery Garcia': '394315', // Peri
   'G.almenara': '331760', // Gonzalo
+  'G. Vallejo': '218218', // ESPN solo muestra "Guillermo" (portero)
+  Josemi: '3128491', // ESPN lo lista como "José Miguel Gómez Bapori"
+}
+
+// Compares by shared word token instead of full-string/last-token equality,
+// so double surnames ("Adrián Lapeña Ruíz" vs "Lapeña") and ESPN entries
+// that show only a first name still match — and strips accents so
+// "Meléndez"/"Melendez" or "José"/"Jose" aren't treated as different names.
+function nameTokens(name: string): string[] {
+  return stripAccents(name)
+    .toLowerCase()
+    .replace(/\./g, ' ')
+    .split(/\s+/)
+    .filter((t) => t.length >= 3)
+}
+
+function namesLikelyMatch(a: string, b: string): boolean {
+  const ta = nameTokens(a)
+  const tb = nameTokens(b)
+  return ta.some((t) => tb.includes(t))
 }
 
 // POST /api/squad/career — scrape and store career history for all squad players
@@ -41,13 +64,7 @@ export async function POST(req: Request) {
       if (isManual) {
         match = squadPlayers.find((p) => p.name === name)
       } else {
-        const lastName = (n: string) => n.trim().split(' ').pop()!.toLowerCase()
-        const firstToken = (n: string) => n.trim().split(' ')[0].toLowerCase()
-        match = squadPlayers.find((p) => {
-          const pl = p.name.toLowerCase()
-          const nl = name.toLowerCase()
-          return pl === nl || lastName(pl) === lastName(nl) || pl.includes(firstToken(nl))
-        })
+        match = squadPlayers.find((p) => namesLikelyMatch(p.name, name))
         if (match && Object.keys(MANUAL_MAP).includes(match.name)) match = undefined
       }
 
