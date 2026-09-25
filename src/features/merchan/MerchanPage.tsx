@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
+import { shortenProductName } from './merchanUtils'
 
 type MerchanProduct = {
   id: number
@@ -76,9 +77,7 @@ function FeaturedCard({ product }: { product: MerchanProduct }) {
 const TAG_LABELS: Record<string, string> = { nuevo: 'Nuevo', top: 'Más vendido' }
 
 function ProductCard({ product }: { product: MerchanProduct }) {
-  const shortName = product.name
-    .replace(/ AD Ceuta FC 25\/26/g, '')
-    .replace(/ AD Ceuta FC 2025\/26/g, '')
+  const shortName = shortenProductName(product.name)
 
   return (
     <a
