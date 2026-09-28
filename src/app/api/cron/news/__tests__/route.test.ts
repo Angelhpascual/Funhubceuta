@@ -75,7 +75,7 @@ beforeEach(() => {
   vi.mocked(getDiscardedTitles).mockResolvedValue([])
   vi.mocked(markNotifyQueued).mockResolvedValue(undefined)
   vi.mocked(getSubscriberCount).mockResolvedValue(0)
-  vi.mocked(notifyAdmin).mockResolvedValue(undefined)
+  vi.mocked(notifyAdmin).mockResolvedValue({ sent: 1, total: 1 })
   process.env.TEST_SECRET = 'test-secret'
 })
 
@@ -105,6 +105,18 @@ describe('cron/news GET', () => {
     expect(body.queued).toBe(1)
     expect(markNotifyQueued).toHaveBeenCalledWith(article.externalId)
     expect(notifyAdmin).toHaveBeenCalled()
+  })
+
+  it('logs the admin-notify outcome so a silent failure is visible (regression)', async () => {
+    vi.mocked(fetchAdceutaOfficialNews).mockResolvedValue([article])
+    mockUpsertArticles.mockResolvedValue([article])
+    vi.mocked(notifyAdmin).mockResolvedValue({ sent: 0, total: 1 })
+
+    await GET(new Request('http://localhost/api/cron/news'))
+    expect(logCron).toHaveBeenCalledWith(
+      'news', 'success', expect.any(Number),
+      expect.objectContaining({ adminNotified: { sent: 0, total: 1 } })
+    )
   })
 
   it('skips notification when title matches recent sent', async () => {

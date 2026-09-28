@@ -50,7 +50,7 @@ function summaryResponse() {
 beforeEach(() => {
   vi.resetAllMocks()
   vi.mocked(getAllSubscriptions).mockResolvedValue([])
-  vi.mocked(notifyAdmin).mockResolvedValue(undefined)
+  vi.mocked(notifyAdmin).mockResolvedValue({ sent: 1, total: 1 })
   markMatchFinished.mockResolvedValue(undefined)
   vi.mocked(getConfig).mockImplementation(async (key: string) => {
     if (key === 'live_match_state') {
