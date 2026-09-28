@@ -36,6 +36,20 @@ export function LiveControl() {
   const [clearingResult, setClearingResult] = useState(false)
   const [tiendaActive, setTiendaActive] = useState<boolean | null>(null)
   const [savingTienda, setSavingTienda] = useState(false)
+  const [disallowedSending, setDisallowedSending] = useState<'ceuta' | 'rival' | null>(null)
+
+  async function sendGoalDisallowed(team: 'ceuta' | 'rival') {
+    setDisallowedSending(team)
+    try {
+      await fetch('/api/admin/trigger', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'goal-disallowed', payload: { team } }),
+      })
+    } finally {
+      setDisallowedSending(null)
+    }
+  }
 
   async function setMock(scenario: string) {
     setMockLoading(scenario)
@@ -317,6 +331,28 @@ export function LiveControl() {
         <p className="text-[11px] text-ceuta-muted leading-tight">
           «Preparar siguiente partido» carga el próximo partido de la base de datos en estado previo. «Limpiar» borra todos los datos del mock.
         </p>
+
+        <div className="border-t border-ceuta-border pt-3">
+          <div className="mb-1.5 font-display text-[10px] font-bold uppercase tracking-[0.1em] text-ceuta-muted">
+            🚩 Gol anulado (ESPN no lo reporta — avisar a mano)
+          </div>
+          <div className="flex gap-2">
+            <button type="button"
+              onClick={() => sendGoalDisallowed('ceuta')}
+              disabled={disallowedSending !== null}
+              className="flex-1 rounded-[10px] border border-ceuta-border bg-white py-2 font-display text-[11px] font-black uppercase tracking-[0.06em] text-ceuta-black disabled:opacity-40"
+            >
+              {disallowedSending === 'ceuta' ? 'Enviando...' : 'Anulado al Ceuta'}
+            </button>
+            <button type="button"
+              onClick={() => sendGoalDisallowed('rival')}
+              disabled={disallowedSending !== null}
+              className="flex-1 rounded-[10px] border border-ceuta-border bg-white py-2 font-display text-[11px] font-black uppercase tracking-[0.06em] text-ceuta-black disabled:opacity-40"
+            >
+              {disallowedSending === 'rival' ? 'Enviando...' : 'Anulado al rival'}
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* ── Slot nav: Tienda / Mercado ── */}
