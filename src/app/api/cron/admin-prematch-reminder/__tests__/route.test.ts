@@ -26,7 +26,7 @@ function makeReq() {
 beforeEach(() => {
   vi.resetAllMocks()
   process.env.TEST_SECRET = 'test-secret'
-  vi.mocked(notifyAdmin).mockResolvedValue(undefined)
+  vi.mocked(notifyAdmin).mockResolvedValue({ sent: 1, total: 1 })
 })
 
 afterEach(() => {

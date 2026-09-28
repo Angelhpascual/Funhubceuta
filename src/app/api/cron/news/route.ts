@@ -203,11 +203,12 @@ async function syncNews() {
     }
   }
 
+  let adminNotified: { sent: number; total: number } | { error: string } | null = null
   if (newlyQueued > 0) {
     const msg = newlyQueued === 1
       ? recentNewSorted[0].title
       : `${newlyQueued} noticias nuevas para revisar`
-    await notifyAdmin('📬 Noticia pendiente', msg).catch(() => null)
+    adminNotified = await notifyAdmin('📬 Noticia pendiente', msg).catch((err) => ({ error: String(err) }))
   }
 
   // Get current subscriber count for the log
@@ -228,6 +229,7 @@ async function syncNews() {
     noImageArticles: noImageArticles > 0 ? noImageArticles : undefined,
     subscribers,
     queued: newlyQueued > 0 ? newlyQueued : null,
+    adminNotified,
     summary,
   })
 
