@@ -63,6 +63,35 @@ export const MSG = {
       },
     ]),
 
+  // El VAR/fuera de juego que anula un gol no llega en el feed de ESPN para
+  // esta categoría (ni en keyEvents ni en commentary) — no hay forma de
+  // detectarlo automáticamente. Este mensaje es para el disparo manual del
+  // admin desde el panel en el momento, no lo llama el cron.
+  goalDisallowed: (team: 'ceuta' | 'rival') =>
+    pick(
+      team === 'ceuta'
+        ? [
+            {
+              title: '🚩 Gol anulado al Ceuta',
+              body: 'El VAR/el árbitro lo anula. Seguimos a por él. ¡Vamos Ceuta! 🖤⚪',
+            },
+            {
+              title: '🚩 Nos anulan un gol...',
+              body: 'No sube al marcador, pero el equipo sigue empujando. ¡Ánimo caballas! 💪',
+            },
+          ]
+        : [
+            {
+              title: '🚩 Gol anulado al rival',
+              body: 'No sube al marcador. Seguimos con vida. ¡Vamos Ceuta! 🖤⚪',
+            },
+            {
+              title: '🚩 Le anulan el gol al rival',
+              body: 'Respiro para el Ceuta — el marcador no se mueve. ¡A seguir! 💪',
+            },
+          ]
+    ),
+
   redCeuta: (player: string, minute: string) =>
     pick([
       {

@@ -64,7 +64,20 @@ export async function POST(request: Request) {
   const body = await request.json()
   const { action, payload } = body as {
     action: string
-    payload?: { title: string; body: string; tag: string; url: string }
+    payload?: { title: string; body: string; tag: string; url: string } & { team?: 'ceuta' | 'rival' }
+  }
+
+  // Gol anulado — ESPN no reporta este evento en el feed (ni keyEvents ni
+  // commentary), así que no hay forma de detectarlo automáticamente desde el
+  // cron de live. Disparo manual del admin en el momento, con el mismo
+  // catálogo de mensajes que usa el resto del live.
+  if (action === 'goal-disallowed') {
+    const { MSG } = await import('@/app/api/cron/live/messages')
+    const { sendPush } = await import('@/infrastructure/push/sendPush')
+    const team = payload?.team === 'rival' ? 'rival' : 'ceuta'
+    const msg = MSG.goalDisallowed(team)
+    const result = await sendPush({ title: msg.title, body: msg.body, tag: 'goal-disallowed', url: '/live' })
+    return NextResponse.json({ ok: true, action, team, result })
   }
 
   // Custom push notification — production subscribers
