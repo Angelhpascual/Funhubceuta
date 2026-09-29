@@ -43,21 +43,21 @@ function FeaturedCard({ product }: { product: MerchanProduct }) {
           priority
         />
         <span className="absolute top-[10px] left-[10px] bg-[var(--gold)] text-[var(--black)] font-display font-extrabold text-[10px] tracking-[0.1em] uppercase px-[9px] py-[5px] rounded-[6px] z-[2]">
-          Novedad · Retro
+          Destacado
         </span>
         <div
           className="absolute inset-x-0 bottom-0 px-[15px] pt-10 pb-[15px] z-[1]"
           style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.5) 55%, transparent 100%)' }}
         >
           <div className="font-display font-extrabold text-[22px] leading-none uppercase text-white">
-            Camiseta jornada retro 25/26
+            {shortenProductName(product.name)}
           </div>
           <div className="text-[12px] text-white/60 mt-[5px]">
-            La edición especial de jornada. Tallas 4XS–4XL.
+            Disponible en la tienda oficial. Consulta tallas.
           </div>
           <div className="flex items-center gap-3 mt-3">
             <span className="font-display font-black text-[24px] text-white">
-              69<small className="text-[14px] font-bold">,00€</small>
+              {product.price.split(',')[0]}<small className="text-[14px] font-bold">,{product.price.split(',')[1]}</small>
             </span>
             <a
               href={product.url}
