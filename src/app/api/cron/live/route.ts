@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Receiver } from '@upstash/qstash'
-import webpush from 'web-push'
 import type { LiveMatch, LiveEvent } from '@/domain/match/LiveMatch'
 import { getConfig, setConfig, deleteConfig } from '@/infrastructure/supabase/AppConfigRepository'
-import { deleteSubscription } from '@/infrastructure/supabase/PushSubscriptionsRepository'
+import { sendPush as sendPushProd, sendPushAdminOnly } from '@/infrastructure/push/sendPush'
 import { ESPN_BASE as ESPN } from '@/lib/constants'
 import { fetchWithTimeout } from '@/lib/fetchWithTimeout'
 import { MSG } from './messages'
@@ -73,41 +72,16 @@ async function fetchLiveMatch(): Promise<LiveMatch | null> {
   }
 }
 
-// ── Send push to all subscribers (or admin-only in test mode) ─────────────
+// ── Send push to all subscribers, or admin-only in test mode ──────────────
+// Real (non-test) sends go through sendPush(), which refuses to send at all
+// unless VERCEL_ENV === 'production' — the same guard every other push in
+// the app respects. Test-mode sends are already gated by TEST_SECRET and
+// only ever reach admin-marked subscriptions, so they're allowed to bypass
+// that guard (sendPushAdminOnly), which is the point of testing them.
 async function sendPush(title: string, body: string, tag: string, url = '/partidos', testMode = false) {
-  webpush.setVapidDetails(
-    'mailto:angelhpascual@gmail.com',
-    process.env.VAPID_PUBLIC_KEY!,
-    process.env.VAPID_PRIVATE_KEY!
-  )
-
-  const subs = await import('@/infrastructure/supabase/PushSubscriptionsRepository').then((m) =>
-    m.getAllSubscriptions({ adminOnly: testMode })
-  )
-
-  if (!subs.length) return 0
-
-  const payload = JSON.stringify({ title, body, tag, url })
-  let sent = 0
-
-  await Promise.allSettled(
-    subs.map(async (sub) => {
-      try {
-        await webpush.sendNotification(
-          { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
-          payload
-        )
-        sent++
-      } catch (err: unknown) {
-        const status = (err as Record<string, unknown>)?.statusCode
-        if (status === 410 || status === 404) {
-          await deleteSubscription(sub.endpoint)
-        }
-      }
-    })
-  )
-
-  return sent
+  const payload = { title, body, tag, url }
+  const result = testMode ? await sendPushAdminOnly(payload) : await sendPushProd(payload)
+  return result.sent
 }
 
 
@@ -237,11 +211,15 @@ async function checkAndNotify(testMode = false) {
       result === 'W' ? MSG.winCeuta(score) : result === 'L' ? MSG.lossCeuta(score) : MSG.drawCeuta(score)
     await sendPush(m.title, m.body, 'fulltime', '/partidos', testMode)
     notifications.push('fulltime')
-    await notifyAdmin('🏁 Partido terminado', 'Abre la votación MVP cuando tengas los candidatos').catch(() => {})
+    await notifyAdmin('🏁 Partido terminado', 'Abre la votación MVP cuando tengas los candidatos').catch((err) =>
+      logCron('live', 'error', 0, { stage: 'notifyAdmin', error: String(err) })
+    )
     // Reflejar el resultado en la tabla de partidos de inmediato — si no, el
     // partido sigue apareciendo como "programado" hasta el próximo cron
     // semanal de resultados (puede tardar días).
-    await matchesRepo.markMatchFinished(match.espnId, match.homeScore, match.awayScore, result).catch(() => {})
+    await matchesRepo.markMatchFinished(match.espnId, match.homeScore, match.awayScore, result).catch((err) =>
+      logCron('live', 'error', 0, { stage: 'markMatchFinished', error: String(err) })
+    )
   }
 
   await saveState(newState)

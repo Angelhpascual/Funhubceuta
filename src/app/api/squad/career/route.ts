@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { fetchEspnRoster, scrapeCareerHistory } from '@/infrastructure/scrapers/espnCareerScraper'
 import { fetchSquadNames, updateCareerHistory } from '@/infrastructure/supabase/SquadSupabaseRepository'
 import { CURRENT_SEASON } from '@/lib/constants'
-import { stripAccents } from '@/lib/stripAccents'
+import { namesLikelyMatch } from '@/lib/playerNameMatch'
 
 // Manual overrides for players whose LaLiga abbreviated name ≠ ESPN full name,
 // or whose ESPN displayName shares no token with it at all (e.g. ESPN shows
@@ -16,24 +16,6 @@ const MANUAL_MAP: Record<string, string> = {
   'G.almenara': '331760', // Gonzalo
   'G. Vallejo': '218218', // ESPN solo muestra "Guillermo" (portero)
   Josemi: '3128491', // ESPN lo lista como "José Miguel Gómez Bapori"
-}
-
-// Compares by shared word token instead of full-string/last-token equality,
-// so double surnames ("Adrián Lapeña Ruíz" vs "Lapeña") and ESPN entries
-// that show only a first name still match — and strips accents so
-// "Meléndez"/"Melendez" or "José"/"Jose" aren't treated as different names.
-function nameTokens(name: string): string[] {
-  return stripAccents(name)
-    .toLowerCase()
-    .replace(/\./g, ' ')
-    .split(/\s+/)
-    .filter((t) => t.length >= 3)
-}
-
-function namesLikelyMatch(a: string, b: string): boolean {
-  const ta = nameTokens(a)
-  const tb = nameTokens(b)
-  return ta.some((t) => tb.includes(t))
 }
 
 // POST /api/squad/career — scrape and store career history for all squad players

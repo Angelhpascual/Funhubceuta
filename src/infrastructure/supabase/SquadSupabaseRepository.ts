@@ -2,7 +2,7 @@ import { supabase } from './client'
 import { supabaseAdmin } from './adminClient'
 import type { Player, Group } from '@/features/club/clubTypes'
 import type { ScrapedPlayer } from '@/infrastructure/scrapers/squadScraper'
-import { stripAccents } from '@/lib/stripAccents'
+import { namesLikelyMatch } from '@/lib/playerNameMatch'
 
 const GROUP_ORDER = ['Porteros', 'Defensas', 'Centrocampistas', 'Delanteros']
 
@@ -64,21 +64,7 @@ function isStoredUrl(url: string | null | undefined): boolean {
 // exact name string caused every re-sync to insert a duplicate row for the
 // same physical player. Dorsal is the stable identifier when present; when a
 // player has no dorsal yet (a brand-new signing not yet listed with a squad
-// number), fall back to a shared surname/first-name token.
-function normalizeTokens(name: string): string[] {
-  return stripAccents(name)
-    .toLowerCase()
-    .replace(/\./g, ' ')
-    .split(/\s+/)
-    .filter((t) => t.length >= 3)
-}
-
-function namesLikelyMatch(a: string, b: string): boolean {
-  const ta = normalizeTokens(a)
-  const tb = normalizeTokens(b)
-  return ta.some((t) => tb.includes(t))
-}
-
+// number), fall back to namesLikelyMatch (shared surname/first-name token).
 export async function upsertSquad(players: ScrapedPlayer[], season: string): Promise<void> {
   const { data: existing } = await supabaseAdmin
     .from('squad')
