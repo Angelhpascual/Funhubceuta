@@ -6,20 +6,20 @@ import { useEffect, useRef, useState } from 'react'
 const SIM_STEPS: {
   scenario: string
   label: string
-  push?: { event: string; scorer?: string; score?: string; minute?: string }
+  push?: { event: string; rival?: string; scorer?: string; score?: string; minute?: string }
   note: string
 }[] = [
   { scenario: 'sim_pre',       label: 'Previo · Alineaciones',      note: 'El partido aún no ha comenzado. Alineaciones publicadas.' },
-  { scenario: 'sim_kickoff',   label: 'Pitido inicial',              push: { event: 'kickoff', rival: 'FC Andorra' } as never, note: 'Partido en marcha. Push: ¡Arranca el partido!' },
+  { scenario: 'sim_kickoff',   label: 'Pitido inicial',              push: { event: 'kickoff', rival: 'FC Andorra' }, note: 'Partido en marcha. Push: ¡Arranca el partido!' },
   { scenario: 'sim_amarilla',  label: "15' · Tarjeta amarilla",     note: 'Amarilla a García (rival). Sin push.' },
   { scenario: 'sim_goal1',     label: "23' · ¡GOL CEUTA! 0-1",     push: { event: 'goal_ceuta', scorer: 'Zalazar', score: '0-1', minute: "23'" }, note: 'Zalazar marca. Push: ¡GOOOOL!' },
   { scenario: 'sim_mid1',      label: "38' · Stats actualizadas",   note: 'Estadísticas evolucionan. Sin push.' },
   { scenario: 'sim_halftime',  label: "45+2' · Descanso 0-1",      note: 'Descanso. Sin push.' },
   { scenario: 'sim_2half',     label: "50' · 2ª parte",             note: 'Segunda parte en marcha.' },
-  { scenario: 'sim_goal_rival',label: "58' · Gol rival 1-1",        push: { event: 'goal_rival', scorer: 'Molina', score: '1-1' } as never, note: 'Molina empata. Push: Gol en contra.' },
-  { scenario: 'sim_roja',      label: "65' · Roja rival",           push: { event: 'red_rival', scorer: 'Torres', minute: "65'" } as never, note: 'Torres expulsado. Push: Tarjeta roja rival.' },
+  { scenario: 'sim_goal_rival',label: "58' · Gol rival 1-1",        push: { event: 'goal_rival', scorer: 'Molina', score: '1-1' }, note: 'Molina empata. Push: Gol en contra.' },
+  { scenario: 'sim_roja',      label: "65' · Roja rival",           push: { event: 'red_rival', scorer: 'Torres', minute: "65'" }, note: 'Torres expulsado. Push: Tarjeta roja rival.' },
   { scenario: 'sim_goal2',     label: "74' · ¡GOL CEUTA! 1-2",     push: { event: 'goal_ceuta', scorer: 'Hassan', score: '1-2', minute: "74'" }, note: 'Hassan adelanta al Ceuta. Push: ¡GOOOOL!' },
-  { scenario: 'sim_final',     label: "90' · FINAL 1-2 ¡Victoria!", push: { event: 'win', score: '1-2' } as never, note: '¡Victoria! Push: ¡Ganamos!' },
+  { scenario: 'sim_final',     label: "90' · FINAL 1-2 ¡Victoria!", push: { event: 'win', score: '1-2' }, note: '¡Victoria! Push: ¡Ganamos!' },
 ]
 
 const STEP_DURATION = 30_000 // 30s per step

@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server'
+import { Receiver } from '@upstash/qstash'
 import { fetchWithTimeout } from '@/lib/fetchWithTimeout'
 import { StandingsSupabaseRepository } from '@/infrastructure/supabase/StandingsSupabaseRepository'
 import { TeamsSupabaseRepository } from '@/infrastructure/supabase/TeamsSupabaseRepository'
 import { ESPN_STANDINGS as ESPN, STANDINGS_CURRENT_SEASON as CURRENT_SEASON } from '@/lib/constants'
+import { logCron } from '@/infrastructure/supabase/logCron'
 
 function getDescription(position: number, total: number): string {
   if (position <= 2) return 'Promotion'
@@ -79,14 +81,44 @@ async function syncFromEspn(season: string) {
   return rows.length
 }
 
-export async function POST(request: Request) {
+async function syncFromEspnSafe() {
+  const t0 = Date.now()
   try {
-    const { searchParams } = new URL(request.url)
-    const secret = searchParams.get('secret')
-    if (process.env.NODE_ENV === 'production' && secret !== process.env.TEST_SECRET) {
-      // Allow QStash calls (no secret needed for scheduled calls)
-    }
     const count = await syncFromEspn(CURRENT_SEASON)
+    await logCron('standings-sync', 'success', Date.now() - t0, { teams: count })
+    return count
+  } catch (err) {
+    await logCron('standings-sync', 'error', Date.now() - t0, { error: String(err) })
+    throw err
+  }
+}
+
+// Two legitimate callers hit this in production, neither of which is a
+// browser: the QStash schedule (signs every request — verified below) and
+// the admin panel's "Sincronizar clasificación" button, which calls this
+// directly with `?secret=` (no QStash signature, same as other
+// callDirect-triggered crons). Accept either; reject everything else.
+// (Previously this check ran but never acted on its result, leaving POST
+// effectively unauthenticated for anyone.)
+export async function POST(request: Request) {
+  const { searchParams } = new URL(request.url)
+  const secret = searchParams.get('secret')
+  const hasValidSecret = secret === process.env.TEST_SECRET
+
+  if (process.env.NODE_ENV === 'production' && !hasValidSecret) {
+    const receiver = new Receiver({
+      currentSigningKey: process.env.QSTASH_CURRENT_SIGNING_KEY!,
+      nextSigningKey: process.env.QSTASH_NEXT_SIGNING_KEY!,
+    })
+    const body = await request.text()
+    const valid = await receiver
+      .verify({ signature: request.headers.get('Upstash-Signature') ?? '', body })
+      .catch(() => false)
+    if (!valid) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  try {
+    const count = await syncFromEspnSafe()
     return NextResponse.json({ ok: true, teams: count })
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
@@ -101,7 +133,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Use POST in production' }, { status: 405 })
   }
   try {
-    const count = await syncFromEspn(CURRENT_SEASON)
+    const count = await syncFromEspnSafe()
     return NextResponse.json({ ok: true, teams: count })
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)

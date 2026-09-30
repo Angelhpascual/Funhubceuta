@@ -9,14 +9,18 @@ export interface PushPayload {
   icon?: string
 }
 
-async function sendPushToEnvironment(payload: PushPayload, environment: string): Promise<{ sent: number; total: number }> {
+async function sendPushToEnvironment(
+  payload: PushPayload,
+  environment: string,
+  adminOnly = false
+): Promise<{ sent: number; total: number }> {
   webpush.setVapidDetails(
     process.env.VAPID_CONTACT ?? 'mailto:angelhpascual@gmail.com',
     process.env.VAPID_PUBLIC_KEY!,
     process.env.VAPID_PRIVATE_KEY!
   )
 
-  const subs = await getAllSubscriptions({ environment })
+  const subs = await getAllSubscriptions({ environment, adminOnly })
   if (subs.length === 0) return { sent: 0, total: 0 }
 
   const results = await Promise.allSettled(
@@ -48,4 +52,13 @@ export async function sendPush(payload: PushPayload): Promise<{ sent: number; to
 
 export async function sendPushDev(payload: PushPayload): Promise<{ sent: number; total: number }> {
   return sendPushToEnvironment(payload, 'development')
+}
+
+// Admin-only test push — used for manual/simulated triggers (e.g. cron
+// ?test=true&secret=...) that are already gated by a secret, so they're
+// allowed to bypass the production-only restriction of sendPush() above.
+// Only ever reaches admin-marked subscriptions, never real fans.
+export async function sendPushAdminOnly(payload: PushPayload): Promise<{ sent: number; total: number }> {
+  const environment = process.env.VERCEL_ENV === 'production' ? 'production' : 'development'
+  return sendPushToEnvironment(payload, environment, true)
 }

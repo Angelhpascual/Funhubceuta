@@ -19,11 +19,17 @@ const { markMatchFinished } = vi.hoisted(() => ({ markMatchFinished: vi.fn().moc
 vi.mock('@/infrastructure/supabase/MatchesSupabaseRepository', () => ({
   MatchesSupabaseRepository: function () { return { markMatchFinished } },
 }))
+vi.mock('@/infrastructure/push/sendPush', () => ({
+  sendPush: vi.fn().mockResolvedValue({ sent: 0, total: 0 }),
+  sendPushAdminOnly: vi.fn().mockResolvedValue({ sent: 0, total: 0 }),
+}))
 
 import { fetchWithTimeout } from '@/lib/fetchWithTimeout'
 import { getConfig } from '@/infrastructure/supabase/AppConfigRepository'
 import { getAllSubscriptions } from '@/infrastructure/supabase/PushSubscriptionsRepository'
 import { notifyAdmin } from '@/infrastructure/push/notifyAdmin'
+import { logCron } from '@/infrastructure/supabase/logCron'
+import { sendPush, sendPushAdminOnly } from '@/infrastructure/push/sendPush'
 import { GET } from '../route'
 
 function scoreboardResponse(state: 'pre' | 'in' | 'post') {
@@ -52,6 +58,8 @@ beforeEach(() => {
   vi.mocked(getAllSubscriptions).mockResolvedValue([])
   vi.mocked(notifyAdmin).mockResolvedValue({ sent: 1, total: 1 })
   markMatchFinished.mockResolvedValue(undefined)
+  vi.mocked(sendPush).mockResolvedValue({ sent: 0, total: 0 })
+  vi.mocked(sendPushAdminOnly).mockResolvedValue({ sent: 0, total: 0 })
   vi.mocked(getConfig).mockImplementation(async (key: string) => {
     if (key === 'live_match_state') {
       return JSON.stringify({ espnId: 'evt1', homeScore: 1, awayScore: 1, state: 'in', eventCount: 0 })
@@ -105,5 +113,58 @@ describe('GET /api/cron/live — match finished transition', () => {
 
     await GET(makeReq())
     expect(markMatchFinished).not.toHaveBeenCalled()
+  })
+
+  it('logs (instead of silently swallowing) a failed notifyAdmin call (regression: used to be .catch(() => {}))', async () => {
+    vi.mocked(fetchWithTimeout).mockImplementation(async (url: string | URL) => {
+      if (String(url).includes('/summary')) return summaryResponse()
+      return scoreboardResponse('post')
+    })
+    vi.mocked(notifyAdmin).mockRejectedValue(new Error('push service down'))
+
+    const res = await GET(makeReq())
+    expect(res.status).toBe(200)
+    expect(logCron).toHaveBeenCalledWith('live', 'error', 0, { stage: 'notifyAdmin', error: expect.stringContaining('push service down') })
+  })
+
+  it('logs (instead of silently swallowing) a failed markMatchFinished call', async () => {
+    vi.mocked(fetchWithTimeout).mockImplementation(async (url: string | URL) => {
+      if (String(url).includes('/summary')) return summaryResponse()
+      return scoreboardResponse('post')
+    })
+    markMatchFinished.mockRejectedValue(new Error('db error'))
+
+    const res = await GET(makeReq())
+    expect(res.status).toBe(200)
+    expect(logCron).toHaveBeenCalledWith('live', 'error', 0, { stage: 'markMatchFinished', error: expect.stringContaining('db error') })
+  })
+})
+
+describe('GET /api/cron/live — push environment gate', () => {
+  beforeEach(() => {
+    // Kickoff transition (pre → in) so a push actually fires
+    vi.mocked(getConfig).mockImplementation(async (key: string) => {
+      if (key === 'live_match_state') {
+        return JSON.stringify({ espnId: 'evt1', homeScore: 0, awayScore: 0, state: 'pre', eventCount: 0 })
+      }
+      if (key === 'live_active') return 'true'
+      return null
+    })
+    vi.mocked(fetchWithTimeout).mockImplementation(async (url: string | URL) => {
+      if (String(url).includes('/summary')) return summaryResponse()
+      return scoreboardResponse('in')
+    })
+  })
+
+  it('uses the admin-only test push (not the production one) when testMode is on', async () => {
+    await GET(makeReq(true))
+    expect(sendPushAdminOnly).toHaveBeenCalled()
+    expect(sendPush).not.toHaveBeenCalled()
+  })
+
+  it('uses the production-gated push (not the admin-only one) for a real run (regression: local sendPush used to ignore the VERCEL_ENV production gate)', async () => {
+    await GET(makeReq(false))
+    expect(sendPush).toHaveBeenCalled()
+    expect(sendPushAdminOnly).not.toHaveBeenCalled()
   })
 })

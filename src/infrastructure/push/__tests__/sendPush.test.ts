@@ -13,7 +13,7 @@ vi.mock('web-push', () => ({
 
 import { getAllSubscriptions, deleteSubscription } from '@/infrastructure/supabase/PushSubscriptionsRepository'
 import webpush from 'web-push'
-import { sendPush } from '../sendPush'
+import { sendPush, sendPushAdminOnly } from '../sendPush'
 
 beforeEach(() => {
   vi.resetAllMocks()
@@ -60,5 +60,33 @@ describe('sendPush', () => {
     const result = await sendPush(payload)
     expect(result.sent).toBe(1)
     expect(result.total).toBe(2)
+  })
+
+  it('sendPush refuses to send at all outside production (existing guard)', async () => {
+    process.env.VERCEL_ENV = 'preview'
+    vi.mocked(getAllSubscriptions).mockResolvedValue([sub])
+    const result = await sendPush(payload)
+    expect(result).toEqual({ sent: 0, total: 0 })
+    expect(getAllSubscriptions).not.toHaveBeenCalled()
+  })
+})
+
+describe('sendPushAdminOnly', () => {
+  it('sends admin-only, even outside production (regression: cron/live used to build its own unguarded sender)', async () => {
+    process.env.VERCEL_ENV = 'preview'
+    vi.mocked(getAllSubscriptions).mockResolvedValue([sub])
+    vi.mocked(webpush.sendNotification).mockResolvedValue({ statusCode: 201 } as never)
+
+    const result = await sendPushAdminOnly(payload)
+
+    expect(getAllSubscriptions).toHaveBeenCalledWith({ environment: 'development', adminOnly: true })
+    expect(result).toEqual({ sent: 1, total: 1 })
+  })
+
+  it('targets the production environment when VERCEL_ENV is production', async () => {
+    process.env.VERCEL_ENV = 'production'
+    vi.mocked(getAllSubscriptions).mockResolvedValue([])
+    await sendPushAdminOnly(payload)
+    expect(getAllSubscriptions).toHaveBeenCalledWith({ environment: 'production', adminOnly: true })
   })
 })

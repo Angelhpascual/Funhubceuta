@@ -17,6 +17,14 @@ vi.mock('@/infrastructure/supabase/client', () => ({
   },
 }))
 vi.mock('@/infrastructure/supabase/AppConfigRepository', () => ({ setConfig: vi.fn() }))
+vi.mock('@/infrastructure/supabase/logCron', () => ({ logCron: vi.fn() }))
+
+const mockVerify = vi.fn()
+vi.mock('@upstash/qstash', () => ({
+  Receiver: class {
+    verify = mockVerify
+  },
+}))
 
 const mockUpsertEntries = vi.fn()
 const mockUpsertTeams = vi.fn()
@@ -33,6 +41,7 @@ vi.mock('@/infrastructure/supabase/TeamsSupabaseRepository', () => ({
 }))
 
 import { setConfig } from '@/infrastructure/supabase/AppConfigRepository'
+import { logCron } from '@/infrastructure/supabase/logCron'
 import { GET, POST } from '../route'
 
 const espnEntry = {
@@ -62,7 +71,11 @@ beforeEach(() => {
   mockUpsertEntries.mockResolvedValue(undefined)
   mockUpsertTeams.mockResolvedValue(undefined)
   vi.mocked(setConfig).mockResolvedValue(undefined)
+  vi.mocked(logCron).mockResolvedValue(undefined)
+  mockVerify.mockResolvedValue(true)
   process.env.TEST_SECRET = 'test-secret'
+  process.env.QSTASH_CURRENT_SIGNING_KEY = 'k1'
+  process.env.QSTASH_NEXT_SIGNING_KEY = 'k2'
 })
 
 describe('standings/sync GET', () => {
@@ -113,5 +126,43 @@ describe('standings/sync POST', () => {
     mockEspnFetch(false)
     const res = await POST(new Request('http://localhost/api/standings/sync', { method: 'POST' }))
     expect(res.status).toBe(500)
+  })
+
+  it('logs success via logCron', async () => {
+    mockEspnFetch(true)
+    await POST(new Request('http://localhost/api/standings/sync', { method: 'POST' }))
+    expect(logCron).toHaveBeenCalledWith('standings-sync', 'success', expect.any(Number), { teams: 1 })
+  })
+
+  it('logs failure via logCron and still returns 500', async () => {
+    mockEspnFetch(false)
+    await POST(new Request('http://localhost/api/standings/sync', { method: 'POST' }))
+    expect(logCron).toHaveBeenCalledWith('standings-sync', 'error', expect.any(Number), { error: expect.stringContaining('503') })
+  })
+
+  it('rejects a production call with no valid secret and no QStash signature (regression: this check used to run but never act on its result)', async () => {
+    vi.stubEnv('NODE_ENV', 'production')
+    mockVerify.mockResolvedValue(false)
+    const res = await POST(new Request('http://localhost/api/standings/sync', { method: 'POST' }))
+    expect(res.status).toBe(401)
+    vi.unstubAllEnvs()
+  })
+
+  it('accepts a production call with the admin-panel secret, without needing a QStash signature', async () => {
+    vi.stubEnv('NODE_ENV', 'production')
+    mockEspnFetch(true)
+    mockVerify.mockResolvedValue(false)
+    const res = await POST(new Request('http://localhost/api/standings/sync?secret=test-secret', { method: 'POST' }))
+    expect(res.status).toBe(200)
+    vi.unstubAllEnvs()
+  })
+
+  it('accepts a production call with a valid QStash signature and no secret (the real scheduled cron)', async () => {
+    vi.stubEnv('NODE_ENV', 'production')
+    mockEspnFetch(true)
+    mockVerify.mockResolvedValue(true)
+    const res = await POST(new Request('http://localhost/api/standings/sync', { method: 'POST' }))
+    expect(res.status).toBe(200)
+    vi.unstubAllEnvs()
   })
 })
