@@ -15,9 +15,12 @@ vi.mock('@/lib/fetchWithTimeout', () => ({ fetchWithTimeout: vi.fn() }))
 vi.mock('web-push', () => ({
   default: { setVapidDetails: vi.fn(), sendNotification: vi.fn() },
 }))
-const { markMatchFinished } = vi.hoisted(() => ({ markMatchFinished: vi.fn().mockResolvedValue(undefined) }))
+const { markMatchFinished, fetchByEspnId } = vi.hoisted(() => ({
+  markMatchFinished: vi.fn().mockResolvedValue(undefined),
+  fetchByEspnId: vi.fn(),
+}))
 vi.mock('@/infrastructure/supabase/MatchesSupabaseRepository', () => ({
-  MatchesSupabaseRepository: function () { return { markMatchFinished } },
+  MatchesSupabaseRepository: function () { return { markMatchFinished, fetchByEspnId } },
 }))
 vi.mock('@/infrastructure/push/sendPush', () => ({
   sendPush: vi.fn().mockResolvedValue({ sent: 0, total: 0 }),
@@ -58,6 +61,9 @@ beforeEach(() => {
   vi.mocked(getAllSubscriptions).mockResolvedValue([])
   vi.mocked(notifyAdmin).mockResolvedValue({ sent: 1, total: 1 })
   markMatchFinished.mockResolvedValue(undefined)
+  // Kickoff "2 hours ago" by default — keeps the corrupt-state guard from
+  // downgrading 'in'/'post' scoreboards in tests regardless of the real date.
+  fetchByEspnId.mockResolvedValue({ date: new Date(Date.now() - 2 * 3_600_000).toISOString() })
   vi.mocked(sendPush).mockResolvedValue({ sent: 0, total: 0 })
   vi.mocked(sendPushAdminOnly).mockResolvedValue({ sent: 0, total: 0 })
   vi.mocked(getConfig).mockImplementation(async (key: string) => {
@@ -137,6 +143,44 @@ describe('GET /api/cron/live — match finished transition', () => {
     const res = await GET(makeReq())
     expect(res.status).toBe(200)
     expect(logCron).toHaveBeenCalledWith('live', 'error', 0, { stage: 'markMatchFinished', error: expect.stringContaining('db error') })
+  })
+})
+
+describe('GET /api/cron/live — corrupt-state guard (regression: cron/live never had this, unlike /api/live)', () => {
+  it('does not treat the match as live if our own DB says kickoff has not happened yet', async () => {
+    vi.mocked(fetchWithTimeout).mockImplementation(async (url: string | URL) => {
+      if (String(url).includes('/summary')) return summaryResponse()
+      return scoreboardResponse('in')
+    })
+    fetchByEspnId.mockResolvedValue({ date: new Date(Date.now() + 3_600_000).toISOString() })
+
+    const res = await GET(makeReq())
+    const body = await res.json()
+    expect(body.match.state).toBe('pre')
+  })
+
+  it('does not treat the match as live if kickoff was more than 4 hours ago', async () => {
+    vi.mocked(fetchWithTimeout).mockImplementation(async (url: string | URL) => {
+      if (String(url).includes('/summary')) return summaryResponse()
+      return scoreboardResponse('in')
+    })
+    fetchByEspnId.mockResolvedValue({ date: new Date(Date.now() - 5 * 3_600_000).toISOString() })
+
+    const res = await GET(makeReq())
+    const body = await res.json()
+    expect(body.match.state).toBe('pre')
+  })
+
+  it('trusts "in" when kickoff was within the last 4 hours', async () => {
+    vi.mocked(fetchWithTimeout).mockImplementation(async (url: string | URL) => {
+      if (String(url).includes('/summary')) return summaryResponse()
+      return scoreboardResponse('in')
+    })
+    fetchByEspnId.mockResolvedValue({ date: new Date(Date.now() - 2 * 3_600_000).toISOString() })
+
+    const res = await GET(makeReq())
+    const body = await res.json()
+    expect(body.match.state).toBe('in')
   })
 })
 
