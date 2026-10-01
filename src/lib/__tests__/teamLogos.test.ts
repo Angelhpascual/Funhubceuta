@@ -13,6 +13,17 @@ describe('getLocalLogo', () => {
     expect(getLocalLogo('Real Sociedad II')).toBe('/logos/realsociedad2.webp')
     expect(getLocalLogo('Las Palmas')).toBe('/logos/laspalmas.webp')
     expect(getLocalLogo('FC Andorra')).toBe('/logos/andorra.webp')
+    expect(getLocalLogo('CD Badajoz')).toBe('/logos/badajoz.webp')
+  })
+
+  it('falls back for players\' career-history clubs missing a logo from ESPN (regression)', () => {
+    // These clubs come back with logo: null from ESPN's career scrape — the
+    // local fallback is what actually shows a crest in the player page.
+    expect(getLocalLogo('Villanovense')).toBe('/logos/villanovense.webp')
+    expect(getLocalLogo('Cacereno')).toBe('/logos/cacereno.webp')
+    expect(getLocalLogo('Marbella FC')).toBe('/logos/marbella.webp')
+    expect(getLocalLogo('Juventud Torremolinos')).toBe('/logos/juventud-torremolinos.webp')
+    expect(getLocalLogo('Badajoz')).toBe('/logos/badajoz.webp')
   })
 
   it('resolves by keyword match', () => {

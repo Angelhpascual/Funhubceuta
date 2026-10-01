@@ -51,6 +51,7 @@ const LOGOS: Record<string, string> = {
   hercules:     '/logos/hercules.webp',
   cskasonfia:   '/logos/cska-sofia.webp',
   juventudt:    '/logos/juventud-torremolinos.webp',
+  badajoz:      '/logos/badajoz.webp',
 }
 
 const STOPWORDS = new Set(['fc', 'cf', 'ad', 'sd', 'ud', 'cd', 'rc', 'real', 'atletico', 'deportivo', 'club', 'balompie'])
@@ -107,6 +108,8 @@ const ALIASES: Record<string, string> = {
   'cd llagostera': 'llagostera',
   'ue llagostera': 'llagostera',
   'cd teruel': 'teruel',
+  'cd badajoz': 'badajoz',
+  'club deportivo badajoz': 'badajoz',
   'elche cf': 'elche',
   // Filiales con logo del club principal
   'rcd mallorca b': 'mallorca',
