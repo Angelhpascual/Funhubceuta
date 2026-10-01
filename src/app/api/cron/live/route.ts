@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Receiver } from '@upstash/qstash'
-import type { LiveMatch, LiveEvent } from '@/domain/match/LiveMatch'
+import type { LiveMatch } from '@/domain/match/LiveMatch'
 import { getConfig, setConfig, deleteConfig } from '@/infrastructure/supabase/AppConfigRepository'
 import { sendPush as sendPushProd, sendPushAdminOnly } from '@/infrastructure/push/sendPush'
 import { ESPN_BASE as ESPN } from '@/lib/constants'
 import { fetchWithTimeout } from '@/lib/fetchWithTimeout'
+import { findCeutaEvent, parseMatchCore, guardMatchState, parseLiveEvents } from '@/infrastructure/espn/parseLiveMatch'
 import { MSG } from './messages'
 import { logCron } from '@/infrastructure/supabase/logCron'
 import { notifyAdmin } from '@/infrastructure/push/notifyAdmin'
@@ -12,63 +13,44 @@ import { MatchesSupabaseRepository } from '@/infrastructure/supabase/MatchesSupa
 
 const matchesRepo = new MatchesSupabaseRepository()
 
-// ── Fetch live match from ESPN (same logic as /api/live) ──────────────────
+// ── Fetch live match from ESPN (shared parsing with /api/live) ────────────
 
 async function fetchLiveMatch(): Promise<LiveMatch | null> {
   const res = await fetchWithTimeout(`${ESPN}/scoreboard`, { cache: 'no-store' }, 15_000)
   if (!res.ok) return null
 
   const sb = await res.json()
-  const event = (sb.events ?? []).find((e: unknown) =>
-    JSON.stringify(e).toLowerCase().includes('ceuta')
-  )
+  const event = findCeutaEvent(sb)
   if (!event) return null
 
-  const comp = event.competitions?.[0]
-  const statusType = comp?.status?.type
-  const home = comp?.competitors?.find((c: Record<string, unknown>) => c.homeAway === 'home')
-  const away = comp?.competitors?.find((c: Record<string, unknown>) => c.homeAway === 'away')
-  const state: 'pre' | 'in' | 'post' = statusType?.state ?? 'pre'
+  const core = parseMatchCore(event)
+  if (!core) return null
 
-  let events: LiveEvent[] = []
+  // Same corrupt-state guard /api/live applies: ESPN can briefly seed an
+  // upcoming fixture as 'in' before real kickoff.
+  const dbMatch = await matchesRepo.fetchByEspnId(core.espnId)
+  const state = guardMatchState(core.state, dbMatch?.date ?? null)
+
+  let events: LiveMatch['events'] = []
   if (state === 'in' || state === 'post') {
     const sum = await fetchWithTimeout(`${ESPN}/summary?event=${event.id}`, { cache: 'no-store' }, 15_000)
     if (sum.ok) {
-      const sumData = await sum.json()
-      events = (sumData.plays ?? [])
-        .filter((p: Record<string, unknown>) => {
-          const t = (((p.type as Record<string, unknown>)?.text as string) ?? '').toLowerCase()
-          return t.includes('goal') || t.includes('yellow') || t.includes('red')
-        })
-        .map((p: Record<string, unknown>) => {
-          const t = (((p.type as Record<string, unknown>)?.text as string) ?? '').toLowerCase()
-          const teamId = (p.team as Record<string, unknown>)?.id
-          const athlete = (p.participants as Record<string, unknown>[])?.[0]?.athlete as Record<
-            string,
-            unknown
-          >
-          return {
-            type: t.includes('yellow') ? 'yellowCard' : t.includes('red') ? 'redCard' : 'goal',
-            minute: ((p.clock as Record<string, unknown>)?.displayValue as string) ?? '',
-            team: teamId === home?.team?.id ? 'home' : 'away',
-            playerName: (athlete?.displayName as string) ?? '',
-          } satisfies LiveEvent
-        })
+      events = parseLiveEvents(await sum.json(), core.homeTeamId)
     }
   }
 
   return {
-    espnId: event.id,
+    espnId: core.espnId,
     state,
-    status: statusType?.description ?? '',
-    clock: state === 'in' ? (comp?.status?.displayClock ?? '') : '',
-    homeTeam: home?.team?.displayName ?? '',
-    awayTeam: away?.team?.displayName ?? '',
-    homeScore: parseInt(home?.score ?? '0'),
-    awayScore: parseInt(away?.score ?? '0'),
+    status: core.status,
+    clock: state === 'in' ? core.clock : '',
+    homeTeam: core.homeTeam,
+    awayTeam: core.awayTeam,
+    homeScore: core.homeScore,
+    awayScore: core.awayScore,
     events,
-    venue: comp?.venue?.fullName ?? '',
-    startDate: event.date ?? '',
+    venue: core.venue,
+    startDate: core.startDate,
   }
 }
 

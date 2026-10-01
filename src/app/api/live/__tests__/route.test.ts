@@ -110,6 +110,27 @@ describe('GET /api/live (production — no mock)', () => {
     expect(body.match.clock).toBe('')
   })
 
+  it('assigns lineups to home/away by team id (regression: refactor changed the id comparison to a stringified one)', async () => {
+    const fetchMock = vi.spyOn(global, 'fetch')
+    fetchMock
+      .mockResolvedValueOnce(new Response(JSON.stringify(makeScoreboard('pre')), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        rosters: [
+          { team: { id: '5404' }, roster: [{ starter: true, athlete: { displayName: 'Jugador Local', jersey: '9' }, position: { abbreviation: 'FW' } }] },
+          { team: { id: '100' }, roster: [{ starter: true, athlete: { displayName: 'Jugador Visitante', jersey: '7' }, position: { abbreviation: 'MF' } }] },
+        ],
+      }), { status: 200 }))
+
+    const res = await GET()
+    const body = await res.json()
+    expect(body.match.homeLineup).toEqual([
+      { name: 'Jugador Local', jersey: '9', position: 'FW', starter: true },
+    ])
+    expect(body.match.awayLineup).toEqual([
+      { name: 'Jugador Visitante', jersey: '7', position: 'MF', starter: true },
+    ])
+  })
+
   it('returns match:null for post match older than 3h', async () => {
     const oldDate = new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString()
     const sb = makeScoreboard('post')

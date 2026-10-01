@@ -4,6 +4,7 @@ import { fetchWithTimeout } from '@/lib/fetchWithTimeout'
 import { getConfig, setConfig, deleteConfig } from '@/infrastructure/supabase/AppConfigRepository'
 import { MatchesSupabaseRepository } from '@/infrastructure/supabase/MatchesSupabaseRepository'
 import { supabase } from '@/infrastructure/supabase/client'
+import { findCeutaEvent, parseMatchCore, guardMatchState, parseLiveEvents } from '@/infrastructure/espn/parseLiveMatch'
 import type { LiveEvent, LiveMatch, LineupPlayer, MatchStat } from '@/domain/match/LiveMatch'
 
 const matchesRepo = new MatchesSupabaseRepository()
@@ -99,13 +100,7 @@ export async function GET() {
     return NextResponse.json({ match: null }, cacheHeaders())
   }
 
-  const events: unknown[] = scoreboard.events ?? []
-
-  // Find Ceuta match
-  const ceutaEvent = events.find((e: unknown) => {
-    const ev = e as Record<string, unknown>
-    return JSON.stringify(ev).toLowerCase().includes('ceuta')
-  }) as Record<string, unknown> | undefined
+  const ceutaEvent = findCeutaEvent(scoreboard)
 
   if (!ceutaEvent) {
     const lastResult = await getConfig('live_last_result')
@@ -120,42 +115,11 @@ export async function GET() {
     return NextResponse.json({ match: null }, cacheHeaders())
   }
 
-  const competition = (ceutaEvent.competitions as Record<string, unknown>[])?.[0]
-  if (!competition) return NextResponse.json({ match: null }, cacheHeaders())
+  const core = parseMatchCore(ceutaEvent)
+  if (!core) return NextResponse.json({ match: null }, cacheHeaders())
 
-  const status = competition.status as Record<string, unknown>
-  const statusType = status?.type as Record<string, unknown>
-  const competitors = competition.competitors as Record<string, unknown>[]
-
-  const home = competitors?.find(
-    (c) => (c as Record<string, unknown>).homeAway === 'home'
-  ) as Record<string, unknown>
-  const away = competitors?.find(
-    (c) => (c as Record<string, unknown>).homeAway === 'away'
-  ) as Record<string, unknown>
-  const homeTeamData = home?.team as Record<string, unknown>
-  const awayTeamData = away?.team as Record<string, unknown>
-  const venue = competition.venue as Record<string, unknown>
-
-  const state = statusType?.state as string
-  const clockDisplay = (status?.displayClock as string) ?? ''
-  const statusDesc = statusType?.description as string
-
-  // Guard: cross-check with DB match date. ESPN occasionally seeds upcoming fixtures
-  // with corrupt state ('in', clock '1''). A match can only be live if the DB says
-  // it's within a ±4h window of its real kickoff time.
-  let guardedState = state
-  if (state === 'in') {
-    const espnId = String(ceutaEvent.id ?? '')
-    const dbMatch = await matchesRepo.fetchByEspnId(espnId)
-    if (dbMatch?.date) {
-      const kickoff = new Date(dbMatch.date)
-      const now = new Date()
-      const diffHours = (now.getTime() - kickoff.getTime()) / 3_600_000
-      // Only trust 'in' state if kickoff was between 0 and 4 hours ago
-      if (diffHours < 0 || diffHours > 4) guardedState = 'pre'
-    }
-  }
+  const dbMatch = await matchesRepo.fetchByEspnId(core.espnId)
+  const guardedState = guardMatchState(core.state, dbMatch?.date ?? null)
 
   // Fetch play-by-play events + lineup during/after match (or pre for lineup)
   let liveEvents: LiveEvent[] = []
@@ -181,7 +145,7 @@ export async function GET() {
           starter: Boolean(player.starter),
         } satisfies LineupPlayer
       }).filter((p) => p.name)
-      if (teamId === homeTeamData?.id) homeLineup = players
+      if (String(teamId) === core.homeTeamId) homeLineup = players
       else awayLineup = players
     }
 
@@ -216,44 +180,14 @@ export async function GET() {
     }
 
     if (guardedState !== 'pre') {
-      const plays: unknown[] = summary?.plays ?? []
-      liveEvents = plays
-      .filter((p: unknown) => {
-        const play = p as Record<string, unknown>
-        const type = (((play.type as Record<string, unknown>)?.text as string) ?? '').toLowerCase()
-        return type.includes('goal') || type.includes('yellow') || type.includes('red')
-      })
-      .map((p: unknown) => {
-        const play = p as Record<string, unknown>
-        const typeText = (
-          ((play.type as Record<string, unknown>)?.text as string) ?? ''
-        ).toLowerCase()
-        const clock = play.clock as Record<string, unknown>
-        const participants = (play.participants as Record<string, unknown>[]) ?? []
-        const athlete = participants[0]?.athlete as Record<string, unknown>
-
-        let type: LiveEvent['type'] = 'goal'
-        if (typeText.includes('yellow')) type = 'yellowCard'
-        else if (typeText.includes('red')) type = 'redCard'
-        else if (typeText.includes('substitution')) type = 'substitution'
-
-        const playTeamId = (play.team as Record<string, unknown>)?.id
-        const team: 'home' | 'away' = playTeamId === homeTeamData?.id ? 'home' : 'away'
-
-        return {
-          type,
-          minute: (clock?.displayValue as string) ?? '',
-          team,
-          playerName: (athlete?.displayName as string) ?? '',
-        }
-      })
+      liveEvents = parseLiveEvents(summary, core.homeTeamId)
     } // end if guardedState !== 'pre'
   } // end if pre|in|post
 
   // Enrich goal events of Ceuta players with photo from squad
   if (liveEvents.length > 0) {
     const photoMap = await getSquadPhotoMap()
-    const homeIsCeuta = (homeTeamData?.displayName as string ?? '').toLowerCase().includes('ceuta')
+    const homeIsCeuta = core.homeTeam.toLowerCase().includes('ceuta')
     const ceutaTeam: 'home' | 'away' = homeIsCeuta ? 'home' : 'away'
     liveEvents = liveEvents.map(ev => {
       if (ev.type === 'goal' && ev.team === ceutaTeam && ev.playerName) {
@@ -266,7 +200,7 @@ export async function GET() {
 
   // Don't show a finished match that ended more than 3 hours ago
   if (guardedState === 'post') {
-    const matchDate = new Date(ceutaEvent.date as string)
+    const matchDate = new Date(core.startDate)
     const hoursSinceMatch = (Date.now() - matchDate.getTime()) / 3_600_000
     if (hoursSinceMatch > 3) return NextResponse.json({ match: null })
 
@@ -276,7 +210,7 @@ export async function GET() {
       if (storedRaw) {
         try {
           const storedState = JSON.parse(storedRaw)
-          if (storedState.espnId === ceutaEvent.id && storedState.events?.length) {
+          if (storedState.espnId === core.espnId && storedState.events?.length) {
             liveEvents = storedState.events
           }
         } catch {
@@ -288,17 +222,17 @@ export async function GET() {
 
   // Build match after post-branch may have updated liveEvents from stored state
   const match: LiveMatch = {
-    espnId: ceutaEvent.id as string,
-    state: (guardedState as 'pre' | 'in' | 'post') ?? 'pre',
-    status: statusDesc ?? '',
-    clock: guardedState === 'in' ? clockDisplay || '' : '',
-    homeTeam: (homeTeamData?.displayName as string) ?? '',
-    awayTeam: (awayTeamData?.displayName as string) ?? '',
-    homeScore: parseInt((home?.score as string) ?? '0'),
-    awayScore: parseInt((away?.score as string) ?? '0'),
+    espnId: core.espnId,
+    state: guardedState,
+    status: core.status,
+    clock: guardedState === 'in' ? core.clock || '' : '',
+    homeTeam: core.homeTeam,
+    awayTeam: core.awayTeam,
+    homeScore: core.homeScore,
+    awayScore: core.awayScore,
     events: liveEvents,
-    venue: ((venue as Record<string, unknown>)?.fullName as string) ?? '',
-    startDate: (ceutaEvent.date as string) ?? '',
+    venue: core.venue,
+    startDate: core.startDate,
     homeLineup: homeLineup?.length ? homeLineup : undefined,
     awayLineup: awayLineup?.length ? awayLineup : undefined,
     stats,
