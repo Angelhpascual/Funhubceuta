@@ -43,4 +43,12 @@ describe('GET /api/calendar.ics', () => {
     expect(res.status).toBe(200)
     expect(text).toContain('BEGIN:VCALENDAR')
   })
+
+  it('returns a clean JSON 500 instead of crashing when the DB call fails (regression: route had no error handling at all)', async () => {
+    mockFetchScheduled.mockRejectedValue(new Error('db unreachable'))
+    const res = await GET()
+    expect(res.status).toBe(500)
+    const body = await res.json()
+    expect(body.error).toContain('db unreachable')
+  })
 })
