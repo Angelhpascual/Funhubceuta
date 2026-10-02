@@ -1,3 +1,5 @@
+import https from 'node:https'
+
 export interface ScrapedTweet {
   tweetId: string
   text: string
@@ -10,8 +12,6 @@ export async function scrapeLatestTweets(
   screenName = 'ADCeuta_FC',
   limit = 10
 ): Promise<ScrapedTweet[]> {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const https = require('https') as typeof import('https')
   const html = await new Promise<string>((resolve, reject) => {
     const options = {
       hostname: 'syndication.twitter.com',
