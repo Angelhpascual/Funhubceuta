@@ -1,7 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { AdminActions } from './AdminActions'
+import { SyncActions } from './SyncActions'
+import { PushComposer } from './PushComposer'
+import { DeviceActions } from './DeviceActions'
 import { LiveControl } from './LiveControl'
 import { MvpAdmin } from './MvpAdmin'
 import { PredictionAdmin } from './PredictionAdmin'
@@ -144,7 +146,7 @@ export function AdminDashboard({ stats }: { stats: AdminStats }) {
                 <ModuleTitle>Sincronización de datos</ModuleTitle>
               </div>
               <div className="px-5 pb-5 mt-4">
-                <AdminActions syncOnly />
+                <SyncActions />
               </div>
             </Module>
 
@@ -157,7 +159,7 @@ export function AdminDashboard({ stats }: { stats: AdminStats }) {
                 Se enviará a los {stats.subscribers} suscriptores con alertas activas.
               </p>
               <div className="px-5 pb-5 mt-4">
-                <AdminActions notifOnly />
+                <PushComposer />
               </div>
             </Module>
 
@@ -212,7 +214,7 @@ export function AdminDashboard({ stats }: { stats: AdminStats }) {
                 <ModuleTitle>Este dispositivo</ModuleTitle>
               </div>
               <div className="px-5 pb-5 mt-4">
-                <AdminActions deviceOnly />
+                <DeviceActions />
               </div>
             </Module>
 
