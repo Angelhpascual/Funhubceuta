@@ -1,8 +1,10 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { LiveSimulator } from './LiveSimulator'
 import { invalidateNavSlotCache } from '@/hooks/useNavSlot'
+import { MatchManagementCard } from './live/MatchManagementCard'
+import { TiendaMercadoToggle } from './live/TiendaMercadoToggle'
+import { LiveScenarioSimulator, SCENARIOS } from './live/LiveScenarioSimulator'
 
 type Status = 'idle' | 'loading' | 'active' | 'error'
 
@@ -13,17 +15,6 @@ type LastResult = {
   awayScore: number
   savedAt: string
 }
-
-const SCENARIOS: { id: string; label: string; push?: Record<string, string> }[] = [
-  { id: 'pre',             label: 'Previo' },
-  { id: 'live_0_0',        label: 'En vivo 0-0',       push: { event: 'kickoff' } },
-  { id: 'live_goal_ceuta', label: 'Gol Ceuta 0-1',     push: { event: 'goal_ceuta', scorer: 'Marcos', score: '0-1', minute: "23'" } },
-  { id: 'live_goal_rival', label: 'Gol rival 1-0',     push: { event: 'goal_rival', scorer: 'Rival', score: '1-0' } },
-  { id: 'live_events',     label: 'Múltiples eventos' },
-  { id: 'win',             label: 'Victoria 0-2',       push: { event: 'win', score: '0-2' } },
-  { id: 'draw',            label: 'Empate 1-1',         push: { event: 'draw', score: '1-1' } },
-  { id: 'loss',            label: 'Derrota 2-0',        push: { event: 'loss', score: '2-0' } },
-]
 
 export function LiveControl() {
   const [status, setStatus] = useState<Status>('loading')
@@ -308,127 +299,27 @@ export function LiveControl() {
       </div>
 
       {/* ── Gestión del partido — visible siempre ── */}
-      <div className="mt-4 rounded-[12px] border border-ceuta-border bg-white p-4 space-y-3">
-        <div className="font-display text-[11px] font-bold uppercase tracking-[0.12em] text-ceuta-muted">
-          Gestión del partido
-        </div>
-        <div className="flex gap-2">
-          <button type="button"
-            onClick={() => setMock('pre')}
-            disabled={mockLoading !== null}
-            className="flex-1 rounded-[10px] bg-ceuta-black py-2.5 font-display text-[11px] font-black uppercase tracking-[0.08em] text-white disabled:opacity-40"
-          >
-            {mockLoading === 'pre' ? '...' : 'Preparar siguiente partido'}
-          </button>
-          <button type="button"
-            onClick={() => setMock('clear')}
-            disabled={mockLoading !== null}
-            className="rounded-[10px] border border-ceuta-red/30 bg-ceuta-red/5 px-4 py-2.5 font-display text-[11px] font-black uppercase tracking-[0.08em] text-ceuta-red disabled:opacity-40"
-          >
-            {mockLoading === 'clear' ? '...' : 'Limpiar'}
-          </button>
-        </div>
-        <p className="text-[11px] text-ceuta-muted leading-tight">
-          «Preparar siguiente partido» carga el próximo partido de la base de datos en estado previo. «Limpiar» borra todos los datos del mock.
-        </p>
-
-        <div className="border-t border-ceuta-border pt-3">
-          <div className="mb-1.5 font-display text-[10px] font-bold uppercase tracking-[0.1em] text-ceuta-muted">
-            🚩 Gol anulado (ESPN no lo reporta — avisar a mano)
-          </div>
-          <div className="flex gap-2">
-            <button type="button"
-              onClick={() => sendGoalDisallowed('ceuta')}
-              disabled={disallowedSending !== null}
-              className="flex-1 rounded-[10px] border border-ceuta-border bg-white py-2 font-display text-[11px] font-black uppercase tracking-[0.06em] text-ceuta-black disabled:opacity-40"
-            >
-              {disallowedSending === 'ceuta' ? 'Enviando...' : 'Anulado al Ceuta'}
-            </button>
-            <button type="button"
-              onClick={() => sendGoalDisallowed('rival')}
-              disabled={disallowedSending !== null}
-              className="flex-1 rounded-[10px] border border-ceuta-border bg-white py-2 font-display text-[11px] font-black uppercase tracking-[0.06em] text-ceuta-black disabled:opacity-40"
-            >
-              {disallowedSending === 'rival' ? 'Enviando...' : 'Anulado al rival'}
-            </button>
-          </div>
-        </div>
-      </div>
+      <MatchManagementCard
+        mockLoading={mockLoading}
+        disallowedSending={disallowedSending}
+        onPrepareNext={() => setMock('pre')}
+        onClearMock={() => setMock('clear')}
+        onSendDisallowed={sendGoalDisallowed}
+      />
 
       {/* ── Slot nav: Tienda / Mercado ── */}
-      <div className="mt-4 rounded-[12px] border border-ceuta-border bg-white p-4">
-        <div className="mb-3 font-display text-[11px] font-bold uppercase tracking-[0.12em] text-ceuta-muted">
-          Slot nav (cuando no hay partido)
-        </div>
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <div className="font-display text-[15px] font-black uppercase leading-tight text-ceuta-black">
-              {tiendaActive === null ? '…' : tiendaActive ? 'Tienda activa' : 'Mercado activo'}
-            </div>
-            <p className="mt-0.5 text-[12px] leading-snug text-ceuta-muted">
-              {tiendaActive
-                ? 'Nav muestra "Tienda" → /merchan'
-                : 'Nav muestra "Mercado" → /mercado'}
-            </p>
-          </div>
-          <button type="button"
-            onClick={toggleTienda}
-            disabled={savingTienda || tiendaActive === null}
-            className={`relative flex h-8 w-14 shrink-0 items-center rounded-full transition-colors disabled:opacity-60 ${tiendaActive ? 'bg-[#f2c300]' : 'bg-[#111111]'}`}
-            aria-label="Toggle tienda/mercado"
-          >
-            <span className={`absolute size-6 rounded-full bg-white shadow transition-transform ${
-              tiendaActive ? 'translate-x-7' : 'translate-x-1'
-            }`} />
-          </button>
-        </div>
-      </div>
+      <TiendaMercadoToggle
+        tiendaActive={tiendaActive}
+        savingTienda={savingTienda}
+        onToggle={toggleTienda}
+      />
 
       {/* ── Simulador de escenarios individuales ── */}
-      {process.env.NEXT_PUBLIC_VERCEL_ENV !== 'production' && (
-        <div className="mt-5 rounded-[12px] border border-dashed border-ceuta-border p-4">
-          <div className="mb-3 flex items-center gap-2">
-            <span className="rounded bg-amber-100 px-1.5 py-0.5 font-display text-[10px] font-black uppercase tracking-[0.1em] text-amber-700">
-              Solo local / preview
-            </span>
-            <span className="font-display text-[11px] font-bold uppercase tracking-[0.12em] text-ceuta-muted">
-              Escenario manual
-            </span>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {SCENARIOS.map((s) => (
-              <button type="button"
-                key={s.id}
-                onClick={() => setMock(s.id)}
-                disabled={mockLoading !== null}
-                className={`rounded-[8px] border px-3 py-1.5 font-display text-[11px] font-bold uppercase tracking-[0.08em] transition-all disabled:opacity-40 ${
-                  mockActive === s.id
-                    ? 'border-ceuta-black bg-ceuta-black text-white'
-                    : 'border-ceuta-border bg-white text-ceuta-black hover:border-ceuta-black'
-                }`}
-              >
-                {mockLoading === s.id ? '...' : s.label}
-              </button>
-            ))}
-            <button type="button"
-              onClick={() => setMock('clear')}
-              disabled={mockLoading !== null || mockActive === null}
-              className="rounded-[8px] border border-ceuta-red/30 bg-ceuta-red/5 px-3 py-1.5 font-display text-[11px] font-bold uppercase tracking-[0.08em] text-ceuta-red disabled:opacity-30"
-            >
-              Limpiar mock
-            </button>
-          </div>
-          {mockActive && (
-            <p className="mt-2.5 text-[11px] text-ceuta-muted">
-              Mock activo: <strong className="text-ceuta-black">{mockActive}</strong> —{' '}
-              <a href="/live" target="_blank" className="text-ceuta-red underline">ver /live</a>
-            </p>
-          )}
-
-          {/* Simulación automática completa */}
-          <LiveSimulator />
-        </div>
-      )}
+      <LiveScenarioSimulator
+        mockLoading={mockLoading}
+        mockActive={mockActive}
+        onSetMock={setMock}
+      />
     </section>
   )
 }
