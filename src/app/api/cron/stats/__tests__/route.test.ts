@@ -3,18 +3,18 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 vi.mock('@/infrastructure/supabase/AppConfigRepository', () => ({ setConfig: vi.fn() }))
 vi.mock('@/infrastructure/supabase/logCron', () => ({ logCron: vi.fn() }))
 vi.mock('@/infrastructure/cron/auth', () => ({
-  checkCronAuth: vi.fn().mockReturnValue(true),
+  verifyCronRequest: vi.fn().mockResolvedValue(true),
   cronUnauthorized: () => new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 }),
 }))
 
 import { setConfig } from '@/infrastructure/supabase/AppConfigRepository'
 import { logCron } from '@/infrastructure/supabase/logCron'
-import { checkCronAuth } from '@/infrastructure/cron/auth'
-import { GET } from '../route'
+import { verifyCronRequest } from '@/infrastructure/cron/auth'
+import { GET, POST } from '../route'
 
 beforeEach(() => {
   vi.resetAllMocks()
-  vi.mocked(checkCronAuth).mockReturnValue(true)
+  vi.mocked(verifyCronRequest).mockResolvedValue(true)
   process.env.TEST_SECRET = 'test-secret'
 })
 
@@ -40,12 +40,6 @@ function mockLaLigaFetch(ok: boolean, data?: unknown) {
 }
 
 describe('cron/stats GET', () => {
-  it('returns 401 without cron auth', async () => {
-    vi.mocked(checkCronAuth).mockReturnValue(false)
-    const res = await GET(new Request('http://localhost/api/cron/stats'))
-    expect(res.status).toBe(401)
-  })
-
   it('scrapes LaLiga and stores leaders', async () => {
     mockLaLigaFetch(true)
     vi.mocked(setConfig).mockResolvedValue(undefined)
@@ -85,5 +79,24 @@ describe('cron/stats GET', () => {
     const res = await GET(new Request('http://localhost/api/cron/stats?secret=test-secret'))
     expect(res.status).toBe(200)
     vi.unstubAllEnvs()
+  })
+})
+
+describe('cron/stats POST', () => {
+  it('rejects an unverified request (regression: GET/POST shared one checkCronAuth+secret gate before this fix)', async () => {
+    vi.mocked(verifyCronRequest).mockResolvedValue(false)
+    const res = await POST(new Request('http://localhost/api/cron/stats', { method: 'POST' }))
+    expect(res.status).toBe(401)
+  })
+
+  it('scrapes LaLiga and stores leaders', async () => {
+    mockLaLigaFetch(true)
+    vi.mocked(setConfig).mockResolvedValue(undefined)
+    vi.mocked(logCron).mockResolvedValue(undefined)
+
+    const res = await POST(new Request('http://localhost/api/cron/stats', { method: 'POST' }))
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body.ok).toBe(true)
   })
 })

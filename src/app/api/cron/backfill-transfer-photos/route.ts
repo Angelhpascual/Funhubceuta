@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getTransfersWithExternalPhotos, updateTransferPhotoUrl } from '@/infrastructure/supabase/TransfersRepository'
 import { downloadAndUploadImage, PLAYER_BUCKET } from '@/infrastructure/storage/imageUploader'
 import { logCron } from '@/infrastructure/supabase/logCron'
-import { checkCronAuth, cronUnauthorized } from '@/infrastructure/cron/auth'
+import { verifyCronRequest, cronUnauthorized } from '@/infrastructure/cron/auth'
 
 export const maxDuration = 60
 
@@ -48,11 +48,7 @@ async function backfillTransferPhotos() {
 }
 
 export async function POST(request: Request) {
-  if (!checkCronAuth(request)) return cronUnauthorized()
-  const { searchParams } = new URL(request.url)
-  if (searchParams.get('secret') === process.env.TEST_SECRET) {
-    const result = await backfillTransferPhotos()
-    return NextResponse.json({ ok: true, ...result })
-  }
-  return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!(await verifyCronRequest(request))) return cronUnauthorized()
+  const result = await backfillTransferPhotos()
+  return NextResponse.json({ ok: true, ...result })
 }

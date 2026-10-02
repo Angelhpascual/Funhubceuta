@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { backfillSquadPhotos } from '@/infrastructure/squad/backfillSquadPhotos'
 import { logCron } from '@/infrastructure/supabase/logCron'
-import { checkCronAuth, cronUnauthorized } from '@/infrastructure/cron/auth'
+import { verifyCronRequest, cronUnauthorized } from '@/infrastructure/cron/auth'
 import { withApi } from '@/lib/apiError'
 
 export const maxDuration = 60
@@ -14,7 +14,6 @@ async function backfillPhotos() {
 }
 
 export const GET = withApi(async (request: Request) => {
-  if (!checkCronAuth(request)) return cronUnauthorized()
   const { searchParams } = new URL(request.url)
   const secret = searchParams.get('secret')
   if (process.env.NODE_ENV === 'production' && secret !== process.env.TEST_SECRET) {
@@ -25,6 +24,7 @@ export const GET = withApi(async (request: Request) => {
 })
 
 export const POST = withApi(async (req: NextRequest) => {
+  if (!(await verifyCronRequest(req))) return cronUnauthorized()
   const result = await backfillPhotos()
   return NextResponse.json({ ok: true, ...result })
 })

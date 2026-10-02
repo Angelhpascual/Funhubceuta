@@ -12,38 +12,32 @@ vi.mock('@/infrastructure/supabase/logCron', () => ({
   logCron: vi.fn(),
 }))
 vi.mock('@/infrastructure/cron/auth', () => ({
-  checkCronAuth: vi.fn(),
+  verifyCronRequest: vi.fn(),
   cronUnauthorized: () => new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 }),
 }))
 
 import { getTransfersWithExternalPhotos, updateTransferPhotoUrl } from '@/infrastructure/supabase/TransfersRepository'
 import { downloadAndUploadImage } from '@/infrastructure/storage/imageUploader'
-import { checkCronAuth } from '@/infrastructure/cron/auth'
+import { verifyCronRequest } from '@/infrastructure/cron/auth'
 import { POST } from '../route'
 
 function makeReq(secret?: string) {
   const url = secret
     ? `http://localhost/api/cron/backfill-transfer-photos?secret=${secret}`
     : 'http://localhost/api/cron/backfill-transfer-photos'
-  return new Request(url, { method: 'POST', headers: { authorization: 'Bearer cron-secret' } })
+  return new Request(url, { method: 'POST' })
 }
 
 beforeEach(() => {
   vi.resetAllMocks()
   process.env.TEST_SECRET = 'test-secret'
-  vi.mocked(checkCronAuth).mockReturnValue(true)
+  vi.mocked(verifyCronRequest).mockResolvedValue(true)
 })
 
 describe('POST /api/cron/backfill-transfer-photos', () => {
-  it('returns 401 when cron auth fails', async () => {
-    vi.mocked(checkCronAuth).mockReturnValue(false)
+  it('returns 401 when the request cannot be verified (regression: the old check required a QStash-style Bearer header the admin-panel trigger never sent, so this endpoint was permanently broken for that caller)', async () => {
+    vi.mocked(verifyCronRequest).mockResolvedValue(false)
     const res = await POST(makeReq('test-secret'))
-    expect(res.status).toBe(401)
-  })
-
-  it('returns 401 without TEST_SECRET even with cron auth', async () => {
-    vi.mocked(getTransfersWithExternalPhotos).mockResolvedValue([])
-    const res = await POST(makeReq())
     expect(res.status).toBe(401)
   })
 
