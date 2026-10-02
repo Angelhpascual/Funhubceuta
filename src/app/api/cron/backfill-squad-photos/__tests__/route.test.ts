@@ -4,7 +4,7 @@ import { NextRequest } from 'next/server'
 vi.mock('@/lib/constants', () => ({ CURRENT_SEASON: '2526' }))
 vi.mock('@/infrastructure/supabase/logCron', () => ({ logCron: vi.fn() }))
 vi.mock('@/infrastructure/cron/auth', () => ({
-  checkCronAuth: vi.fn().mockReturnValue(true),
+  verifyCronRequest: vi.fn().mockResolvedValue(true),
   cronUnauthorized: () => new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 }),
 }))
 vi.mock('@/infrastructure/supabase/SquadSupabaseRepository', () => ({
@@ -19,12 +19,12 @@ vi.mock('@/infrastructure/storage/imageUploader', () => ({
 import { getPlayersWithExternalPhotos, updatePlayerPhotoUrl } from '@/infrastructure/supabase/SquadSupabaseRepository'
 import { downloadAndUploadImage } from '@/infrastructure/storage/imageUploader'
 import { logCron } from '@/infrastructure/supabase/logCron'
-import { checkCronAuth } from '@/infrastructure/cron/auth'
+import { verifyCronRequest } from '@/infrastructure/cron/auth'
 import { GET, POST } from '../route'
 
 beforeEach(() => {
   vi.resetAllMocks()
-  vi.mocked(checkCronAuth).mockReturnValue(true)
+  vi.mocked(verifyCronRequest).mockResolvedValue(true)
   vi.mocked(getPlayersWithExternalPhotos).mockResolvedValue([])
   vi.mocked(updatePlayerPhotoUrl).mockResolvedValue(undefined)
   vi.mocked(downloadAndUploadImage).mockResolvedValue(null)
@@ -34,7 +34,6 @@ beforeEach(() => {
 
 describe('GET /api/cron/backfill-squad-photos', () => {
   it('returns 405 in production without secret', async () => {
-    vi.mocked(checkCronAuth).mockReturnValue(true)
     vi.stubEnv('NODE_ENV', 'production')
     const res = await GET(new NextRequest('http://localhost/api/cron/backfill-squad-photos'))
     expect(res.status).toBe(405)
@@ -86,5 +85,12 @@ describe('POST /api/cron/backfill-squad-photos', () => {
     expect(res.status).toBe(200)
     const body = await res.json()
     expect(body.ok).toBe(true)
+  })
+
+  it('rejects an unverified request (regression: POST had no auth check at all before this fix)', async () => {
+    vi.mocked(verifyCronRequest).mockResolvedValue(false)
+    const res = await POST(new NextRequest('http://localhost', { method: 'POST', body: '{}' }))
+    expect(res.status).toBe(401)
+    expect(getPlayersWithExternalPhotos).not.toHaveBeenCalled()
   })
 })

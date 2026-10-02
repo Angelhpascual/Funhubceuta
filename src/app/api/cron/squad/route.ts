@@ -6,7 +6,7 @@ import { upsertSquad } from '@/infrastructure/supabase/SquadSupabaseRepository'
 import { backfillSquadPhotos } from '@/infrastructure/squad/backfillSquadPhotos'
 import { CURRENT_SEASON } from '@/lib/constants'
 import { logCron } from '@/infrastructure/supabase/logCron'
-import { checkCronAuth, cronUnauthorized } from '@/infrastructure/cron/auth'
+import { verifyCronRequest, cronUnauthorized } from '@/infrastructure/cron/auth'
 
 async function syncSquad() {
   const t0 = Date.now()
@@ -32,7 +32,6 @@ async function syncSquad() {
 }
 
 export async function GET(request: Request) {
-  if (!checkCronAuth(request)) return cronUnauthorized()
   const { searchParams } = new URL(request.url)
   const secret = searchParams.get('secret')
   if (process.env.NODE_ENV === 'production' && secret !== process.env.TEST_SECRET) {
@@ -43,6 +42,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(req: NextRequest) {
+  if (!(await verifyCronRequest(req))) return cronUnauthorized()
   const count = await syncSquad()
   return NextResponse.json({ ok: true, count })
 }

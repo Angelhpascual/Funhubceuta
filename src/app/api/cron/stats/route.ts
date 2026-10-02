@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { setConfig } from '@/infrastructure/supabase/AppConfigRepository'
 import { logCron } from '@/infrastructure/supabase/logCron'
-import { checkCronAuth, cronUnauthorized } from '@/infrastructure/cron/auth'
+import { verifyCronRequest, cronUnauthorized } from '@/infrastructure/cron/auth'
 import { fetchWithTimeout } from '@/lib/fetchWithTimeout'
 
 const LALIGA_URL = 'https://www.laliga.com/en-GB/clubs/ad-ceuta-fc/stats'
@@ -76,14 +76,7 @@ async function scrapeLeaders() {
   return result
 }
 
-export async function GET(request: Request) {
-  if (!checkCronAuth(request)) return cronUnauthorized()
-  const { searchParams } = new URL(request.url)
-  const secret = searchParams.get('secret')
-  if (process.env.NODE_ENV === 'production' && secret !== process.env.TEST_SECRET) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
+async function syncStats() {
   const t0 = Date.now()
   try {
     const leaders = await scrapeLeaders()
@@ -98,4 +91,16 @@ export async function GET(request: Request) {
   }
 }
 
-export { GET as POST }
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url)
+  const secret = searchParams.get('secret')
+  if (process.env.NODE_ENV === 'production' && secret !== process.env.TEST_SECRET) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+  return syncStats()
+}
+
+export async function POST(request: Request) {
+  if (!(await verifyCronRequest(request))) return cronUnauthorized()
+  return syncStats()
+}

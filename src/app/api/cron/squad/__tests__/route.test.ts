@@ -7,7 +7,7 @@ vi.mock('@/infrastructure/squad/backfillSquadPhotos', () => ({ backfillSquadPhot
 vi.mock('@/infrastructure/supabase/logCron', () => ({ logCron: vi.fn() }))
 vi.mock('@/lib/constants', () => ({ CURRENT_SEASON: '2025-2026' }))
 vi.mock('@/infrastructure/cron/auth', () => ({
-  checkCronAuth: vi.fn().mockReturnValue(true),
+  verifyCronRequest: vi.fn().mockResolvedValue(true),
   cronUnauthorized: () => new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 }),
 }))
 
@@ -15,20 +15,19 @@ import { scrapeSquad } from '@/infrastructure/scrapers/squadScraper'
 import { upsertSquad } from '@/infrastructure/supabase/SquadSupabaseRepository'
 import { backfillSquadPhotos } from '@/infrastructure/squad/backfillSquadPhotos'
 import { logCron } from '@/infrastructure/supabase/logCron'
-import { checkCronAuth } from '@/infrastructure/cron/auth'
+import { verifyCronRequest } from '@/infrastructure/cron/auth'
 import { GET, POST } from '../route'
 
 const player = { dorsal: 9, name: 'Test', position: 'Delantero', positionGroup: 'Delanteros', nationality: 'ESP', height: null, weight: null, birthDate: null, photoUrl: null }
 
 beforeEach(() => {
   vi.resetAllMocks()
-  vi.mocked(checkCronAuth).mockReturnValue(true)
+  vi.mocked(verifyCronRequest).mockResolvedValue(true)
   vi.mocked(backfillSquadPhotos).mockResolvedValue({ pending: 0, optimized: 0, failed: 0 })
 })
 
 describe('cron/squad GET', () => {
   it('returns 405 in production without secret', async () => {
-    vi.mocked(checkCronAuth).mockReturnValue(true)
     vi.stubEnv('NODE_ENV', 'production')
     const res = await GET(new NextRequest('http://localhost/api/cron/squad'))
     expect(res.status).toBe(405)
@@ -75,5 +74,12 @@ describe('cron/squad POST', () => {
     expect(res.status).toBe(200)
     const body = await res.json()
     expect(body.count).toBe(2)
+  })
+
+  it('rejects an unverified request (regression: POST had no auth check at all before this fix)', async () => {
+    vi.mocked(verifyCronRequest).mockResolvedValue(false)
+    const res = await POST(new NextRequest('http://localhost', { method: 'POST', body: '{}' }))
+    expect(res.status).toBe(401)
+    expect(scrapeSquad).not.toHaveBeenCalled()
   })
 })
