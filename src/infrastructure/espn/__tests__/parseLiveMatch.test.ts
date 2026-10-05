@@ -79,9 +79,22 @@ describe('guardMatchState', () => {
     expect(guardMatchState('in', null)).toBe('in')
   })
 
-  it('passes through "pre" and "post" unchanged regardless of kickoff', () => {
+  it('passes through "pre" unchanged regardless of kickoff', () => {
     expect(guardMatchState('pre', null)).toBe('pre')
-    expect(guardMatchState('post', new Date().toISOString())).toBe('post')
+  })
+
+  it('keeps "post" once kickoff has actually happened', () => {
+    const kickoff = new Date(Date.now() - 2 * 3_600_000).toISOString()
+    expect(guardMatchState('post', kickoff)).toBe('post')
+  })
+
+  it('downgrades "post" to "pre" when kickoff is still in the future (regression: ESPN seeded a corrupt "post" 6min before a real kickoff, so the match was never tracked and live mode never auto-deactivated)', () => {
+    const kickoff = new Date(Date.now() + 3_600_000).toISOString()
+    expect(guardMatchState('post', kickoff)).toBe('pre')
+  })
+
+  it('leaves "post" untouched when there is no DB kickoff to check against', () => {
+    expect(guardMatchState('post', null)).toBe('post')
   })
 })
 
