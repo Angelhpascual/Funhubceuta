@@ -59,16 +59,20 @@ export function parseMatchCore(ceutaEvent: Record<string, unknown>): EspnMatchCo
   }
 }
 
-// ESPN occasionally seeds an upcoming fixture with a corrupt 'in' state
-// before kickoff. A match can only really be live if, per our own DB, its
-// kickoff was between 0 and 4 hours ago — otherwise treat it as still 'pre'.
+// ESPN occasionally seeds an upcoming fixture with a corrupt 'in' or 'post'
+// state before kickoff actually happens — neither is possible before the
+// ball rolls, so both get downgraded to 'pre' when the DB kickoff is still
+// in the future. A live match is also considered stale (back to 'pre') if
+// its kickoff was more than 4 hours ago and ESPN still claims it's 'in'.
 export function guardMatchState(
   state: 'pre' | 'in' | 'post',
   kickoffIso: string | null | undefined
 ): 'pre' | 'in' | 'post' {
-  if (state !== 'in' || !kickoffIso) return state
+  if (state === 'pre' || !kickoffIso) return state
   const diffHours = (Date.now() - new Date(kickoffIso).getTime()) / 3_600_000
-  return diffHours < 0 || diffHours > 4 ? 'pre' : 'in'
+  if (diffHours < 0) return 'pre'
+  if (state === 'in' && diffHours > 4) return 'pre'
+  return state
 }
 
 // Goal/card events from ESPN's play-by-play. Substitutions are intentionally
