@@ -9,7 +9,13 @@ export class MatchesSupabaseRepository {
     if (results.length === 0) return
     const { error } = await supabaseAdmin.from('matches').upsert(
       results.map((r) => ({
-        external_id: `result-${r.date}-${r.homeTeam}-${r.awayTeam}`.toLowerCase().replace(/\s+/g, '-'),
+        // Same external_id scheme as upsertMatches() — a result for a match that
+        // was already inserted as 'scheduled' must upsert onto that same row
+        // instead of inserting a second one. The two used different formats
+        // ('result-' prefix here) until this fix, producing a stuck duplicate
+        // pair (one 'scheduled', one 'finished') every time a match's result
+        // synced after its schedule entry (e.g. Burgos-Ceuta, FC Andorra-Ceuta).
+        external_id: `${r.date}-${r.homeTeam}-${r.awayTeam}`.toLowerCase().replace(/\s+/g, '-'),
         home_team: r.homeTeam,
         away_team: r.awayTeam,
         date: r.date,
