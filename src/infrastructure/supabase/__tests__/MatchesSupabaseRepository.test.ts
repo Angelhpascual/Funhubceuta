@@ -50,14 +50,14 @@ describe('upsertResults', () => {
     )
   })
 
-  it('builds external_id from result-date-teams', async () => {
+  it('builds external_id with the same date-teams scheme as upsertMatches (regression: a mismatched "result-" prefix left a scheduled and a finished row stuck side by side for the same match)', async () => {
     const upsertMock = vi.fn().mockResolvedValue({ error: null })
     vi.mocked(supabaseAdmin.from).mockReturnValue({ upsert: upsertMock } as never)
 
     await repo.upsertResults([makeResult({ date: '2026-05-01', homeTeam: 'AD Ceuta FC', awayTeam: 'Real Madrid' })])
 
     const [rows] = upsertMock.mock.calls[0]
-    expect(rows[0].external_id).toBe('result-2026-05-01-ad-ceuta-fc-real-madrid')
+    expect(rows[0].external_id).toBe('2026-05-01-ad-ceuta-fc-real-madrid')
   })
 
   it('throws when supabase returns error', async () => {
