@@ -192,3 +192,38 @@ describe('fetchRecentForm', () => {
     expect(form).toEqual([])
   })
 })
+
+describe('fetchUnfinishedPast', () => {
+  it('maps rows to the shape closeFinishedMatchesFromEspn expects', async () => {
+    const data = [
+      { home_team: 'Castellón', away_team: 'Ceuta', date: '2026-10-04', espn_event_id: '401883162' },
+    ]
+    vi.mocked(supabaseAdmin.from).mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          lt: vi.fn().mockReturnValue({
+            not: vi.fn().mockResolvedValue({ data }),
+          }),
+        }),
+      }),
+    } as never)
+
+    const result = await repo.fetchUnfinishedPast()
+    expect(result).toEqual([{ espnEventId: '401883162', homeTeam: 'Castellón', awayTeam: 'Ceuta' }])
+  })
+
+  it('returns empty array when nothing is pending', async () => {
+    vi.mocked(supabaseAdmin.from).mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          lt: vi.fn().mockReturnValue({
+            not: vi.fn().mockResolvedValue({ data: null }),
+          }),
+        }),
+      }),
+    } as never)
+
+    const result = await repo.fetchUnfinishedPast()
+    expect(result).toEqual([])
+  })
+})
