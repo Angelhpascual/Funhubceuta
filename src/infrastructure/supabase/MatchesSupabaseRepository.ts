@@ -138,6 +138,23 @@ export class MatchesSupabaseRepository {
     }>
   }
 
+  // Scheduled matches whose kickoff has already passed — candidates to close
+  // out with the real result from ESPN (see fetchEspnMatchResult).
+  async fetchUnfinishedPast(): Promise<Array<{ espnEventId: string; homeTeam: string; awayTeam: string }>> {
+    const today = new Date().toISOString().split('T')[0]
+    const { data } = await supabaseAdmin
+      .from('matches')
+      .select('home_team, away_team, date, espn_event_id')
+      .eq('status', 'scheduled')
+      .lt('date', today)
+      .not('espn_event_id', 'is', null)
+    return (data ?? []).map((m) => ({
+      espnEventId: m.espn_event_id as string,
+      homeTeam: m.home_team,
+      awayTeam: m.away_team,
+    }))
+  }
+
   async markMatchFinished(
     espnEventId: string,
     homeScore: number,
