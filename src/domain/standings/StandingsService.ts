@@ -1,30 +1,17 @@
-import { Standings, StandingEntry } from './Standings'
+import { Standings } from './Standings'
 import { StandingsRepository } from './StandingsRepository'
-import { scrapeStandings } from '@/infrastructure/football-api/laligaScraper'
 
 export class StandingsService {
   constructor(private readonly repository: StandingsRepository) {}
 
+  // The ESPN-backed sync (src/app/api/standings/sync/route.ts, run on a
+  // schedule and from the admin panel) is the sole writer for this data —
+  // this used to fall back to a live Puppeteer scrape of laligaweb on a
+  // cache miss, a second, uncoordinated writer to the same rows that could
+  // launch headless Chrome inside a public, user-facing request. Removed:
+  // a cold cache now just means "the scheduled sync hasn't run yet", same
+  // as any other cron-fed table in this app.
   async getStandings(season: string): Promise<Standings | null> {
-    const cached = await this.repository.getBySeason(season)
-    if (cached) return cached
-
-    // Don't scrape during build (no Chrome available in Vercel build environment)
-    if (process.env.NEXT_PHASE === 'phase-production-build') return null
-
-    return this.syncFromApi(season)
-  }
-
-  async syncFromApi(season: string): Promise<Standings | null> {
-    const entries = await scrapeStandings(season)
-
-    if (!entries || entries.length === 0) return null
-
-    await this.repository.upsertEntries(entries)
-
-    return {
-      season,
-      entries: entries as StandingEntry[],
-    }
+    return this.repository.getBySeason(season)
   }
 }
