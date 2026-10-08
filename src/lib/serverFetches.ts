@@ -1,4 +1,5 @@
 import 'server-only'
+import { cache } from 'react'
 import { supabase } from '@/infrastructure/supabase/client'
 import { TeamsSupabaseRepository } from '@/infrastructure/supabase/TeamsSupabaseRepository'
 import { MatchesSupabaseRepository } from '@/infrastructure/supabase/MatchesSupabaseRepository'
@@ -31,7 +32,12 @@ export async function fetchCeutaForm(): Promise<string[]> {
 export const fetchSquadBySeason = _fetchSquadBySeason
 export const fetchLeadersBySeason = _fetchLeadersBySeason
 export const fetchPlayerStatsByName = _fetchPlayerStatsByName
-export const fetchPlayerById = _fetchPlayerById
+// Wrapped in React's cache() — this is the only page with generateMetadata,
+// which calls fetchPlayerById once and the page component calls it again for
+// the same id on the same request. Without dedup that's two Supabase
+// round-trips for the same row on every render/ISR revalidation, which
+// Next's own docs call out as exactly what cache() is for.
+export const fetchPlayerById = cache(_fetchPlayerById)
 export const getTransfers = _getTransfers
 
 export async function fetchSeasonMatches(season: string = CURRENT_MATCH_SEASON) {
