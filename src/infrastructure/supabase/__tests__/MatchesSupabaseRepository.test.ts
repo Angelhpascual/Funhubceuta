@@ -131,14 +131,14 @@ describe('fetchScheduled', () => {
 })
 
 describe('fetchByEspnId', () => {
-  it('returns match date when found', async () => {
-    const chain = { maybeSingle: vi.fn().mockResolvedValue({ data: { date: '2026-05-10' } }) }
+  it('returns match date and time when found', async () => {
+    const chain = { maybeSingle: vi.fn().mockResolvedValue({ data: { date: '2026-05-10', time: '20:00' } }) }
     vi.mocked(supabase.from).mockReturnValue({
       select: vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue(chain) }),
     } as never)
 
     const result = await repo.fetchByEspnId('espn-123')
-    expect(result).toEqual({ date: '2026-05-10' })
+    expect(result).toEqual({ date: '2026-05-10', time: '20:00' })
   })
 
   it('returns null when not found', async () => {

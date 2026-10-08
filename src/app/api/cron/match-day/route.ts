@@ -9,28 +9,37 @@ import {
   deleteSubscription,
 } from '@/infrastructure/supabase/PushSubscriptionsRepository'
 import { MSG } from '../live/messages'
+import { findCeutaEvent, parseMatchCore, guardMatchState } from '@/infrastructure/espn/parseLiveMatch'
+import { MatchesSupabaseRepository } from '@/infrastructure/supabase/MatchesSupabaseRepository'
+import { madridDateTimeToUtc } from '@/lib/madridTime'
+
+const matchesRepo = new MatchesSupabaseRepository()
 
 async function getTodayMatch() {
   const res = await fetchWithTimeout(`${ESPN}/scoreboard`, { cache: 'no-store' }, 15_000)
   if (!res.ok) return null
 
   const sb = await res.json()
-  const event = (sb.events ?? []).find((e: unknown) =>
-    JSON.stringify(e).toLowerCase().includes('ceuta')
-  )
+  // Shared parsing (same as cron/live and /api/live) instead of a third,
+  // independently-hand-rolled ESPN reader — this file used to parse the
+  // scoreboard itself with no corrupt-state guard at all, so the exact ESPN
+  // glitch that broke live tracking for Castellón-Ceuta (a 'post'/'in' state
+  // seeded before real kickoff) would have silently killed this reminder too.
+  const event = findCeutaEvent(sb)
   if (!event) return null
 
-  const comp = event.competitions?.[0]
-  const home = comp?.competitors?.find((c: Record<string, unknown>) => c.homeAway === 'home')
-  const away = comp?.competitors?.find((c: Record<string, unknown>) => c.homeAway === 'away')
-  const state = comp?.status?.type?.state ?? 'pre'
+  const core = parseMatchCore(event)
+  if (!core) return null
+
+  const dbMatch = await matchesRepo.fetchByEspnId(core.espnId)
+  const kickoffIso = dbMatch ? madridDateTimeToUtc(String(dbMatch.date).slice(0, 10), dbMatch.time).toISOString() : null
+  const state = guardMatchState(core.state, kickoffIso)
 
   // Solo notificar si el partido no ha empezado aún
   if (state !== 'pre') return null
 
-  const startDate: string = event.date ?? ''
-  const kickoffTime = startDate
-    ? new Date(startDate).toLocaleTimeString('es-ES', {
+  const kickoffTime = core.startDate
+    ? new Date(core.startDate).toLocaleTimeString('es-ES', {
         hour: '2-digit',
         minute: '2-digit',
         timeZone: 'Europe/Madrid',
@@ -38,9 +47,9 @@ async function getTodayMatch() {
     : null
 
   return {
-    homeTeam: home?.team?.displayName ?? '',
-    awayTeam: away?.team?.displayName ?? '',
-    venue: comp?.venue?.fullName ?? 'Alfonso Murube',
+    homeTeam: core.homeTeam,
+    awayTeam: core.awayTeam,
+    venue: core.venue || 'Alfonso Murube',
     kickoffTime,
   }
 }
