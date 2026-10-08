@@ -100,6 +100,11 @@ export function MvpSheet({ session, tallies, bannerState, votedId, fingerprint, 
       onVoted(session.id, pickedId)
       onRefresh()
       setChangingVote(false)
+      // Reset here (not just in the error/catch paths below) — without this,
+      // voting once leaves submitting stuck true for the rest of the sheet's
+      // mounted lifetime, so the "cambiar mi voto" flow's confirm button
+      // (disabled while submitting) never re-enables without a full reload.
+      setSubmitting(false)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const umami = typeof window !== 'undefined' ? (window as any).umami : null
       if (umami?.track) {

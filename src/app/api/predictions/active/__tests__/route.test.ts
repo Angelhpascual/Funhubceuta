@@ -19,6 +19,13 @@ describe('GET /api/predictions/active', () => {
     expect(body).toEqual({ session: null, mine: null })
   })
 
+  it('does not cache the null-session response (regression: a 30s edge cache here could serve a stale {session:null} to the realtime-triggered fetch the instant a session opens, delaying the banner by up to 10 minutes)', async () => {
+    vi.mocked(getActivePredictionSession).mockResolvedValue(null)
+    const req = new Request('http://localhost/api/predictions/active')
+    const res = await GET(req)
+    expect(res.headers.get('Cache-Control')).toBeNull()
+  })
+
   it('returns session and user prediction when fingerprint provided', async () => {
     const session = { id: 's1', status: 'open', match_label: 'Ceuta vs X' } as never
     const mine = { id: 'v1', home_score: 2, away_score: 0 } as never
