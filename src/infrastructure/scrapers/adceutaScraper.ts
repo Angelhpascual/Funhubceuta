@@ -53,6 +53,22 @@ async function fetchSchedule(): Promise<Record<string, unknown>[]> {
   })
 }
 
+// ESPN has twice this session sent a corrupt event for this team/competition
+// (a 'post' state 6 minutes before real kickoff, and a mock-shaped payload
+// during testing) — a malformed `competitors` array (missing a 'home' or
+// 'away' entry) is the same class of bad data. Without this check, a single
+// bad event threw inside `.map()` and silently failed the *entire* sync for
+// that cron run (every other, perfectly good upcoming fixture/result along
+// with it), recovering only on the next scheduled run.
+function hasHomeAndAway(e: Record<string, unknown>): boolean {
+  const comp = (e.competitions as Record<string, unknown>[] | undefined)?.[0]
+  const competitors = (comp?.competitors ?? []) as Record<string, unknown>[]
+  return (
+    competitors.some((c) => c.homeAway === 'home') &&
+    competitors.some((c) => c.homeAway === 'away')
+  )
+}
+
 function mapEventToMatch(e: Record<string, unknown>): ScrapedMatch {
   const comp = (e.competitions as Record<string, unknown>[])[0]
   const competitors = comp.competitors as Record<string, unknown>[]
@@ -80,6 +96,7 @@ export async function scrapeAllScheduled(): Promise<ScrapedMatch[]> {
       const state = (comp?.status as Record<string, unknown>)?.type as Record<string, unknown>
       return (state?.state as string) === 'pre'
     })
+    .filter(hasHomeAndAway)
     .map(mapEventToMatch)
 }
 
@@ -93,6 +110,7 @@ export async function scrapeNextMatches(): Promise<ScrapedMatch[]> {
       const state = (comp?.status as Record<string, unknown>)?.type as Record<string, unknown>
       return (state?.state as string) === 'pre' && (e.date as string)?.slice(0, 10) >= today
     })
+    .filter(hasHomeAndAway)
     .slice(0, 10)
     .map(mapEventToMatch)
 }
@@ -111,6 +129,7 @@ export async function scrapeRecentResults(limit = 10): Promise<ScrapedResult[]> 
       const state = (comp?.status as Record<string, unknown>)?.type as Record<string, unknown>
       return (state?.state as string) === 'post'
     })
+    .filter(hasHomeAndAway)
     .slice(-limit)
     .reverse()
     .map((e) => {

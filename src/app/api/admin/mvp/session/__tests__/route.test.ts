@@ -14,11 +14,13 @@ vi.mock('@/infrastructure/supabase/adminClient', () => ({
   supabaseAdmin: { from: vi.fn() },
 }))
 vi.mock('@/infrastructure/push/sendPush', () => ({ sendPush: vi.fn().mockResolvedValue({ sent: 0, total: 0 }) }))
+vi.mock('@/infrastructure/supabase/logCron', () => ({ logCron: vi.fn() }))
 
 import { checkAdminAuth } from '@/infrastructure/admin/auth'
 import { createMvpSession, openMvpSession, closeMvpSession, deleteMvpSession } from '@/infrastructure/supabase/MvpRepository'
 import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
 import { sendPush } from '@/infrastructure/push/sendPush'
+import { logCron } from '@/infrastructure/supabase/logCron'
 import { POST, PATCH, DELETE } from '../route'
 
 beforeEach(() => {
@@ -89,6 +91,18 @@ describe('PATCH /api/admin/mvp/session', () => {
     expect(openMvpSession).toHaveBeenCalledWith('s1')
   })
 
+  it('surfaces the push delivery result in the response', async () => {
+    vi.mocked(openMvpSession).mockResolvedValue({ error: null })
+    const maybeSingle = vi.fn().mockResolvedValue({ data: { match_label: 'Ceuta vs X', jornada: 'J20' } })
+    vi.mocked(supabaseAdmin.from).mockReturnValue({ select: vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ maybeSingle }) }) } as never)
+    vi.mocked(sendPush).mockResolvedValue({ sent: 3, total: 3 })
+
+    const res = await PATCH(makeReq('PATCH', { sessionId: 's1', action: 'open' }))
+    const body = await res.json()
+
+    expect(body.push).toEqual({ sent: 3, total: 3 })
+  })
+
   it('sends a push notifying fans that MVP voting is open (regression: no coverage previously)', async () => {
     vi.mocked(openMvpSession).mockResolvedValue({ error: null })
     const maybeSingle = vi.fn().mockResolvedValue({ data: { match_label: 'Ceuta vs X', jornada: 'J20' } })
@@ -114,14 +128,18 @@ describe('PATCH /api/admin/mvp/session', () => {
     expect(sendPush).toHaveBeenCalledWith(expect.objectContaining({ body: 'Ceuta vs X' }))
   })
 
-  it('still opens the session even if the push fails (best-effort)', async () => {
+  it('still opens the session even if the push fails (best-effort), and now logs it instead of swallowing it silently (regression: this used to be a fire-and-forget .catch(() => {}) with no logging at all)', async () => {
     vi.mocked(openMvpSession).mockResolvedValue({ error: null })
     const maybeSingle = vi.fn().mockResolvedValue({ data: { match_label: 'Ceuta vs X', jornada: 'J20' } })
     vi.mocked(supabaseAdmin.from).mockReturnValue({ select: vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ maybeSingle }) }) } as never)
     vi.mocked(sendPush).mockRejectedValue(new Error('push service down'))
 
     const res = await PATCH(makeReq('PATCH', { sessionId: 's1', action: 'open' }))
+    const body = await res.json()
+
     expect(res.status).toBe(200)
+    expect(body.push).toEqual({ error: 'Error: push service down' })
+    expect(logCron).toHaveBeenCalledWith('mvp-session', 'error', 0, expect.objectContaining({ stage: 'sendPush' }))
   })
 
   it('closes session', async () => {
