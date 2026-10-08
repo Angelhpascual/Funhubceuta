@@ -84,10 +84,10 @@ export class MatchesSupabaseRepository {
     return { upcoming, results }
   }
 
-  async fetchByEspnId(espnId: string): Promise<{ date: string } | null> {
+  async fetchByEspnId(espnId: string): Promise<{ date: string; time: string } | null> {
     const { data } = await supabase
       .from('matches')
-      .select('date')
+      .select('date, time')
       .eq('espn_event_id', espnId)
       .maybeSingle()
     return data ?? null

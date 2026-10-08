@@ -6,6 +6,7 @@ import { sendPush as sendPushProd, sendPushAdminOnly } from '@/infrastructure/pu
 import { ESPN_BASE as ESPN } from '@/lib/constants'
 import { fetchWithTimeout } from '@/lib/fetchWithTimeout'
 import { findCeutaEvent, parseMatchCore, guardMatchState, parseLiveEvents } from '@/infrastructure/espn/parseLiveMatch'
+import { madridDateTimeToUtc } from '@/lib/madridTime'
 import { MSG } from './messages'
 import { logCron } from '@/infrastructure/supabase/logCron'
 import { notifyAdmin } from '@/infrastructure/push/notifyAdmin'
@@ -27,9 +28,14 @@ async function fetchLiveMatch(): Promise<LiveMatch | null> {
   if (!core) return null
 
   // Same corrupt-state guard /api/live applies: ESPN can briefly seed an
-  // upcoming fixture as 'in' before real kickoff.
+  // upcoming fixture as 'in' or 'post' before real kickoff. Needs the actual
+  // kickoff instant, not just the DB's midnight `date` — a date-only guard
+  // can never flag a corrupt state seeded *on* match day, which is exactly
+  // when it happens (regression: this is what let the Castellón-Ceuta corrupt
+  // 'post' slip through even after the guardMatchState fix landed).
   const dbMatch = await matchesRepo.fetchByEspnId(core.espnId)
-  const state = guardMatchState(core.state, dbMatch?.date ?? null)
+  const kickoffIso = dbMatch ? madridDateTimeToUtc(String(dbMatch.date).slice(0, 10), dbMatch.time).toISOString() : null
+  const state = guardMatchState(core.state, kickoffIso)
 
   let events: LiveMatch['events'] = []
   if (state === 'in' || state === 'post') {

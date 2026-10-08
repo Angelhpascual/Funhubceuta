@@ -18,6 +18,10 @@ vi.mock('@/infrastructure/supabase/MatchesSupabaseRepository', () => {
     },
   }
 })
+// Tests drive kickoff via relative offsets from "now" rather than real Madrid
+// wall-clock dates — bypass the timezone math and treat the mocked `time`
+// field as the full kickoff instant directly.
+vi.mock('@/lib/madridTime', () => ({ madridDateTimeToUtc: (_date: string, time: string) => new Date(time) }))
 
 import { getConfig } from '@/infrastructure/supabase/AppConfigRepository'
 import { MatchesSupabaseRepository } from '@/infrastructure/supabase/MatchesSupabaseRepository'
@@ -89,7 +93,7 @@ describe('GET /api/live (production — no mock)', () => {
       .mockResolvedValueOnce(new Response(JSON.stringify({ plays: [] }), { status: 200 }))
 
     // DB says kickoff was 1h ago → valid live window
-    mockFetchByEspnId.mockResolvedValue({ date: new Date(Date.now() - 60 * 60 * 1000).toISOString() })
+    mockFetchByEspnId.mockResolvedValue({ date: 'unused', time: new Date(Date.now() - 60 * 60 * 1000).toISOString() })
 
     const res = await GET()
     const body = await res.json()
@@ -102,7 +106,7 @@ describe('GET /api/live (production — no mock)', () => {
       Promise.resolve(new Response(JSON.stringify(makeScoreboard('in')), { status: 200 }))
     )
     // DB says kickoff was 6h ago → stale signal
-    mockFetchByEspnId.mockResolvedValue({ date: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString() })
+    mockFetchByEspnId.mockResolvedValue({ date: 'unused', time: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString() })
 
     const res = await GET()
     const body = await res.json()

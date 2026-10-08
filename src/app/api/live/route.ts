@@ -5,6 +5,7 @@ import { getConfig, setConfig, deleteConfig } from '@/infrastructure/supabase/Ap
 import { MatchesSupabaseRepository } from '@/infrastructure/supabase/MatchesSupabaseRepository'
 import { supabase } from '@/infrastructure/supabase/client'
 import { findCeutaEvent, parseMatchCore, guardMatchState, parseLiveEvents } from '@/infrastructure/espn/parseLiveMatch'
+import { madridDateTimeToUtc } from '@/lib/madridTime'
 import type { LiveEvent, LiveMatch, LineupPlayer, MatchStat } from '@/domain/match/LiveMatch'
 
 const matchesRepo = new MatchesSupabaseRepository()
@@ -118,8 +119,11 @@ export async function GET() {
   const core = parseMatchCore(ceutaEvent)
   if (!core) return NextResponse.json({ match: null }, cacheHeaders())
 
+  // Needs the real kickoff instant, not just the DB's midnight `date` — see
+  // the identical fix + comment in cron/live/route.ts for why.
   const dbMatch = await matchesRepo.fetchByEspnId(core.espnId)
-  const guardedState = guardMatchState(core.state, dbMatch?.date ?? null)
+  const kickoffIso = dbMatch ? madridDateTimeToUtc(String(dbMatch.date).slice(0, 10), dbMatch.time).toISOString() : null
+  const guardedState = guardMatchState(core.state, kickoffIso)
 
   // Fetch play-by-play events + lineup during/after match (or pre for lineup)
   let liveEvents: LiveEvent[] = []

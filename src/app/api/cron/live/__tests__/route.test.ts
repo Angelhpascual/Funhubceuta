@@ -26,6 +26,10 @@ vi.mock('@/infrastructure/push/sendPush', () => ({
   sendPush: vi.fn().mockResolvedValue({ sent: 0, total: 0 }),
   sendPushAdminOnly: vi.fn().mockResolvedValue({ sent: 0, total: 0 }),
 }))
+// Tests drive kickoff via relative offsets from "now" rather than real
+// Madrid wall-clock dates — bypass the timezone math and treat the mocked
+// `time` field as the full kickoff instant directly.
+vi.mock('@/lib/madridTime', () => ({ madridDateTimeToUtc: (_date: string, time: string) => new Date(time) }))
 
 import { fetchWithTimeout } from '@/lib/fetchWithTimeout'
 import { getConfig } from '@/infrastructure/supabase/AppConfigRepository'
@@ -63,7 +67,7 @@ beforeEach(() => {
   markMatchFinished.mockResolvedValue(undefined)
   // Kickoff "2 hours ago" by default — keeps the corrupt-state guard from
   // downgrading 'in'/'post' scoreboards in tests regardless of the real date.
-  fetchByEspnId.mockResolvedValue({ date: new Date(Date.now() - 2 * 3_600_000).toISOString() })
+  fetchByEspnId.mockResolvedValue({ date: 'unused', time: new Date(Date.now() - 2 * 3_600_000).toISOString() })
   vi.mocked(sendPush).mockResolvedValue({ sent: 0, total: 0 })
   vi.mocked(sendPushAdminOnly).mockResolvedValue({ sent: 0, total: 0 })
   vi.mocked(getConfig).mockImplementation(async (key: string) => {
@@ -152,7 +156,7 @@ describe('GET /api/cron/live — corrupt-state guard (regression: cron/live neve
       if (String(url).includes('/summary')) return summaryResponse()
       return scoreboardResponse('in')
     })
-    fetchByEspnId.mockResolvedValue({ date: new Date(Date.now() + 3_600_000).toISOString() })
+    fetchByEspnId.mockResolvedValue({ date: 'unused', time: new Date(Date.now() + 3_600_000).toISOString() })
 
     const res = await GET(makeReq())
     const body = await res.json()
@@ -164,7 +168,7 @@ describe('GET /api/cron/live — corrupt-state guard (regression: cron/live neve
       if (String(url).includes('/summary')) return summaryResponse()
       return scoreboardResponse('in')
     })
-    fetchByEspnId.mockResolvedValue({ date: new Date(Date.now() - 5 * 3_600_000).toISOString() })
+    fetchByEspnId.mockResolvedValue({ date: 'unused', time: new Date(Date.now() - 5 * 3_600_000).toISOString() })
 
     const res = await GET(makeReq())
     const body = await res.json()
@@ -176,7 +180,7 @@ describe('GET /api/cron/live — corrupt-state guard (regression: cron/live neve
       if (String(url).includes('/summary')) return summaryResponse()
       return scoreboardResponse('in')
     })
-    fetchByEspnId.mockResolvedValue({ date: new Date(Date.now() - 2 * 3_600_000).toISOString() })
+    fetchByEspnId.mockResolvedValue({ date: 'unused', time: new Date(Date.now() - 2 * 3_600_000).toISOString() })
 
     const res = await GET(makeReq())
     const body = await res.json()

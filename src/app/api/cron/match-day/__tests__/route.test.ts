@@ -14,6 +14,14 @@ vi.mock('@upstash/qstash', () => {
   const verify = vi.fn()
   return { Receiver: class { verify = verify; static __verify = verify } }
 })
+const { fetchByEspnId } = vi.hoisted(() => ({ fetchByEspnId: vi.fn().mockResolvedValue(null) }))
+vi.mock('@/infrastructure/supabase/MatchesSupabaseRepository', () => ({
+  MatchesSupabaseRepository: function () { return { fetchByEspnId } },
+}))
+// Tests drive kickoff via relative offsets from "now" rather than real Madrid
+// wall-clock dates — bypass the timezone math and treat the mocked `time`
+// field as the full kickoff instant directly.
+vi.mock('@/lib/madridTime', () => ({ madridDateTimeToUtc: (_date: string, time: string) => new Date(time) }))
 
 import { logCron } from '@/infrastructure/supabase/logCron'
 import { getAllSubscriptions, deleteSubscription } from '@/infrastructure/supabase/PushSubscriptionsRepository'
@@ -49,6 +57,7 @@ beforeEach(() => {
   vi.mocked(getAllSubscriptions).mockResolvedValue([])
   vi.mocked(deleteSubscription).mockResolvedValue(undefined)
   vi.mocked(webpush.sendNotification).mockResolvedValue({ statusCode: 201 } as never)
+  fetchByEspnId.mockResolvedValue(null)
 })
 
 describe('cron/match-day GET', () => {
@@ -95,6 +104,21 @@ describe('cron/match-day GET', () => {
     const body = await res.json()
     expect(body.match).toBe('none') // state !== 'pre' → getTodayMatch returns null
     expect(webpush.sendNotification).not.toHaveBeenCalled()
+  })
+
+  it('still sends the match-day push when ESPN corrupts the state to "post" before real kickoff (regression: this file used to hand-roll its own ESPN parsing with no corrupt-state guard, unlike cron/live and /api/live)', async () => {
+    vi.spyOn(global, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify(makeScoreboard('post')), { status: 200 })
+    )
+    // DB says kickoff is still 2 hours away — guardMatchState should downgrade
+    // the corrupt 'post' back to 'pre' so the reminder still fires.
+    fetchByEspnId.mockResolvedValue({ date: 'unused', time: new Date(Date.now() + 2 * 3_600_000).toISOString() })
+    vi.mocked(getAllSubscriptions).mockResolvedValue([sub])
+
+    const res = await GET(new NextRequest('http://localhost'))
+    const body = await res.json()
+    expect(body.match).toBe('found')
+    expect(webpush.sendNotification).toHaveBeenCalled()
   })
 
   it('logs error and rethrows on ESPN failure', async () => {
