@@ -70,4 +70,23 @@ describe('scrapeNextMatches', () => {
     expect(fetchMock).toHaveBeenCalledTimes(1)
     expect(matches).toHaveLength(1)
   })
+
+  it('skips a malformed event (missing home/away) instead of throwing and failing every other fixture in the batch (regression: ESPN has sent corrupt events for this team/competition twice this session)', async () => {
+    const malformed = makeEvent({
+      id: 'corrupt1',
+      date: '2026-09-21T18:00Z',
+      competitions: [{
+        status: { type: { state: 'pre' } },
+        competitors: [{ homeAway: 'home', team: { id: CEUTA_ID, displayName: 'Ceuta' } }], // no 'away'
+      }],
+    })
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ events: [pastEvent(), malformed, makeEvent()] }), { status: 200 }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const matches = await scrapeNextMatches()
+
+    expect(matches).toHaveLength(1)
+    expect(matches[0].awayTeam).toBe('Real Valladolid')
+  })
 })

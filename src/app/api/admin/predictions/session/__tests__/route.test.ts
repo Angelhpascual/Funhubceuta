@@ -10,11 +10,13 @@ vi.mock('@/infrastructure/supabase/PredictionRepository', () => ({
 }))
 vi.mock('@/infrastructure/supabase/adminClient', () => ({ supabaseAdmin: { from: vi.fn() } }))
 vi.mock('@/infrastructure/push/sendPush', () => ({ sendPush: vi.fn().mockResolvedValue({ sent: 0, total: 0 }) }))
+vi.mock('@/infrastructure/supabase/logCron', () => ({ logCron: vi.fn() }))
 
 import { checkAdminAuth } from '@/infrastructure/admin/auth'
 import { createPredictionSession, openPredictionSession } from '@/infrastructure/supabase/PredictionRepository'
 import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
 import { sendPush } from '@/infrastructure/push/sendPush'
+import { logCron } from '@/infrastructure/supabase/logCron'
 import { POST, PUT } from '../route'
 
 beforeEach(() => {
@@ -70,6 +72,33 @@ describe('PUT /api/admin/predictions/session', () => {
     expect(res.status).toBe(200)
     expect(body.ok).toBe(true)
     expect(openPredictionSession).toHaveBeenCalledWith('s1')
+  })
+
+  it('surfaces the push delivery result in the response', async () => {
+    vi.mocked(openPredictionSession).mockResolvedValue({ error: null })
+    const maybeSingle = vi.fn().mockResolvedValue({ data: { match_label: 'Ceuta vs X', jornada: 'J20' } })
+    vi.mocked(supabaseAdmin.from).mockReturnValue({ select: vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ maybeSingle }) }) } as never)
+    vi.mocked(sendPush).mockResolvedValue({ sent: 4, total: 5 })
+
+    const res = await PUT(makeReq('PUT', { sessionId: 's1', action: 'open' }))
+    const body = await res.json()
+
+    expect(body.push).toEqual({ sent: 4, total: 5 })
+  })
+
+  it('still reports the session as open when the push notification throws, but logs it now instead of swallowing it silently (regression: this used to be a fire-and-forget .catch(() => {}) with no logging at all)', async () => {
+    vi.mocked(openPredictionSession).mockResolvedValue({ error: null })
+    const maybeSingle = vi.fn().mockResolvedValue({ data: { match_label: 'Ceuta vs X', jornada: 'J20' } })
+    vi.mocked(supabaseAdmin.from).mockReturnValue({ select: vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ maybeSingle }) }) } as never)
+    vi.mocked(sendPush).mockRejectedValue(new Error('VAPID misconfigured'))
+
+    const res = await PUT(makeReq('PUT', { sessionId: 's1', action: 'open' }))
+    const body = await res.json()
+
+    expect(res.status).toBe(200)
+    expect(body.ok).toBe(true)
+    expect(body.push).toEqual({ error: 'Error: VAPID misconfigured' })
+    expect(logCron).toHaveBeenCalledWith('predictions-session', 'error', 0, expect.objectContaining({ stage: 'sendPush' }))
   })
 
   it('returns 400 for unknown action', async () => {

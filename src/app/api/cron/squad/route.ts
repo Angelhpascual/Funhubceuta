@@ -27,7 +27,17 @@ async function syncSquad() {
   // sola vez a nuestro storage; solo cambian cuando llega plantilla oficial nueva.
   const backfill = await backfillSquadPhotos()
 
-  await logCron('squad', 'success', Date.now() - t0, { players: players.length, photosBackfilled: backfill.optimized })
+  // backfill.failed used to be silently dropped here — every run logged
+  // 'success' even when several photo downloads failed (dead CDN URL, etc.),
+  // so a persistent problem was invisible without manually counting players
+  // still missing a migrated photo. Surfacing it as an 'error' status (while
+  // the squad sync itself still succeeded) makes it show up in the admin
+  // dashboard's error count like any other cron problem.
+  await logCron('squad', backfill.failed > 0 ? 'error' : 'success', Date.now() - t0, {
+    players: players.length,
+    photosBackfilled: backfill.optimized,
+    photosFailed: backfill.failed,
+  })
   return players.length
 }
 

@@ -10,6 +10,7 @@ import {
 } from '@/infrastructure/supabase/MvpRepository'
 import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
 import { sendPush } from '@/infrastructure/push/sendPush'
+import { logCron } from '@/infrastructure/supabase/logCron'
 import { withApi } from '@/lib/apiError'
 
 // POST /api/admin/mvp/session — create a new session
@@ -45,16 +46,27 @@ export const PATCH = withApi(async (request: Request) => {
       .eq('id', sessionId)
       .maybeSingle()
 
-    sendPush({
-      title: '⭐ Vota al MVP del partido',
-      body: session?.jornada
-        ? `${session.match_label} · ${session.jornada}`
-        : session?.match_label ?? 'Votación abierta',
-      tag: 'mvp',
-      url: '/',
-    }).catch(() => {})
+    // Session is already open at this point regardless of what happens below —
+    // a push failure must not look like the open itself failed. But silently
+    // swallowing it (as this used to) means nobody ever learns a vote-open
+    // notification didn't go out; log it the same way cron/live's notifyAdmin
+    // does, and surface the result so the admin UI can show it too.
+    let pushResult: { sent: number; total: number } | { error: string }
+    try {
+      pushResult = await sendPush({
+        title: '⭐ Vota al MVP del partido',
+        body: session?.jornada
+          ? `${session.match_label} · ${session.jornada}`
+          : session?.match_label ?? 'Votación abierta',
+        tag: 'mvp',
+        url: '/',
+      })
+    } catch (err) {
+      pushResult = { error: String(err) }
+      await logCron('mvp-session', 'error', 0, { stage: 'sendPush', error: String(err) })
+    }
 
-    return NextResponse.json({ ok: true })
+    return NextResponse.json({ ok: true, push: pushResult })
   }
 
   if (action === 'close') {

@@ -46,6 +46,20 @@ describe('cron/squad GET', () => {
     expect(backfillSquadPhotos).toHaveBeenCalled()
   })
 
+  it('logs the backfill as an error when some photos fail, even though the squad sync itself succeeded (regression: this used to always log "success" and drop the failed count entirely)', async () => {
+    vi.mocked(scrapeSquad).mockResolvedValue([player])
+    vi.mocked(upsertSquad).mockResolvedValue(undefined)
+    vi.mocked(backfillSquadPhotos).mockResolvedValue({ pending: 3, optimized: 1, failed: 2 })
+    vi.mocked(logCron).mockResolvedValue(undefined)
+
+    const res = await GET(new NextRequest('http://localhost/api/cron/squad'))
+
+    expect(res.status).toBe(200)
+    expect(logCron).toHaveBeenCalledWith('squad', 'error', expect.any(Number), {
+      players: 1, photosBackfilled: 1, photosFailed: 2,
+    })
+  })
+
   it('logs success with 0 when scraper returns empty', async () => {
     vi.mocked(scrapeSquad).mockResolvedValue([])
     vi.mocked(logCron).mockResolvedValue(undefined)
