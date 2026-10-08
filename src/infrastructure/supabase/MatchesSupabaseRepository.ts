@@ -39,12 +39,24 @@ export class MatchesSupabaseRepository {
   async upsertMatches(matches: ScrapedMatch[]): Promise<void> {
     if (matches.length === 0) return
 
-    // Delete existing scheduled matches and replace with fresh data
-    await supabaseAdmin.from('matches').delete().eq('status', 'scheduled')
+    const externalIdFor = (m: { date: string; homeTeam: string; awayTeam: string }) =>
+      `${m.date}-${m.homeTeam}-${m.awayTeam}`.toLowerCase().replace(/\s+/g, '-')
 
-    const { error } = await supabaseAdmin.from('matches').insert(
+    // Used to decide whether this scrape looks complete enough to prune
+    // stale fixtures below, and (if not) to leave existing rows alone.
+    const { data: existingScheduled } = await supabaseAdmin
+      .from('matches')
+      .select('id, external_id')
+      .eq('status', 'scheduled')
+    const existingCount = existingScheduled?.length ?? 0
+
+    // Upsert (not delete-then-insert): a partial scrape — ESPN hiccup,
+    // only 3 of the usual ~10 upcoming fixtures returned — must never wipe
+    // out fixtures a previous, complete scrape already stored. Upserting
+    // what we have is always safe; only the pruning step below is gated.
+    const { error } = await supabaseAdmin.from('matches').upsert(
       matches.map((m) => ({
-        external_id: `${m.date}-${m.homeTeam}-${m.awayTeam}`.toLowerCase().replace(/\s+/g, '-'),
+        external_id: externalIdFor(m),
         home_team: m.homeTeam,
         away_team: m.awayTeam,
         date: m.date,
@@ -56,10 +68,24 @@ export class MatchesSupabaseRepository {
         season: CURRENT_MATCH_SEASON,
         competition: COMPETITION,
         espn_event_id: m.espnEventId,
-      }))
+      })),
+      { onConflict: 'external_id' }
     )
-
     if (error) throw new Error(`Failed to upsert matches: ${error.message}`)
+
+    // Prune fixtures that are no longer upcoming (rescheduled/removed by the
+    // league) — but only when this scrape returned at least half of what was
+    // already there, so a partial/broken scrape can't delete the rest.
+    const looksComplete = existingCount === 0 || matches.length >= existingCount / 2
+    if (looksComplete) {
+      const scrapedIds = new Set(matches.map(externalIdFor))
+      const staleIds = (existingScheduled ?? [])
+        .filter((row) => !scrapedIds.has(row.external_id))
+        .map((row) => row.id)
+      if (staleIds.length > 0) {
+        await supabaseAdmin.from('matches').delete().in('id', staleIds)
+      }
+    }
   }
 
   async fetchBySeason(season: string, limit = 60) {

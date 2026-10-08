@@ -67,6 +67,91 @@ describe('upsertResults', () => {
   })
 })
 
+function makeScrapedMatch(overrides = {}) {
+  return {
+    homeTeam: 'Ceuta', awayTeam: 'Rival', date: '2026-10-10', time: '18:00',
+    weekday: 'Sábado', isHome: true, ticketsUrl: null, espnEventId: 'espn-1',
+    ...overrides,
+  }
+}
+
+// upsertMatches makes up to 3 separate `.from('matches')` calls (SELECT
+// existing scheduled rows, upsert the scrape, maybe DELETE stale ones) — the
+// mock routes each by which method gets called on it.
+function mockMatchesFrom(opts: { existingRows?: Array<{ id: string; external_id: string }> }) {
+  const { existingRows = [] } = opts
+  const eqForSelect = vi.fn().mockResolvedValue({ data: existingRows })
+  const selectMock = vi.fn().mockReturnValue({ eq: eqForSelect })
+  const upsertMock = vi.fn().mockResolvedValue({ error: null })
+  const inMock = vi.fn().mockResolvedValue({ error: null })
+  const deleteMock = vi.fn().mockReturnValue({ in: inMock })
+
+  vi.mocked(supabaseAdmin.from).mockImplementation(() => ({
+    select: selectMock,
+    upsert: upsertMock,
+    delete: deleteMock,
+  }) as never)
+
+  return { selectMock, upsertMock, deleteMock, inMock }
+}
+
+describe('upsertMatches', () => {
+  it('does nothing for an empty array', async () => {
+    await repo.upsertMatches([])
+    expect(supabaseAdmin.from).not.toHaveBeenCalled()
+  })
+
+  it('upserts by external_id instead of delete-then-insert', async () => {
+    const { upsertMock } = mockMatchesFrom({ existingRows: [] })
+
+    await repo.upsertMatches([makeScrapedMatch()])
+
+    expect(upsertMock).toHaveBeenCalledWith(
+      expect.arrayContaining([expect.objectContaining({ external_id: '2026-10-10-ceuta-rival', status: 'scheduled' })]),
+      { onConflict: 'external_id' }
+    )
+  })
+
+  it('prunes scheduled rows missing from a complete-looking scrape', async () => {
+    const { inMock } = mockMatchesFrom({
+      existingRows: [
+        { id: 'row-1', external_id: '2026-10-10-ceuta-rival' }, // still present
+        { id: 'row-2', external_id: '2026-10-18-ceuta-oviedo' }, // gone → stale
+      ],
+    })
+
+    await repo.upsertMatches([makeScrapedMatch()])
+
+    expect(inMock).toHaveBeenCalledWith('id', ['row-2'])
+  })
+
+  it('does NOT prune anything when the scrape looks partial (regression: a delete-then-reinsert used to wipe every upcoming fixture on a bad scrape)', async () => {
+    // 10 fixtures already stored, scrape only returned 1 — nowhere near half.
+    const existingRows = Array.from({ length: 10 }, (_, i) => ({ id: `row-${i}`, external_id: `ext-${i}` }))
+    const { deleteMock } = mockMatchesFrom({ existingRows })
+
+    await repo.upsertMatches([makeScrapedMatch()])
+
+    expect(deleteMock).not.toHaveBeenCalled()
+  })
+
+  it('still upserts the fixtures it did get even when the scrape looks partial', async () => {
+    const existingRows = Array.from({ length: 10 }, (_, i) => ({ id: `row-${i}`, external_id: `ext-${i}` }))
+    const { upsertMock } = mockMatchesFrom({ existingRows })
+
+    await repo.upsertMatches([makeScrapedMatch()])
+
+    expect(upsertMock).toHaveBeenCalled()
+  })
+
+  it('throws when the upsert reports an error', async () => {
+    const { upsertMock } = mockMatchesFrom({ existingRows: [] })
+    upsertMock.mockResolvedValue({ error: { message: 'constraint violation' } })
+
+    await expect(repo.upsertMatches([makeScrapedMatch()])).rejects.toThrow('constraint violation')
+  })
+})
+
 describe('fetchBySeason', () => {
   it('returns deduplicated matches for a season', async () => {
     const rows = [{ date: '2026-05-01', home_team: 'Ceuta', away_team: 'Madrid', result: null, status: 'scheduled' }]
