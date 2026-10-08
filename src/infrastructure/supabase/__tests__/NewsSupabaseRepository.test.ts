@@ -20,64 +20,70 @@ const makeArticle = (externalId: string, source = 'faro') => ({
   publishedAt: '2026-07-01',
 })
 
+// upsertArticles makes two separate `.from('news')` calls (a SELECT to build
+// existingMap, then an upsert-with-ignoreDuplicates to insert atomically),
+// so the mock must route each `.from()` call to its own chain depending on
+// which method gets invoked on it, rather than one fixed return value.
+function mockNewsFrom(opts: {
+  existingRows?: Array<{ external_id: string; image_url?: string | null }>
+  insertedExternalIds?: string[]
+}) {
+  const { existingRows = [], insertedExternalIds = [] } = opts
+  const inMock = vi.fn().mockResolvedValue({ data: existingRows })
+  const selectForIn = vi.fn().mockReturnValue({ in: inMock })
+  const upsertSelectMock = vi.fn().mockResolvedValue({
+    data: insertedExternalIds.map((external_id) => ({ external_id })),
+    error: null,
+  })
+  const upsertMock = vi.fn().mockReturnValue({ select: upsertSelectMock })
+  const eqMock = vi.fn().mockResolvedValue({ error: null })
+  const updateMock = vi.fn().mockReturnValue({ eq: eqMock })
+
+  vi.mocked(supabaseAdmin.from).mockImplementation(() => ({
+    select: selectForIn,
+    upsert: upsertMock,
+    update: updateMock,
+  }) as never)
+
+  return { inMock, upsertMock, upsertSelectMock, updateMock, eqMock }
+}
+
 describe('upsertArticles', () => {
   it('inserts new articles with published=false even for oficial source (admin must approve)', async () => {
-    const insertMock = vi.fn().mockResolvedValue({ error: null })
-    const inMock = vi.fn().mockResolvedValue({ data: [] }) // no existing
-    const selectMock = vi.fn().mockReturnValue({ in: inMock })
-    vi.mocked(supabaseAdmin.from).mockReturnValue({
-      select: selectMock,
-      insert: insertMock,
-    } as never)
+    const { upsertMock } = mockNewsFrom({ insertedExternalIds: ['abc'] })
 
     await repo.upsertArticles([makeArticle('abc', 'oficial')])
 
-    expect(insertMock).toHaveBeenCalledWith(
-      expect.arrayContaining([expect.objectContaining({ published: false })])
+    expect(upsertMock).toHaveBeenCalledWith(
+      expect.arrayContaining([expect.objectContaining({ published: false })]),
+      { onConflict: 'external_id', ignoreDuplicates: true }
     )
   })
 
   it('inserts new articles with published=false for non-auto sources', async () => {
-    const insertMock = vi.fn().mockResolvedValue({ error: null })
-    const inMock = vi.fn().mockResolvedValue({ data: [] })
-    const selectMock = vi.fn().mockReturnValue({ in: inMock })
-    vi.mocked(supabaseAdmin.from).mockReturnValue({
-      select: selectMock,
-      insert: insertMock,
-    } as never)
+    const { upsertMock } = mockNewsFrom({ insertedExternalIds: ['xyz'] })
 
     await repo.upsertArticles([makeArticle('xyz', 'faro')])
 
-    expect(insertMock).toHaveBeenCalledWith(
-      expect.arrayContaining([expect.objectContaining({ published: false })])
+    expect(upsertMock).toHaveBeenCalledWith(
+      expect.arrayContaining([expect.objectContaining({ published: false })]),
+      { onConflict: 'external_id', ignoreDuplicates: true }
     )
   })
 
   it('does NOT update published for existing articles', async () => {
-    const updateMock = vi.fn().mockReturnValue({ eq: vi.fn().mockResolvedValue({ error: null }) })
-    const inMock = vi.fn().mockResolvedValue({ data: [{ external_id: 'existing-1' }] })
-    const selectMock = vi.fn().mockReturnValue({ in: inMock })
-    vi.mocked(supabaseAdmin.from).mockReturnValue({
-      select: selectMock,
-      update: updateMock,
-    } as never)
+    // Not in insertedExternalIds → ignoreDuplicates skipped it → treated as existing
+    const { updateMock } = mockNewsFrom({ existingRows: [{ external_id: 'existing-1' }] })
 
     await repo.upsertArticles([makeArticle('existing-1', 'oficial')])
 
-    // Should call update but NOT include published in the payload
     expect(updateMock).toHaveBeenCalledWith(
       expect.not.objectContaining({ published: expect.anything() })
     )
   })
 
   it('does NOT update notify_queued for existing articles (preserves discard state)', async () => {
-    const updateMock = vi.fn().mockReturnValue({ eq: vi.fn().mockResolvedValue({ error: null }) })
-    const inMock = vi.fn().mockResolvedValue({ data: [{ external_id: 'discarded-1' }] })
-    const selectMock = vi.fn().mockReturnValue({ in: inMock })
-    vi.mocked(supabaseAdmin.from).mockReturnValue({
-      select: selectMock,
-      update: updateMock,
-    } as never)
+    const { updateMock } = mockNewsFrom({ existingRows: [{ external_id: 'discarded-1' }] })
 
     await repo.upsertArticles([makeArticle('discarded-1')])
 
@@ -87,35 +93,21 @@ describe('upsertArticles', () => {
   })
 
   it('does not re-insert discarded articles (published=false) visible via admin client', async () => {
-    // Admin client sees ALL articles including discarded ones
-    const insertMock = vi.fn().mockResolvedValue({ error: null })
-    const updateMock = vi.fn().mockReturnValue({ eq: vi.fn().mockResolvedValue({}) })
-    const inMock = vi.fn().mockResolvedValue({ data: [{ external_id: 'discarded-article' }] })
-    const selectMock = vi.fn().mockReturnValue({ in: inMock })
-    vi.mocked(supabaseAdmin.from).mockReturnValue({
-      select: selectMock,
-      insert: insertMock,
-      update: updateMock,
-    } as never)
+    // Admin client sees ALL articles including discarded ones — the upsert's
+    // ON CONFLICT DO NOTHING means it's a no-op, so this external_id never
+    // appears in the returned (inserted) rows.
+    mockNewsFrom({ existingRows: [{ external_id: 'discarded-article' }] })
 
     const result = await repo.upsertArticles([makeArticle('discarded-article')])
 
-    // Should NOT insert — article already exists
-    expect(insertMock).not.toHaveBeenCalled()
-    // Should return empty array (no new articles)
     expect(result).toHaveLength(0)
   })
 
-  it('returns only new articles', async () => {
-    const insertMock = vi.fn().mockResolvedValue({ error: null })
-    const inMock = vi.fn().mockResolvedValue({ data: [{ external_id: 'old' }] })
-    const updateMock = vi.fn().mockReturnValue({ eq: vi.fn().mockResolvedValue({}) })
-    const selectMock = vi.fn().mockReturnValue({ in: inMock })
-    vi.mocked(supabaseAdmin.from).mockReturnValue({
-      select: selectMock,
-      insert: insertMock,
-      update: updateMock,
-    } as never)
+  it('returns only articles the upsert actually inserted (regression: used to be decided by a separate, racy pre-check SELECT)', async () => {
+    mockNewsFrom({
+      existingRows: [{ external_id: 'old' }],
+      insertedExternalIds: ['new'],
+    })
 
     const result = await repo.upsertArticles([
       makeArticle('old'),
@@ -124,6 +116,13 @@ describe('upsertArticles', () => {
 
     expect(result).toHaveLength(1)
     expect(result[0].externalId).toBe('new')
+  })
+
+  it('throws when the upsert reports an error', async () => {
+    const { upsertMock } = mockNewsFrom({})
+    upsertMock.mockReturnValue({ select: vi.fn().mockResolvedValue({ data: null, error: { message: 'boom' } }) })
+
+    await expect(repo.upsertArticles([makeArticle('err')])).rejects.toThrow('Failed to insert news: boom')
   })
 })
 

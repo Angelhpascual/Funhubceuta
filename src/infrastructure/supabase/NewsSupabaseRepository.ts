@@ -16,7 +16,9 @@ export class NewsSupabaseRepository {
     if (articles.length === 0) return []
 
     // Find which external_ids already exist — use admin client to bypass RLS
-    // so discarded articles (published=false) are visible and not re-inserted
+    // so discarded articles (published=false) are visible and not re-inserted.
+    // This is only used for the image-merge decision below, NOT to decide
+    // which articles are new — see the upsert comment for why.
     const ids = articles.map((a) => a.externalId)
     const { data: existing } = await supabaseAdmin
       .from('news')
@@ -25,12 +27,18 @@ export class NewsSupabaseRepository {
     const existingMap = new Map(
       (existing ?? []).map((r) => [r.external_id, r.image_url as string | null])
     )
-    const newArticles = articles.filter((a) => !existingMap.has(a.externalId))
 
-    // Insert new articles — always unpublished until admin approves from the panel
-    if (newArticles.length > 0) {
-      const { error } = await supabaseAdmin.from('news').insert(
-        newArticles.map((a) => ({
+    // Insert new articles atomically via ON CONFLICT DO NOTHING (ignoreDuplicates)
+    // instead of a separate SELECT-then-INSERT — that had a TOCTOU window where
+    // two overlapping cron runs (e.g. a slow run + a QStash retry) could both
+    // see the same article as "not existing yet" and both insert it, producing
+    // a duplicate `news` row and a duplicate push notification. `.select()`
+    // after an ignoreDuplicates upsert returns only the rows actually inserted,
+    // so `newArticles` below reflects reality even under a race — always
+    // unpublished until admin approves from the panel.
+    const { data: insertedRows, error } = await supabaseAdmin.from('news')
+      .upsert(
+        articles.map((a) => ({
           external_id: a.externalId,
           title: a.title,
           description: a.description,
@@ -39,10 +47,14 @@ export class NewsSupabaseRepository {
           source: a.source,
           published_at: a.publishedAt,
           published: false,
-        }))
+        })),
+        { onConflict: 'external_id', ignoreDuplicates: true }
       )
-      if (error) throw new Error(`Failed to insert news: ${error.message}`)
-    }
+      .select('external_id')
+    if (error) throw new Error(`Failed to insert news: ${error.message}`)
+
+    const insertedIds = new Set((insertedRows ?? []).map((r) => r.external_id as string))
+    const newArticles = articles.filter((a) => insertedIds.has(a.externalId))
 
     // Update existing articles — never overwrite published or notify_queued (admin may have changed them).
     // Image URL update rules:
@@ -52,7 +64,12 @@ export class NewsSupabaseRepository {
     const SUPABASE_HOST = 'supabase.co'
     const isSupabaseUrl = (url: string | null) => !!url && url.includes(SUPABASE_HOST)
 
-    const existingArticles = articles.filter((a) => existingMap.has(a.externalId))
+    // Derived from the upsert result, not existingMap — an article can be
+    // "existing" here without an existingMap entry if it was inserted by a
+    // concurrent run between our SELECT above and the upsert (rare); in that
+    // case currentImageUrl below falls back to null, which only affects
+    // whether a fresh image URL gets written, nothing destructive.
+    const existingArticles = articles.filter((a) => !insertedIds.has(a.externalId))
     if (existingArticles.length > 0) {
       for (const a of existingArticles) {
         const currentImageUrl = existingMap.get(a.externalId) ?? null
