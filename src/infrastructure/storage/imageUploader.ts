@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { createHash } from 'crypto'
+import { logCron } from '@/infrastructure/supabase/logCron'
 
 // Use service role key for storage uploads
 const supabaseAdmin = createClient(
@@ -37,6 +38,15 @@ export async function downloadAndUploadImage(
     maxHeight,
     quality = 75,
   } = options
+  // Every failure path used to return null with zero diagnostic trail — three
+  // consecutive backfill-images runs silently optimized 0 of 12 pending rows
+  // with no way to tell whether the fetch, sharp, or the storage upload was
+  // the culprit. Each failure now gets its own cron_logs row with the real
+  // reason, fire-and-forget so it never affects the caller's control flow.
+  const logFailure = (stage: string, detail: string) => {
+    logCron('image-download-error', 'error', 0, { sourceUrl, filename, stage, detail }).catch(() => {})
+  }
+
   try {
     const res = await fetch(sourceUrl, {
       headers: {
@@ -46,15 +56,24 @@ export async function downloadAndUploadImage(
       },
     })
 
-    if (!res.ok) return null
+    if (!res.ok) {
+      logFailure('fetch', `HTTP ${res.status} ${res.statusText}`)
+      return null
+    }
 
     const buffer = Buffer.from(await res.arrayBuffer())
 
     const sharp = (await import('sharp')).default
-    const webpBuffer = await sharp(buffer)
-      .resize(maxWidth, maxHeight, { withoutEnlargement: true, fit: 'inside' })
-      .webp({ quality })
-      .toBuffer()
+    let webpBuffer: Buffer
+    try {
+      webpBuffer = await sharp(buffer)
+        .resize(maxWidth, maxHeight, { withoutEnlargement: true, fit: 'inside' })
+        .webp({ quality })
+        .toBuffer()
+    } catch (err) {
+      logFailure('sharp', String(err))
+      return null
+    }
 
     const path = `${filename}.webp`
 
@@ -64,11 +83,15 @@ export async function downloadAndUploadImage(
       upsert: true,
     })
 
-    if (error) return null
+    if (error) {
+      logFailure('upload', error.message)
+      return null
+    }
 
     const { data } = supabaseAdmin.storage.from(bucket).getPublicUrl(path)
     return data.publicUrl
-  } catch {
+  } catch (err) {
+    logFailure('unexpected', String(err))
     return null
   }
 }
