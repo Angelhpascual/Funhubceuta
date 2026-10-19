@@ -9,40 +9,16 @@ import {
   scrapeRecentResults,
 } from '@/infrastructure/scrapers/adceutaScraper'
 import { MatchesSupabaseRepository } from '@/infrastructure/supabase/MatchesSupabaseRepository'
-import { setConfig } from '@/infrastructure/supabase/AppConfigRepository'
-import { fetchEspnMatchResult } from '@/infrastructure/espn/fetchMatchResult'
+import { closeFinishedMatchesFromEspn, persistCeutaForm } from '@/infrastructure/matches/closeFinishedMatches'
 
 const repo = new MatchesSupabaseRepository()
 
-// The club's own site is the only source for upcoming fixtures/ticket links,
-// but it's an unreliable source for closing out *results* — it can lag days
-// behind or never publish a given match (seen with Castellón-Ceuta, which
-// stayed 'scheduled' with no score for 3 days). ESPN has the final score the
-// moment the match ends, so it's now the authority for marking a match
-// 'finished', independent of whether the live cron was tracking it live.
-async function closeFinishedMatchesFromEspn() {
-  const pending = await repo.fetchUnfinishedPast()
-  const closed: string[] = []
-
-  for (const match of pending) {
-    const espnResult = await fetchEspnMatchResult(match.espnEventId)
-    if (!espnResult || espnResult.state !== 'post') continue
-
-    const ceutaIsHome = match.homeTeam.toLowerCase().includes('ceuta')
-    const ceutaScore = ceutaIsHome ? espnResult.homeScore : espnResult.awayScore
-    const rivalScore = ceutaIsHome ? espnResult.awayScore : espnResult.homeScore
-    const result = ceutaScore > rivalScore ? 'W' : ceutaScore < rivalScore ? 'L' : 'D'
-
-    await repo.markMatchFinished(match.espnEventId, espnResult.homeScore, espnResult.awayScore, result)
-    closed.push(match.espnEventId)
-  }
-
-  return closed
-}
-
+// closeFinishedMatchesFromEspn also runs on its own, much more frequent cron
+// (cron/close-finished-matches) — kept here too as a second pass on top of
+// the weekly fixture refresh, since it's cheap and idempotent.
 async function syncMatches() {
   const t0 = Date.now()
-  const closed = await closeFinishedMatchesFromEspn()
+  const closed = await closeFinishedMatchesFromEspn(repo)
 
   const [matches, scrapedForm, results] = await Promise.all([
     scrapeNextMatches(),
@@ -57,9 +33,7 @@ async function syncMatches() {
   // above) over the club site's scrape, which shares the same staleness problem.
   const dbForm = await repo.fetchRecentForm(5)
   const form = dbForm.length > 0 ? dbForm : scrapedForm
-  if (form.length > 0) {
-    await setConfig('ceuta_form', form.join(','))
-  }
+  await persistCeutaForm(form)
 
   const result = { matches: matches.length, form, closedViaEspn: closed }
   await logCron('matches', 'success', Date.now() - t0, result)
