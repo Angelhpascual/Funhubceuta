@@ -96,6 +96,33 @@ describe('POST /api/admin/trigger', () => {
     vi.doUnmock('@/app/api/cron/live/messages')
   })
 
+  it('creates the close-finished-matches QStash schedule once, then reports it already exists on a second call (idempotent setup)', async () => {
+    const getConfig = vi.fn()
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce('scd_existing')
+    const setConfig = vi.fn().mockResolvedValue(undefined)
+    vi.doMock('@/infrastructure/supabase/AppConfigRepository', () => ({ getConfig, setConfig }))
+    const scheduleCreate = vi.fn().mockResolvedValue({ scheduleId: 'scd_new' })
+    vi.doMock('@upstash/qstash', () => ({
+      Client: class { schedules = { create: scheduleCreate } },
+    }))
+    const { POST: freshPost } = await import('../route')
+
+    const res1 = await freshPost(makeRequest({ action: 'setup-close-finished-matches-schedule' }))
+    const body1 = await res1.json()
+    expect(body1.result.created).toBe(true)
+    expect(body1.result.scheduleId).toBe('scd_new')
+    expect(setConfig).toHaveBeenCalledWith('close_finished_matches_qstash_schedule_id', 'scd_new')
+
+    const res2 = await freshPost(makeRequest({ action: 'setup-close-finished-matches-schedule' }))
+    const body2 = await res2.json()
+    expect(body2.result.already).toBe(true)
+    expect(scheduleCreate).toHaveBeenCalledTimes(1)
+
+    vi.doUnmock('@/infrastructure/supabase/AppConfigRepository')
+    vi.doUnmock('@upstash/qstash')
+  })
+
   it('defaults the disallowed-goal team to ceuta when not specified', async () => {
     const sendPush = vi.fn().mockResolvedValue({ sent: 0, total: 0 })
     vi.doMock('@/infrastructure/push/sendPush', () => ({ sendPush }))

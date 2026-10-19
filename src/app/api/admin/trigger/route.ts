@@ -42,6 +42,23 @@ async function callDirect(path: string): Promise<Record<string, unknown>> {
   return res.json()
 }
 
+// One-time setup: creates the QStash schedule for a new cron if it doesn't
+// already exist (idempotent via a stored config key), so a new recurring
+// cron can be wired up from the admin panel without needing direct access
+// to QSTASH_TOKEN outside the deployed app.
+async function ensureSchedule(configKey: string, path: string, cron: string): Promise<Record<string, unknown>> {
+  const { getConfig, setConfig } = await import('@/infrastructure/supabase/AppConfigRepository')
+  const existing = await getConfig(configKey)
+  if (existing) return { already: true, scheduleId: existing }
+
+  const base = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://adceutainfo.vercel.app'
+  const { Client } = await import('@upstash/qstash')
+  const client = new Client({ token: process.env.QSTASH_TOKEN! })
+  const schedule = await client.schedules.create({ destination: `${base}${path}`, cron })
+  await setConfig(configKey, schedule.scheduleId)
+  return { created: true, scheduleId: schedule.scheduleId }
+}
+
 const ACTIONS: Record<string, () => Promise<Record<string, unknown>>> = {
   news: async () => enqueueViaQStash('/api/cron/news'),
   matches: async () => enqueueViaQStash('/api/cron/matches'),
@@ -54,6 +71,8 @@ const ACTIONS: Record<string, () => Promise<Record<string, unknown>>> = {
   standings: async () => callDirect('/api/standings/sync'),
   squad: async () => callDirect('/api/cron/squad'),
   'player-stats': async () => callDirect('/api/cron/player-stats'),
+  'setup-close-finished-matches-schedule': async () =>
+    ensureSchedule('close_finished_matches_qstash_schedule_id', '/api/cron/close-finished-matches', '*/20 * * * *'),
 }
 
 export async function POST(request: Request) {
