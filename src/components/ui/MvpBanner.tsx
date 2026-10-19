@@ -270,10 +270,11 @@ export function MvpBanner() {
             </>
           )}
 
-          {/* ── ABIERTA: 3 candidatos ── */}
+          {/* ── ABIERTA: candidatos ── */}
           {bannerState === 'abierta' && (
             <>
-              <div className="mt-4 flex gap-2.5 overflow-x-auto">
+              <div className="relative mt-4">
+              <div className="flex gap-2.5 overflow-x-auto">
                 {sorted.map((c) => {
                   const pct = total > 0 ? Math.round((getCount(c.id) / total) * 100) : 0
                   const isLeader = c.id === leaderId && total > 0
@@ -299,6 +300,14 @@ export function MvpBanner() {
                     </div>
                   )
                 })}
+              </div>
+              {sorted.length > 3 && (
+                <div className="pointer-events-none absolute right-0 top-0 flex h-[100px] w-10 items-center justify-end bg-gradient-to-l from-[var(--black)] to-transparent">
+                  <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-white/15 text-white/70">
+                    <IconChevron />
+                  </span>
+                </div>
+              )}
               </div>
               <CardDivider />
               <div className="flex items-center justify-between gap-3">
