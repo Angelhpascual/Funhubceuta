@@ -178,7 +178,16 @@ export class MatchesSupabaseRepository {
       .from('matches')
       .select('home_team, away_team, date, espn_event_id')
       .eq('status', 'scheduled')
-      .lt('date', today)
+      // lte, not lt: a match played *today* can already be finished by the
+      // time this cron runs later the same day (e.g. an evening kickoff
+      // closed out by a 23:00 run) — excluding today's date meant it sat
+      // unclosed until the next scheduled run, which for this cron can be
+      // a week later (confirmed with Ceuta-Oviedo, 2026-10-18: ESPN had the
+      // final score by 23:00 same day, but the cron skipped it and it
+      // stayed 'scheduled' for a week). closeFinishedMatchesFromEspn only
+      // acts when ESPN reports state 'post', so including today is safe —
+      // a same-day match still mid-play is simply skipped, same as before.
+      .lte('date', today)
       .not('espn_event_id', 'is', null)
     return (data ?? []).map((m) => ({
       espnEventId: m.espn_event_id as string,

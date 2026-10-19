@@ -286,7 +286,7 @@ describe('fetchUnfinishedPast', () => {
     vi.mocked(supabaseAdmin.from).mockReturnValue({
       select: vi.fn().mockReturnValue({
         eq: vi.fn().mockReturnValue({
-          lt: vi.fn().mockReturnValue({
+          lte: vi.fn().mockReturnValue({
             not: vi.fn().mockResolvedValue({ data }),
           }),
         }),
@@ -297,11 +297,26 @@ describe('fetchUnfinishedPast', () => {
     expect(result).toEqual([{ espnEventId: '401883162', homeTeam: 'Castellón', awayTeam: 'Ceuta' }])
   })
 
+  it('includes a match scheduled for today (regression: lt() excluded same-day matches, so one finished by a late-evening cron run stayed "scheduled" for a week — Ceuta-Oviedo 2026-10-18)', async () => {
+    const data = [
+      { home_team: 'Ceuta', away_team: 'Real Oviedo', date: new Date().toISOString().split('T')[0], espn_event_id: '401883179' },
+    ]
+    const lteMock = vi.fn().mockReturnValue({ not: vi.fn().mockResolvedValue({ data }) })
+    vi.mocked(supabaseAdmin.from).mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({ lte: lteMock }),
+      }),
+    } as never)
+
+    const result = await repo.fetchUnfinishedPast()
+    expect(result).toEqual([{ espnEventId: '401883179', homeTeam: 'Ceuta', awayTeam: 'Real Oviedo' }])
+  })
+
   it('returns empty array when nothing is pending', async () => {
     vi.mocked(supabaseAdmin.from).mockReturnValue({
       select: vi.fn().mockReturnValue({
         eq: vi.fn().mockReturnValue({
-          lt: vi.fn().mockReturnValue({
+          lte: vi.fn().mockReturnValue({
             not: vi.fn().mockResolvedValue({ data: null }),
           }),
         }),
