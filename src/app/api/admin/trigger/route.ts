@@ -71,6 +71,7 @@ const ACTIONS: Record<string, () => Promise<Record<string, unknown>>> = {
   standings: async () => callDirect('/api/standings/sync'),
   squad: async () => callDirect('/api/cron/squad'),
   'player-stats': async () => callDirect('/api/cron/player-stats'),
+  'close-finished-matches': async () => callDirect('/api/cron/close-finished-matches'),
   'setup-close-finished-matches-schedule': async () =>
     ensureSchedule('close_finished_matches_qstash_schedule_id', '/api/cron/close-finished-matches', '*/20 * * * *'),
 }
