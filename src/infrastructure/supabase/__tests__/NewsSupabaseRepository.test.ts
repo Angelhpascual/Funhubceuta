@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 vi.mock('../client', () => ({ supabase: { from: vi.fn() } }))
 vi.mock('../adminClient', () => ({ supabaseAdmin: { from: vi.fn() } }))
 
+import { supabase } from '../client'
 import { supabaseAdmin } from '../adminClient'
 import { NewsSupabaseRepository } from '../NewsSupabaseRepository'
 
@@ -123,6 +124,29 @@ describe('upsertArticles', () => {
     upsertMock.mockReturnValue({ select: vi.fn().mockResolvedValue({ data: null, error: { message: 'boom' } }) })
 
     await expect(repo.upsertArticles([makeArticle('err')])).rejects.toThrow('Failed to insert news: boom')
+  })
+})
+
+describe('getRowsWithExternalImages', () => {
+  it('excludes rows older than 3 days (regression: retried the same permanently-unreachable laverdaddeceuta.com URLs every 6h forever — 877 error rows for ~10 distinct URLs — with no cutoff)', async () => {
+    const gteMock = vi.fn().mockReturnValue({
+      order: vi.fn().mockReturnValue({ limit: vi.fn().mockResolvedValue({ data: [] }) }),
+    })
+    const notImageUrlMock = vi.fn().mockReturnValue({ gte: gteMock })
+    const notNullMock = vi.fn().mockReturnValue({ not: notImageUrlMock })
+    const selectMock = vi.fn().mockReturnValue({ not: notNullMock })
+    vi.mocked(supabase.from).mockReturnValue({ select: selectMock } as never)
+
+    await repo.getRowsWithExternalImages()
+
+    const [cutoffArg] = gteMock.mock.calls[0]
+    expect(cutoffArg).toBe('created_at')
+    const [, cutoffValue] = gteMock.mock.calls[0]
+    const cutoffDate = new Date(cutoffValue as string)
+    const ageMs = Date.now() - cutoffDate.getTime()
+    // cutoff should be ~3 days ago, not e.g. epoch/unset
+    expect(ageMs).toBeGreaterThan(2.9 * 24 * 60 * 60 * 1000)
+    expect(ageMs).toBeLessThan(3.1 * 24 * 60 * 60 * 1000)
   })
 })
 
