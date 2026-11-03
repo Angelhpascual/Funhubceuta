@@ -16,6 +16,16 @@ const sourceWithKeywords: RssSource = {
   keywords: ['ceuta', 'ad ceuta'],
 }
 
+// Mirrors how AS/Mundo Deportivo are actually configured in sources.ts:
+// football-only feeds, so standalone " ceuta " is allowed as a base keyword.
+const sourceNational: RssSource = {
+  id: 'as',
+  name: 'AS',
+  url: 'https://feeds.as.com/example',
+  keywords: ['ceuta', 'ad ceuta'],
+  baseKeywords: ['ad ceuta', 'el ceuta', 'del ceuta', 'al ceuta', ' ceuta '],
+}
+
 function makeRssFeed(items: string): string {
   return `<?xml version="1.0"?>
 <rss version="2.0" xmlns:media="http://search.yahoo.com/mrss/">
@@ -238,6 +248,38 @@ describe('fetchSource', () => {
     expect(result[0].imageUrl).toBeNull()
     // Only one fetch call: the RSS feed itself, no og:image fetch
     expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('rejects a "TV, horario y cómo ver" match preview for OTHER teams even when the body mentions Ceuta in passing (regression: national press like AS/Mundo Deportivo publishes one of these per Segunda División fixture, and the embedded standings table/aside was enough to pass the keyword check, polluting the queue with off-topic match-guide articles)', async () => {
+    const xml = makeRssFeed(
+      makeItem({
+        title: 'Real Valladolid-Córdoba CF: TV, horario y cómo ver LaLiga Hypermotion online',
+        description: 'Repasamos la clasificación, donde el Ceuta aparece en mitad de tabla.',
+      })
+    )
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(xml) })
+    )
+
+    const result = await fetchSource(sourceNational)
+    expect(result).toHaveLength(0)
+  })
+
+  it('keeps a "TV, horario y cómo ver" match preview when Ceuta is actually one of the two named teams', async () => {
+    const xml = makeRssFeed(
+      makeItem({
+        title: 'Ceuta - Sporting: TV, horario y cómo ver LaLiga Hypermotion online',
+        description: 'El Ceuta recibe al Sporting de Gijón este domingo en el Murube.',
+      })
+    )
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(xml) })
+    )
+
+    const result = await fetchSource(sourceNational)
+    expect(result).toHaveLength(1)
   })
 
   it('decodes HTML entities in title', async () => {

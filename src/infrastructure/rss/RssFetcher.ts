@@ -191,6 +191,13 @@ function isRelevant(item: Record<string, unknown>, source: RssSource): boolean {
   const title = String(item.title ?? '').replace(/<[^>]+>/g, '')
   if (EXCLUDE_TITLE_PATTERNS.some((re) => re.test(title))) return false
 
+  // Reject "TV, horario y cómo ver" match-preview articles for OTHER fixtures
+  // — AS/MundoDeportivo publish one per match in the division, and these slip
+  // past the keyword check below when the body text mentions Ceuta only in
+  // passing (e.g. an embedded standings table). Only keep it if Ceuta is one
+  // of the two teams actually named in the title itself.
+  if (/tv,?\s*horario\s+y\s+c[oó]mo\s+ver/i.test(title) && !/ceuta/i.test(title)) return false
+
   // At least one BASE_KEYWORD must be present to avoid matching unrelated city news.
   // National press sources can provide broader baseKeywords via source.baseKeywords.
   const base = source.baseKeywords ?? BASE_KEYWORDS

@@ -129,13 +129,23 @@ export class NewsSupabaseRepository {
     return (data ?? []).map((r) => ({ id: r.id, url: r.url }))
   }
 
-  // Returns articles with external (non-Supabase) image URLs, newest first
+  // Returns articles with external (non-Supabase) image URLs, newest first.
+  // Excludes anything older than 3 days — backfill-images retries this list
+  // every 6h with no success/failure tracking, so a permanently-unreachable
+  // source (confirmed: every "fetch failed" error logged under
+  // cron_type='image-download-error' is laverdaddeceuta.com, consistently,
+  // for days) got retried forever, burning function time and flooding the
+  // logs (877 error rows for ~10 distinct URLs) while never succeeding.
+  // After 3 days we accept the original external URL as the permanent image
+  // — same visual result users already saw, just not mirrored to our CDN.
   async getRowsWithExternalImages(limit = 20): Promise<NewsImageBackfillRow[]> {
+    const cutoff = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
     const { data, error } = await supabase
       .from('news')
       .select('id, external_id, source, image_url')
       .not('image_url', 'is', null)
       .not('image_url', 'ilike', '%supabase.co%')
+      .gte('created_at', cutoff)
       .order('created_at', { ascending: false })
       .limit(limit)
 
