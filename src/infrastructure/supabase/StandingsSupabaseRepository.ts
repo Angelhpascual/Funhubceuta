@@ -22,6 +22,10 @@ export class StandingsSupabaseRepository implements StandingsRepository {
   async upsertEntries(
     entries: Omit<StandingEntry, 'id' | 'createdAt' | 'updatedAt'>[]
   ): Promise<void> {
+    // updated_at has DEFAULT now() but no trigger, so it only ever gets set on
+    // INSERT — an upsert that hits the ON CONFLICT (UPDATE) path left it frozen
+    // at the row's original insert date forever, making "last synced" checks
+    // on this column lie even when the cron ran successfully moments earlier.
     const { error } = await supabaseAdmin.from('standings').upsert(
       entries.map((e) => ({
         external_id: e.externalId,
@@ -39,6 +43,7 @@ export class StandingsSupabaseRepository implements StandingsRepository {
         points: e.points,
         form: e.form,
         description: e.description,
+        updated_at: new Date().toISOString(),
       })),
       { onConflict: 'external_id' }
     )

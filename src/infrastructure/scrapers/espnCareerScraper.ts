@@ -1,3 +1,5 @@
+import { ESPN_ROSTER } from '@/lib/constants'
+
 export interface CareerEntry {
   club: string
   seasons: string
@@ -79,9 +81,7 @@ export async function scrapeCareerHistory(espnId: string): Promise<CareerEntry[]
 }
 
 export async function fetchEspnRoster(): Promise<{ espnId: string; name: string }[]> {
-  const res = await fetch(
-    'https://site.api.espn.com/apis/site/v2/sports/soccer/esp.2/teams/5404/roster'
-  )
+  const res = await fetch(ESPN_ROSTER)
   if (!res.ok) return []
   const data = await res.json()
   return (data.athletes ?? []).map((a: { id: string; displayName: string }) => ({
