@@ -1,4 +1,4 @@
-import { ESPN_BASE as ESPN, ESPN_CEUTA_ID as CEUTA_ID } from '@/lib/constants'
+import { ESPN_BASE as ESPN, ESPN_CEUTA_ID as CEUTA_ID, CURRENT_SEASON_START, CURRENT_SEASON_END } from '@/lib/constants'
 import { fetchWithTimeout } from '@/lib/fetchWithTimeout'
 
 export type { ScrapedMatch, ScrapedResult } from '@/domain/match/ScrapedMatch'
@@ -39,7 +39,7 @@ async function fetchSchedule(): Promise<Record<string, unknown>[]> {
 
   // Fallback: full scoreboard filtered to Ceuta (covers seasons where ESPN team endpoint lags)
   const scoreRes = await fetchWithTimeout(
-    `https://site.api.espn.com/apis/site/v2/sports/soccer/esp.2/scoreboard?dates=20260801-20270630&limit=500`,
+    `${ESPN}/scoreboard?dates=${CURRENT_SEASON_START}-${CURRENT_SEASON_END}&limit=500`,
     { next: { revalidate: 0 } },
     15_000
   )
