@@ -48,10 +48,16 @@ export async function downloadAndUploadImage(
   }
 
   try {
+    // Root cause of the laverdaddeceuta.com "fetch failed"/HTTP 400 errors
+    // logged under cron_type='image-download-error': their WAF blocks this
+    // exact spoofed-Chrome UA string specifically — confirmed by curl: the
+    // same request 200s with a generic/bot UA or none at all, and fails
+    // consistently only when claiming to be a real Chrome browser (likely a
+    // TLS-fingerprint mismatch check). Vercel's fetch runtime has the same
+    // mismatch, so it got blocked the same way in production.
     const res = await fetch(sourceUrl, {
       headers: {
-        'User-Agent':
-          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36',
+        'User-Agent': 'Mozilla/5.0 (compatible; FunHubCeutaBot/1.0; +https://adceutainfo.vercel.app)',
         Referer: new URL(sourceUrl).origin + '/',
       },
     })
