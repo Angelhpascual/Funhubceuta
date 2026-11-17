@@ -1,4 +1,4 @@
-import { createHash } from 'crypto'
+import { createHash, timingSafeEqual } from 'crypto'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 
@@ -11,7 +11,10 @@ export async function checkAdminAuth(): Promise<boolean> {
   const session = cookieStore.get('admin_session')?.value
   const password = process.env.ADMIN_PASSWORD
   if (!session || !password) return false
-  return session === deriveToken(password)
+  const expected = Buffer.from(deriveToken(password))
+  const actual = Buffer.from(session)
+  if (actual.length !== expected.length) return false
+  return timingSafeEqual(actual, expected)
 }
 
 export function unauthorizedResponse() {

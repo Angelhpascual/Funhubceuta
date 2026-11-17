@@ -13,6 +13,7 @@ function qstash() {
 }
 
 export async function GET() {
+  if (!(await checkAdminAuth())) return unauthorizedResponse()
   const active = await getConfig(LIVE_ACTIVE_KEY)
   const scheduleId = await getConfig(QSTASH_SCHEDULE_KEY)
   const lastResultRaw = await getConfig('live_last_result')

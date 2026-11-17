@@ -34,6 +34,11 @@ describe('POST /api/predictions/predict', () => {
     expect(res.status).toBe(400)
   })
 
+  it('returns 400 for a non-integer score (regression: 5.5 passed the 0-9 range check untouched)', async () => {
+    const res = await POST(makeReq({ sessionId: 's1', fingerprint: 'fp1', home: 5.5, away: 0 }))
+    expect(res.status).toBe(400)
+  })
+
   it('returns 404 when session not found', async () => {
     vi.mocked(getActivePredictionSession).mockResolvedValue(null)
     const res = await POST(makeReq({ sessionId: 's1', fingerprint: 'fp1', home: 2, away: 1 }))

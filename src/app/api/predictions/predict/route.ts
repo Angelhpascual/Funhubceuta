@@ -9,7 +9,10 @@ export async function POST(request: Request) {
     if (!sessionId || !fingerprint || home == null || away == null) {
       return NextResponse.json({ error: 'Faltan datos' }, { status: 400 })
     }
-    if (home < 0 || home > 9 || away < 0 || away > 9) {
+    if (
+      !Number.isInteger(home) || !Number.isInteger(away) ||
+      home < 0 || home > 9 || away < 0 || away > 9
+    ) {
       return NextResponse.json({ error: 'Marcador inválido' }, { status: 400 })
     }
 

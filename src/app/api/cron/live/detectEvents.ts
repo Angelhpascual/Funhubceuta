@@ -34,49 +34,60 @@ export function detectEvents(match: LiveMatch, prev: MatchState | null): PushNot
   if (prev && match.state === 'in') {
     const homeGoals = match.homeScore - prev.homeScore
     const awayGoals = match.awayScore - prev.awayScore
+    const newEvents = match.events.slice(prev.eventCount)
+
+    // When two goals from the same team land in a single poll window, each
+    // needs its OWN scorer — `.pop()` on the full match.events list (the old
+    // approach) ignores which goals are actually new this poll, so every
+    // notification in the batch got attributed to whichever goal happened to
+    // be last overall. Indexing into this poll's new goal events (falling
+    // back to the latest new one if ESPN's keyEvents lag behind the score)
+    // keeps each notification's scorer correct. The tag also now encodes the
+    // score *after* that specific goal instead of the final score, so two
+    // goals in one batch get distinct tags instead of colliding and getting
+    // silently deduped by platforms that dedupe push notifications by tag.
+    const newHomeGoalEvents = newEvents.filter((e: LiveEvent) => e.type === 'goal' && e.team === 'home')
+    const newAwayGoalEvents = newEvents.filter((e: LiveEvent) => e.type === 'goal' && e.team === 'away')
 
     for (let i = 0; i < homeGoals; i++) {
       const ceutaScored = ceutaIsHome
-      const scorer = match.events
-        .filter((e: LiveEvent) => e.type === 'goal' && e.team === 'home')
-        .pop()
+      const scorer = newHomeGoalEvents[i] ?? newHomeGoalEvents[newHomeGoalEvents.length - 1]
+      const scoreAfterThisGoal = `${prev.homeScore + i + 1}-${match.awayScore}`
       if (ceutaScored) {
         notifications.push({
           title: '🚨 ¡¡GOOOOOL DE CEUTA!! 🔥',
-          body: `¡${scorer?.playerName ?? 'GOOOL'}! ¡Qué locura! Marcador: ${score} (${scorer?.minute ?? ''}) ¡VAMOS CABALLAS! 🖤⚪`,
-          tag: `goal-home-${match.homeScore}`,
+          body: `¡${scorer?.playerName ?? 'GOOOL'}! ¡Qué locura! Marcador: ${scoreAfterThisGoal} (${scorer?.minute ?? ''}) ¡VAMOS CABALLAS! 🖤⚪`,
+          tag: `goal-home-${prev.homeScore + i + 1}`,
         })
       } else {
         notifications.push({
-          title: `😤 Gol en contra... (${score})`,
+          title: `😤 Gol en contra... (${scoreAfterThisGoal})`,
           body: `Nos han marcado${scorer ? ` ${scorer.playerName}` : ''}. Pero esto no ha terminado. ¡A por ellos! 💪`,
-          tag: `goal-home-${match.homeScore}`,
+          tag: `goal-home-${prev.homeScore + i + 1}`,
         })
       }
     }
 
     for (let i = 0; i < awayGoals; i++) {
       const ceutaScored = !ceutaIsHome
-      const scorer = match.events
-        .filter((e: LiveEvent) => e.type === 'goal' && e.team === 'away')
-        .pop()
+      const scorer = newAwayGoalEvents[i] ?? newAwayGoalEvents[newAwayGoalEvents.length - 1]
+      const scoreAfterThisGoal = `${match.homeScore}-${prev.awayScore + i + 1}`
       if (ceutaScored) {
         notifications.push({
           title: '🚨 ¡¡GOOOOOL DE CEUTA!! 🔥',
-          body: `¡${scorer?.playerName ?? 'GOOOL'}! ¡Qué locura! Marcador: ${score} (${scorer?.minute ?? ''}) ¡VAMOS CABALLAS! 🖤⚪`,
-          tag: `goal-away-${match.awayScore}`,
+          body: `¡${scorer?.playerName ?? 'GOOOL'}! ¡Qué locura! Marcador: ${scoreAfterThisGoal} (${scorer?.minute ?? ''}) ¡VAMOS CABALLAS! 🖤⚪`,
+          tag: `goal-away-${prev.awayScore + i + 1}`,
         })
       } else {
         notifications.push({
-          title: `😤 Gol en contra... (${score})`,
+          title: `😤 Gol en contra... (${scoreAfterThisGoal})`,
           body: `Nos han marcado${scorer ? ` ${scorer.playerName}` : ''}. Pero esto no ha terminado. ¡A por ellos! 💪`,
-          tag: `goal-away-${match.awayScore}`,
+          tag: `goal-away-${prev.awayScore + i + 1}`,
         })
       }
     }
 
     // Red cards
-    const newEvents = match.events.slice(prev.eventCount)
     const redCards = newEvents.filter((e: LiveEvent) => e.type === 'redCard')
     for (const card of redCards) {
       const isCeuta = card.team === (ceutaIsHome ? 'home' : 'away')
