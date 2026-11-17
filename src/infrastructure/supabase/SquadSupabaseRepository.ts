@@ -3,6 +3,7 @@ import { supabaseAdmin } from './adminClient'
 import type { Player, Group } from '@/features/club/clubTypes'
 import type { ScrapedPlayer } from '@/infrastructure/scrapers/squadScraper'
 import { namesLikelyMatch } from '@/lib/playerNameMatch'
+import { sourceUrlHash } from '@/lib/sourceUrlHash'
 
 const GROUP_ORDER = ['Porteros', 'Defensas', 'Centrocampistas', 'Delanteros']
 
@@ -132,6 +133,14 @@ export async function updatePlayerPhotoUrl(id: string, url: string): Promise<voi
 // after upsertSquad with the official site's raw URLs, keyed by dorsal, it
 // resets photo_url back to the raw external URL so backfillSquadPhotos
 // re-downloads and re-optimizes the (possibly new) official photo.
+//
+// Squad photos barely change mid-season (only around a transfer window), so
+// resetting every matched player unconditionally meant every sync — however
+// often it runs — redownloaded, re-compressed and re-uploaded the entire
+// roster for nothing. The storage filename already encodes a hash of the
+// source URL (see backfillSquadPhotos), so that same hash doubles as a
+// cheap "did this actually change?" check: only players whose official
+// photo's hash differs from what's already stored get reset to pending.
 export async function overridePhotoUrlsByDorsal(
   season: string,
   photosByDorsal: Map<number, string>
@@ -139,12 +148,14 @@ export async function overridePhotoUrlsByDorsal(
   if (photosByDorsal.size === 0) return
   const { data } = await supabaseAdmin
     .from('squad')
-    .select('id,dorsal')
+    .select('id,dorsal,photo_url')
     .eq('season', season)
     .in('dorsal', Array.from(photosByDorsal.keys()))
-  for (const row of (data ?? []) as { id: string; dorsal: number }[]) {
+  for (const row of (data ?? []) as { id: string; dorsal: number; photo_url: string | null }[]) {
     const url = photosByDorsal.get(row.dorsal)
-    if (url) await supabaseAdmin.from('squad').update({ photo_url: url }).eq('id', row.id)
+    if (!url) continue
+    const alreadyCurrent = row.photo_url?.includes(`-${sourceUrlHash(url)}.webp`)
+    if (!alreadyCurrent) await supabaseAdmin.from('squad').update({ photo_url: url }).eq('id', row.id)
   }
 }
 
