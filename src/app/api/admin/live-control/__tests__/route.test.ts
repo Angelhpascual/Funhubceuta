@@ -48,6 +48,12 @@ function makeReq(method: string, body?: unknown) {
 // ── GET ──────────────────────────────────────────────────────────────────────
 
 describe('GET /api/admin/live-control', () => {
+  it('returns 401 without auth (regression: GET had no auth check at all while every other verb on this route did, leaking QStash schedule IDs and the last match result to anyone)', async () => {
+    vi.mocked(checkAdminAuth).mockResolvedValue(false)
+    const res = await GET()
+    expect(res.status).toBe(401)
+  })
+
   it('returns active=true when config is "true"', async () => {
     vi.mocked(getConfig).mockImplementation(async (key: string) => {
       if (key === 'live_active') return 'true'

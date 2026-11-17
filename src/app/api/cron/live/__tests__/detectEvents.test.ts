@@ -114,6 +114,25 @@ describe('detectEvents — goals', () => {
     expect(result.every((n) => n.title.includes('GOOOOOL'))).toBe(true)
   })
 
+  it('attributes each goal to its own scorer and gives each a distinct tag when two goals from the same team land in one poll (regression: used to attribute both to whichever goal was last overall, and both got the same tag, so push platforms that dedupe by tag only ever showed one)', () => {
+    const match = makeMatch({
+      homeScore: 2,
+      awayScore: 0,
+      events: [
+        { type: 'goal', team: 'home', minute: "10'", playerName: 'Primero' },
+        { type: 'goal', team: 'home', minute: "40'", playerName: 'Segundo' },
+      ],
+    })
+    const prev = makeState({ homeScore: 0, awayScore: 0, eventCount: 0 })
+    const result = detectEvents(match, prev)
+    expect(result).toHaveLength(2)
+    expect(result[0].body).toContain('Primero')
+    expect(result[1].body).toContain('Segundo')
+    expect(result[0].tag).not.toBe(result[1].tag)
+    expect(result[0].tag).toBe('goal-home-1')
+    expect(result[1].tag).toBe('goal-home-2')
+  })
+
   it('does not notify goals when match is pre', () => {
     const match = makeMatch({ state: 'pre', homeScore: 0, awayScore: 0 })
     const prev = makeState({ state: 'pre' })

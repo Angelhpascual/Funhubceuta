@@ -111,10 +111,12 @@ export async function upsertSquad(players: ScrapedPlayer[], season: string): Pro
     }
   }
 
-  for (const { id, row } of toUpdate) {
-    const { error } = await supabaseAdmin.from('squad').update(row).eq('id', id)
-    if (error) throw new Error(`Failed to update squad player: ${error.message}`)
-  }
+  await Promise.all(
+    toUpdate.map(async ({ id, row }) => {
+      const { error } = await supabaseAdmin.from('squad').update(row).eq('id', id)
+      if (error) throw new Error(`Failed to update squad player: ${error.message}`)
+    })
+  )
 
   if (toInsert.length > 0) {
     const { error } = await supabaseAdmin.from('squad').insert(toInsert)
