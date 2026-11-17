@@ -50,7 +50,7 @@ function Module({ children, className = '' }: { children: React.ReactNode; class
   )
 }
 
-export function AdminDashboard({ stats }: { stats: AdminStats }) {
+export function AdminDashboard({ stats, isProduction }: { stats: AdminStats; isProduction: boolean }) {
   const newsOk = stats.lastNewsRun?.status === 'success'
   const matchOk = stats.lastMatchRun?.status === 'success'
 
@@ -183,7 +183,7 @@ export function AdminDashboard({ stats }: { stats: AdminStats }) {
                 <ModuleTitle>Partido en vivo</ModuleTitle>
               </div>
               <div className="px-5 pb-5 mt-4">
-                <LiveControl />
+                <LiveControl isProduction={isProduction} />
               </div>
             </Module>
 

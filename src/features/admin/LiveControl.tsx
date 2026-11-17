@@ -16,7 +16,7 @@ type LastResult = {
   savedAt: string
 }
 
-export function LiveControl() {
+export function LiveControl({ isProduction }: { isProduction: boolean }) {
   const [status, setStatus] = useState<Status>('loading')
   const [scheduleId, setScheduleId] = useState<string | null>(null)
   const [acting, setActing] = useState(false)
@@ -319,6 +319,7 @@ export function LiveControl() {
         mockLoading={mockLoading}
         mockActive={mockActive}
         onSetMock={setMock}
+        isProduction={isProduction}
       />
     </section>
   )

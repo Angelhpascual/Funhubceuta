@@ -17,10 +17,17 @@ interface Props {
   mockLoading: string | null
   mockActive: string | null
   onSetMock: (scenario: string) => void
+  isProduction: boolean
 }
 
-export function LiveScenarioSimulator({ mockLoading, mockActive, onSetMock }: Props) {
-  if (process.env.NEXT_PUBLIC_VERCEL_ENV === 'production') return null
+export function LiveScenarioSimulator({ mockLoading, mockActive, onSetMock, isProduction }: Props) {
+  // NEXT_PUBLIC_VERCEL_ENV is never actually set anywhere in this project
+  // (no next.config `env` mapping, no Vercel project var), so the old check
+  // against it was always false — this panel, meant to be hidden in
+  // production, has in fact always rendered there too. isProduction is
+  // computed server-side (from VERCEL_ENV, which only the server can read)
+  // and threaded down as a prop instead.
+  if (isProduction) return null
 
   return (
     <div className="mt-5 rounded-[12px] border border-dashed border-ceuta-border p-4">
