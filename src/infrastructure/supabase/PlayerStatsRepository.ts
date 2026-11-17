@@ -69,8 +69,12 @@ export async function fetchLeadersBySeason(season: string): Promise<LeadersMap |
     .filter((p) => p.photo_url)
     .map((p) => ({ words: sigWords(p.name), url: p.photo_url }))
 
+  // squad.photo_url is kept current by the squad sync (now sourced from the
+  // club's own official site); player_stats.photo_url is ESPN's headshot,
+  // refreshed far less often and from a different source entirely. It used
+  // to be checked first, so this leaderboard kept showing ESPN's photo even
+  // after a player's official photo changed — squad must win when matched.
   function getPhoto(espnName: string, espnPhoto: string | null): string {
-    if (espnPhoto) return espnPhoto
     const override = NAME_OVERRIDES[norm(espnName)]
     if (override) {
       const found = squadData?.find((p) => norm(p.name).includes(override))
@@ -80,7 +84,7 @@ export async function fetchLeadersBySeason(season: string): Promise<LeadersMap |
     for (const sq of squadPhotos) {
       if (espnWords.some((w) => sq.words.includes(w))) return sq.url
     }
-    return ''
+    return espnPhoto ?? ''
   }
 
   const leaders: LeadersMap = {}
