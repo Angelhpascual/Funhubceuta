@@ -86,7 +86,6 @@ export function CaballatiTab() {
             sizes="(max-width: 640px) 100vw, 440px"
             className="object-cover object-[center_20%]"
             priority
-            unoptimized
           />
           <div
             className="absolute inset-0"
@@ -169,7 +168,6 @@ export function CaballatiTab() {
                     sizes="(max-width: 640px) 90vw, 380px"
                     className={`${e.image.contain ? 'object-contain' : 'object-cover object-[center_15%]'}`}
                     loading="lazy"
-                    unoptimized
                   />
                 </div>
                 <figcaption className="font-display font-bold text-[10.5px] uppercase tracking-[0.1em] text-[var(--muted)] px-3 py-2 bg-[var(--bg-soft)]">
@@ -189,7 +187,6 @@ export function CaballatiTab() {
                         sizes="(max-width: 640px) 45vw, 190px"
                         className={`${img.contain ? 'object-contain' : 'object-cover object-[center_15%]'}`}
                         loading="lazy"
-                        unoptimized
                       />
                     </div>
                     <figcaption className="font-display font-bold text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] px-2 py-2 bg-[var(--bg-soft)]">
