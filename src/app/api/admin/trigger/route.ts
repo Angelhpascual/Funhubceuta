@@ -74,6 +74,12 @@ const ACTIONS: Record<string, () => Promise<Record<string, unknown>>> = {
   'close-finished-matches': async () => callDirect('/api/cron/close-finished-matches'),
   'setup-close-finished-matches-schedule': async () =>
     ensureSchedule('close_finished_matches_qstash_schedule_id', '/api/cron/close-finished-matches', '*/20 * * * *'),
+  // squad had no QStash schedule at all — it only ever ran from this admin
+  // panel's manual "sync now" button, so the roster (and its photo backfill)
+  // silently went two months stale between manual triggers with nothing in
+  // cron_logs to flag it as missing, unlike every other data source.
+  'setup-squad-schedule': async () =>
+    ensureSchedule('squad_qstash_schedule_id', '/api/cron/squad', '0 8 * * 2'),
 }
 
 export async function POST(request: Request) {

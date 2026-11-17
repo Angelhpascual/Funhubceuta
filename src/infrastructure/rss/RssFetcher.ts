@@ -43,13 +43,19 @@ function isValidImage(url: string): boolean {
 function firstValidImage(html: string): string | null {
   const dataUrlMatches = html.matchAll(DATA_IMG_URL_RE)
   for (const m of dataUrlMatches) {
-    const url = m[1]
+    const url = decodeEntities(m[1])
     if (isValidImage(url)) return url
   }
 
+  // AS.com's resizer URLs carry a signed `auth=` param tied to the exact query
+  // string (width/height/focal); the HTML source escapes `&` as `&amp;` in
+  // the <img> attribute, and matching it raw instead of decoding it means the
+  // fetch sends a literal "&amp;width=..." as part of the auth-signed value —
+  // AS's resizer then 400s because the signature no longer matches (regression:
+  // every AS article image failed to mirror to our CDN for this reason).
   const matches = html.matchAll(IMG_URL_RE)
   for (const m of matches) {
-    const url = m[0].replace(/-\d+x\d+(\.\w+)$/, '$1')
+    const url = decodeEntities(m[0]).replace(/-\d+x\d+(\.\w+)$/, '$1')
     if (isValidImage(url)) return url
   }
   return null

@@ -143,6 +143,21 @@ describe('fetchSource', () => {
     expect(result[0].imageUrl).toBe('https://img.asmedia.epimg.net/photo.jfif')
   })
 
+  it('decodes &amp; in AS.com resizer image URLs instead of passing the literal entity through (regression: broke the signed auth= param, causing HTTP 400 on every AS image download)', async () => {
+    const desc =
+      '<![CDATA[<p><img src="https://img.asmedia.epimg.net/resizer/v2/ABC123.jpg?auth=signedtoken&amp;width=1472&amp;height=828" /></p>]]>'
+    const xml = makeRssFeed(makeItem({ description: desc }))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(xml) })
+    )
+
+    const result = await fetchSource(source)
+    expect(result[0].imageUrl).toBe(
+      'https://img.asmedia.epimg.net/resizer/v2/ABC123.jpg?auth=signedtoken&width=1472&height=828'
+    )
+  })
+
   it('extracts Teleceuta data-img-url images from description HTML', async () => {
     const image =
       'https://teleceuta.fra1.digitaloceanspaces.com/media/2026/06/15100025/Noticia-actualidad-33-120-696x364.jpg'
