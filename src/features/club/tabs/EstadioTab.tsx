@@ -239,7 +239,7 @@ export function EstadioTab() {
         <div className="relative h-[200px]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/api/proxy/image?url=https%3A%2F%2Fstatic.elpueblodeceuta.es%2Fclip%2Ff2461653-947e-4115-b9e3-e53a34fc5db7_16-9-aspect-ratio_1600w_0.webp"
+            src="https://static.elpueblodeceuta.es/clip/f2461653-947e-4115-b9e3-e53a34fc5db7_16-9-aspect-ratio_1600w_0.webp"
             alt="Estadio Alfonso Murube"
             className="h-full w-full object-cover"
             loading="lazy"
