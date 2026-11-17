@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
-import { Receiver } from '@upstash/qstash'
+import { verifyCronRequest, cronUnauthorized } from '@/infrastructure/cron/auth'
 import { RSS_SOURCES } from '@/infrastructure/rss/sources'
 import { fetchSource, ParsedArticle } from '@/infrastructure/rss/RssFetcher'
 import { fetchAdceutaOfficialNews } from '@/infrastructure/rss/adceutaFetcher'
@@ -239,29 +239,7 @@ async function syncNews() {
 }
 
 export const POST = withApi(async (request: Request) => {
-  const { searchParams } = new URL(request.url)
-  const secret = searchParams.get('secret')
-
-  if (secret === process.env.TEST_SECRET) {
-    const result = await syncNews()
-    return NextResponse.json({ ok: true, ...result })
-  }
-
-  const receiver = new Receiver({
-    currentSigningKey: process.env.QSTASH_CURRENT_SIGNING_KEY!,
-    nextSigningKey: process.env.QSTASH_NEXT_SIGNING_KEY!,
-  })
-
-  const body = await request.text()
-  const valid = await receiver
-    .verify({
-      signature: request.headers.get('Upstash-Signature') ?? '',
-      body,
-    })
-    .catch(() => false)
-
-  if (!valid) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
+  if (!(await verifyCronRequest(request))) return cronUnauthorized()
   const result = await syncNews()
   return NextResponse.json({ ok: true, ...result })
 })

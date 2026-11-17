@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { Receiver } from '@upstash/qstash'
+import { verifyCronRequest, cronUnauthorized } from '@/infrastructure/cron/auth'
 import { scrapeLatestTweets } from '@/infrastructure/scrapers/twitterScraper'
 import { upsertTweets } from '@/infrastructure/supabase/TweetsRepository'
 import { logCron } from '@/infrastructure/supabase/logCron'
@@ -20,17 +20,7 @@ async function syncTweets() {
 }
 
 export const POST = withApi(async (request: Request) => {
-  const receiver = new Receiver({
-    currentSigningKey: process.env.QSTASH_CURRENT_SIGNING_KEY!,
-    nextSigningKey: process.env.QSTASH_NEXT_SIGNING_KEY!,
-  })
-  const body = await request.text()
-  const valid = await receiver
-    .verify({ signature: request.headers.get('Upstash-Signature') ?? '', body })
-    .catch(() => false)
-
-  if (!valid) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
+  if (!(await verifyCronRequest(request))) return cronUnauthorized()
   const count = await syncTweets()
   return NextResponse.json({ ok: true, count })
 })

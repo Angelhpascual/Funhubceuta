@@ -1,7 +1,7 @@
 export const maxDuration = 30
 
 import { NextResponse } from 'next/server'
-import { Receiver } from '@upstash/qstash'
+import { verifyCronRequest, cronUnauthorized } from '@/infrastructure/cron/auth'
 import { logCron } from '@/infrastructure/supabase/logCron'
 import { MatchesSupabaseRepository } from '@/infrastructure/supabase/MatchesSupabaseRepository'
 import { closeFinishedMatchesFromEspn, persistCeutaForm } from '@/infrastructure/matches/closeFinishedMatches'
@@ -30,25 +30,7 @@ async function runSafe() {
 }
 
 export async function POST(request: Request) {
-  const { searchParams } = new URL(request.url)
-  const secret = searchParams.get('secret')
-
-  if (secret === process.env.TEST_SECRET) {
-    const result = await runSafe()
-    return NextResponse.json({ ok: true, ...result })
-  }
-
-  const receiver = new Receiver({
-    currentSigningKey: process.env.QSTASH_CURRENT_SIGNING_KEY!,
-    nextSigningKey: process.env.QSTASH_NEXT_SIGNING_KEY!,
-  })
-  const body = await request.text()
-  const valid = await receiver
-    .verify({ signature: request.headers.get('Upstash-Signature') ?? '', body })
-    .catch(() => false)
-
-  if (!valid) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
+  if (!(await verifyCronRequest(request))) return cronUnauthorized()
   const result = await runSafe()
   return NextResponse.json({ ok: true, ...result })
 }
