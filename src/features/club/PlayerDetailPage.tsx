@@ -5,6 +5,7 @@ import Image from 'next/image'
 import type { CareerEntry, Player } from './clubTypes'
 import { getLocalLogo } from '@/data/teamLogos'
 import { flag } from '@/lib/nationality'
+import { proxyImage } from '@/lib/proxyImage'
 
 const NATIONAL_TEAMS = new Set([
   'españa','france','marruecos','argelia','mali','guinea','guinea bisáu','senegal',
@@ -82,13 +83,12 @@ export function PlayerDetailPage({ player, stats }: Props) {
           {player.photo_url && (
             <div className="pd-hero-photo">
               <Image
-                src={`/api/proxy/image?url=${encodeURIComponent(player.photo_url)}&w=440&q=85`}
+                src={proxyImage(player.photo_url) ?? player.photo_url}
                 alt={player.name}
                 width={220}
                 height={220}
                 priority
                 sizes="220px"
-                unoptimized
                 className="pd-hero-photo-img"
               />
             </div>
