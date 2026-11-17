@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { createHash } from 'crypto'
 import { logCron } from '@/infrastructure/supabase/logCron'
+import { decodeEntities } from '@/lib/decodeEntities'
 
 // Use service role key for storage uploads
 const supabaseAdmin = createClient(
@@ -28,7 +29,7 @@ export function newsImageFilename(source: string, externalId: string): string {
 }
 
 export async function downloadAndUploadImage(
-  sourceUrl: string,
+  rawSourceUrl: string,
   filename: string,
   options: { bucket?: string; maxWidth?: number; maxHeight?: number; quality?: number } = {}
 ): Promise<string | null> {
@@ -38,6 +39,15 @@ export async function downloadAndUploadImage(
     maxHeight,
     quality = 75,
   } = options
+  // RssFetcher decodes entities at scrape time, but any URL stored before
+  // that fix (e.g. AS.com's &amp;-escaped auth= params) stays broken in the
+  // DB forever and the backfill crons just re-fetch the same literal
+  // `&amp;` on every retry — found live: 6 AS.com rows dating back to
+  // August stuck in a permanent fail loop, invisible because each retry
+  // logged the same generic HTTP 400 as any other transient failure.
+  // Decoding here means a legacy broken URL self-heals on its next retry
+  // instead of needing a one-off manual SQL fix.
+  const sourceUrl = decodeEntities(rawSourceUrl)
   // Every failure path used to return null with zero diagnostic trail — three
   // consecutive backfill-images runs silently optimized 0 of 12 pending rows
   // with no way to tell whether the fetch, sharp, or the storage upload was
