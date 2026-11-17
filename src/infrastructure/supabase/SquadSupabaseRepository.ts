@@ -125,6 +125,29 @@ export async function updatePlayerPhotoUrl(id: string, url: string): Promise<voi
   await supabaseAdmin.from('squad').update({ photo_url: url }).eq('id', id)
 }
 
+// upsertSquad deliberately preserves an already-optimized Supabase photo_url
+// so a re-sync never clobbers it with a raw external URL — but that guard
+// also blocks picking up a genuinely new official-site photo for a player
+// who already has one stored. This bypasses it on purpose: called right
+// after upsertSquad with the official site's raw URLs, keyed by dorsal, it
+// resets photo_url back to the raw external URL so backfillSquadPhotos
+// re-downloads and re-optimizes the (possibly new) official photo.
+export async function overridePhotoUrlsByDorsal(
+  season: string,
+  photosByDorsal: Map<number, string>
+): Promise<void> {
+  if (photosByDorsal.size === 0) return
+  const { data } = await supabaseAdmin
+    .from('squad')
+    .select('id,dorsal')
+    .eq('season', season)
+    .in('dorsal', Array.from(photosByDorsal.keys()))
+  for (const row of (data ?? []) as { id: string; dorsal: number }[]) {
+    const url = photosByDorsal.get(row.dorsal)
+    if (url) await supabaseAdmin.from('squad').update({ photo_url: url }).eq('id', row.id)
+  }
+}
+
 export async function getPlayersWithExternalPhotos(season: string): Promise<{ id: string; photo_url: string }[]> {
   const { data } = await supabaseAdmin
     .from('squad')
