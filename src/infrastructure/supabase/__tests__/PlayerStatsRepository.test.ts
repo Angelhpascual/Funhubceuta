@@ -3,8 +3,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 vi.mock('../client', () => ({ supabase: { from: vi.fn() } }))
 vi.mock('../adminClient', () => ({ supabaseAdmin: { from: vi.fn() } }))
 
+import { supabase } from '../client'
 import { supabaseAdmin } from '../adminClient'
-import { upsertPlayerStats, PlayerStatRow } from '../PlayerStatsRepository'
+import { upsertPlayerStats, fetchLeadersBySeason, PlayerStatRow } from '../PlayerStatsRepository'
 
 beforeEach(() => { vi.resetAllMocks() })
 
@@ -17,6 +18,37 @@ function makeRow(overrides: Partial<PlayerStatRow> = {}): PlayerStatRow {
     updated_at: '2026-01-01T00:00:00Z', ...overrides,
   }
 }
+
+function mockTables(playerStats: unknown[], squad: unknown[]) {
+  vi.mocked(supabase.from).mockImplementation((table: string) => {
+    const rows = table === 'player_stats' ? playerStats : squad
+    return { select: () => ({ eq: () => Promise.resolve({ data: rows }) }) } as never
+  })
+}
+
+describe('fetchLeadersBySeason', () => {
+  it('prefers the squad photo over player_stats\' ESPN headshot when both are present (regression: ESPN\'s photo used to win, so the leaderboard kept showing it even after the squad photo changed)', async () => {
+    mockTables(
+      [{ name: 'Jordi Escobar', photo_url: 'https://espn.com/old.png', appearances: 10, goals: 5, assists: 0, shots: 0, shots_on_target: 0, saves: 0, yellow_cards: 0, red_cards: 0 }],
+      [{ name: 'Jordi Escobar', photo_url: 'https://adceutafc.com/official.webp' }]
+    )
+
+    const leaders = await fetchLeadersBySeason('2026-2027')
+
+    expect(leaders?.goals?.leaders[0].photo).toBe('https://adceutafc.com/official.webp')
+  })
+
+  it('falls back to the ESPN photo when no squad player matches by name', async () => {
+    mockTables(
+      [{ name: 'Jordi Escobar', photo_url: 'https://espn.com/old.png', appearances: 10, goals: 5, assists: 0, shots: 0, shots_on_target: 0, saves: 0, yellow_cards: 0, red_cards: 0 }],
+      [{ name: 'Someone Else', photo_url: 'https://adceutafc.com/other.webp' }]
+    )
+
+    const leaders = await fetchLeadersBySeason('2026-2027')
+
+    expect(leaders?.goals?.leaders[0].photo).toBe('https://espn.com/old.png')
+  })
+})
 
 describe('upsertPlayerStats', () => {
   it('does nothing for empty array', async () => {
