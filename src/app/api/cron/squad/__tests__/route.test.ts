@@ -2,7 +2,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { NextRequest } from 'next/server'
 
 vi.mock('@/infrastructure/scrapers/squadScraper', () => ({ scrapeSquad: vi.fn() }))
-vi.mock('@/infrastructure/supabase/SquadSupabaseRepository', () => ({ upsertSquad: vi.fn() }))
+vi.mock('@/infrastructure/scrapers/officialSquadPhotoScraper', () => ({ scrapeOfficialSquadPhotos: vi.fn() }))
+vi.mock('@/infrastructure/supabase/SquadSupabaseRepository', () => ({
+  upsertSquad: vi.fn(),
+  overridePhotoUrlsByDorsal: vi.fn(),
+}))
 vi.mock('@/infrastructure/squad/backfillSquadPhotos', () => ({ backfillSquadPhotos: vi.fn() }))
 vi.mock('@/infrastructure/supabase/logCron', () => ({ logCron: vi.fn() }))
 vi.mock('@/lib/constants', () => ({ CURRENT_SEASON: '2025-2026' }))
@@ -12,7 +16,8 @@ vi.mock('@/infrastructure/cron/auth', () => ({
 }))
 
 import { scrapeSquad } from '@/infrastructure/scrapers/squadScraper'
-import { upsertSquad } from '@/infrastructure/supabase/SquadSupabaseRepository'
+import { scrapeOfficialSquadPhotos } from '@/infrastructure/scrapers/officialSquadPhotoScraper'
+import { upsertSquad, overridePhotoUrlsByDorsal } from '@/infrastructure/supabase/SquadSupabaseRepository'
 import { backfillSquadPhotos } from '@/infrastructure/squad/backfillSquadPhotos'
 import { logCron } from '@/infrastructure/supabase/logCron'
 import { verifyCronRequest } from '@/infrastructure/cron/auth'
@@ -24,6 +29,8 @@ beforeEach(() => {
   vi.resetAllMocks()
   vi.mocked(verifyCronRequest).mockResolvedValue(true)
   vi.mocked(backfillSquadPhotos).mockResolvedValue({ pending: 0, optimized: 0, failed: 0 })
+  vi.mocked(scrapeOfficialSquadPhotos).mockResolvedValue([])
+  vi.mocked(overridePhotoUrlsByDorsal).mockResolvedValue(undefined)
 })
 
 describe('cron/squad GET', () => {
@@ -58,6 +65,40 @@ describe('cron/squad GET', () => {
     expect(logCron).toHaveBeenCalledWith('squad', 'error', expect.any(Number), {
       players: 1, photosBackfilled: 1, photosFailed: 2,
     })
+  })
+
+  it('overrides photo_url by dorsal with photos scraped from the official site (club wants its own photos over LaLiga\'s)', async () => {
+    vi.mocked(scrapeSquad).mockResolvedValue([player])
+    vi.mocked(upsertSquad).mockResolvedValue(undefined)
+    vi.mocked(scrapeOfficialSquadPhotos).mockResolvedValue([
+      { dorsal: 9, photoUrl: 'https://adceutafc.com/wp-content/uploads/9_test.webp' },
+    ])
+    vi.mocked(logCron).mockResolvedValue(undefined)
+
+    const res = await GET(new NextRequest('http://localhost/api/cron/squad'))
+
+    expect(res.status).toBe(200)
+    expect(overridePhotoUrlsByDorsal).toHaveBeenCalledWith(
+      '2025-2026',
+      new Map([[9, 'https://adceutafc.com/wp-content/uploads/9_test.webp']])
+    )
+  })
+
+  it('does not fail the sync when the official-site photo scrape throws (regression: LaLiga photo stays as fallback instead)', async () => {
+    vi.mocked(scrapeSquad).mockResolvedValue([player])
+    vi.mocked(upsertSquad).mockResolvedValue(undefined)
+    vi.mocked(scrapeOfficialSquadPhotos).mockRejectedValue(new Error('site down'))
+    vi.mocked(logCron).mockResolvedValue(undefined)
+
+    const res = await GET(new NextRequest('http://localhost/api/cron/squad'))
+
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body.ok).toBe(true)
+    expect(logCron).toHaveBeenCalledWith('squad', 'error', expect.any(Number), {
+      stage: 'official-photos', error: 'site down',
+    })
+    expect(backfillSquadPhotos).toHaveBeenCalled()
   })
 
   it('logs success with 0 when scraper returns empty', async () => {

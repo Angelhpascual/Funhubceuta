@@ -2,7 +2,8 @@ export const maxDuration = 60
 
 import { NextRequest, NextResponse } from 'next/server'
 import { scrapeSquad } from '@/infrastructure/scrapers/squadScraper'
-import { upsertSquad } from '@/infrastructure/supabase/SquadSupabaseRepository'
+import { scrapeOfficialSquadPhotos } from '@/infrastructure/scrapers/officialSquadPhotoScraper'
+import { upsertSquad, overridePhotoUrlsByDorsal } from '@/infrastructure/supabase/SquadSupabaseRepository'
 import { backfillSquadPhotos } from '@/infrastructure/squad/backfillSquadPhotos'
 import { CURRENT_SEASON } from '@/lib/constants'
 import { logCron } from '@/infrastructure/supabase/logCron'
@@ -23,8 +24,26 @@ async function syncSquad() {
     throw err
   }
 
-  // Las fotos de LaLiga son lentas de servir — se descargan y optimizan una
-  // sola vez a nuestro storage; solo cambian cuando llega plantilla oficial nueva.
+  // El club quiere las fotos de su web oficial, no las de LaLiga — se
+  // sobrescribe por dorsal antes del backfill para que éste las descargue
+  // y optimice a nuestro storage igual que hacía con las de LaLiga. Un
+  // fallo aquí no debe tumbar el sync (dorsal sigue siendo válido con la
+  // foto de LaLiga como respaldo).
+  try {
+    const officialPhotos = await scrapeOfficialSquadPhotos()
+    await overridePhotoUrlsByDorsal(
+      CURRENT_SEASON,
+      new Map(officialPhotos.map((p) => [p.dorsal, p.photoUrl]))
+    )
+  } catch (err) {
+    await logCron('squad', 'error', Date.now() - t0, {
+      stage: 'official-photos',
+      error: (err as Error).message,
+    })
+  }
+
+  // Las fotos se descargan y optimizan una sola vez a nuestro storage; solo
+  // cambian cuando llega plantilla oficial nueva.
   const backfill = await backfillSquadPhotos()
 
   // backfill.failed used to be silently dropped here — every run logged
