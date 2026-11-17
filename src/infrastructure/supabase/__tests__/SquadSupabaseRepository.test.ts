@@ -10,9 +10,11 @@ import {
   fetchPlayerById,
   fetchPhotosByDorsal,
   upsertSquad,
+  overridePhotoUrlsByDorsal,
   fetchSquadNames,
   updateCareerHistory,
 } from '../SquadSupabaseRepository'
+import { sourceUrlHash } from '@/lib/sourceUrlHash'
 
 beforeEach(() => { vi.resetAllMocks() })
 
@@ -183,6 +185,52 @@ describe('upsertSquad', () => {
     const insertMock = vi.fn().mockResolvedValue({ error: { message: 'insert error' } })
     vi.mocked(supabaseAdmin.from).mockReturnValue({ select: selectMock, insert: insertMock } as never)
     await expect(upsertSquad([scrapedPlayer], '2025-2026')).rejects.toThrow('insert error')
+  })
+})
+
+describe('overridePhotoUrlsByDorsal', () => {
+  function mockRows(rows: { id: string; dorsal: number; photo_url: string | null }[]) {
+    const updateEqMock = vi.fn().mockResolvedValue({ error: null })
+    const updateMock = vi.fn().mockReturnValue({ eq: updateEqMock })
+    vi.mocked(supabaseAdmin.from).mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({ in: vi.fn().mockResolvedValue({ data: rows }) }),
+      }),
+      update: updateMock,
+    } as never)
+    return { updateMock, updateEqMock }
+  }
+
+  it('does nothing when the map is empty', async () => {
+    await overridePhotoUrlsByDorsal('2026-2027', new Map())
+    expect(supabaseAdmin.from).not.toHaveBeenCalled()
+  })
+
+  it('skips a player whose stored photo already matches the official source\'s hash (the point: an unchanged official photo should never trigger a redownload)', async () => {
+    const url = 'https://adceutafc.com/wp-content/uploads/9_test.webp'
+    const hash = sourceUrlHash(url)
+    const { updateMock } = mockRows([
+      { id: 'p1', dorsal: 9, photo_url: `https://x.supabase.co/players/p1-${hash}.webp` },
+    ])
+    await overridePhotoUrlsByDorsal('2026-2027', new Map([[9, url]]))
+    expect(updateMock).not.toHaveBeenCalled()
+  })
+
+  it('resets to the raw URL when the official photo actually changed (different hash)', async () => {
+    const newUrl = 'https://adceutafc.com/wp-content/uploads/9_new.webp'
+    const { updateMock, updateEqMock } = mockRows([
+      { id: 'p1', dorsal: 9, photo_url: 'https://x.supabase.co/players/p1-oldhash123.webp' },
+    ])
+    await overridePhotoUrlsByDorsal('2026-2027', new Map([[9, newUrl]]))
+    expect(updateMock).toHaveBeenCalledWith({ photo_url: newUrl })
+    expect(updateEqMock).toHaveBeenCalledWith('id', 'p1')
+  })
+
+  it('resets a player with no stored photo yet', async () => {
+    const url = 'https://adceutafc.com/wp-content/uploads/9_test.webp'
+    const { updateMock } = mockRows([{ id: 'p1', dorsal: 9, photo_url: null }])
+    await overridePhotoUrlsByDorsal('2026-2027', new Map([[9, url]]))
+    expect(updateMock).toHaveBeenCalledWith({ photo_url: url })
   })
 })
 

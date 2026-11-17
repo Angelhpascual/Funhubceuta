@@ -1,7 +1,7 @@
-import { createHash } from 'crypto'
 import { CURRENT_SEASON } from '@/lib/constants'
 import { getPlayersWithExternalPhotos, updatePlayerPhotoUrl } from '@/infrastructure/supabase/SquadSupabaseRepository'
 import { downloadAndUploadImage, PLAYER_BUCKET } from '@/infrastructure/storage/imageUploader'
+import { sourceUrlHash } from '@/lib/sourceUrlHash'
 
 // Unlike the news-image backfill, this only ever has the squad's own roster
 // pending (bounded, ~30-40 players), and overridePhotoUrlsByDorsal resets
@@ -29,8 +29,7 @@ export async function backfillSquadPhotos() {
       // the old image indefinitely even though the file itself was correct.
       // Hashing the source URL into the path means a new photo gets a new
       // URL, while an unchanged source keeps reusing (not duplicating) its file.
-      const hash = createHash('sha1').update(photo_url).digest('hex').slice(0, 10)
-      const filename = `players/${id}-${hash}`
+      const filename = `players/${id}-${sourceUrlHash(photo_url)}`
       const stored = await downloadAndUploadImage(photo_url, filename, {
         bucket: PLAYER_BUCKET,
         maxWidth: 220,
