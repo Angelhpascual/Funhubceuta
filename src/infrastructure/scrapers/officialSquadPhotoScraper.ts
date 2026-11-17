@@ -27,7 +27,7 @@ export async function scrapeOfficialSquadPhotos(): Promise<OfficialPlayerPhoto[]
       return cards
         .map((card) => {
           const img = card.querySelector('img') as HTMLImageElement | null
-          const lines = (card.textContent ?? '')
+          const lines = ((card as HTMLElement).innerText ?? '')
             .replace('Leer más', '')
             .trim()
             .split('\n')
