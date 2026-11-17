@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { Receiver } from '@upstash/qstash'
+import { verifyCronRequest, cronUnauthorized } from '@/infrastructure/cron/auth'
 import type { LiveMatch } from '@/domain/match/LiveMatch'
 import { getConfig, setConfig, deleteConfig } from '@/infrastructure/supabase/AppConfigRepository'
 import { sendPush as sendPushProd, sendPushAdminOnly } from '@/infrastructure/push/sendPush'
@@ -238,29 +238,10 @@ export async function POST(request: Request) {
   const { searchParams } = new URL(request.url)
   const testMode = searchParams.get('test') === 'true'
 
-  // In test mode, bypass QStash auth — only callable with explicit ?test=true
-  if (testMode) {
-    const secret = searchParams.get('secret')
-    if (secret !== process.env.TEST_SECRET) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-    const result = await checkAndNotifySafe(true)
-    return NextResponse.json({ ok: true, testMode: true, ...result })
-  }
+  if (!(await verifyCronRequest(request))) return cronUnauthorized()
 
-  const receiver = new Receiver({
-    currentSigningKey: process.env.QSTASH_CURRENT_SIGNING_KEY!,
-    nextSigningKey: process.env.QSTASH_NEXT_SIGNING_KEY!,
-  })
-  const body = await request.text()
-  const valid = await receiver
-    .verify({ signature: request.headers.get('Upstash-Signature') ?? '', body })
-    .catch(() => false)
-
-  if (!valid) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
-  const result = await checkAndNotifySafe()
-  return NextResponse.json({ ok: true, ...result })
+  const result = await checkAndNotifySafe(testMode)
+  return NextResponse.json({ ok: true, testMode: testMode || undefined, ...result })
 }
 
 export async function GET(request: Request) {

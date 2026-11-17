@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { Receiver } from '@upstash/qstash'
+import { verifyCronRequest, cronUnauthorized } from '@/infrastructure/cron/auth'
 import webpush from 'web-push'
 import { ESPN_BASE as ESPN } from '@/lib/constants'
 import { fetchWithTimeout } from '@/lib/fetchWithTimeout'
@@ -110,17 +110,7 @@ async function runMatchDay() {
 
 // ── Routes ────────────────────────────────────────────────────────────────
 export async function POST(request: Request) {
-  const receiver = new Receiver({
-    currentSigningKey: process.env.QSTASH_CURRENT_SIGNING_KEY!,
-    nextSigningKey: process.env.QSTASH_NEXT_SIGNING_KEY!,
-  })
-  const body = await request.text()
-  const valid = await receiver
-    .verify({ signature: request.headers.get('Upstash-Signature') ?? '', body })
-    .catch(() => false)
-
-  if (!valid) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
+  if (!(await verifyCronRequest(request))) return cronUnauthorized()
   const result = await runMatchDay()
   return NextResponse.json({ ok: true, ...result })
 }

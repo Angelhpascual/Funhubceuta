@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { Receiver } from '@upstash/qstash'
+import { verifyCronRequest, cronUnauthorized } from '@/infrastructure/cron/auth'
 import { logCron } from '@/infrastructure/supabase/logCron'
 import { upsertPlayerStats, PlayerStatRow } from '@/infrastructure/supabase/PlayerStatsRepository'
 import { ESPN_ROSTER, CURRENT_SEASON } from '@/lib/constants'
@@ -113,28 +113,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const { searchParams } = new URL(request.url)
-  const secret = searchParams.get('secret')
-
-  if (secret === process.env.TEST_SECRET) {
-    const count = await scrapePlayerStats()
-    return NextResponse.json({ ok: true, updated: count, season: CURRENT_SEASON })
-  }
-
-  const receiver = new Receiver({
-    currentSigningKey: process.env.QSTASH_CURRENT_SIGNING_KEY!,
-    nextSigningKey: process.env.QSTASH_NEXT_SIGNING_KEY!,
-  })
-
-  const body = await request.text()
-  const valid = await receiver
-    .verify({
-      signature: request.headers.get('Upstash-Signature') ?? '',
-      body,
-    })
-    .catch(() => false)
-
-  if (!valid) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!(await verifyCronRequest(request))) return cronUnauthorized()
 
   try {
     const count = await scrapePlayerStats()

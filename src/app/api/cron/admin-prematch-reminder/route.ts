@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { Receiver } from '@upstash/qstash'
+import { verifyCronRequest, cronUnauthorized } from '@/infrastructure/cron/auth'
 import { MatchesSupabaseRepository } from '@/infrastructure/supabase/MatchesSupabaseRepository'
 import { notifyAdmin } from '@/infrastructure/push/notifyAdmin'
 import { logCron } from '@/infrastructure/supabase/logCron'
@@ -36,31 +36,11 @@ async function sendPrematchReminder() {
 }
 
 export async function POST(request: Request) {
+  if (!(await verifyCronRequest(request))) return cronUnauthorized()
   const { searchParams } = new URL(request.url)
   const testMode = searchParams.get('test') === 'true'
-
-  if (testMode) {
-    const secret = searchParams.get('secret')
-    if (secret !== process.env.TEST_SECRET) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-    const result = await sendPrematchReminder()
-    return NextResponse.json({ ok: true, testMode: true, ...result })
-  }
-
-  const receiver = new Receiver({
-    currentSigningKey: process.env.QSTASH_CURRENT_SIGNING_KEY!,
-    nextSigningKey: process.env.QSTASH_NEXT_SIGNING_KEY!,
-  })
-  const body = await request.text()
-  const valid = await receiver
-    .verify({ signature: request.headers.get('Upstash-Signature') ?? '', body })
-    .catch(() => false)
-
-  if (!valid) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
   const result = await sendPrematchReminder()
-  return NextResponse.json({ ok: true, ...result })
+  return NextResponse.json({ ok: true, testMode: testMode || undefined, ...result })
 }
 
 export async function GET(request: Request) {

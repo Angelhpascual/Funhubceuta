@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { Receiver } from '@upstash/qstash'
+import { verifyCronRequest, cronUnauthorized } from '@/infrastructure/cron/auth'
 import { NewsSupabaseRepository } from '@/infrastructure/supabase/NewsSupabaseRepository'
 import { downloadAndUploadImage, newsImageFilename } from '@/infrastructure/storage/imageUploader'
 import { fetchOgImage } from '@/infrastructure/rss/fetchOgImage'
@@ -57,24 +57,6 @@ async function runSafe() {
 }
 
 export async function POST(request: Request) {
-  const { searchParams } = new URL(request.url)
-  const secret = searchParams.get('secret')
-
-  if (secret === process.env.TEST_SECRET) {
-    return NextResponse.json({ ok: true, ...(await runSafe()) })
-  }
-
-  const receiver = new Receiver({
-    currentSigningKey: process.env.QSTASH_CURRENT_SIGNING_KEY!,
-    nextSigningKey: process.env.QSTASH_NEXT_SIGNING_KEY!,
-  })
-
-  const body = await request.text()
-  const valid = await receiver
-    .verify({ signature: request.headers.get('Upstash-Signature') ?? '', body })
-    .catch(() => false)
-
-  if (!valid) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
+  if (!(await verifyCronRequest(request))) return cronUnauthorized()
   return NextResponse.json({ ok: true, ...(await runSafe()) })
 }
