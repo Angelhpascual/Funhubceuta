@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import type { Transfer, TransferType } from '@/infrastructure/supabase/TransfersRepository'
+import { proxyImage } from '@/lib/proxyImage'
 import { TABS, TYPE_LABELS, TYPE_BADGE } from './mercadoShared'
 
 interface Props {
@@ -61,12 +62,11 @@ export function TransferList({ transfers, activeTab, setActiveTab, editingId, on
               <div className="w-[46px] h-[46px] rounded-full overflow-hidden bg-ceuta-bg-mid relative shrink-0 flex items-center justify-center font-display font-extrabold text-[14px] text-ceuta-muted">
                 {t.photoUrl ? (
                   <Image
-                    src={`/api/proxy/image?url=${encodeURIComponent(t.photoUrl)}&w=88`}
+                    src={proxyImage(t.photoUrl) ?? t.photoUrl}
                     alt={t.name}
                     fill
                     sizes="46px"
                     className="object-cover object-top"
-                    unoptimized
                   />
                 ) : (
                   t.name.split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase()

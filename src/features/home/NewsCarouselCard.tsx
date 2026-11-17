@@ -3,7 +3,7 @@ import { timeAgo } from '@/lib/formatters'
 import { NewsItem } from '@/domain/news/News'
 import { proxyImage } from '@/lib/proxyImage'
 import { SourceTag } from './SourceTag'
-import { THUMB_COLORS, loaderFor, isStoredNewsImage } from './newsImageUtils'
+import { THUMB_COLORS, loaderFor } from './newsImageUtils'
 
 export function NewsCarouselCard({ item, index }: { item: NewsItem; index: number }) {
   const image = proxyImage(item.imageUrl)
@@ -25,7 +25,6 @@ export function NewsCarouselCard({ item, index }: { item: NewsItem; index: numbe
             sizes="220px"
             quality={65}
             loading="lazy"
-            unoptimized={isStoredNewsImage(image)}
             className="object-cover"
           />
         </div>

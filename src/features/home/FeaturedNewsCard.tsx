@@ -2,7 +2,7 @@ import Image from 'next/image'
 import { timeAgo } from '@/lib/formatters'
 import { NewsItem } from '@/domain/news/News'
 import { SOURCES } from './SourceTag'
-import { loaderFor, isStoredNewsImage } from './newsImageUtils'
+import { loaderFor } from './newsImageUtils'
 
 interface Props {
   item: NewsItem
@@ -30,7 +30,6 @@ export function FeaturedNewsCard({ item, image, loading, onImageLoad, onImageRea
           preload
           sizes="(max-width: 768px) 100vw, 420px"
           quality={70}
-          unoptimized={isStoredNewsImage(image)}
           className="object-cover object-[center_20%]"
           onLoad={(e) => {
             onImageLoad(e.currentTarget)

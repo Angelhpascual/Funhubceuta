@@ -90,7 +90,9 @@ const TAGS = [
   { label: 'Blanquinegros', red: false, dark: true },
 ]
 
-const MURUBE_PHOTO = '/api/proxy/image?url=' + encodeURIComponent('https://static.elpueblodeceuta.es/clip/f2461653-947e-4115-b9e3-e53a34fc5db7_16-9-aspect-ratio_1600w_0.webp')
+// static.elpueblodeceuta.es is already an allowed Next/Image remote
+// pattern (next.config), so the proxy added an extra hop with no benefit.
+const MURUBE_PHOTO = 'https://static.elpueblodeceuta.es/clip/f2461653-947e-4115-b9e3-e53a34fc5db7_16-9-aspect-ratio_1600w_0.webp'
 
 function MLabel({ children }: { children: React.ReactNode }) {
   return (

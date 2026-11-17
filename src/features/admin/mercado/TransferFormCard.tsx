@@ -3,6 +3,7 @@
 import type React from 'react'
 import Image from 'next/image'
 import type { TransferType } from '@/infrastructure/supabase/TransfersRepository'
+import { proxyImage } from '@/lib/proxyImage'
 import { POSITIONS, INPUT_CLS, LABEL_CLS, CARD_CLS, type TransferForm } from './mercadoShared'
 
 interface Props {
@@ -164,12 +165,11 @@ export function TransferFormCard({
           <div className="mt-2 flex items-center gap-[10px]">
             <div className="w-14 h-14 rounded-lg overflow-hidden bg-ceuta-bg-mid relative shrink-0">
               <Image
-                src={`/api/proxy/image?url=${encodeURIComponent(form.photoUrl)}&w=120`}
+                src={proxyImage(form.photoUrl) ?? form.photoUrl}
                 alt="preview"
                 fill
                 sizes="56px"
                 className="object-cover object-top"
-                unoptimized
               />
             </div>
             <span className="text-[11px] text-ceuta-muted">
