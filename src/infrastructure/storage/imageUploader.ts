@@ -74,7 +74,10 @@ export async function downloadAndUploadImage(
     try {
       webpBuffer = await sharp(buffer)
         .resize(maxWidth, maxHeight, { withoutEnlargement: true, fit: 'inside' })
-        .webp({ quality })
+        // effort 6 (max) squeezes noticeably more out of webp at the same
+        // quality than the default (4) — pure size reduction, no visible
+        // cost, and this only runs async in a cron so the slower encode is free.
+        .webp({ quality, effort: 6 })
         .toBuffer()
     } catch (err) {
       logFailure('sharp', String(err))
