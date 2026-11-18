@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { checkAdminAuth, unauthorizedResponse } from '@/infrastructure/admin/auth'
 import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
 import { getMvpSeasonRanking } from '@/infrastructure/supabase/MvpRepository'
-import { APP_ENV } from '@/lib/appEnv'
+import { getAppEnv } from '@/lib/appEnv'
 import { withApi } from '@/lib/apiError'
 
 export const GET = withApi(async () => {
@@ -13,13 +13,13 @@ export const GET = withApi(async () => {
     supabaseAdmin
       .from('mvp_sessions')
       .select('id, match_label, status, winner_name, winner_votes, opened_at, closed_at')
-      .eq('environment', APP_ENV)
+      .eq('environment', getAppEnv())
       .order('created_at', { ascending: false })
       .limit(20),
     supabaseAdmin
       .from('mvp_events')
       .select('session_id, event, fingerprint, created_at')
-      .eq('environment', APP_ENV)
+      .eq('environment', getAppEnv())
       .order('created_at', { ascending: true }),
   ])
 

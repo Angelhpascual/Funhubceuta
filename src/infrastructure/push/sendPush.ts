@@ -1,5 +1,6 @@
 import webpush from 'web-push'
 import { getAllSubscriptions, deleteSubscription } from '@/infrastructure/supabase/PushSubscriptionsRepository'
+import { getAppEnv } from '@/lib/appEnv'
 
 export interface PushPayload {
   title: string
@@ -46,7 +47,7 @@ async function sendPushToEnvironment(
 }
 
 export async function sendPush(payload: PushPayload): Promise<{ sent: number; total: number }> {
-  if (process.env.VERCEL_ENV !== 'production') return { sent: 0, total: 0 }
+  if (getAppEnv() !== 'production') return { sent: 0, total: 0 }
   return sendPushToEnvironment(payload, 'production')
 }
 
@@ -59,6 +60,6 @@ export async function sendPushDev(payload: PushPayload): Promise<{ sent: number;
 // allowed to bypass the production-only restriction of sendPush() above.
 // Only ever reaches admin-marked subscriptions, never real fans.
 export async function sendPushAdminOnly(payload: PushPayload): Promise<{ sent: number; total: number }> {
-  const environment = process.env.VERCEL_ENV === 'production' ? 'production' : 'development'
+  const environment = getAppEnv()
   return sendPushToEnvironment(payload, environment, true)
 }

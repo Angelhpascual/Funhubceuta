@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('../adminClient', () => ({ supabaseAdmin: { from: vi.fn() } }))
-vi.mock('@/lib/appEnv', () => ({ APP_ENV: 'development' }))
+vi.mock('@/lib/appEnv', () => ({ getAppEnv: () => 'development' }))
 
 import { supabaseAdmin } from '../adminClient'
 import {

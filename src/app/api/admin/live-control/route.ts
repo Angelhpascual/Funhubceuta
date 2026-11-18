@@ -4,6 +4,7 @@ import { setConfig, getConfig, deleteConfig } from '@/infrastructure/supabase/Ap
 import type { LiveMatch } from '@/domain/match/LiveMatch'
 import { checkAdminAuth, unauthorizedResponse } from '@/infrastructure/admin/auth'
 import { activateLive } from '@/infrastructure/live/activateLive'
+import { getAppEnv } from '@/lib/appEnv'
 
 const QSTASH_SCHEDULE_KEY = 'live_qstash_schedule_id'
 const LIVE_ACTIVE_KEY = 'live_active'
@@ -59,7 +60,7 @@ export async function POST() {
 export async function DELETE() {
   if (!(await checkAdminAuth())) return unauthorizedResponse()
   // In preview/local: just clear flags
-  if (process.env.VERCEL_ENV !== 'production') {
+  if (getAppEnv() !== 'production') {
     await setConfig(LIVE_ACTIVE_KEY, 'false')
     await deleteConfig('live_match_state')
     await deleteConfig('live_match_mock')

@@ -7,6 +7,7 @@ import { supabase } from '@/infrastructure/supabase/client'
 import { findCeutaEvent, parseMatchCore, guardMatchState, parseLiveEvents } from '@/infrastructure/espn/parseLiveMatch'
 import { madridDateTimeToUtc } from '@/lib/madridTime'
 import type { LiveEvent, LiveMatch, LineupPlayer, MatchStat } from '@/domain/match/LiveMatch'
+import { getAppEnv } from '@/lib/appEnv'
 
 const matchesRepo = new MatchesSupabaseRepository()
 
@@ -52,12 +53,12 @@ const NO_CACHE = { headers: { 'Cache-Control': 'no-store' } }
 const EDGE_CACHE = { headers: { 'Cache-Control': 's-maxage=20, stale-while-revalidate=10' } }
 
 function cacheHeaders() {
-  return process.env.VERCEL_ENV === 'production' ? EDGE_CACHE : NO_CACHE
+  return getAppEnv() === 'production' ? EDGE_CACHE : NO_CACHE
 }
 
 export async function GET() {
   // Use mock in local dev and Vercel preview — never in production
-  if (process.env.VERCEL_ENV !== 'production') {
+  if (getAppEnv() !== 'production') {
     const mock = await getConfig('live_match_mock')
     if (mock) return NextResponse.json({ match: JSON.parse(mock) }, NO_CACHE)
     // No active mock — check if there's a recent result (last 3 days) to show

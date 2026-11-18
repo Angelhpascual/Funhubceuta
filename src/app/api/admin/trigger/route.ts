@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { checkAdminAuth, unauthorizedResponse } from '@/infrastructure/admin/auth'
+import { getAppEnv } from '@/lib/appEnv'
 
 export const maxDuration = 60
 
@@ -22,7 +23,7 @@ async function enqueueViaQStash(path: string): Promise<{ queued: boolean }> {
 
 // Call a cron endpoint directly (bypasses QStash signature requirement)
 async function callDirect(path: string): Promise<Record<string, unknown>> {
-  const base = process.env.VERCEL_ENV === 'production'
+  const base = getAppEnv() === 'production'
     ? (process.env.NEXT_PUBLIC_BASE_URL ?? 'https://adceutainfo.vercel.app')
     : process.env.VERCEL_URL
       ? `https://${process.env.VERCEL_URL}`
