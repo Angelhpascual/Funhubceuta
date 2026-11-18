@@ -10,7 +10,7 @@ vi.mock('@/infrastructure/supabase/MvpRepository', () => ({
 vi.mock('@/infrastructure/supabase/adminClient', () => ({
   supabaseAdmin: { from: vi.fn() },
 }))
-vi.mock('@/lib/appEnv', () => ({ APP_ENV: 'development' }))
+vi.mock('@/lib/appEnv', () => ({ getAppEnv: () => 'development' }))
 
 import { checkAdminAuth } from '@/infrastructure/admin/auth'
 import { getMvpSeasonRanking } from '@/infrastructure/supabase/MvpRepository'

@@ -2,6 +2,7 @@ import { Client } from '@upstash/qstash'
 import { setConfig, getConfig } from '@/infrastructure/supabase/AppConfigRepository'
 import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
 import type { LiveMatch } from '@/domain/match/LiveMatch'
+import { getAppEnv } from '@/lib/appEnv'
 
 const QSTASH_SCHEDULE_KEY = 'live_qstash_schedule_id'
 const LIVE_ACTIVE_KEY = 'live_active'
@@ -12,7 +13,7 @@ function qstash() {
 
 function liveUrl() {
   const base =
-    process.env.VERCEL_ENV === 'production'
+    getAppEnv() === 'production'
       ? (process.env.NEXT_PUBLIC_BASE_URL ?? 'https://adceutainfo.vercel.app')
       : process.env.VERCEL_URL
         ? `https://${process.env.VERCEL_URL}`
@@ -66,7 +67,7 @@ export async function activateLive(): Promise<{ ok: true; scheduleId: string | n
   await loadPreMock()
 
   // In preview/local: just flip the flag — no QStash needed
-  if (process.env.VERCEL_ENV !== 'production') {
+  if (getAppEnv() !== 'production') {
     await setConfig(LIVE_ACTIVE_KEY, 'true')
     return { ok: true, scheduleId: null }
   }

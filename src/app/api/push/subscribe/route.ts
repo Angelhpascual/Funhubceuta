@@ -3,6 +3,7 @@ import {
   upsertSubscription,
   deleteSubscription,
 } from '@/infrastructure/supabase/PushSubscriptionsRepository'
+import { getAppEnv } from '@/lib/appEnv'
 
 export async function POST(request: Request) {
   const body = await request.json()
@@ -18,7 +19,7 @@ export async function POST(request: Request) {
       p256dh: keys.p256dh,
       auth: keys.auth,
       user_agent: request.headers.get('user-agent'),
-      environment: process.env.VERCEL_ENV === 'production' ? 'production' : 'development',
+      environment: getAppEnv(),
     })
     return NextResponse.json({ ok: true })
   } catch (err) {

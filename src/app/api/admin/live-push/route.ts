@@ -3,11 +3,12 @@ import webpush from 'web-push'
 import { getAllSubscriptions, deleteSubscription } from '@/infrastructure/supabase/PushSubscriptionsRepository'
 import { MSG } from '@/app/api/cron/live/messages'
 import { checkAdminAuth, unauthorizedResponse } from '@/infrastructure/admin/auth'
+import { getAppEnv } from '@/lib/appEnv'
 
 export async function POST(request: Request) {
   if (!(await checkAdminAuth())) return unauthorizedResponse()
 
-  if (process.env.VERCEL_ENV === 'production') {
+  if (getAppEnv() === 'production') {
     return NextResponse.json({ error: 'Not available in production' }, { status: 403 })
   }
 
@@ -43,7 +44,7 @@ export async function POST(request: Request) {
     process.env.VAPID_PRIVATE_KEY!
   )
 
-  const env = process.env.VERCEL_ENV === 'production' ? 'production' : 'development'
+  const env = getAppEnv()
   const subs = await getAllSubscriptions({ adminOnly: true, environment: env })
   if (!subs.length) {
     return NextResponse.json({ ok: true, sent: 0, warn: 'No admin subscribers — mark your device as admin first' })
