@@ -4,6 +4,16 @@ import { getAppEnv } from '@/lib/appEnv'
 
 export const maxDuration = 60
 
+// Two ways to trigger a cron from this admin panel — pick per action below:
+//   - enqueueViaQStash: fire-and-forget through the real QStash queue. Use
+//     for anything that can run long (news/matches scraping) so a slow
+//     upstream site can't make this request itself time out.
+//   - callDirect: calls the cron route in-process via TEST_SECRET, skipping
+//     QStash entirely. Required on preview deployments (QStash can't sign a
+//     request to a non-production URL), and also preferred when the admin
+//     needs the result synchronously (e.g. "sync now" buttons) rather than
+//     a queued ack.
+
 // Enqueue via QStash so Vercel timeout doesn't cut the response
 async function enqueueViaQStash(path: string): Promise<{ queued: boolean }> {
   const base = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://adceutainfo.vercel.app'
