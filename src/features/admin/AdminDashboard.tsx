@@ -9,6 +9,7 @@ import { MvpAdmin } from './MvpAdmin'
 import { PredictionAdmin } from './PredictionAdmin'
 import { ActivityTimeline } from './ActivityTimeline'
 import { NotifQueue } from './NotifQueue'
+import { SchedulesHealth } from './SchedulesHealth'
 import { timeAgo } from '@/lib/formatters'
 
 type RunLog = {
@@ -170,6 +171,16 @@ export function AdminDashboard({ stats, isProduction }: { stats: AdminStats; isP
               </div>
               <div className="px-5 pb-5 mt-4">
                 <ActivityTimeline />
+              </div>
+            </Module>
+
+            {/* Schedules QStash */}
+            <Module>
+              <div className="flex items-center justify-between gap-3 px-5 pt-5">
+                <ModuleTitle>Schedules</ModuleTitle>
+              </div>
+              <div className="px-5 pb-5 mt-4">
+                <SchedulesHealth />
               </div>
             </Module>
           </div>
