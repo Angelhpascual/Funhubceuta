@@ -48,14 +48,22 @@ describe('scrapeNextMatches', () => {
     // matches for a while after each matchday — regression test for a bug
     // where this caused upcoming fixtures (and schedule changes) to be
     // silently skipped instead of falling through to the scoreboard.
+    //
+    // The fallback scans the current month plus the next two (one request
+    // each, in parallel) — regression test for a bug where ESPN's soccer
+    // scoreboard stopped accepting a date RANGE (dates=START-END, HTTP 400)
+    // while a single month (dates=YYYYMM) still works.
     const fetchMock = vi.fn()
       .mockResolvedValueOnce(new Response(JSON.stringify({ events: [pastEvent()] }), { status: 200 }))
       .mockResolvedValueOnce(new Response(JSON.stringify({ events: [pastEvent(), makeEvent()] }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ events: [] }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ events: [] }), { status: 200 }))
     vi.stubGlobal('fetch', fetchMock)
 
     const matches = await scrapeNextMatches()
 
-    expect(fetchMock).toHaveBeenCalledTimes(2)
+    expect(fetchMock).toHaveBeenCalledTimes(4)
+    expect(fetchMock.mock.calls.every(([url]) => !String(url).includes('-'))).toBe(true)
     expect(matches).toHaveLength(1)
     expect(matches[0].awayTeam).toBe('Real Valladolid')
   })
