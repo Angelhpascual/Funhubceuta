@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AD Ceuta Info
 
-## Getting Started
+**Web: [adceutainfo.com](https://www.adceutainfo.com)**
 
-First, run the development server:
+Aplicación web (PWA) para la afición del **AD Ceuta FC**: partidos, clasificación, plantilla, noticias, alineaciones, mercado, predicciones, modo directo y alertas push. Proyecto de aficionado, sin relación oficial con el club.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+> Desarrollada con un flujo asistido por IA (Claude Code) y revisión humana de cada cambio. Las reglas del proyecto están en `AGENTS.md` y `DESIGN.md`.
+
+## Qué incluye
+
+- **Partidos y clasificación** de la temporada, con detalle de cada jornada.
+- **Plantilla y jugadores**, con estadísticas y fotos.
+- **Modo directo:** seguimiento del partido en vivo y alertas push al usuario.
+- **Noticias** agregadas desde feeds públicos.
+- **Alineación, mercado, predicciones y merchandising.**
+- **Calendario** exportable (`.ics`) para añadir los partidos al móvil.
+- **Panel de administración** para gestionar contenido y avisos.
+- **Lighthouse (móvil):** Accesibilidad 96 · Buenas prácticas 100 · SEO 100.
+
+## Stack
+
+Next.js (App Router) · React · TypeScript · Tailwind CSS · Supabase · Web Push · QStash (tareas programadas) · Vitest · Vercel
+
+## Arquitectura
+
+Código organizado por capas, con el dominio separado de la infraestructura:
+
+```
+src/
+  app/             rutas, páginas y API (cron, push, partidos, noticias...)
+  domain/          entidades y reglas (partidos, clasificación, noticias, predicciones)
+  infrastructure/  acceso a datos: Supabase, scrapers, RSS, push, almacenamiento
+  features/        pantallas por funcionalidad (home, club, partidos, admin...)
+  components/      UI reutilizable bajo un sistema de diseño propio (DESIGN.md)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Las tareas periódicas (actualizar partidos, noticias, estadísticas, avisos antes del partido) se ejecutan como rutas `cron` que se lanzan desde un planificador.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Tests
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Más de un centenar de archivos de test con **Vitest**, que cubren el dominio, las rutas de API y las utilidades.
 
-## Learn More
+```bash
+pnpm install
+pnpm test            # ejecutar los tests
+pnpm test:coverage   # con cobertura
+pnpm dev             # servidor de desarrollo en http://localhost:3000
+```
 
-To learn more about Next.js, take a look at the following resources:
+Para ejecutarla en local hacen falta credenciales de Supabase y de notificaciones push, que no se incluyen en el repositorio.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Estado
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+En producción en [adceutainfo.com](https://www.adceutainfo.com) y en evolución continua durante la temporada.
