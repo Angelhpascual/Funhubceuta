@@ -68,6 +68,17 @@ describe('scrapeNextMatches', () => {
     expect(matches[0].awayTeam).toBe('Real Valladolid')
   })
 
+  it('throws instead of silently returning no matches when the scoreboard fallback responds with an error (regression: a 400 from a bad date-range query was previously indistinguishable from a normal "no matches" week)', async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ events: [pastEvent()] }), { status: 200 }))
+      .mockResolvedValueOnce(new Response('', { status: 400 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ events: [] }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ events: [] }), { status: 200 }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    await expect(scrapeNextMatches()).rejects.toThrow('400')
+  })
+
   it('trusts the team endpoint directly when it already has an upcoming match', async () => {
     const fetchMock = vi.fn()
       .mockResolvedValueOnce(new Response(JSON.stringify({ events: [pastEvent(), makeEvent()] }), { status: 200 }))

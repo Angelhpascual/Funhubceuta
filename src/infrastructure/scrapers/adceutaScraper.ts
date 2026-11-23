@@ -56,7 +56,13 @@ async function fetchSchedule(): Promise<Record<string, unknown>[]> {
         { next: { revalidate: 0 } },
         15_000
       )
-      if (!res.ok) return []
+      // A non-ok response here is an ESPN/API problem (bad query shape,
+      // outage, etc.), not "no matches this month" — surface it as an error
+      // instead of silently returning []. Swallowing this exact case is what
+      // let the previous range-query bug (dates=START-END → 400) go
+      // undetected for weeks: every week looked like a normal "0 matches"
+      // cron run instead of a failure.
+      if (!res.ok) throw new Error(`ESPN scoreboard (${yyyymm}) respondió ${res.status}`)
       const data = await res.json()
       return (data.events ?? []) as Record<string, unknown>[]
     })
