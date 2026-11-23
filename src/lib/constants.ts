@@ -42,11 +42,6 @@ export const STANDINGS_PREVIOUS_SEASON = '2025-2026'
 export const CURRENT_MATCH_SEASON = '2026-2027'
 export const PREVIOUS_MATCH_SEASON = '2025-2026'
 
-// Date window for the current season, used to scope the full-scoreboard
-// fallback scrape — update alongside CURRENT_SEASON each summer.
-export const CURRENT_SEASON_START = '20260801'
-export const CURRENT_SEASON_END = '20270630'
-
 export const COMPETITION = 'Liga Hypermotion'
 
 // ESPN API

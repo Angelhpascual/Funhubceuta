@@ -1,4 +1,4 @@
-import { ESPN_BASE as ESPN, ESPN_CEUTA_ID as CEUTA_ID, CURRENT_SEASON_START, CURRENT_SEASON_END } from '@/lib/constants'
+import { ESPN_BASE as ESPN, ESPN_CEUTA_ID as CEUTA_ID } from '@/lib/constants'
 import { fetchWithTimeout } from '@/lib/fetchWithTimeout'
 
 export type { ScrapedMatch, ScrapedResult } from '@/domain/match/ScrapedMatch'
@@ -37,15 +37,47 @@ async function fetchSchedule(): Promise<Record<string, unknown>[]> {
     if (events.length > 0 && hasUpcomingMatch(events)) return events
   }
 
-  // Fallback: full scoreboard filtered to Ceuta (covers seasons where ESPN team endpoint lags)
-  const scoreRes = await fetchWithTimeout(
-    `${ESPN}/scoreboard?dates=${CURRENT_SEASON_START}-${CURRENT_SEASON_END}&limit=500`,
-    { next: { revalidate: 0 } },
-    15_000
+  // Fallback: scoreboard filtered to Ceuta (covers seasons where ESPN team
+  // endpoint lags). ESPN's soccer scoreboard no longer accepts a date RANGE
+  // (dates=START-END) — it now responds 400 to that, which silently zeroed
+  // out this fallback for weeks. A single month (dates=YYYYMM) is still
+  // accepted, so scan the current month plus the following two to cover the
+  // next match even right at a month boundary.
+  const now = new Date()
+  const months = [0, 1, 2].map((offset) => {
+    const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + offset, 1))
+    return `${d.getUTCFullYear()}${String(d.getUTCMonth() + 1).padStart(2, '0')}`
+  })
+
+  const results = await Promise.all(
+    months.map(async (yyyymm) => {
+      const res = await fetchWithTimeout(
+        `${ESPN}/scoreboard?dates=${yyyymm}`,
+        { next: { revalidate: 0 } },
+        15_000
+      )
+      // A non-ok response here is an ESPN/API problem (bad query shape,
+      // outage, etc.), not "no matches this month" — surface it as an error
+      // instead of silently returning []. Swallowing this exact case is what
+      // let the previous range-query bug (dates=START-END → 400) go
+      // undetected for weeks: every week looked like a normal "0 matches"
+      // cron run instead of a failure.
+      if (!res.ok) throw new Error(`ESPN scoreboard (${yyyymm}) respondió ${res.status}`)
+      const data = await res.json()
+      return (data.events ?? []) as Record<string, unknown>[]
+    })
   )
-  if (!scoreRes.ok) return []
-  const scoreData = await scoreRes.json()
-  const all = (scoreData.events ?? []) as Record<string, unknown>[]
+
+  const seen = new Set<string>()
+  const all: Record<string, unknown>[] = []
+  for (const e of results.flat()) {
+    const id = String(e.id ?? '')
+    if (id && !seen.has(id)) {
+      seen.add(id)
+      all.push(e)
+    }
+  }
+
   return all.filter((e) => {
     const comps = (e.competitions as Record<string, unknown>[])?.[0]
     const competitors = (comps?.competitors ?? []) as Record<string, unknown>[]
