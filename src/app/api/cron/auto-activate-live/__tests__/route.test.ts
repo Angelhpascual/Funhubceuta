@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 vi.mock('@/infrastructure/supabase/logCron', () => ({ logCron: vi.fn() }))
 vi.mock('@/infrastructure/supabase/AppConfigRepository', () => ({ getConfig: vi.fn() }))
 vi.mock('@/infrastructure/live/activateLive', () => ({ activateLive: vi.fn() }))
+vi.mock('@/infrastructure/live/enqueueLiveTick', () => ({ enqueueLiveTick: vi.fn() }))
 vi.mock('@/infrastructure/supabase/MatchesSupabaseRepository', () => {
   const getNextMatch = vi.fn()
   return {
@@ -15,6 +16,7 @@ vi.mock('@/infrastructure/supabase/MatchesSupabaseRepository', () => {
 
 import { getConfig } from '@/infrastructure/supabase/AppConfigRepository'
 import { activateLive } from '@/infrastructure/live/activateLive'
+import { enqueueLiveTick } from '@/infrastructure/live/enqueueLiveTick'
 import { MatchesSupabaseRepository } from '@/infrastructure/supabase/MatchesSupabaseRepository'
 import { POST } from '../route'
 
@@ -46,11 +48,25 @@ afterEach(() => {
 })
 
 describe('POST /api/cron/auto-activate-live', () => {
-  it('skips when live is already active', async () => {
-    vi.mocked(getConfig).mockResolvedValue('true')
+  it('skips when live is already active and its tick chain is healthy', async () => {
+    vi.mocked(getConfig).mockImplementation(async (key: string) =>
+      key === 'live_active' ? 'true' : key === 'live_last_tick' ? new Date().toISOString() : null
+    )
     const res = await POST(makeReq())
     const body = await res.json()
     expect(body.skipped).toBe('already-active')
+    expect(activateLive).not.toHaveBeenCalled()
+    expect(enqueueLiveTick).not.toHaveBeenCalled()
+  })
+
+  it('restarts the tick chain when live is active but the last tick is stale (watchdog)', async () => {
+    vi.mocked(getConfig).mockImplementation(async (key: string) =>
+      key === 'live_active' ? 'true' : key === 'live_last_tick' ? new Date(Date.now() - 10 * 60_000).toISOString() : null
+    )
+    const res = await POST(makeReq())
+    const body = await res.json()
+    expect(body.restartedTick).toBe(true)
+    expect(enqueueLiveTick).toHaveBeenCalledWith(0)
     expect(activateLive).not.toHaveBeenCalled()
   })
 

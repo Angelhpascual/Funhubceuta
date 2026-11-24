@@ -4,8 +4,12 @@ import { getConfig } from '@/infrastructure/supabase/AppConfigRepository'
 import { MatchesSupabaseRepository } from '@/infrastructure/supabase/MatchesSupabaseRepository'
 import { madridDateTimeToUtc } from '@/lib/madridTime'
 import { activateLive } from '@/infrastructure/live/activateLive'
+import { enqueueLiveTick } from '@/infrastructure/live/enqueueLiveTick'
 import { logCron } from '@/infrastructure/supabase/logCron'
 
+// If live is on but the self-chaining tick has been silent this long, the chain
+// broke (a failed enqueue, a dropped message): restart it.
+const TICK_STALE_MS = 3 * 60 * 1000
 const PRE_KICKOFF_WINDOW_MS = 15 * 60 * 1000
 const POST_KICKOFF_SAFETY_WINDOW_MS = 90 * 60 * 1000
 
@@ -16,6 +20,15 @@ async function autoActivateLive() {
   try {
     const alreadyActive = (await getConfig('live_active')) === 'true'
     if (alreadyActive) {
+      const lastTickRaw = await getConfig('live_last_tick')
+      const lastTick = lastTickRaw ? new Date(lastTickRaw).getTime() : NaN
+      const stale = !Number.isFinite(lastTick) || Date.now() - lastTick > TICK_STALE_MS
+      if (stale) {
+        await enqueueLiveTick(0)
+        const result = { restartedTick: true as const }
+        await logCron('auto-activate-live', 'success', Date.now() - t0, result)
+        return result
+      }
       const result = { skipped: 'already-active' as const }
       await logCron('auto-activate-live', 'success', Date.now() - t0, result)
       return result

@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('@/infrastructure/supabase/logCron', () => ({ logCron: vi.fn() }))
 vi.mock('@/infrastructure/push/notifyAdmin', () => ({ notifyAdmin: vi.fn() }))
+vi.mock('@/infrastructure/live/enqueueLiveTick', () => ({ enqueueLiveTick: vi.fn() }))
 vi.mock('@/infrastructure/supabase/PushSubscriptionsRepository', () => ({
   getAllSubscriptions: vi.fn().mockResolvedValue([]),
   deleteSubscription: vi.fn(),
@@ -32,10 +33,11 @@ vi.mock('@/infrastructure/push/sendPush', () => ({
 vi.mock('@/lib/madridTime', () => ({ madridDateTimeToUtc: (_date: string, time: string) => new Date(time) }))
 
 import { fetchWithTimeout } from '@/lib/fetchWithTimeout'
-import { getConfig } from '@/infrastructure/supabase/AppConfigRepository'
+import { getConfig, setConfig, deleteConfig } from '@/infrastructure/supabase/AppConfigRepository'
 import { getAllSubscriptions } from '@/infrastructure/supabase/PushSubscriptionsRepository'
 import { notifyAdmin } from '@/infrastructure/push/notifyAdmin'
 import { logCron } from '@/infrastructure/supabase/logCron'
+import { enqueueLiveTick } from '@/infrastructure/live/enqueueLiveTick'
 import { sendPush, sendPushAdminOnly } from '@/infrastructure/push/sendPush'
 import { GET } from '../route'
 
@@ -213,6 +215,210 @@ describe('GET /api/cron/live — push environment gate', () => {
   it('uses the production-gated push (not the admin-only one) for a real run (regression: local sendPush used to ignore the VERCEL_ENV production gate)', async () => {
     await GET(makeReq(false))
     expect(sendPush).toHaveBeenCalled()
+    expect(sendPushAdminOnly).not.toHaveBeenCalled()
+  })
+})
+
+describe('GET /api/cron/live — max-duration safety guard', () => {
+  function configWith(activatedAt: string | null) {
+    vi.mocked(getConfig).mockImplementation(async (key: string) => {
+      if (key === 'live_active') return 'true'
+      if (key === 'live_activated_at') return activatedAt
+      if (key === 'live_match_state') {
+        return JSON.stringify({ espnId: 'evt1', homeScore: 1, awayScore: 1, state: 'in', eventCount: 0 })
+      }
+      return null
+    })
+  }
+
+  beforeEach(() => {
+    vi.mocked(fetchWithTimeout).mockImplementation(async (url: string | URL) => {
+      if (String(url).includes('/summary')) return summaryResponse()
+      return scoreboardResponse('in')
+    })
+  })
+
+  it('shuts live mode down and warns the admin when it has been active for more than 2.5 hours', async () => {
+    configWith(new Date(Date.now() - 3 * 3_600_000).toISOString())
+
+    const res = await GET(makeReq(false))
+    const body = await res.json()
+
+    expect(body.stoppedBy).toBe('max-duration')
+    expect(setConfig).toHaveBeenCalledWith('live_active', 'false')
+    expect(deleteConfig).toHaveBeenCalledWith('live_match_state')
+    expect(notifyAdmin).toHaveBeenCalledWith(
+      '⚠️ Modo directo apagado por seguridad',
+      expect.stringContaining('2 horas y media')
+    )
+    expect(fetchWithTimeout).not.toHaveBeenCalled()
+  })
+
+  it('keeps running normally while still inside the 2.5 hour window', async () => {
+    configWith(new Date(Date.now() - 1 * 3_600_000).toISOString())
+
+    const res = await GET(makeReq(false))
+    const body = await res.json()
+
+    expect(body.stoppedBy).toBeUndefined()
+    expect(notifyAdmin).not.toHaveBeenCalled()
+    expect(fetchWithTimeout).toHaveBeenCalled()
+  })
+
+  it('starts counting from now when live was activated before the guard existed (no activation timestamp)', async () => {
+    configWith(null)
+
+    await GET(makeReq(false))
+
+    expect(setConfig).toHaveBeenCalledWith('live_activated_at', expect.any(String))
+    expect(notifyAdmin).not.toHaveBeenCalled()
+  })
+
+  it('does not apply the guard in test mode', async () => {
+    configWith(new Date(Date.now() - 10 * 3_600_000).toISOString())
+
+    const res = await GET(makeReq(true))
+    const body = await res.json()
+
+    expect(body.stoppedBy).toBeUndefined()
+  })
+})
+
+describe('GET /api/cron/live — self-chaining ticks', () => {
+  function liveConfig() {
+    vi.mocked(getConfig).mockImplementation(async (key: string) => {
+      if (key === 'live_active') return 'true'
+      if (key === 'live_activated_at') return new Date(Date.now() - 3_600_000).toISOString()
+      if (key === 'live_match_state') {
+        return JSON.stringify({ espnId: 'evt1', homeScore: 2, awayScore: 1, state: 'in', eventCount: 0 })
+      }
+      return null
+    })
+  }
+  function espn(state: 'pre' | 'in' | 'post') {
+    vi.mocked(fetchWithTimeout).mockImplementation(async (url: string | URL) => {
+      if (String(url).includes('/summary')) return summaryResponse()
+      return scoreboardResponse(state)
+    })
+  }
+
+  beforeEach(() => {
+    vi.mocked(enqueueLiveTick).mockResolvedValue({ enqueued: true })
+  })
+
+  it('queues the next tick while the match is in progress', async () => {
+    liveConfig(); espn('in')
+    await GET(makeReq(false))
+    expect(enqueueLiveTick).toHaveBeenCalledWith(60)
+  })
+
+  it('stops the chain (no next tick) and switches live off when the match ends', async () => {
+    liveConfig(); espn('post')
+    await GET(makeReq(false))
+    expect(enqueueLiveTick).not.toHaveBeenCalled()
+    expect(setConfig).toHaveBeenCalledWith('live_active', 'false')
+  })
+
+  it('switches live off even if the match is already post and we never saw it in progress', async () => {
+    vi.mocked(getConfig).mockImplementation(async (key: string) => {
+      if (key === 'live_active') return 'true'
+      if (key === 'live_activated_at') return new Date(Date.now() - 3_600_000).toISOString()
+      return null
+    })
+    espn('post')
+    await GET(makeReq(false))
+    expect(setConfig).toHaveBeenCalledWith('live_active', 'false')
+    expect(enqueueLiveTick).not.toHaveBeenCalled()
+    // ...and the final-result push still goes out
+    expect(sendPush).toHaveBeenCalledTimes(1)
+    expect(vi.mocked(sendPush).mock.calls[0][0]).toMatchObject({ tag: 'fulltime' })
+  })
+
+  it('keeps the chain alive when ESPN briefly returns no match', async () => {
+    liveConfig()
+    vi.mocked(fetchWithTimeout).mockResolvedValue(new Response(JSON.stringify({ events: [] }), { status: 200 }))
+    await GET(makeReq(false))
+    expect(enqueueLiveTick).toHaveBeenCalledWith(60)
+  })
+
+  it('does not queue ticks when live is not active', async () => {
+    vi.mocked(getConfig).mockResolvedValue(null)
+    await GET(makeReq(false))
+    expect(enqueueLiveTick).not.toHaveBeenCalled()
+  })
+
+  it('warns the admin if the next tick cannot be queued', async () => {
+    liveConfig(); espn('in')
+    vi.mocked(enqueueLiveTick).mockRejectedValue(new Error('quota exceeded'))
+    const res = await GET(makeReq(false))
+    expect(res.status).toBe(200)
+    expect(logCron).toHaveBeenCalledWith('live', 'error', 0, { stage: 'enqueueNextTick', error: expect.stringContaining('quota exceeded') })
+    expect(notifyAdmin).toHaveBeenCalled()
+  })
+})
+
+describe('GET /api/cron/live — two goals in a single poll', () => {
+  it('attributes each goal to its own scorer and tags it with its own running score (regression: both got the last scorer and the final-score tag)', async () => {
+    vi.mocked(getConfig).mockImplementation(async (key: string) => {
+      if (key === 'live_match_state') {
+        // Previous poll: Ceuta 0-1. Scoreboard now says 2-1 → two Ceuta goals landed between polls.
+        return JSON.stringify({ espnId: 'evt1', homeScore: 0, awayScore: 1, state: 'in', eventCount: 0 })
+      }
+      return null
+    })
+    vi.mocked(fetchWithTimeout).mockImplementation(async (url: string | URL) => {
+      if (String(url).includes('/summary')) {
+        return new Response(JSON.stringify({
+          plays: [
+            { type: { text: 'Goal' }, clock: { displayValue: "30'" }, team: { id: '5404' }, participants: [{ athlete: { displayName: 'Primer Goleador' } }] },
+            { type: { text: 'Goal' }, clock: { displayValue: "31'" }, team: { id: '5404' }, participants: [{ athlete: { displayName: 'Segundo Goleador' } }] },
+          ],
+        }), { status: 200 })
+      }
+      return scoreboardResponse('in')
+    })
+
+    await GET(makeReq(true))
+
+    const calls = vi.mocked(sendPushAdminOnly).mock.calls.map((c) => c[0])
+    const goal1 = calls.find((c) => c.tag === 'goal-home-1')
+    const goal2 = calls.find((c) => c.tag === 'goal-home-2')
+    expect(goal1?.body).toContain('Primer Goleador')
+    expect(goal1?.body).toContain('1-1')
+    expect(goal2?.body).toContain('Segundo Goleador')
+    expect(goal2?.body).toContain('2-1')
+  })
+})
+
+describe('GET /api/cron/live — retry safety', () => {
+  function goalScene(notified: string[]) {
+    vi.mocked(getConfig).mockImplementation(async (key: string) => {
+      if (key === 'live_match_state') {
+        return JSON.stringify({ espnId: 'evt1', homeScore: 1, awayScore: 1, state: 'in', eventCount: 0, notified })
+      }
+      return null
+    })
+    vi.mocked(fetchWithTimeout).mockImplementation(async (url: string | URL) => {
+      if (String(url).includes('/summary')) {
+        return new Response(JSON.stringify({
+          plays: [{ type: { text: 'Goal' }, clock: { displayValue: "70'" }, team: { id: '5404' }, participants: [{ athlete: { displayName: 'Goleador' } }] }],
+        }), { status: 200 })
+      }
+      return scoreboardResponse('in') // 2-1: one new Ceuta goal vs the stored 1-1
+    })
+  }
+
+  it('sends the goal push the first time', async () => {
+    goalScene([])
+    await GET(makeReq(true))
+    expect(sendPushAdminOnly).toHaveBeenCalledTimes(1)
+    // dedupe set is persisted right after the send
+    expect(setConfig).toHaveBeenCalledWith('live_match_state', expect.stringContaining('goal-home-2'))
+  })
+
+  it('does not resend a goal push already recorded as sent (QStash retried the tick)', async () => {
+    goalScene(['goal-home-2:Goleador:70\''])
+    await GET(makeReq(true))
     expect(sendPushAdminOnly).not.toHaveBeenCalled()
   })
 })

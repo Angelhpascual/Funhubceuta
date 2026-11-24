@@ -1,25 +1,11 @@
-import { Client } from '@upstash/qstash'
 import { setConfig, getConfig } from '@/infrastructure/supabase/AppConfigRepository'
 import { supabaseAdmin } from '@/infrastructure/supabase/adminClient'
 import type { LiveMatch } from '@/domain/match/LiveMatch'
 import { getAppEnv } from '@/lib/appEnv'
+import { enqueueLiveTick } from './enqueueLiveTick'
 
-const QSTASH_SCHEDULE_KEY = 'live_qstash_schedule_id'
 const LIVE_ACTIVE_KEY = 'live_active'
-
-function qstash() {
-  return new Client({ token: process.env.QSTASH_TOKEN! })
-}
-
-function liveUrl() {
-  const base =
-    getAppEnv() === 'production'
-      ? (process.env.NEXT_PUBLIC_BASE_URL ?? 'https://adceutainfo.vercel.app')
-      : process.env.VERCEL_URL
-        ? `https://${process.env.VERCEL_URL}`
-        : 'http://localhost:3000'
-  return `${base}/api/cron/live`
-}
+const LIVE_ACTIVATED_AT_KEY = 'live_activated_at'
 
 async function loadPreMock() {
   const { data } = await supabaseAdmin
@@ -69,23 +55,27 @@ export async function activateLive(): Promise<{ ok: true; scheduleId: string | n
   // In preview/local: just flip the flag — no QStash needed
   if (getAppEnv() !== 'production') {
     await setConfig(LIVE_ACTIVE_KEY, 'true')
+    await setConfig(LIVE_ACTIVATED_AT_KEY, new Date().toISOString())
     return { ok: true, scheduleId: null }
   }
 
-  // Production: create QStash schedule for real cron
-  const existing = await getConfig(QSTASH_SCHEDULE_KEY)
-  if (existing) {
-    return { ok: true, already: true, scheduleId: existing }
+  // Production: live mode is driven by a self-chaining QStash *message* (each
+  // /api/cron/live run queues the next one) rather than a per-minute schedule,
+  // so it never competes for the plan's limited schedule slots.
+  const alreadyActive = (await getConfig(LIVE_ACTIVE_KEY)) === 'true'
+  if (alreadyActive) {
+    return { ok: true, already: true, scheduleId: null }
   }
 
-  const client = qstash()
-  const schedule = await client.schedules.create({
-    destination: liveUrl(),
-    cron: '* * * * *',
-  })
-
   await setConfig(LIVE_ACTIVE_KEY, 'true')
-  await setConfig(QSTASH_SCHEDULE_KEY, schedule.scheduleId)
+  await setConfig(LIVE_ACTIVATED_AT_KEY, new Date().toISOString())
+  try {
+    await enqueueLiveTick(0)
+  } catch (err) {
+    // Don't leave live_active=true with nothing driving it.
+    await setConfig(LIVE_ACTIVE_KEY, 'false')
+    throw err
+  }
 
-  return { ok: true, scheduleId: schedule.scheduleId }
+  return { ok: true, scheduleId: null }
 }

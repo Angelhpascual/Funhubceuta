@@ -10,9 +10,17 @@ import { madridDateTimeToUtc } from '@/lib/madridTime'
 import { MSG } from './messages'
 import { logCron } from '@/infrastructure/supabase/logCron'
 import { notifyAdmin } from '@/infrastructure/push/notifyAdmin'
+import { stopLiveSchedule } from '@/infrastructure/live/stopLiveSchedule'
+import { enqueueLiveTick } from '@/infrastructure/live/enqueueLiveTick'
 import { MatchesSupabaseRepository } from '@/infrastructure/supabase/MatchesSupabaseRepository'
 
 const matchesRepo = new MatchesSupabaseRepository()
+
+// Safety net: a match plus stoppage time never needs live mode for this long.
+// If the normal 'post' transition is ever missed (ESPN never reports 'post',
+// the stored baseline is lost, ...) the per-minute QStash schedule would
+// otherwise keep running forever.
+const LIVE_MAX_DURATION_MS = 2.5 * 3_600_000
 
 // ── Fetch live match from ESPN (shared parsing with /api/live) ────────────
 
@@ -80,6 +88,9 @@ interface MatchState {
   awayScore: number
   state: string
   eventCount: number
+  // Dedupe keys of pushes already sent for this match, persisted right after
+  // each send so a QStash retry of the same tick can't send them twice.
+  notified?: string[]
 }
 
 async function getStoredState(): Promise<MatchState | null> {
@@ -105,6 +116,23 @@ async function checkAndNotify(testMode = false) {
     if (liveActive !== 'true') {
       return { match: null, notifications: [], skipped: true }
     }
+
+    const activatedAtRaw = await getConfig('live_activated_at')
+    if (!activatedAtRaw) {
+      // Activated before the guard existed: start counting from now.
+      await setConfig('live_activated_at', new Date().toISOString())
+    } else {
+      const age = Date.now() - new Date(activatedAtRaw).getTime()
+      if (Number.isFinite(age) && age > LIVE_MAX_DURATION_MS) {
+        await stopLiveSchedule()
+        await deleteConfig('live_match_state')
+        await notifyAdmin(
+          '⚠️ Modo directo apagado por seguridad',
+          'Llevaba más de 2 horas y media activo sin detectar el final del partido. Revisa el resultado.'
+        ).catch((err) => logCron('live', 'error', 0, { stage: 'notifyAdmin', error: String(err) }))
+        return { match: null, notifications: [], skipped: true, stoppedBy: 'max-duration' as const }
+      }
+    }
   }
   const match = await fetchLiveMatch()
 
@@ -116,7 +144,7 @@ async function checkAndNotify(testMode = false) {
     if (prev?.state === 'post') {
       await deleteConfig('live_match_state')
     }
-    return { match: null, notifications: [] }
+    return { match: null, notifications: [], keepAlive: true }
   }
 
   const prev = await getStoredState()
@@ -130,6 +158,18 @@ async function checkAndNotify(testMode = false) {
     eventCount: match.events.length,
   }
 
+  const notified = new Set<string>(prev && prev.espnId === match.espnId ? (prev.notified ?? []) : [])
+  async function pushOnce(key: string, m: { title: string; body: string }, tag: string) {
+    if (notified.has(key)) return
+    await sendPush(m.title, m.body, tag, '/partidos', testMode)
+    notified.add(key)
+    notifications.push(tag)
+    // Persist the dedupe set immediately. With no previous baseline the first
+    // tick stores the current state; otherwise keep the old baseline so the
+    // goal diff is still computed correctly if this tick is retried.
+    await saveState({ ...(prev ?? newState), notified: [...notified] })
+  }
+
   const rival = match.homeTeam.toLowerCase().includes('ceuta') ? match.awayTeam : match.homeTeam
   const ceutaIsHome = match.homeTeam.toLowerCase().includes('ceuta')
   const score = `${match.homeScore}-${match.awayScore}`
@@ -137,8 +177,7 @@ async function checkAndNotify(testMode = false) {
   // ── Match just started ────────────────────────────────────────────────
   if ((!prev || prev.state === 'pre') && match.state === 'in') {
     const m = MSG.kickoff(rival)
-    await sendPush(m.title, m.body, 'kickoff', '/partidos', testMode)
-    notifications.push('kickoff')
+    await pushOnce('kickoff', m, 'kickoff')
   }
 
   // ── Goal detected ─────────────────────────────────────────────────────
@@ -146,24 +185,35 @@ async function checkAndNotify(testMode = false) {
     const homeGoals = match.homeScore - prev.homeScore
     const awayGoals = match.awayScore - prev.awayScore
 
+    // When two goals from the same team land in a single poll window, each
+    // needs its OWN scorer and its own running score. Using the last goal of
+    // the whole match (the old `.pop()`) attributed every notification in the
+    // batch to the same player, and tagging them with the final score made the
+    // tags collide, so platforms that dedupe pushes by tag swallowed one.
+    const newGoalEvents = match.events.slice(prev.eventCount).filter((e) => e.type === 'goal')
+    const newHomeGoalEvents = newGoalEvents.filter((e) => e.team === 'home')
+    const newAwayGoalEvents = newGoalEvents.filter((e) => e.team === 'away')
+
     for (let i = 0; i < homeGoals; i++) {
       const ceutaScored = ceutaIsHome
-      const scorer = match.events.filter((e) => e.type === 'goal' && e.team === 'home').pop()
+      const scorer = newHomeGoalEvents[i] ?? newHomeGoalEvents[newHomeGoalEvents.length - 1]
+      const scoreAfter = `${prev.homeScore + i + 1}-${match.awayScore}`
+      const tag = `goal-home-${prev.homeScore + i + 1}`
       const m = ceutaScored
-        ? MSG.goalCeuta(scorer?.playerName ?? 'GOOOL', score, scorer?.minute ?? '')
-        : MSG.goalRival(scorer?.playerName ?? '', score)
-      await sendPush(m.title, m.body, `goal-home-${match.homeScore}`, '/partidos', testMode)
-      notifications.push(`goal-home-${match.homeScore}`)
+        ? MSG.goalCeuta(scorer?.playerName ?? 'GOOOL', scoreAfter, scorer?.minute ?? '')
+        : MSG.goalRival(scorer?.playerName ?? '', scoreAfter)
+      await pushOnce(`${tag}:${scorer?.playerName ?? ''}:${scorer?.minute ?? ''}`, m, tag)
     }
 
     for (let i = 0; i < awayGoals; i++) {
       const ceutaScored = !ceutaIsHome
-      const scorer = match.events.filter((e) => e.type === 'goal' && e.team === 'away').pop()
+      const scorer = newAwayGoalEvents[i] ?? newAwayGoalEvents[newAwayGoalEvents.length - 1]
+      const scoreAfter = `${match.homeScore}-${prev.awayScore + i + 1}`
+      const tag = `goal-away-${prev.awayScore + i + 1}`
       const m = ceutaScored
-        ? MSG.goalCeuta(scorer?.playerName ?? 'GOOOL', score, scorer?.minute ?? '')
-        : MSG.goalRival(scorer?.playerName ?? '', score)
-      await sendPush(m.title, m.body, `goal-away-${match.awayScore}`, '/partidos', testMode)
-      notifications.push(`goal-away-${match.awayScore}`)
+        ? MSG.goalCeuta(scorer?.playerName ?? 'GOOOL', scoreAfter, scorer?.minute ?? '')
+        : MSG.goalRival(scorer?.playerName ?? '', scoreAfter)
+      await pushOnce(`${tag}:${scorer?.playerName ?? ''}:${scorer?.minute ?? ''}`, m, tag)
     }
 
     // ── Red card ────────────────────────────────────────────────────────
@@ -174,31 +224,25 @@ async function checkAndNotify(testMode = false) {
       const m = isCeuta
         ? MSG.redCeuta(card.playerName, card.minute)
         : MSG.redRival(card.playerName, card.minute)
-      await sendPush(m.title, m.body, `red-${card.minute}`, '/partidos', testMode)
-      notifications.push(`red-${card.playerName}`)
+      await pushOnce(`red:${card.playerName}:${card.minute}`, m, `red-${card.minute}`)
     }
   }
 
-  // ── Match finished — auto-deactivate live mode ────────────────────────
-  if (prev?.state === 'in' && match.state === 'post') {
-    // Stop the QStash schedule automatically
-    const scheduleId = await getConfig('live_qstash_schedule_id')
-    if (scheduleId) {
-      try {
-        const { Client } = await import('@upstash/qstash')
-        const client = new Client({ token: process.env.QSTASH_TOKEN! })
-        await client.schedules.delete(scheduleId)
-      } catch { /* best effort */ }
-      await deleteConfig('live_qstash_schedule_id')
-    }
-    await setConfig('live_active', 'false')
+  // ── Match finished — final-result push, then auto-deactivate live mode ──
+  // Triggered by ESPN reporting 'post', whether or not we saw the match 'in'
+  // beforehand (restart, lost baseline, missed poll): the final result must
+  // always go out and the live mode must always shut down. The push goes first
+  // so that if it throws, live stays on and QStash's retry sends it again;
+  // pushOnce makes that retry safe.
+  if (match.state === 'post') {
     const ceutaScore = ceutaIsHome ? match.homeScore : match.awayScore
     const rivalScore = ceutaIsHome ? match.awayScore : match.homeScore
     const result = ceutaScore > rivalScore ? 'W' : ceutaScore < rivalScore ? 'L' : 'D'
     const m =
       result === 'W' ? MSG.winCeuta(score) : result === 'L' ? MSG.lossCeuta(score) : MSG.drawCeuta(score)
-    await sendPush(m.title, m.body, 'fulltime', '/partidos', testMode)
-    notifications.push('fulltime')
+    await pushOnce('fulltime', m, 'fulltime')
+    // Clear the live flags (and any legacy schedule); no next tick is queued.
+    await stopLiveSchedule()
     await notifyAdmin('🏁 Partido terminado', 'Abre la votación MVP cuando tengas los candidatos').catch((err) =>
       logCron('live', 'error', 0, { stage: 'notifyAdmin', error: String(err) })
     )
@@ -210,10 +254,11 @@ async function checkAndNotify(testMode = false) {
     )
   }
 
-  await saveState(newState)
+  await saveState({ ...newState, notified: [...notified] })
   return {
     match: { state: match.state, score: `${match.homeScore}-${match.awayScore}` },
     notifications,
+    keepAlive: match.state !== 'post',
   }
 }
 
@@ -221,6 +266,20 @@ async function checkAndNotifySafe(testMode = false) {
   const t0 = Date.now()
   try {
     const result = await checkAndNotify(testMode)
+    // Self-chaining: queue the next tick while the match is still on. When the
+    // match ends (or the safety guard fires) keepAlive is false, so the chain
+    // simply stops — nothing left running to switch off.
+    if (!testMode && result.keepAlive) {
+      try {
+        await enqueueLiveTick(60)
+      } catch (err) {
+        await logCron('live', 'error', 0, { stage: 'enqueueNextTick', error: String(err) })
+        await notifyAdmin(
+          '⚠️ El directo no pudo programar el siguiente minuto',
+          'Revisa QStash: sin el siguiente aviso, el partido dejará de actualizarse.'
+        ).catch(() => {})
+      }
+    }
     await logCron('live', 'success', Date.now() - t0, {
       match: result.match,
       notifications: result.notifications,

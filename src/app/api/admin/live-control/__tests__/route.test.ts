@@ -14,10 +14,12 @@ vi.mock('@/infrastructure/supabase/adminClient', () => ({
 }))
 const mockSchedulesCreate = vi.hoisted(() => vi.fn().mockResolvedValue({ scheduleId: 'sch_test123' }))
 const mockSchedulesDelete = vi.hoisted(() => vi.fn().mockResolvedValue(undefined))
+const mockPublishJSON = vi.hoisted(() => vi.fn().mockResolvedValue({ messageId: 'msg_1' }))
 
 vi.mock('@upstash/qstash', () => {
-  function Client(this: { schedules: unknown }) {
+  function Client(this: { schedules: unknown; publishJSON: unknown }) {
     this.schedules = { create: mockSchedulesCreate, delete: mockSchedulesDelete }
+    this.publishJSON = mockPublishJSON
   }
   return { Client }
 })
@@ -31,6 +33,7 @@ beforeEach(() => {
   vi.resetAllMocks()
   mockSchedulesCreate.mockResolvedValue({ scheduleId: 'sch_test123' })
   mockSchedulesDelete.mockResolvedValue(undefined)
+  mockPublishJSON.mockResolvedValue({ messageId: 'msg_1' })
   vi.mocked(checkAdminAuth).mockResolvedValue(true)
   vi.mocked(setConfig).mockResolvedValue(undefined)
   vi.mocked(deleteConfig).mockResolvedValue(undefined)
@@ -161,26 +164,34 @@ describe('POST /api/admin/live-control', () => {
     expect(setConfig).toHaveBeenCalledWith('live_active', 'true')
   })
 
-  it('production: creates QStash schedule', async () => {
+  it('production: queues the first live tick as a QStash message, not a schedule (regression: maxSchedules quota blocked live mode)', async () => {
     process.env.VERCEL_ENV = 'production'
     vi.mocked(getConfig).mockResolvedValue(null)
     const res = await POST()
     expect(res.status).toBe(200)
     const body = await res.json()
-    expect(body.scheduleId).toBe('sch_test123')
-    expect(setConfig).toHaveBeenCalledWith('live_qstash_schedule_id', 'sch_test123')
+    expect(body.scheduleId).toBeNull()
+    expect(mockSchedulesCreate).not.toHaveBeenCalled()
+    expect(mockPublishJSON).toHaveBeenCalledWith(expect.objectContaining({ delay: 0 }))
+    expect(setConfig).toHaveBeenCalledWith('live_active', 'true')
+    expect(setConfig).toHaveBeenCalledWith('live_activated_at', expect.any(String))
   })
 
-  it('production: returns existing scheduleId if already active', async () => {
+  it('production: does not queue a second tick if live is already active', async () => {
     process.env.VERCEL_ENV = 'production'
-    vi.mocked(getConfig).mockImplementation(async (key: string) => {
-      if (key === 'live_qstash_schedule_id') return 'existing_sch'
-      return null
-    })
+    vi.mocked(getConfig).mockImplementation(async (key: string) => (key === 'live_active' ? 'true' : null))
     const res = await POST()
     const body = await res.json()
     expect(body.already).toBe(true)
-    expect(body.scheduleId).toBe('existing_sch')
+    expect(mockPublishJSON).not.toHaveBeenCalled()
+  })
+
+  it('production: reverts live_active if the first tick cannot be queued', async () => {
+    process.env.VERCEL_ENV = 'production'
+    vi.mocked(getConfig).mockResolvedValue(null)
+    mockPublishJSON.mockRejectedValue(new Error('qstash down'))
+    await expect(POST()).rejects.toThrow('qstash down')
+    expect(setConfig).toHaveBeenLastCalledWith('live_active', 'false')
   })
 })
 
