@@ -3,6 +3,7 @@ import { Client } from '@upstash/qstash'
 import { setConfig, getConfig, deleteConfig } from '@/infrastructure/supabase/AppConfigRepository'
 import type { LiveMatch } from '@/domain/match/LiveMatch'
 import { checkAdminAuth, unauthorizedResponse } from '@/infrastructure/admin/auth'
+import { stopLiveSchedule } from '@/infrastructure/live/stopLiveSchedule'
 import { activateLive } from '@/infrastructure/live/activateLive'
 import { getAppEnv } from '@/lib/appEnv'
 
@@ -67,18 +68,9 @@ export async function DELETE() {
     return NextResponse.json({ ok: true })
   }
 
-  // Production: also delete QStash schedule
-  const scheduleId = await getConfig(QSTASH_SCHEDULE_KEY)
-  if (scheduleId) {
-    try {
-      const client = qstash()
-      await client.schedules.delete(scheduleId)
-    } catch {
-      // Schedule may already be gone — continue cleanup
-    }
-    await deleteConfig(QSTASH_SCHEDULE_KEY)
-  }
-  await setConfig(LIVE_ACTIVE_KEY, 'false')
+  // Production: same shutdown as the match-finished path (flags, chain id,
+  // legacy schedule), so no stale timestamps or chain survive.
+  await stopLiveSchedule()
   await deleteConfig('live_match_state')
   await deleteConfig('live_match_mock')
 

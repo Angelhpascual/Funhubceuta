@@ -24,7 +24,11 @@ const LIVE_MAX_DURATION_MS = 2.5 * 3_600_000
 
 // ── Fetch live match from ESPN (shared parsing with /api/live) ────────────
 
-async function fetchLiveMatch(): Promise<LiveMatch | null> {
+// `eventsOk` is false when ESPN's /summary could not be read: the event list is
+// then empty only because it is unknown, not because nothing happened.
+type FetchedMatch = LiveMatch & { eventsOk: boolean }
+
+async function fetchLiveMatch(): Promise<FetchedMatch | null> {
   const res = await fetchWithTimeout(`${ESPN}/scoreboard`, { cache: 'no-store' }, 15_000)
   if (!res.ok) return null
 
@@ -46,10 +50,17 @@ async function fetchLiveMatch(): Promise<LiveMatch | null> {
   const state = guardMatchState(core.state, kickoffIso)
 
   let events: LiveMatch['events'] = []
+  let eventsOk = true
   if (state === 'in' || state === 'post') {
-    const sum = await fetchWithTimeout(`${ESPN}/summary?event=${event.id}`, { cache: 'no-store' }, 15_000)
-    if (sum.ok) {
-      events = parseLiveEvents(await sum.json(), core.homeTeamId)
+    try {
+      const sum = await fetchWithTimeout(`${ESPN}/summary?event=${event.id}`, { cache: 'no-store' }, 15_000)
+      if (sum.ok) {
+        events = parseLiveEvents(await sum.json(), core.homeTeamId)
+      } else {
+        eventsOk = false
+      }
+    } catch {
+      eventsOk = false
     }
   }
 
@@ -63,6 +74,7 @@ async function fetchLiveMatch(): Promise<LiveMatch | null> {
     homeScore: core.homeScore,
     awayScore: core.awayScore,
     events,
+    eventsOk,
     venue: core.venue,
     startDate: core.startDate,
   }
@@ -109,12 +121,19 @@ async function saveState(state: MatchState) {
 }
 
 // ── Main logic ────────────────────────────────────────────────────────────
-async function checkAndNotify(testMode = false) {
+async function checkAndNotify(testMode = false, bodyChain?: string) {
   // Guard: only run when live mode is explicitly active
   if (!testMode) {
     const liveActive = await getConfig('live_active')
     if (liveActive !== 'true') {
       return { match: null, notifications: [], skipped: true }
+    }
+
+    // A newer chain (watchdog restart) supersedes this one: drop the tick and
+    // do not queue another, so two chains can never run side by side.
+    const currentChain = await getConfig('live_chain_id')
+    if (bodyChain && currentChain && bodyChain !== currentChain) {
+      return { match: null, notifications: [], skipped: true, staleChain: true as const }
     }
 
     const activatedAtRaw = await getConfig('live_activated_at')
@@ -140,14 +159,18 @@ async function checkAndNotify(testMode = false) {
     // ESPN returned no Ceuta match — could be an API hiccup during a live game.
     // Don't delete stored state here; only clear it after the match reaches 'post'.
     // If we cleared on every miss we'd reset the goal baseline mid-game.
-    const prev = await getStoredState()
-    if (prev?.state === 'post') {
+    const stored = await getStoredState()
+    if (stored?.state === 'post') {
       await deleteConfig('live_match_state')
     }
     return { match: null, notifications: [], keepAlive: true }
   }
 
-  const prev = await getStoredState()
+  // Baseline only counts if it belongs to THIS match: a leftover 'post' state
+  // from the previous fixture must not suppress this one's kickoff push or
+  // skew its goal diff.
+  const stored = await getStoredState()
+  const prev = stored && stored.espnId === match.espnId ? stored : null
   const notifications: string[] = []
 
   const newState: MatchState = {
@@ -155,10 +178,18 @@ async function checkAndNotify(testMode = false) {
     homeScore: match.homeScore,
     awayScore: match.awayScore,
     state: match.state,
-    eventCount: match.events.length,
+    // Unreadable /summary → keep the old count instead of resetting it to 0,
+    // which would re-attribute old goals to the wrong scorer next tick.
+    eventCount: match.eventsOk ? match.events.length : (prev?.eventCount ?? 0),
   }
 
-  const notified = new Set<string>(prev && prev.espnId === match.espnId ? (prev.notified ?? []) : [])
+  const notified = new Set<string>(prev?.notified ?? [])
+  // A disallowed (VAR) goal lowers the score: forget the dedupe keys of goals
+  // that no longer stand, so the same goal being scored again notifies again.
+  if (prev) {
+    for (let n = match.homeScore + 1; n <= prev.homeScore; n++) notified.delete(`goal-home-${n}`)
+    for (let n = match.awayScore + 1; n <= prev.awayScore; n++) notified.delete(`goal-away-${n}`)
+  }
   async function pushOnce(key: string, m: { title: string; body: string }, tag: string) {
     if (notified.has(key)) return
     await sendPush(m.title, m.body, tag, '/partidos', testMode)
@@ -202,7 +233,7 @@ async function checkAndNotify(testMode = false) {
       const m = ceutaScored
         ? MSG.goalCeuta(scorer?.playerName ?? 'GOOOL', scoreAfter, scorer?.minute ?? '')
         : MSG.goalRival(scorer?.playerName ?? '', scoreAfter)
-      await pushOnce(`${tag}:${scorer?.playerName ?? ''}:${scorer?.minute ?? ''}`, m, tag)
+      await pushOnce(tag, m, tag)
     }
 
     for (let i = 0; i < awayGoals; i++) {
@@ -213,7 +244,7 @@ async function checkAndNotify(testMode = false) {
       const m = ceutaScored
         ? MSG.goalCeuta(scorer?.playerName ?? 'GOOOL', scoreAfter, scorer?.minute ?? '')
         : MSG.goalRival(scorer?.playerName ?? '', scoreAfter)
-      await pushOnce(`${tag}:${scorer?.playerName ?? ''}:${scorer?.minute ?? ''}`, m, tag)
+      await pushOnce(tag, m, tag)
     }
 
     // ── Red card ────────────────────────────────────────────────────────
@@ -242,16 +273,20 @@ async function checkAndNotify(testMode = false) {
       result === 'W' ? MSG.winCeuta(score) : result === 'L' ? MSG.lossCeuta(score) : MSG.drawCeuta(score)
     await pushOnce('fulltime', m, 'fulltime')
     // Clear the live flags (and any legacy schedule); no next tick is queued.
-    await stopLiveSchedule()
-    await notifyAdmin('🏁 Partido terminado', 'Abre la votación MVP cuando tengas los candidatos').catch((err) =>
-      logCron('live', 'error', 0, { stage: 'notifyAdmin', error: String(err) })
-    )
+    // Test mode (?test=true) only ever sends the push: it must not switch off
+    // real live mode or mark the match finished.
+    if (!testMode) {
+      await stopLiveSchedule()
+      await notifyAdmin('🏁 Partido terminado', 'Abre la votación MVP cuando tengas los candidatos').catch((err) =>
+        logCron('live', 'error', 0, { stage: 'notifyAdmin', error: String(err) })
+      )
     // Reflejar el resultado en la tabla de partidos de inmediato — si no, el
     // partido sigue apareciendo como "programado" hasta el próximo cron
     // semanal de resultados (puede tardar días).
-    await matchesRepo.markMatchFinished(match.espnId, match.homeScore, match.awayScore, result).catch((err) =>
-      logCron('live', 'error', 0, { stage: 'markMatchFinished', error: String(err) })
-    )
+      await matchesRepo.markMatchFinished(match.espnId, match.homeScore, match.awayScore, result).catch((err) =>
+        logCron('live', 'error', 0, { stage: 'markMatchFinished', error: String(err) })
+      )
+    }
   }
 
   await saveState({ ...newState, notified: [...notified] })
@@ -262,32 +297,50 @@ async function checkAndNotify(testMode = false) {
   }
 }
 
-async function checkAndNotifySafe(testMode = false) {
+async function enqueueNextTick(chain: string | undefined) {
+  try {
+    await enqueueLiveTick(60, chain)
+  } catch (err) {
+    await logCron('live', 'error', 0, { stage: 'enqueueNextTick', error: String(err) })
+    await notifyAdmin(
+      '⚠️ El directo no pudo programar el siguiente minuto',
+      'Revisa QStash: sin el siguiente aviso, el partido dejará de actualizarse.'
+    ).catch(() => {})
+  }
+}
+
+async function checkAndNotifySafe(testMode = false, bodyChain?: string) {
   const t0 = Date.now()
   try {
-    const result = await checkAndNotify(testMode)
+    const result = await checkAndNotify(testMode, bodyChain)
     // Self-chaining: queue the next tick while the match is still on. When the
     // match ends (or the safety guard fires) keepAlive is false, so the chain
     // simply stops — nothing left running to switch off.
     if (!testMode && result.keepAlive) {
-      try {
-        await enqueueLiveTick(60)
-      } catch (err) {
-        await logCron('live', 'error', 0, { stage: 'enqueueNextTick', error: String(err) })
-        await notifyAdmin(
-          '⚠️ El directo no pudo programar el siguiente minuto',
-          'Revisa QStash: sin el siguiente aviso, el partido dejará de actualizarse.'
-        ).catch(() => {})
-      }
+      await enqueueNextTick(bodyChain ?? (await getConfig('live_chain_id')) ?? undefined)
     }
     await logCron('live', 'success', Date.now() - t0, {
       match: result.match,
       notifications: result.notifications,
       testMode: testMode || undefined,
+      staleChain: 'staleChain' in result ? true : undefined,
     })
     return result
   } catch (err) {
     await logCron('live', 'error', Date.now() - t0, { error: String(err) })
+    // ESPN timeouts, a bad payload, a failed push... must not break the chain:
+    // while live mode is still on, queue the next minute and answer 200 so
+    // QStash does not burn retries on an already-superseded tick.
+    if (!testMode) {
+      let stillActive = false
+      try {
+        stillActive = (await getConfig('live_active')) === 'true'
+      } catch { /* fall through to rethrow */ }
+      if (stillActive) {
+        await enqueueNextTick(bodyChain ?? (await getConfig('live_chain_id').catch(() => null)) ?? undefined)
+        return { match: null, notifications: [] as string[], error: String(err), keepAlive: true }
+      }
+    }
     throw err
   }
 }
@@ -299,7 +352,9 @@ export async function POST(request: Request) {
 
   if (!(await verifyCronRequest(request))) return cronUnauthorized()
 
-  const result = await checkAndNotifySafe(testMode)
+  const body = await request.json().catch(() => ({}))
+  const chain = typeof body?.chain === 'string' ? body.chain : undefined
+  const result = await checkAndNotifySafe(testMode, chain)
   return NextResponse.json({ ok: true, testMode: testMode || undefined, ...result })
 }
 

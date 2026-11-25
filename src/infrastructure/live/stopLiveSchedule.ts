@@ -19,4 +19,5 @@ export async function stopLiveSchedule(): Promise<void> {
   await setConfig('live_active', 'false')
   await deleteConfig('live_activated_at')
   await deleteConfig('live_last_tick')
+  await deleteConfig('live_chain_id')
 }

@@ -2,6 +2,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('@/infrastructure/supabase/logCron', () => ({ logCron: vi.fn() }))
 vi.mock('@/infrastructure/push/notifyAdmin', () => ({ notifyAdmin: vi.fn() }))
+vi.mock('@/infrastructure/cron/auth', () => ({
+  verifyCronRequest: vi.fn().mockResolvedValue(true),
+  cronUnauthorized: vi.fn(),
+}))
 vi.mock('@/infrastructure/live/enqueueLiveTick', () => ({ enqueueLiveTick: vi.fn() }))
 vi.mock('@/infrastructure/supabase/PushSubscriptionsRepository', () => ({
   getAllSubscriptions: vi.fn().mockResolvedValue([]),
@@ -39,6 +43,7 @@ import { notifyAdmin } from '@/infrastructure/push/notifyAdmin'
 import { logCron } from '@/infrastructure/supabase/logCron'
 import { enqueueLiveTick } from '@/infrastructure/live/enqueueLiveTick'
 import { sendPush, sendPushAdminOnly } from '@/infrastructure/push/sendPush'
+import { verifyCronRequest } from '@/infrastructure/cron/auth'
 import { GET } from '../route'
 
 function scoreboardResponse(state: 'pre' | 'in' | 'post') {
@@ -73,6 +78,8 @@ beforeEach(() => {
   vi.mocked(sendPush).mockResolvedValue({ sent: 0, total: 0 })
   vi.mocked(sendPushAdminOnly).mockResolvedValue({ sent: 0, total: 0 })
   vi.mocked(getConfig).mockImplementation(async (key: string) => {
+    if (key === 'live_active') return 'true'
+    if (key === 'live_activated_at') return new Date(Date.now() - 3_600_000).toISOString()
     if (key === 'live_match_state') {
       return JSON.stringify({ espnId: 'evt1', homeScore: 1, awayScore: 1, state: 'in', eventCount: 0 })
     }
@@ -91,7 +98,7 @@ describe('GET /api/cron/live — match finished transition', () => {
       return scoreboardResponse('post')
     })
 
-    const res = await GET(makeReq())
+    const res = await GET(makeReq(false))
     expect(res.status).toBe(200)
     expect(notifyAdmin).toHaveBeenCalledWith('🏁 Partido terminado', 'Abre la votación MVP cuando tengas los candidatos')
   })
@@ -102,7 +109,7 @@ describe('GET /api/cron/live — match finished transition', () => {
       return scoreboardResponse('in')
     })
 
-    const res = await GET(makeReq())
+    const res = await GET(makeReq(false))
     expect(res.status).toBe(200)
     expect(notifyAdmin).not.toHaveBeenCalled()
   })
@@ -113,7 +120,7 @@ describe('GET /api/cron/live — match finished transition', () => {
       return scoreboardResponse('post')
     })
 
-    await GET(makeReq())
+    await GET(makeReq(false))
     expect(markMatchFinished).toHaveBeenCalledWith('evt1', 2, 1, 'W')
   })
 
@@ -123,7 +130,7 @@ describe('GET /api/cron/live — match finished transition', () => {
       return scoreboardResponse('in')
     })
 
-    await GET(makeReq())
+    await GET(makeReq(false))
     expect(markMatchFinished).not.toHaveBeenCalled()
   })
 
@@ -134,7 +141,7 @@ describe('GET /api/cron/live — match finished transition', () => {
     })
     vi.mocked(notifyAdmin).mockRejectedValue(new Error('push service down'))
 
-    const res = await GET(makeReq())
+    const res = await GET(makeReq(false))
     expect(res.status).toBe(200)
     expect(logCron).toHaveBeenCalledWith('live', 'error', 0, { stage: 'notifyAdmin', error: expect.stringContaining('push service down') })
   })
@@ -146,7 +153,7 @@ describe('GET /api/cron/live — match finished transition', () => {
     })
     markMatchFinished.mockRejectedValue(new Error('db error'))
 
-    const res = await GET(makeReq())
+    const res = await GET(makeReq(false))
     expect(res.status).toBe(200)
     expect(logCron).toHaveBeenCalledWith('live', 'error', 0, { stage: 'markMatchFinished', error: expect.stringContaining('db error') })
   })
@@ -309,7 +316,7 @@ describe('GET /api/cron/live — self-chaining ticks', () => {
   it('queues the next tick while the match is in progress', async () => {
     liveConfig(); espn('in')
     await GET(makeReq(false))
-    expect(enqueueLiveTick).toHaveBeenCalledWith(60)
+    expect(enqueueLiveTick).toHaveBeenCalledWith(60, undefined)
   })
 
   it('stops the chain (no next tick) and switches live off when the match ends', async () => {
@@ -338,7 +345,7 @@ describe('GET /api/cron/live — self-chaining ticks', () => {
     liveConfig()
     vi.mocked(fetchWithTimeout).mockResolvedValue(new Response(JSON.stringify({ events: [] }), { status: 200 }))
     await GET(makeReq(false))
-    expect(enqueueLiveTick).toHaveBeenCalledWith(60)
+    expect(enqueueLiveTick).toHaveBeenCalledWith(60, undefined)
   })
 
   it('does not queue ticks when live is not active', async () => {
@@ -417,8 +424,106 @@ describe('GET /api/cron/live — retry safety', () => {
   })
 
   it('does not resend a goal push already recorded as sent (QStash retried the tick)', async () => {
-    goalScene(['goal-home-2:Goleador:70\''])
+    goalScene(['goal-home-2'])
     await GET(makeReq(true))
     expect(sendPushAdminOnly).not.toHaveBeenCalled()
+  })
+})
+
+describe('GET /api/cron/live — chain robustness (review fixes)', () => {
+  function active(extra: Record<string, string | null> = {}, state: object = { espnId: 'evt1', homeScore: 2, awayScore: 1, state: 'in', eventCount: 0 }) {
+    vi.mocked(getConfig).mockImplementation(async (key: string) => {
+      if (key in extra) return extra[key]
+      if (key === 'live_active') return 'true'
+      if (key === 'live_activated_at') return new Date(Date.now() - 3_600_000).toISOString()
+      if (key === 'live_match_state') return JSON.stringify(state)
+      return null
+    })
+  }
+  function espn(state: 'pre' | 'in' | 'post') {
+    vi.mocked(fetchWithTimeout).mockImplementation(async (url: string | URL) => {
+      if (String(url).includes('/summary')) return summaryResponse()
+      return scoreboardResponse(state)
+    })
+  }
+  const post = (chain?: string) =>
+    import('../route').then(({ POST }) =>
+      POST(new Request('http://localhost/api/cron/live', { method: 'POST', body: JSON.stringify(chain ? { chain } : {}) }))
+    )
+
+  beforeEach(() => {
+    vi.mocked(enqueueLiveTick).mockResolvedValue({ enqueued: true })
+    vi.mocked(verifyCronRequest).mockResolvedValue(true)
+  })
+
+  it('still queues the next tick and answers 200 when ESPN throws', async () => {
+    active()
+    vi.mocked(fetchWithTimeout).mockRejectedValue(new Error('timeout'))
+    const res = await GET(makeReq(false))
+    expect(res.status).toBe(200)
+    expect(enqueueLiveTick).toHaveBeenCalledWith(60, undefined)
+    expect(logCron).toHaveBeenCalledWith('live', 'error', expect.any(Number), { error: expect.stringContaining('timeout') })
+  })
+
+  it('does not queue a tick after an error if live was switched off meanwhile', async () => {
+    active()
+    // On when the tick starts, switched off (admin DELETE) by the time it fails.
+    let reads = 0
+    vi.mocked(getConfig).mockImplementation(async (key: string) => {
+      if (key === 'live_active') return ++reads === 1 ? 'true' : 'false'
+      if (key === 'live_activated_at') return new Date(Date.now() - 3_600_000).toISOString()
+      return null
+    })
+    vi.mocked(fetchWithTimeout).mockRejectedValue(new Error('timeout'))
+    await expect(GET(makeReq(false))).rejects.toThrow('timeout')
+    expect(enqueueLiveTick).not.toHaveBeenCalled()
+  })
+
+  it('drops a tick from a superseded chain without queuing another', async () => {
+    active({ live_chain_id: 'new-chain' })
+    espn('in')
+    await post('old-chain')
+    expect(sendPush).not.toHaveBeenCalled()
+    expect(enqueueLiveTick).not.toHaveBeenCalled()
+  })
+
+  it('keeps the chain id when queuing the next tick', async () => {
+    active({ live_chain_id: 'c1' })
+    espn('in')
+    await post('c1')
+    expect(enqueueLiveTick).toHaveBeenCalledWith(60, 'c1')
+  })
+
+  it('sends the kickoff push when the stored state is a finished previous match', async () => {
+    active({}, { espnId: 'previous', homeScore: 3, awayScore: 0, state: 'post', eventCount: 9 })
+    espn('in')
+    await GET(makeReq(false))
+    expect(vi.mocked(sendPush).mock.calls.map((c) => c[0].tag)).toContain('kickoff')
+  })
+
+  it('notifies again when a goal disallowed by VAR is scored again', async () => {
+    active({}, { espnId: 'evt1', homeScore: 3, awayScore: 1, state: 'in', eventCount: 0, notified: ['kickoff', 'goal-home-3'] })
+    espn('in') // scoreboard says 2-1: the third goal was annulled, 3-1 notified key must be forgotten
+    await GET(makeReq(false))
+    const saved = vi.mocked(setConfig).mock.calls.filter((c) => c[0] === 'live_match_state').at(-1)![1]
+    expect(JSON.parse(saved).notified).not.toContain('goal-home-3')
+  })
+
+  it('does not reset the event count when /summary is unreadable', async () => {
+    active({}, { espnId: 'evt1', homeScore: 2, awayScore: 1, state: 'in', eventCount: 4 })
+    vi.mocked(fetchWithTimeout).mockImplementation(async (url: string | URL) =>
+      String(url).includes('/summary') ? new Response('{}', { status: 500 }) : scoreboardResponse('in'))
+    await GET(makeReq(false))
+    const saved = vi.mocked(setConfig).mock.calls.filter((c) => c[0] === 'live_match_state').at(-1)![1]
+    expect(JSON.parse(saved).eventCount).toBe(4)
+  })
+
+  it('test mode on a finished match sends the push but does not stop live or mark the match finished', async () => {
+    active()
+    espn('post')
+    await GET(makeReq(true))
+    expect(sendPushAdminOnly).toHaveBeenCalled()
+    expect(setConfig).not.toHaveBeenCalledWith('live_active', 'false')
+    expect(markMatchFinished).not.toHaveBeenCalled()
   })
 })
