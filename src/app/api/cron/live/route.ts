@@ -280,9 +280,9 @@ async function checkAndNotify(testMode = false, bodyChain?: string) {
       await notifyAdmin('🏁 Partido terminado', 'Abre la votación MVP cuando tengas los candidatos').catch((err) =>
         logCron('live', 'error', 0, { stage: 'notifyAdmin', error: String(err) })
       )
-    // Reflejar el resultado en la tabla de partidos de inmediato — si no, el
-    // partido sigue apareciendo como "programado" hasta el próximo cron
-    // semanal de resultados (puede tardar días).
+      // Reflejar el resultado en la tabla de partidos de inmediato — si no, el
+      // partido sigue apareciendo como "programado" hasta el próximo cron
+      // semanal de resultados (puede tardar días).
       await matchesRepo.markMatchFinished(match.espnId, match.homeScore, match.awayScore, result).catch((err) =>
         logCron('live', 'error', 0, { stage: 'markMatchFinished', error: String(err) })
       )
@@ -309,15 +309,24 @@ async function enqueueNextTick(chain: string | undefined) {
   }
 }
 
-async function checkAndNotifySafe(testMode = false, bodyChain?: string) {
+const ERROR_STREAK_KEY = 'live_error_streak'
+const ERROR_STREAK_ALERT_AT = 3
+
+// `canChain` is false for a manual POST without a chain id (admin "sync now",
+// a message queued before this version): it runs once but must not queue a
+// follow-up, or it would start a second chain carrying the live chain's id.
+async function checkAndNotifySafe(testMode = false, bodyChain?: string, canChain = true) {
   const t0 = Date.now()
   try {
     const result = await checkAndNotify(testMode, bodyChain)
     // Self-chaining: queue the next tick while the match is still on. When the
     // match ends (or the safety guard fires) keepAlive is false, so the chain
     // simply stops — nothing left running to switch off.
-    if (!testMode && result.keepAlive) {
+    if (!testMode && canChain && result.keepAlive) {
       await enqueueNextTick(bodyChain ?? (await getConfig('live_chain_id')) ?? undefined)
+    }
+    if (!testMode && canChain && !('staleChain' in result)) {
+      await getConfig(ERROR_STREAK_KEY).then((v) => (v ? deleteConfig(ERROR_STREAK_KEY) : undefined)).catch(() => {})
     }
     await logCron('live', 'success', Date.now() - t0, {
       match: result.match,
@@ -336,7 +345,19 @@ async function checkAndNotifySafe(testMode = false, bodyChain?: string) {
       try {
         stillActive = (await getConfig('live_active')) === 'true'
       } catch { /* fall through to rethrow */ }
-      if (stillActive) {
+      if (stillActive && canChain) {
+        // A failure that never clears would otherwise retry silently for the
+        // whole window: tell the admin once, on the third consecutive error.
+        try {
+          const streak = Number((await getConfig(ERROR_STREAK_KEY)) ?? 0) + 1
+          await setConfig(ERROR_STREAK_KEY, String(streak))
+          if (streak === ERROR_STREAK_ALERT_AT) {
+            await notifyAdmin(
+              '⚠️ El directo falla en cada minuto',
+              'Lleva 3 errores seguidos leyendo el partido. Revisa cron_logs (tipo live).'
+            ).catch(() => {})
+          }
+        } catch { /* alerting is best effort */ }
         await enqueueNextTick(bodyChain ?? (await getConfig('live_chain_id').catch(() => null)) ?? undefined)
         return { match: null, notifications: [] as string[], error: String(err), keepAlive: true }
       }
@@ -354,7 +375,7 @@ export async function POST(request: Request) {
 
   const body = await request.json().catch(() => ({}))
   const chain = typeof body?.chain === 'string' ? body.chain : undefined
-  const result = await checkAndNotifySafe(testMode, chain)
+  const result = await checkAndNotifySafe(testMode, chain, chain !== undefined)
   return NextResponse.json({ ok: true, testMode: testMode || undefined, ...result })
 }
 

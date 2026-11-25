@@ -518,6 +518,34 @@ describe('GET /api/cron/live — chain robustness (review fixes)', () => {
     expect(JSON.parse(saved).eventCount).toBe(4)
   })
 
+  it('does not queue a follow-up tick for a manual POST without a chain id', async () => {
+    active({ live_chain_id: 'c1' })
+    espn('in')
+    await post()
+    expect(enqueueLiveTick).not.toHaveBeenCalled()
+  })
+
+  it('alerts the admin on the third consecutive failure, and only then', async () => {
+    const run = async (streakBefore: string | null) => {
+      vi.mocked(notifyAdmin).mockClear()
+      active({ live_error_streak: streakBefore })
+      vi.mocked(fetchWithTimeout).mockRejectedValue(new Error('espn down'))
+      await GET(makeReq(false))
+    }
+    await run('1')
+    expect(notifyAdmin).not.toHaveBeenCalled()
+    await run('2')
+    expect(notifyAdmin).toHaveBeenCalledWith('⚠️ El directo falla en cada minuto', expect.any(String))
+    expect(setConfig).toHaveBeenCalledWith('live_error_streak', '3')
+  })
+
+  it('clears the failure streak after a good tick', async () => {
+    active({ live_error_streak: '2' })
+    espn('in')
+    await GET(makeReq(false))
+    expect(deleteConfig).toHaveBeenCalledWith('live_error_streak')
+  })
+
   it('test mode on a finished match sends the push but does not stop live or mark the match finished', async () => {
     active()
     espn('post')
