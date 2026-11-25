@@ -546,6 +546,14 @@ describe('GET /api/cron/live — chain robustness (review fixes)', () => {
     expect(deleteConfig).toHaveBeenCalledWith('live_error_streak')
   })
 
+  it('still reads the chain id when auth consumes the request body (QStash signature check)', async () => {
+    vi.mocked(verifyCronRequest).mockImplementation(async (req: Request) => { await req.text(); return true })
+    active({ live_chain_id: 'c1' })
+    espn('in')
+    await post('c1')
+    expect(enqueueLiveTick).toHaveBeenCalledWith(60, 'c1')
+  })
+
   it('test mode on a finished match sends the push but does not stop live or mark the match finished', async () => {
     active()
     espn('post')

@@ -371,9 +371,12 @@ export async function POST(request: Request) {
   const { searchParams } = new URL(request.url)
   const testMode = searchParams.get('test') === 'true'
 
+  // verifyCronRequest reads the body to check QStash's signature, which
+  // consumes it: take a copy first or the chain id would always be lost.
+  const bodyCopy = request.clone()
   if (!(await verifyCronRequest(request))) return cronUnauthorized()
 
-  const body = await request.json().catch(() => ({}))
+  const body = await bodyCopy.json().catch(() => ({}))
   const chain = typeof body?.chain === 'string' ? body.chain : undefined
   const result = await checkAndNotifySafe(testMode, chain, chain !== undefined)
   return NextResponse.json({ ok: true, testMode: testMode || undefined, ...result })
