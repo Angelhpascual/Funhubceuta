@@ -9,14 +9,18 @@ export async function verifyCronRequest(request: Request): Promise<boolean> {
   const secret = new URL(request.url).searchParams.get('secret')
   if (secret && secret === process.env.TEST_SECRET) return true
 
-  const receiver = new Receiver({
-    currentSigningKey: process.env.QSTASH_CURRENT_SIGNING_KEY!,
-    nextSigningKey: process.env.QSTASH_NEXT_SIGNING_KEY!,
-  })
-  const body = await request.text()
-  return receiver
-    .verify({ signature: request.headers.get('Upstash-Signature') ?? '', body })
-    .catch(() => false)
+  // Missing signing keys (an env without them) must read as "not authorized"
+  // (401), not crash the route with a 500.
+  const currentSigningKey = process.env.QSTASH_CURRENT_SIGNING_KEY
+  const nextSigningKey = process.env.QSTASH_NEXT_SIGNING_KEY
+  if (!currentSigningKey || !nextSigningKey) return false
+  try {
+    const receiver = new Receiver({ currentSigningKey, nextSigningKey })
+    const body = await request.text()
+    return await receiver.verify({ signature: request.headers.get('Upstash-Signature') ?? '', body })
+  } catch {
+    return false
+  }
 }
 
 export function cronUnauthorized() {

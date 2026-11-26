@@ -1,6 +1,7 @@
 export const maxDuration = 60
 
 import { NextRequest, NextResponse } from 'next/server'
+import { runCron, alertCronProblem } from '@/infrastructure/cron/runCron'
 import { logCron } from '@/infrastructure/supabase/logCron'
 import { verifyCronRequest, cronUnauthorized } from '@/infrastructure/cron/auth'
 import {
@@ -26,6 +27,9 @@ async function syncMatches() {
     scrapeRecentResults(10),
   ])
 
+  if (matches.length === 0) {
+    await alertCronProblem('matches', 'empty', 'El scraper de partidos devolvió 0 partidos próximos.')
+  }
   await repo.upsertMatches(matches)
   await repo.upsertResults(results)
 

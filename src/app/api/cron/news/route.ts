@@ -9,6 +9,7 @@ import { fetchOgImage } from '@/infrastructure/rss/fetchOgImage'
 import { NewsSupabaseRepository } from '@/infrastructure/supabase/NewsSupabaseRepository'
 import { sendNewsNotification } from '@/infrastructure/push/sendNewsNotification'
 import { notifyAdmin } from '@/infrastructure/push/notifyAdmin'
+import { runCron, alertCronProblem } from '@/infrastructure/cron/runCron'
 import { logCron, logNotification } from '@/infrastructure/supabase/logCron'
 import { getRecentNotifTitles, getQueuedTitles, getDiscardedTitles, markNotifyQueued, getSubscriberCount } from '@/infrastructure/supabase/NotificationRepository'
 import { withApi } from '@/lib/apiError'
@@ -240,7 +241,7 @@ async function syncNews() {
 
 export const POST = withApi(async (request: Request) => {
   if (!(await verifyCronRequest(request))) return cronUnauthorized()
-  const result = await syncNews()
+  const result = await runCron('news', syncNews)
   return NextResponse.json({ ok: true, ...result })
 })
 

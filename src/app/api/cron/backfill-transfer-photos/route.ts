@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getTransfersWithExternalPhotos, updateTransferPhotoUrl } from '@/infrastructure/supabase/TransfersRepository'
 import { downloadAndUploadImage, PLAYER_BUCKET } from '@/infrastructure/storage/imageUploader'
+import { runCron, alertCronProblem } from '@/infrastructure/cron/runCron'
 import { logCron } from '@/infrastructure/supabase/logCron'
 import { verifyCronRequest, cronUnauthorized } from '@/infrastructure/cron/auth'
 
@@ -49,6 +50,6 @@ async function backfillTransferPhotos() {
 
 export async function POST(request: Request) {
   if (!(await verifyCronRequest(request))) return cronUnauthorized()
-  const result = await backfillTransferPhotos()
+  const result = await runCron('backfill-transfer-photos', backfillTransferPhotos)
   return NextResponse.json({ ok: true, ...result })
 }

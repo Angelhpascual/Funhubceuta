@@ -14,6 +14,9 @@ import { stopLiveSchedule } from '@/infrastructure/live/stopLiveSchedule'
 import { enqueueLiveTick } from '@/infrastructure/live/enqueueLiveTick'
 import { MatchesSupabaseRepository } from '@/infrastructure/supabase/MatchesSupabaseRepository'
 
+// A slow push send must not let Vercel kill the tick before it queues the next.
+export const maxDuration = 60
+
 const matchesRepo = new MatchesSupabaseRepository()
 
 // Safety net: a match plus stoppage time never needs live mode for this long.

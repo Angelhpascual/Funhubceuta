@@ -3,6 +3,7 @@ import { verifyCronRequest, cronUnauthorized } from '@/infrastructure/cron/auth'
 import { scrapeLatestTweets } from '@/infrastructure/scrapers/twitterScraper'
 import { upsertTweets } from '@/infrastructure/supabase/TweetsRepository'
 import { logCron } from '@/infrastructure/supabase/logCron'
+import { runCron, alertCronProblem } from '@/infrastructure/cron/runCron'
 import { withApi } from '@/lib/apiError'
 
 async function syncTweets() {
@@ -21,7 +22,7 @@ async function syncTweets() {
 
 export const POST = withApi(async (request: Request) => {
   if (!(await verifyCronRequest(request))) return cronUnauthorized()
-  const count = await syncTweets()
+  const count = await runCron('tweets', syncTweets, { isEmpty: (n) => n === 0 })
   return NextResponse.json({ ok: true, count })
 })
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { backfillSquadPhotos } from '@/infrastructure/squad/backfillSquadPhotos'
+import { runCron, alertCronProblem } from '@/infrastructure/cron/runCron'
 import { logCron } from '@/infrastructure/supabase/logCron'
 import { verifyCronRequest, cronUnauthorized } from '@/infrastructure/cron/auth'
 import { withApi } from '@/lib/apiError'
@@ -25,6 +26,6 @@ export const GET = withApi(async (request: Request) => {
 
 export const POST = withApi(async (req: NextRequest) => {
   if (!(await verifyCronRequest(req))) return cronUnauthorized()
-  const result = await backfillPhotos()
+  const result = await runCron('backfill-squad-photos', backfillPhotos)
   return NextResponse.json({ ok: true, ...result })
 })

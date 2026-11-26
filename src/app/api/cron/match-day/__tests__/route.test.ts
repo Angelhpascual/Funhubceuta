@@ -53,6 +53,8 @@ function makeScoreboard(state = 'pre') {
 
 beforeEach(() => {
   vi.resetAllMocks()
+  process.env.QSTASH_CURRENT_SIGNING_KEY = 'k1'
+  process.env.QSTASH_NEXT_SIGNING_KEY = 'k2'
   vi.mocked(logCron).mockResolvedValue(undefined)
   vi.mocked(getAllSubscriptions).mockResolvedValue([])
   vi.mocked(deleteSubscription).mockResolvedValue(undefined)

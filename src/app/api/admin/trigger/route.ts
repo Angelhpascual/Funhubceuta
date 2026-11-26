@@ -15,10 +15,10 @@ export const maxDuration = 60
 //     a queued ack.
 
 // Enqueue via QStash so Vercel timeout doesn't cut the response
-async function enqueueViaQStash(path: string): Promise<{ queued: boolean }> {
+async function enqueueViaQStash(path: string): Promise<{ queued: true }> {
   const base = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://adceutainfo.vercel.app'
   const token = process.env.QSTASH_TOKEN
-  if (!token) return { queued: false }
+  if (!token) throw new Error('QSTASH_TOKEN no configurado')
 
   const res = await fetch(`https://qstash.upstash.io/v2/publish/${base}${path}`, {
     method: 'POST',
@@ -28,7 +28,13 @@ async function enqueueViaQStash(path: string): Promise<{ queued: boolean }> {
     },
     body: '{}',
   })
-  return { queued: res.ok }
+  // Surface a rejection (quota, bad token) instead of answering ok:true while
+  // nothing was queued.
+  if (!res.ok) {
+    const text = await res.text().catch(() => res.statusText)
+    throw new Error(`QStash rechazó la petición (${res.status}): ${text.slice(0, 160)}`)
+  }
+  return { queued: true }
 }
 
 // Call a cron endpoint directly (bypasses QStash signature requirement)
@@ -60,11 +66,16 @@ async function callDirect(path: string): Promise<Record<string, unknown>> {
 async function ensureSchedule(configKey: string, path: string, cron: string): Promise<Record<string, unknown>> {
   const { getConfig, setConfig } = await import('@/infrastructure/supabase/AppConfigRepository')
   const existing = await getConfig(configKey)
-  if (existing) return { already: true, scheduleId: existing }
-
-  const base = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://adceutainfo.vercel.app'
   const { Client } = await import('@upstash/qstash')
   const client = new Client({ token: process.env.QSTASH_TOKEN! })
+  if (existing) {
+    // The stored id may point at a schedule that was deleted in QStash since:
+    // only trust it if it still exists, otherwise fall through and recreate.
+    const alive = await client.schedules.get(existing).then(() => true, () => false)
+    if (alive) return { already: true, scheduleId: existing }
+  }
+
+  const base = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://adceutainfo.vercel.app'
   const schedule = await client.schedules.create({ destination: `${base}${path}`, cron })
   await setConfig(configKey, schedule.scheduleId)
   return { created: true, scheduleId: schedule.scheduleId }

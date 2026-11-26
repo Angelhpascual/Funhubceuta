@@ -23,7 +23,7 @@ import { GET, POST } from '../route'
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mockVerify: ReturnType<typeof vi.fn> = (Receiver as any).__verify
 
-beforeEach(() => { vi.resetAllMocks() })
+beforeEach(() => { vi.resetAllMocks(); process.env.QSTASH_CURRENT_SIGNING_KEY = 'k1'; process.env.QSTASH_NEXT_SIGNING_KEY = 'k2' })
 
 const tweet = { tweetId: '1', text: 'Gol!', createdAt: '2026-05-01', url: 'https://x.com/1', imageUrl: null }
 

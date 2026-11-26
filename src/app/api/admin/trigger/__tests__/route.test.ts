@@ -53,12 +53,19 @@ describe('POST /api/admin/trigger', () => {
     fetchSpy.mockRestore()
   })
 
-  it('returns queued:false when QSTASH_TOKEN is missing', async () => {
+  it('fails (500) instead of answering ok when QSTASH_TOKEN is missing', async () => {
     delete process.env.QSTASH_TOKEN
     const res = await POST(makeRequest({ action: 'matches' }))
-    expect(res.status).toBe(200)
-    const body = await res.json()
-    expect(body.result.queued).toBe(false)
+    expect(res.status).toBe(500)
+    expect((await res.json()).ok).toBe(false)
+  })
+
+  it('fails (500) when QStash rejects the publish, e.g. quota exceeded', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('quota exceeded', { status: 429 })))
+    const res = await POST(makeRequest({ action: 'matches' }))
+    vi.unstubAllGlobals()
+    expect(res.status).toBe(500)
+    expect((await res.json()).error).toContain('429')
   })
 
   it('returns sent count nested under result for push action (regression: UI read body.result.sent)', async () => {
@@ -104,7 +111,7 @@ describe('POST /api/admin/trigger', () => {
     vi.doMock('@/infrastructure/supabase/AppConfigRepository', () => ({ getConfig, setConfig }))
     const scheduleCreate = vi.fn().mockResolvedValue({ scheduleId: 'scd_new' })
     vi.doMock('@upstash/qstash', () => ({
-      Client: class { schedules = { create: scheduleCreate } },
+      Client: class { schedules = { create: scheduleCreate, get: vi.fn().mockResolvedValue({ scheduleId: 'scd_existing' }) } },
     }))
     const { POST: freshPost } = await import('../route')
 
@@ -137,5 +144,20 @@ describe('POST /api/admin/trigger', () => {
 
     vi.doUnmock('@/infrastructure/push/sendPush')
     vi.doUnmock('@/app/api/cron/live/messages')
+  })
+
+  it('recreates a schedule whose stored id no longer exists in QStash', async () => {
+    const getConfig = vi.fn().mockResolvedValue('scd_gone')
+    const setConfig = vi.fn().mockResolvedValue(undefined)
+    vi.doMock('@/infrastructure/supabase/AppConfigRepository', () => ({ getConfig, setConfig }))
+    const scheduleCreate = vi.fn().mockResolvedValue({ scheduleId: 'scd_new' })
+    vi.doMock('@upstash/qstash', () => ({
+      Client: class { schedules = { create: scheduleCreate, get: vi.fn().mockRejectedValue(new Error('not found')) } },
+    }))
+    const { POST: freshPost } = await import('../route')
+    const res = await freshPost(makeRequest({ action: 'setup-squad-schedule' }))
+    const body = await res.json()
+    expect(body.result.created).toBe(true)
+    expect(setConfig).toHaveBeenCalledWith('squad_qstash_schedule_id', 'scd_new')
   })
 })

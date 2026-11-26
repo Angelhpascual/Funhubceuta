@@ -6,6 +6,7 @@ import { scrapeOfficialSquadPhotos } from '@/infrastructure/scrapers/officialSqu
 import { upsertSquad, overridePhotoUrlsByDorsal } from '@/infrastructure/supabase/SquadSupabaseRepository'
 import { backfillSquadPhotos } from '@/infrastructure/squad/backfillSquadPhotos'
 import { CURRENT_SEASON } from '@/lib/constants'
+import { runCron, alertCronProblem } from '@/infrastructure/cron/runCron'
 import { logCron } from '@/infrastructure/supabase/logCron'
 import { verifyCronRequest, cronUnauthorized } from '@/infrastructure/cron/auth'
 
@@ -13,7 +14,8 @@ async function syncSquad() {
   const t0 = Date.now()
   const players = await scrapeSquad()
   if (players.length === 0) {
-    await logCron('squad', 'success', Date.now() - t0, { players: 0 })
+    await logCron('squad', 'success', Date.now() - t0, { players: 0, warning: 'scraper returned no players' })
+    await alertCronProblem('squad', 'empty', 'El scraper de plantilla devolvió 0 jugadores.')
     return 0
   }
 

@@ -9,6 +9,7 @@ vi.mock('@/infrastructure/supabase/SquadSupabaseRepository', () => ({
 }))
 vi.mock('@/infrastructure/squad/backfillSquadPhotos', () => ({ backfillSquadPhotos: vi.fn() }))
 vi.mock('@/infrastructure/supabase/logCron', () => ({ logCron: vi.fn() }))
+vi.mock('@/infrastructure/cron/runCron', () => ({ alertCronProblem: vi.fn() }))
 vi.mock('@/lib/constants', () => ({ CURRENT_SEASON: '2025-2026' }))
 vi.mock('@/infrastructure/cron/auth', () => ({
   verifyCronRequest: vi.fn().mockResolvedValue(true),
@@ -21,6 +22,7 @@ import { upsertSquad, overridePhotoUrlsByDorsal } from '@/infrastructure/supabas
 import { backfillSquadPhotos } from '@/infrastructure/squad/backfillSquadPhotos'
 import { logCron } from '@/infrastructure/supabase/logCron'
 import { verifyCronRequest } from '@/infrastructure/cron/auth'
+import { alertCronProblem } from '@/infrastructure/cron/runCron'
 import { GET, POST } from '../route'
 
 const player = { dorsal: 9, name: 'Test', position: 'Delantero', positionGroup: 'Delanteros', nationality: 'ESP', height: null, weight: null, birthDate: null, photoUrl: null }
@@ -108,7 +110,8 @@ describe('cron/squad GET', () => {
     expect(res.status).toBe(200)
     const body = await res.json()
     expect(body.count).toBe(0)
-    expect(logCron).toHaveBeenCalledWith('squad', 'success', expect.any(Number), { players: 0 })
+    expect(logCron).toHaveBeenCalledWith('squad', 'success', expect.any(Number), expect.objectContaining({ players: 0 }))
+    expect(alertCronProblem).toHaveBeenCalledWith('squad', 'empty', expect.any(String))
   })
 
   it('logs error and rethrows when upsert fails', async () => {
