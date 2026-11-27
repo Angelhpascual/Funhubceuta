@@ -3,6 +3,7 @@ import { supabaseAdmin } from './adminClient'
 import type { ScrapedMatch, ScrapedResult } from '@/infrastructure/scrapers/adceutaScraper'
 import { CURRENT_MATCH_SEASON, COMPETITION } from '@/lib/constants'
 import { deduplicateMatches } from '@/lib/deduplicateMatches'
+import { madridDateString } from '@/lib/madridTime'
 
 export class MatchesSupabaseRepository {
   async upsertResults(results: ScrapedResult[]): Promise<void> {
@@ -120,7 +121,9 @@ export class MatchesSupabaseRepository {
   }
 
   async getNextMatch(): Promise<ScrapedMatch | null> {
-    const today = new Date().toISOString().split('T')[0]
+    // Madrid calendar day, not UTC: the `date` column is a Madrid date, and
+    // between 00:00 and 02:00 Madrid in summer UTC is still the previous day.
+    const today = madridDateString(new Date())
 
     const { data, error } = await supabase
       .from('matches')

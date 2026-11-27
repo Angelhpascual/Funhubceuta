@@ -21,12 +21,17 @@ vi.mock('@/infrastructure/supabase/MatchesSupabaseRepository', () => ({
 // Tests drive kickoff via relative offsets from "now" rather than real Madrid
 // wall-clock dates — bypass the timezone math and treat the mocked `time`
 // field as the full kickoff instant directly.
-vi.mock('@/lib/madridTime', () => ({ madridDateTimeToUtc: (_date: string, time: string) => new Date(time) }))
+vi.mock('@/lib/madridTime', () => ({
+  madridDateTimeToUtc: (_date: string, time: string) => new Date(time),
+  madridDateString: () => '2026-09-20',
+}))
+vi.mock('@/infrastructure/supabase/AppConfigRepository', () => ({ getConfig: vi.fn(), setConfig: vi.fn() }))
 
 import { logCron } from '@/infrastructure/supabase/logCron'
 import { getAllSubscriptions, deleteSubscription } from '@/infrastructure/supabase/PushSubscriptionsRepository'
 import webpush from 'web-push'
 import { Receiver } from '@upstash/qstash'
+import { getConfig, setConfig } from '@/infrastructure/supabase/AppConfigRepository'
 import { GET, POST } from '../route'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -56,6 +61,7 @@ beforeEach(() => {
   process.env.QSTASH_CURRENT_SIGNING_KEY = 'k1'
   process.env.QSTASH_NEXT_SIGNING_KEY = 'k2'
   vi.mocked(logCron).mockResolvedValue(undefined)
+  vi.mocked(getConfig).mockResolvedValue(null)
   vi.mocked(getAllSubscriptions).mockResolvedValue([])
   vi.mocked(deleteSubscription).mockResolvedValue(undefined)
   vi.mocked(webpush.sendNotification).mockResolvedValue({ statusCode: 201 } as never)
@@ -80,6 +86,23 @@ describe('cron/match-day GET', () => {
     expect(body.match).toBe('none')
     expect(body.sent).toBe(0)
     expect(logCron).toHaveBeenCalledWith('match-day', 'success', expect.any(Number), { match: 'none', sent: 0 })
+  })
+
+  it('does not push twice on the same day (QStash retry)', async () => {
+    vi.spyOn(global, 'fetch').mockResolvedValue(new Response(JSON.stringify(makeScoreboard('pre')), { status: 200 }))
+    vi.mocked(getAllSubscriptions).mockResolvedValue([sub])
+    vi.mocked(getConfig).mockResolvedValue('2026-09-20T08:00:00Z')
+    const res = await GET(new NextRequest('http://localhost'))
+    const body = await res.json()
+    expect(body.skipped).toBe('already-sent')
+    expect(webpush.sendNotification).not.toHaveBeenCalled()
+  })
+
+  it('records the daily send so a retry is skipped', async () => {
+    vi.spyOn(global, 'fetch').mockResolvedValue(new Response(JSON.stringify(makeScoreboard('pre')), { status: 200 }))
+    vi.mocked(getAllSubscriptions).mockResolvedValue([sub])
+    await GET(new NextRequest('http://localhost'))
+    expect(setConfig).toHaveBeenCalledWith('match_day_sent:2026-09-20', expect.any(String))
   })
 
   it('sends push when pre-match event found', async () => {

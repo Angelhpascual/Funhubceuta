@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { verifyCronRequest, cronUnauthorized } from '@/infrastructure/cron/auth'
 import { MatchesSupabaseRepository } from '@/infrastructure/supabase/MatchesSupabaseRepository'
 import { notifyAdmin } from '@/infrastructure/push/notifyAdmin'
+import { alertCronProblem } from '@/infrastructure/cron/runCron'
 import { logCron } from '@/infrastructure/supabase/logCron'
 
 const repo = new MatchesSupabaseRepository()
@@ -11,6 +12,9 @@ async function sendWeeklyDigest() {
   try {
     const next = await repo.getNextMatch()
     if (!next) {
+      // Without an upcoming match the live mode never auto-activates and nothing
+      // else notices: tell the admin so the fixtures can be refreshed.
+      await alertCronProblem('admin-weekly-digest', 'empty', 'No hay próximo partido en la base de datos; el directo no se activará solo.')
       await logCron('admin-weekly-digest', 'success', Date.now() - t0, { skipped: 'no-upcoming-match' })
       return { skipped: 'no-upcoming-match' as const }
     }

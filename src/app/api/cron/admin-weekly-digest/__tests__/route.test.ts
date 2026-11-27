@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('@/infrastructure/supabase/logCron', () => ({ logCron: vi.fn() }))
 vi.mock('@/infrastructure/push/notifyAdmin', () => ({ notifyAdmin: vi.fn() }))
+vi.mock('@/infrastructure/cron/runCron', () => ({ alertCronProblem: vi.fn() }))
 vi.mock('@/infrastructure/supabase/MatchesSupabaseRepository', () => {
   const getNextMatch = vi.fn()
   return {
@@ -12,6 +13,7 @@ vi.mock('@/infrastructure/supabase/MatchesSupabaseRepository', () => {
   }
 })
 
+import { alertCronProblem } from '@/infrastructure/cron/runCron'
 import { notifyAdmin } from '@/infrastructure/push/notifyAdmin'
 import { MatchesSupabaseRepository } from '@/infrastructure/supabase/MatchesSupabaseRepository'
 import { POST } from '../route'
@@ -63,6 +65,7 @@ describe('POST /api/cron/admin-weekly-digest', () => {
     const body = await res.json()
     expect(body.skipped).toBe('no-upcoming-match')
     expect(notifyAdmin).not.toHaveBeenCalled()
+    expect(alertCronProblem).toHaveBeenCalledWith('admin-weekly-digest', 'empty', expect.any(String))
   })
 
   it('returns 401 with a wrong test secret', async () => {

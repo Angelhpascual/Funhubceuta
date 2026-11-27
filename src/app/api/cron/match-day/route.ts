@@ -11,7 +11,8 @@ import {
 import { MSG } from '../live/messages'
 import { findCeutaEvent, parseMatchCore, guardMatchState } from '@/infrastructure/espn/parseLiveMatch'
 import { MatchesSupabaseRepository } from '@/infrastructure/supabase/MatchesSupabaseRepository'
-import { madridDateTimeToUtc } from '@/lib/madridTime'
+import { madridDateTimeToUtc, madridDateString } from '@/lib/madridTime'
+import { getConfig, setConfig } from '@/infrastructure/supabase/AppConfigRepository'
 
 const matchesRepo = new MatchesSupabaseRepository()
 
@@ -99,7 +100,15 @@ async function runMatchDay() {
   const t0 = Date.now()
   try {
     const match = await getTodayMatch()
+    // One reminder per day: a QStash retry (timeout, a failed log write) must
+    // not push the same reminder to every subscriber again.
+    const sentKey = `match_day_sent:${madridDateString(new Date())}`
+    if (match && (await getConfig(sentKey))) {
+      await logCron('match-day', 'success', Date.now() - t0, { skipped: 'already-sent' })
+      return { match: 'found', sent: 0, skipped: 'already-sent' as const }
+    }
     const sent = await sendMatchDayPush(match)
+    if (match && sent > 0) await setConfig(sentKey, new Date().toISOString())
     await logCron('match-day', 'success', Date.now() - t0, { match: match ? 'found' : 'none', sent })
     return { match: match ? 'found' : 'none', sent }
   } catch (err) {
